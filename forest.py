@@ -154,7 +154,7 @@ class Genealogy():
         self.prune_counter = 0
 
         # debug
-        self.do_debug = False
+        self.do_debug = True
 
         self.reset(model, randomstart)
         
@@ -1695,9 +1695,9 @@ if __name__ == "__main__":
 
     #test_all( pars=smcprime_pars, printGenealogy=True )
 
-    iters = 50
-    #seqlen = 150000
-    seqlen = int(16/0.0004)
+    iters = 1
+    seqlen = 150000
+    #seqlen = int(16/0.0004)
     #seqlen = 75000
     #seqlen = 80000
     #seqlen = 100000
@@ -1711,10 +1711,10 @@ if __name__ == "__main__":
         except:
             filename = sys.argv[2]
 
-    #mode = "print"
-    mode = "normal"
+    mode = "print"
+    #mode = "normal"
 
-    printmode = None     # None, "asciigraph", "ascii", "asciiall"
+    printmode = "asciiall"     # None, "asciigraph", "ascii", "asciiall"
     randomstart = True
     excursion_posns = range(0,75001,5000)
 
