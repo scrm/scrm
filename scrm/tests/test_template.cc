@@ -27,9 +27,10 @@ class MyTest : public CppUnit::TestCase {
 
 		void testException() {
 			CPPUNIT_ASSERT( 1 == 1 );
-			CPPUNIT_ASSERT_THROW(
-				throw std::exception(), std::exception );
+		//	CPPUNIT_ASSERT_THROW(
+		//		throw std::exception(), std::exception );
 		}
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MyTest );
+//Uncomment this to activate the test
+//CPPUNIT_TEST_SUITE_REGISTRATION( MyTest );

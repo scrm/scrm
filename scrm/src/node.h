@@ -4,8 +4,6 @@
 class Node
 {
   public:                       
-   //EineKlasse(int a=0);               // weiterer Konstruktor mit Parameter und Defaultwert
-   //EineKlasse(const EineKlasse& a);   // Copy-Konstruktor
    Node();                      
    ~Node();                     
                          
