@@ -20,10 +20,10 @@ test: unittest
 	./unittest
 
 unittest: $(TEST_OBJECTS)
-	  $(CC) $(LDFLAGS) $(TEST_OBJECTS) -o $@ `cppunit-config --libs`
+	  $(CC)  $(TEST_OBJECTS) -o $@ $(LDFLAGS) `cppunit-config --libs`
 
-%.o:  %.cc  
+%.o:  %.cc  %.h
 	  $(CC) $(CFLAGS) $< -o $@
 
-%.to:  %.cc  
+%.to:  %.cc 
 	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DUNITTEST $< -o $@
