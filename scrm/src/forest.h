@@ -2,8 +2,10 @@
 #define scrm_src_forest
 
 #include <vector>
+#include <iostream>
 #include "node.h"
 #include "model.h"
+#include "random.h"
 
 class Forest
 {
@@ -14,7 +16,7 @@ class Forest
 #endif
 
    Forest();
-   Forest(Model model);
+   Forest(Model model, RandomGenerator random_generator);
    ~Forest();
                          
    //Getters & Setters
@@ -35,8 +37,13 @@ class Forest
   private:
    std::vector<Node*> nodes_;
    Model model_;
+   RandomGenerator random_generator_;
 
    std::vector<Node*> nodes() { return this->nodes_; }
+
+   RandomGenerator* random_generator() { return &(this->random_generator_); }
+   void set_random_generator(RandomGenerator rg) {
+     this->random_generator_ = rg; }
 
    void createSampleNodes();
    void printNodes();

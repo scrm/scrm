@@ -5,6 +5,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "../src/forest.h"
 #include "../src/node.h"
+#include "../src/random.h"
 
 class TestForest : public CppUnit::TestCase {
 
@@ -35,7 +36,7 @@ class TestForest : public CppUnit::TestCase {
         }
 
         void testCreateSampleNodes() {
-            Forest forest = Forest(Model(10));
+            Forest forest = Forest(Model(10), RandomGenerator());
             forest.createSampleNodes();
 			CPPUNIT_ASSERT( forest.countNodes() == 10 );
         }

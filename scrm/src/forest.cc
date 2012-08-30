@@ -1,7 +1,4 @@
 #include "forest.h"
-#include "random.h"
-#include <vector>
-#include <iostream>
 
 using namespace std;
 
@@ -9,8 +6,9 @@ Forest::Forest() {
 
 };
 
-Forest::Forest(Model model) {
+Forest::Forest(Model model, RandomGenerator random_generator) {
   this->set_model(model);
+  this->set_random_generator(random_generator);
 }
 
 Forest::~Forest() { };
@@ -48,8 +46,7 @@ void Forest::printNodes() {
 void Forest::buildInitialTree() {
   this->createSampleNodes();
 
-  RandomGenerator rg = RandomGenerator();
-
+  RandomGenerator *rg = this->random_generator();
   cout << "Preparing coalescence" << endl;
   vector<Node*> uncoalesced_nodes = this->nodes();
   double time = 0;
@@ -57,8 +54,8 @@ void Forest::buildInitialTree() {
     int node1, node2;
     int n = uncoalesced_nodes.size();
     double rate = (1.0/(2*this->model().population_size()))*n*(n-1)/2.0;
-    time += rg.sampleExpo(rate);
-    rg.sampleTwoElements(uncoalesced_nodes.size(), &node1, &node2);
+    time += rg->sampleExpo(rate);
+    rg->sampleTwoElements(uncoalesced_nodes.size(), &node1, &node2);
     cout << "Coalescing Nodes " << node1 << " and " << node2 << endl;
 
     //Creating parent

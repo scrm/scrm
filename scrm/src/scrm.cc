@@ -2,12 +2,15 @@
 #include "forest.h"
 #include "model.h"
 #include "node.h"
+#include "random.h"
+
 using namespace std;
 
 #ifndef UNITTEST
 int main () {
     Model model = Model(5);
-    Forest forest = Forest(model);
+    RandomGenerator rg = RandomGenerator();
+    Forest forest = Forest(model, rg);
     forest.buildInitialTree();
     return 0;
 }
