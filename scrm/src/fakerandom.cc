@@ -1,37 +1,49 @@
-#include "random.h"
+#include "fakerandom.h"
 
-RandomGenerator::RandomGenerator() { 
-  this->set_seed(std::time(0));
+#include <sstream>
+
+FakeRandomGenerator::FakeRandomGenerator(){
+  this->set_seed(0);
+  this->initialize();
 }
 
-RandomGenerator::RandomGenerator(int seed){
+FakeRandomGenerator::FakeRandomGenerator(int seed){
   this->set_seed(seed);
+  this->initialize();
 }
 
-RandomGenerator::~RandomGenerator() { } ;
-                         
-double RandomGenerator::sample() {
-  return(unif(rng));
+FakeRandomGenerator::~FakeRandomGenerator(){
+  this->rnd_file()->close();
+  delete this->rnd_file();
 }
 
-// Uniformly samples a number out of 0, ..., range - 1
-int RandomGenerator::sampleInt(int range) {
-  return(static_cast<int>(this->sample()*range));
+double FakeRandomGenerator::sample() {
+  if (rnd_file()->good()) {
+    this->initialize();
+  }
+  
+  string sample;
+  getline(*this->rnd_file(), sample);
+
+  std::istringstream iss(sample); 
+  double d;
+  iss >> d;
+
+  return(d);
 }
 
-// Uniformly sets sample1/2 to two different elements of
-// 0, ..., size - 1
-void RandomGenerator::sampleTwoElements(int size, int *sample1, int *sample2) {
-  *sample1 = this->sampleInt(size - 2);
-  *sample2 = this->sampleInt(size - 1);
-  if (*sample1 == *sample2) *sample2 = size - 1;
-}
+void FakeRandomGenerator::initialize() {
+  ifstream* rnd_file = new ifstream("random.numbers");
 
-double RandomGenerator::sampleExpo(double lambda){
-  return -std::log(this->sample()) / lambda;
-}
+  if (!rnd_file->good()) {
+    cout << "Unable to open file 'random.numbers'" << endl;;
+    exit(1);
+  }
+  
+  for (int i=0; i <= this->seed(); i++) {
+    string sample;
+    getline(*rnd_file, sample);
+  }
 
-void RandomGenerator::set_seed(const int &seed){
-  this->rng.seed(static_cast<unsigned int>(seed));
-  this->seed_ = seed;
+  this->set_rnd_file(rnd_file);
 }

@@ -1,39 +1,27 @@
-#ifndef scrm_src_random
-#define scrm_src_random
+#ifndef scrm_src_fakerandom
+#define scrm_src_fakerandom
 
-#include <vector>
-#include <boost/random.hpp>
-#include <ctime> 
+#include <iostream>
+#include <fstream>
 
-class RandomGenerator
+#include "random.h"
+
+using namespace std;
+
+class FakeRandomGenerator : public RandomGenerator
 {
   public:
-   RandomGenerator();
-   RandomGenerator(int seed);
-   ~RandomGenerator();
-                         
-   //Getters & Setters
-   int seed() { return this->seed_; }
+   FakeRandomGenerator();
+   FakeRandomGenerator(int seed);
+   ~FakeRandomGenerator();
 
+   virtual double sample();
    void initialize();
-   int sampleInt(int max_value);
-
-   void sampleTwoElements(int size, int *sample1, int *sample2);
-   double sample();
-   double sampleExpo(double lambda);
-
-#ifdef UNITTEST
-    friend class TestRandomGenerator;
-#endif
-
+   
   private:
-   void set_seed(const int &seed);
-   int seed_;
-     
-   typedef boost::mt19937 rng_type;
-   boost::uniform_01<double> unif;
-   rng_type rng;
-
+    ifstream* rnd_file_;
+    void set_rnd_file(ifstream* rnd_file) { this->rnd_file_ = rnd_file; }
+    ifstream* rnd_file() { return this->rnd_file_; }
 };
 
 #endif

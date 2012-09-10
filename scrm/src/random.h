@@ -19,14 +19,14 @@ class RandomGenerator
    int sampleInt(int max_value);
 
    void sampleTwoElements(int size, int *sample1, int *sample2);
-   double sample();
+   virtual double sample();
    double sampleExpo(double lambda);
 
 #ifdef UNITTEST
     friend class TestRandomGenerator;
 #endif
 
-  private:
+  protected:
    void set_seed(const int &seed);
    int seed_;
      

@@ -25,5 +25,5 @@ unittest: $(TEST_OBJECTS)
 %.o:  %.cc  %.h
 	  $(CC) $(CFLAGS) $< -o $@
 
-%.to:  %.cc 
+%.to:  %.cc %.h
 	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DUNITTEST $< -o $@
