@@ -13,17 +13,20 @@ all: $(SOURCES) $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS) 
 	  $(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
-tmp:	
-	echo $(TEST_OBJECTS)
-
 test: unittest
 	./unittest
 
 unittest: $(TEST_OBJECTS)
 	  $(CC)  $(TEST_OBJECTS) -o $@ $(LDFLAGS) `cppunit-config --libs`
 
-%.o:  %.cc  %.h
+%.o:  %.cc
 	  $(CC) $(CFLAGS) $< -o $@
 
-%.to:  %.cc %.h
+%.to:  %.cc
 	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DUNITTEST $< -o $@
+
+%.cc: %.h
+	  touch $@
+
+clean: 
+	rm $(OBJECTS) $(TEST_OBJECTS)

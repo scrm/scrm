@@ -17,17 +17,17 @@ class TestModel : public CppUnit::TestCase {
         void testGettersAndSetters() {
             Model model = Model();
             
-            model.setSampleSize(5);
-			CPPUNIT_ASSERT( model.getSampleSize() == 5 );
+            model.set_sample_size(5);
+			CPPUNIT_ASSERT( model.sample_size() == 5 );
 
-            model.setPopulationSize(5000);
-			CPPUNIT_ASSERT( model.getPopulationSize() == 5000 );
+            model.set_population_size(5000);
+			CPPUNIT_ASSERT( model.population_size() == 5000 );
 
-            model.setMutationRate(10.7);
-			CPPUNIT_ASSERT( model.getMutationRate() == 10.7 );
+            model.set_mutation_rate(10.7);
+			CPPUNIT_ASSERT( model.mutation_rate() == 10.7 );
 
-            model.setRecombinationRate(20.1);
-			CPPUNIT_ASSERT( model.getRecombinationRate() == 20.1 );
+            model.set_recombination_rate(20.1);
+			CPPUNIT_ASSERT( model.recombination_rate() == 20.1 );
         }
 };
 
