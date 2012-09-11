@@ -18,7 +18,7 @@ FakeRandomGenerator::~FakeRandomGenerator(){
 }
 
 double FakeRandomGenerator::sample() {
-  if (rnd_file()->good()) {
+  if (!rnd_file()->good()) {
     this->initialize();
   }
   
@@ -40,7 +40,7 @@ void FakeRandomGenerator::initialize() {
     exit(1);
   }
   
-  for (int i=0; i <= this->seed(); i++) {
+  for (int i=0; i < this->seed(); i++) {
     string sample;
     getline(*rnd_file, sample);
   }

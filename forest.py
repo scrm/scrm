@@ -10,6 +10,7 @@ import array
 import sys
 
 max_float = 1e10
+fake_random = 1
 
 # for covariance: need to check if tmrca and pos are reported consistently for ms and own code
 
@@ -22,6 +23,28 @@ max_float = 1e10
 #
 # - recombheight not remembered
 #
+
+class FakeRandom(random.Random):
+  def __init__(self):
+    self.file = open("./scrm/random.numbers", "r")
+
+  def random(self):
+    return float(self.file.readline())
+
+  def seed(self, seed):
+    if seed == 0: return 0
+    for i in range(seed):
+      self.file.readline()
+
+  def sampleInt(self, number):
+    return int(self.random() * number)
+
+  def sample(self, population, size):
+    sample1 = self.sampleInt(len(population)-2)
+    sample2 = self.sampleInt(len(population)-1)
+    if sample1 == sample2: sample2 = size - 1
+    return [population[sample1], population[sample2]]
+
 
 ##########################################################################################
 #
@@ -1681,6 +1704,8 @@ def meanvar( intervals ):
 if __name__ == "__main__":
 
     samples = 4
+
+    if fake_random: random = FakeRandom()
 
     wiufhein_pars = {'wiufhein': True, 'samples':samples}
     full_pars = {'samples':samples}
