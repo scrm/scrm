@@ -30,6 +30,14 @@ class TestNode : public CppUnit::TestCase {
 			CPPUNIT_ASSERT( node2.higher_child()->height() == 1 );
             node2.set_lower_child(&node1);
 			CPPUNIT_ASSERT( node2.lower_child()->height() == 1 );
+
+            //active
+            node1.set_active(true);
+            node2.set_active(false);
+			CPPUNIT_ASSERT( node1.active() && !node2.active() );
+            node1.deactivate();
+            node2.activate();
+            CPPUNIT_ASSERT( (!node1.active()) && node2.active() );
 		}
 };
 

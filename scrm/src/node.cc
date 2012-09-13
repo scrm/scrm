@@ -1,19 +1,17 @@
 #include "node.h"
-#include <cstddef>
-using namespace std;
+   
+Node::Node() { init(); };
+Node::Node(int height) { init(height); };
+Node::Node(int height, bool active) { init(height, active); };
+Node::~Node() {};
 
-Node::Node() {
-  this->set_height(0);
-  this->set_parent(NULL);
-  this->set_lower_child(NULL);
-}
+void Node::init(int height, bool active, 
+             Node *parent, Node *higher_child, Node *lower_child) {
 
-Node::Node(int height) {
   this->set_height(height);
-  this->set_parent(NULL);
-  this->set_lower_child(NULL);
-}
-
-Node::~Node() {
+  this->set_active(active);
+  this->set_parent(parent);
+  this->set_higher_child(higher_child);
+  this->set_lower_child(lower_child);
 
 }

@@ -64,8 +64,14 @@ void Forest::buildInitialTree() {
     this->addNode(parent);
 
     //Implementing
-    uncoalesced_nodes[node1]->set_parent(parent);
-    uncoalesced_nodes[node2]->set_parent(parent);
+    Node* p_node1 = uncoalesced_nodes[node1];
+    Node* p_node2 = uncoalesced_nodes[node2];
+    p_node1->set_parent(parent);
+    p_node2->set_parent(parent);
+    parent->set_higher_child(p_node1);
+    parent->set_lower_child(p_node2);
+    this->inc_local_tree_length(2*time - p_node1->height() - p_node2->height());
+    this->inc_total_tree_length(2*time - p_node1->height() - p_node2->height());
 
     //Erase coalesced nodes
     uncoalesced_nodes.erase(uncoalesced_nodes.begin() + node1);
@@ -76,6 +82,7 @@ void Forest::buildInitialTree() {
   }
   cout << uncoalesced_nodes.size() << endl;
 }
+
 
 void Forest::createSampleNodes() {
   for (int i=0; i < this->sample_size(); i++) {
@@ -88,3 +95,10 @@ int Forest::countNodes(){
   return(nodes_.size());
 }
 
+void Forest::inc_local_tree_length(const int &by) {
+  local_tree_length_ = local_tree_length_ + by;
+}
+
+void Forest::inc_total_tree_length(const int &by) {
+  total_tree_length_ = total_tree_length_ + by;
+}
