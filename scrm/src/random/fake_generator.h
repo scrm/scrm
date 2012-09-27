@@ -1,10 +1,10 @@
-#ifndef scrm_src_fakerandom
-#define scrm_src_fakerandom
+#ifndef scrm_src_random_fake_generator
+#define scrm_src_random_fake_generator
 
 #include <iostream>
 #include <fstream>
 
-#include "random.h"
+#include "random_generator.h"
 
 using namespace std;
 
@@ -15,7 +15,7 @@ class FakeRandomGenerator : public RandomGenerator
    FakeRandomGenerator(int seed);
    ~FakeRandomGenerator();
 
-   virtual double sample();
+   double sample();
    void initialize();
    
   private:

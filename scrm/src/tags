@@ -1,0 +1,251 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::FakeRandomGenerator(){$/;"	f	class:FakeRandomGenerator	signature:()
+FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::FakeRandomGenerator(int seed){$/;"	f	class:FakeRandomGenerator	signature:(int seed)
+FakeRandomGenerator	fakerandom.h	/^   FakeRandomGenerator();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+FakeRandomGenerator	fakerandom.h	/^   FakeRandomGenerator(int seed);$/;"	p	class:FakeRandomGenerator	access:public	signature:(int seed)
+FakeRandomGenerator	fakerandom.h	/^class FakeRandomGenerator : public RandomGenerator$/;"	c	inherits:RandomGenerator
+FakeRandomGenerator::FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::FakeRandomGenerator(){$/;"	f	class:FakeRandomGenerator	signature:()
+FakeRandomGenerator::FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::FakeRandomGenerator(int seed){$/;"	f	class:FakeRandomGenerator	signature:(int seed)
+FakeRandomGenerator::FakeRandomGenerator	fakerandom.h	/^   FakeRandomGenerator();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+FakeRandomGenerator::FakeRandomGenerator	fakerandom.h	/^   FakeRandomGenerator(int seed);$/;"	p	class:FakeRandomGenerator	access:public	signature:(int seed)
+FakeRandomGenerator::initialize	fakerandom.cc	/^void FakeRandomGenerator::initialize() {$/;"	f	class:FakeRandomGenerator	signature:()
+FakeRandomGenerator::initialize	fakerandom.h	/^   void initialize();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+FakeRandomGenerator::rnd_file	fakerandom.h	/^    ifstream* rnd_file() { return this->rnd_file_; }$/;"	f	class:FakeRandomGenerator	access:private	signature:()
+FakeRandomGenerator::rnd_file_	fakerandom.h	/^    ifstream* rnd_file_;$/;"	m	class:FakeRandomGenerator	access:private
+FakeRandomGenerator::sample	fakerandom.cc	/^double FakeRandomGenerator::sample() {$/;"	f	class:FakeRandomGenerator	signature:()
+FakeRandomGenerator::sample	fakerandom.h	/^   virtual double sample();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+FakeRandomGenerator::set_rnd_file	fakerandom.h	/^    void set_rnd_file(ifstream* rnd_file) { this->rnd_file_ = rnd_file; }$/;"	f	class:FakeRandomGenerator	access:private	signature:(ifstream* rnd_file)
+FakeRandomGenerator::~FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::~FakeRandomGenerator(){$/;"	f	class:FakeRandomGenerator	signature:()
+FakeRandomGenerator::~FakeRandomGenerator	fakerandom.h	/^   ~FakeRandomGenerator();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+Forest	forest.cc	/^Forest::Forest() {$/;"	f	class:Forest	signature:()
+Forest	forest.cc	/^Forest::Forest(Model model, RandomGenerator random_generator) {$/;"	f	class:Forest	signature:(Model model, RandomGenerator random_generator)
+Forest	forest.h	/^   Forest();$/;"	p	class:Forest	access:public	signature:()
+Forest	forest.h	/^   Forest(Model model, RandomGenerator random_generator);$/;"	p	class:Forest	access:public	signature:(Model model, RandomGenerator random_generator)
+Forest	forest.h	/^class Forest$/;"	c
+Forest::Forest	forest.cc	/^Forest::Forest() {$/;"	f	class:Forest	signature:()
+Forest::Forest	forest.cc	/^Forest::Forest(Model model, RandomGenerator random_generator) {$/;"	f	class:Forest	signature:(Model model, RandomGenerator random_generator)
+Forest::Forest	forest.h	/^   Forest();$/;"	p	class:Forest	access:public	signature:()
+Forest::Forest	forest.h	/^   Forest(Model model, RandomGenerator random_generator);$/;"	p	class:Forest	access:public	signature:(Model model, RandomGenerator random_generator)
+Forest::addNode	forest.cc	/^void Forest::addNode(Node *node) {$/;"	f	class:Forest	signature:(Node *node)
+Forest::addNode	forest.h	/^   void addNode(Node *node);$/;"	p	class:Forest	access:public	signature:(Node *node)
+Forest::addNodeAfter	forest.cc	/^void Forest::addNodeAfter(const Node &node, const Node &after_node){$/;"	f	class:Forest	signature:(const Node &node, const Node &after_node)
+Forest::addNodeAfter	forest.h	/^   void addNodeAfter(const Node &node, const Node &after_node);$/;"	p	class:Forest	access:public	signature:(const Node &node, const Node &after_node)
+Forest::addNodeBefore	forest.cc	/^void Forest::addNodeBefore(const Node &node, const Node &before_node){$/;"	f	class:Forest	signature:(const Node &node, const Node &before_node)
+Forest::addNodeBefore	forest.h	/^   void addNodeBefore(const Node &node, const Node &before_node);$/;"	p	class:Forest	access:public	signature:(const Node &node, const Node &before_node)
+Forest::buildInitialTree	forest.cc	/^void Forest::buildInitialTree() {$/;"	f	class:Forest	signature:()
+Forest::buildInitialTree	forest.h	/^   void buildInitialTree();$/;"	p	class:Forest	access:public	signature:()
+Forest::countNodes	forest.cc	/^int Forest::countNodes(){$/;"	f	class:Forest	signature:()
+Forest::countNodes	forest.h	/^   int countNodes();$/;"	p	class:Forest	access:public	signature:()
+Forest::createSampleNodes	forest.cc	/^void Forest::createSampleNodes() {$/;"	f	class:Forest	signature:()
+Forest::createSampleNodes	forest.h	/^   void createSampleNodes();$/;"	p	class:Forest	access:private	signature:()
+Forest::dec_local_tree_length	forest.h	/^   void dec_local_tree_length(int by) { inc_local_tree_length(-1 * by); }$/;"	f	class:Forest	access:private	signature:(int by)
+Forest::dec_total_tree_length	forest.h	/^   void dec_total_tree_length(int by) { inc_total_tree_length(-1 * by); }$/;"	f	class:Forest	access:private	signature:(int by)
+Forest::inc_local_tree_length	forest.h	/^   void inc_local_tree_length(int by);$/;"	p	class:Forest	access:private	signature:(int by)
+Forest::inc_total_tree_length	forest.h	/^   void inc_total_tree_length(int by);$/;"	p	class:Forest	access:private	signature:(int by)
+Forest::local_tree_length	forest.h	/^   int local_tree_length() { return this->local_tree_length_; }$/;"	f	class:Forest	access:public	signature:()
+Forest::local_tree_length_	forest.h	/^   int local_tree_length_;$/;"	m	class:Forest	access:private
+Forest::model	forest.h	/^   Model model() { return this->model_; }$/;"	f	class:Forest	access:public	signature:()
+Forest::model_	forest.h	/^   Model model_;$/;"	m	class:Forest	access:private
+Forest::nodes	forest.h	/^   std::vector<Node*> nodes() { return this->nodes_; }$/;"	f	class:Forest	access:private	signature:()
+Forest::nodes_	forest.h	/^   std::vector<Node*> nodes_;$/;"	m	class:Forest	access:private
+Forest::printNodes	forest.cc	/^void Forest::printNodes() {$/;"	f	class:Forest	signature:()
+Forest::printNodes	forest.h	/^   void printNodes();$/;"	p	class:Forest	access:private	signature:()
+Forest::random_generator	forest.h	/^   RandomGenerator* random_generator() { return &(this->random_generator_); }$/;"	f	class:Forest	access:private	signature:()
+Forest::random_generator_	forest.h	/^   RandomGenerator random_generator_;$/;"	m	class:Forest	access:private
+Forest::sample_size	forest.h	/^   int sample_size() { return this->model().sample_size(); }$/;"	f	class:Forest	access:public	signature:()
+Forest::set_model	forest.h	/^   void set_model(const Model &model) { this->model_ = model; }$/;"	f	class:Forest	access:public	signature:(const Model &model)
+Forest::set_random_generator	forest.h	/^   void set_random_generator(RandomGenerator rg) {$/;"	f	class:Forest	access:private	signature:(RandomGenerator rg)
+Forest::total_tree_length	forest.h	/^   int total_tree_length() { return this->total_tree_length_; }$/;"	f	class:Forest	access:public	signature:()
+Forest::total_tree_length_	forest.h	/^   int total_tree_length_;$/;"	m	class:Forest	access:private
+Forest::~Forest	forest.cc	/^Forest::~Forest() { };$/;"	f	class:Forest	signature:()
+Forest::~Forest	forest.h	/^   ~Forest();$/;"	p	class:Forest	access:public	signature:()
+Model	model.cc	/^Model::Model() {$/;"	f	class:Model	signature:()
+Model	model.cc	/^Model::Model(int sample_size) {$/;"	f	class:Model	signature:(int sample_size)
+Model	model.h	/^   Model();$/;"	p	class:Model	access:public	signature:()
+Model	model.h	/^   Model(int sample_size);$/;"	p	class:Model	access:public	signature:(int sample_size)
+Model	model.h	/^class Model$/;"	c
+Model::Model	model.cc	/^Model::Model() {$/;"	f	class:Model	signature:()
+Model::Model	model.cc	/^Model::Model(int sample_size) {$/;"	f	class:Model	signature:(int sample_size)
+Model::Model	model.h	/^   Model();$/;"	p	class:Model	access:public	signature:()
+Model::Model	model.h	/^   Model(int sample_size);$/;"	p	class:Model	access:public	signature:(int sample_size)
+Model::mutation_rate	model.h	/^   double mutation_rate() { return this->mutation_rate_; }$/;"	f	class:Model	access:public	signature:()
+Model::mutation_rate_	model.h	/^   double mutation_rate_;$/;"	m	class:Model	access:private
+Model::population_size	model.h	/^   int population_size() { return this->population_size_; }$/;"	f	class:Model	access:public	signature:()
+Model::population_size_	model.h	/^   int population_size_;$/;"	m	class:Model	access:private
+Model::recombination_rate	model.h	/^   double recombination_rate() { return this->recombination_rate_; }$/;"	f	class:Model	access:public	signature:()
+Model::recombination_rate_	model.h	/^   double recombination_rate_;$/;"	m	class:Model	access:private
+Model::sample_size	model.h	/^   int sample_size() { return this->sample_size_; }$/;"	f	class:Model	access:public	signature:()
+Model::sample_size_	model.h	/^   int sample_size_;$/;"	m	class:Model	access:private
+Model::set_mutation_rate	model.h	/^   void set_mutation_rate(const double &mutation_rate) { $/;"	f	class:Model	access:public	signature:(const double &mutation_rate)
+Model::set_population_size	model.h	/^   void set_population_size(const int &population_size) { $/;"	f	class:Model	access:public	signature:(const int &population_size)
+Model::set_recombination_rate	model.h	/^   void set_recombination_rate(const double &recombination_rate) {$/;"	f	class:Model	access:public	signature:(const double &recombination_rate)
+Model::set_sample_size	model.h	/^   void set_sample_size(const int &sample_size) { this->sample_size_ = sample_size; }$/;"	f	class:Model	access:public	signature:(const int &sample_size)
+Model::~Model	model.cc	/^Model::~Model() { };$/;"	f	class:Model	signature:()
+Model::~Model	model.h	/^   ~Model();$/;"	p	class:Model	access:public	signature:()
+Node	node.cc	/^Node::Node() { init(); };$/;"	f	class:Node	signature:()
+Node	node.cc	/^Node::Node(int height) { init(height); };$/;"	f	class:Node	signature:(int height)
+Node	node.cc	/^Node::Node(int height, bool active) { init(height, active); };$/;"	f	class:Node	signature:(int height, bool active)
+Node	node.h	/^   Node();$/;"	p	class:Node	access:public	signature:()
+Node	node.h	/^   Node(int height);$/;"	p	class:Node	access:public	signature:(int height)
+Node	node.h	/^   Node(int height, bool active);$/;"	p	class:Node	access:public	signature:(int height, bool active)
+Node	node.h	/^class Node$/;"	c
+Node::Node	node.cc	/^Node::Node() { init(); };$/;"	f	class:Node	signature:()
+Node::Node	node.cc	/^Node::Node(int height) { init(height); };$/;"	f	class:Node	signature:(int height)
+Node::Node	node.cc	/^Node::Node(int height, bool active) { init(height, active); };$/;"	f	class:Node	signature:(int height, bool active)
+Node::Node	node.h	/^   Node();$/;"	p	class:Node	access:public	signature:()
+Node::Node	node.h	/^   Node(int height);$/;"	p	class:Node	access:public	signature:(int height)
+Node::Node	node.h	/^   Node(int height, bool active);$/;"	p	class:Node	access:public	signature:(int height, bool active)
+Node::activate	node.h	/^   void activate() { this->set_active(true); }$/;"	f	class:Node	access:public	signature:()
+Node::active	node.h	/^   int active() { return this->active_; }$/;"	f	class:Node	access:public	signature:()
+Node::active_	node.h	/^   bool active_;$/;"	m	class:Node	access:private
+Node::deactivate	node.h	/^   void deactivate() { this->set_active(false); }$/;"	f	class:Node	access:public	signature:()
+Node::height	node.h	/^   int height() { return this->height_; }$/;"	f	class:Node	access:public	signature:()
+Node::height_	node.h	/^   int height_;$/;"	m	class:Node	access:private
+Node::higher_child	node.h	/^   Node *higher_child() { return this->higher_child_; }$/;"	f	class:Node	access:public	signature:()
+Node::higher_child_	node.h	/^   Node *higher_child_;$/;"	m	class:Node	access:private
+Node::init	node.cc	/^void Node::init(int height, bool active, $/;"	f	class:Node	signature:(int height, bool active, Node *parent, Node *higher_child, Node *lower_child)
+Node::init	node.h	/^   void init(int heigh=-1, $/;"	p	class:Node	access:private	signature:(int heigh=-1, bool active=false, Node* parent=NULL, Node* higher_child=NULL, Node* lower_child=NULL)
+Node::lower_child	node.h	/^   Node *lower_child() { return this->lower_child_; }$/;"	f	class:Node	access:public	signature:()
+Node::lower_child_	node.h	/^   Node *lower_child_;$/;"	m	class:Node	access:private
+Node::parent	node.h	/^   Node *parent() { return this->parent_; }$/;"	f	class:Node	access:public	signature:()
+Node::parent_	node.h	/^   Node *parent_;$/;"	m	class:Node	access:private
+Node::set_active	node.h	/^   void set_active(bool active) { this->active_ = active; }$/;"	f	class:Node	access:public	signature:(bool active)
+Node::set_height	node.h	/^   void set_height(int height) { this->height_ = height; }$/;"	f	class:Node	access:public	signature:(int height)
+Node::set_higher_child	node.h	/^   void set_higher_child(Node *higher_child) { this->higher_child_ = higher_child; }$/;"	f	class:Node	access:public	signature:(Node *higher_child)
+Node::set_lower_child	node.h	/^   void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }$/;"	f	class:Node	access:public	signature:(Node *lower_child)
+Node::set_parent	node.h	/^   void set_parent(Node *parent) { this->parent_ = parent; }$/;"	f	class:Node	access:public	signature:(Node *parent)
+Node::~Node	node.cc	/^Node::~Node() {};$/;"	f	class:Node	signature:()
+Node::~Node	node.h	/^   ~Node();$/;"	p	class:Node	access:public	signature:()
+RandomGenerator	random.cc	/^RandomGenerator::RandomGenerator() { $/;"	f	class:RandomGenerator	signature:()
+RandomGenerator	random.cc	/^RandomGenerator::RandomGenerator(int seed){$/;"	f	class:RandomGenerator	signature:(int seed)
+RandomGenerator	random.h	/^   RandomGenerator();$/;"	p	class:RandomGenerator	access:public	signature:()
+RandomGenerator	random.h	/^   RandomGenerator(int seed);$/;"	p	class:RandomGenerator	access:public	signature:(int seed)
+RandomGenerator	random.h	/^class RandomGenerator$/;"	c
+RandomGenerator::RandomGenerator	random.cc	/^RandomGenerator::RandomGenerator() { $/;"	f	class:RandomGenerator	signature:()
+RandomGenerator::RandomGenerator	random.cc	/^RandomGenerator::RandomGenerator(int seed){$/;"	f	class:RandomGenerator	signature:(int seed)
+RandomGenerator::RandomGenerator	random.h	/^   RandomGenerator();$/;"	p	class:RandomGenerator	access:public	signature:()
+RandomGenerator::RandomGenerator	random.h	/^   RandomGenerator(int seed);$/;"	p	class:RandomGenerator	access:public	signature:(int seed)
+RandomGenerator::initialize	random.h	/^   void initialize();$/;"	p	class:RandomGenerator	access:public	signature:()
+RandomGenerator::rng	random.h	/^   rng_type rng;$/;"	m	class:RandomGenerator	access:protected
+RandomGenerator::rng_type	random.h	/^   typedef boost::mt19937 rng_type;$/;"	t	class:RandomGenerator	access:protected
+RandomGenerator::sample	random.cc	/^double RandomGenerator::sample() {$/;"	f	class:RandomGenerator	signature:()
+RandomGenerator::sample	random.h	/^   virtual double sample();$/;"	p	class:RandomGenerator	access:public	signature:()
+RandomGenerator::sampleExpo	random.cc	/^double RandomGenerator::sampleExpo(double lambda){$/;"	f	class:RandomGenerator	signature:(double lambda)
+RandomGenerator::sampleExpo	random.h	/^   double sampleExpo(double lambda);$/;"	p	class:RandomGenerator	access:public	signature:(double lambda)
+RandomGenerator::sampleInt	random.cc	/^int RandomGenerator::sampleInt(int range) {$/;"	f	class:RandomGenerator	signature:(int range)
+RandomGenerator::sampleInt	random.h	/^   int sampleInt(int max_value);$/;"	p	class:RandomGenerator	access:public	signature:(int max_value)
+RandomGenerator::sampleTwoElements	random.cc	/^void RandomGenerator::sampleTwoElements(int size, int *sample1, int *sample2) {$/;"	f	class:RandomGenerator	signature:(int size, int *sample1, int *sample2)
+RandomGenerator::sampleTwoElements	random.h	/^   void sampleTwoElements(int size, int *sample1, int *sample2);$/;"	p	class:RandomGenerator	access:public	signature:(int size, int *sample1, int *sample2)
+RandomGenerator::seed	random.h	/^   int seed() { return this->seed_; }$/;"	f	class:RandomGenerator	access:public	signature:()
+RandomGenerator::seed_	random.h	/^   int seed_;$/;"	m	class:RandomGenerator	access:protected
+RandomGenerator::set_seed	random.cc	/^void RandomGenerator::set_seed(const int &seed){$/;"	f	class:RandomGenerator	signature:(const int &seed)
+RandomGenerator::set_seed	random.h	/^   void set_seed(const int &seed);$/;"	p	class:RandomGenerator	access:protected	signature:(const int &seed)
+RandomGenerator::unif	random.h	/^   boost::uniform_01<double> unif;$/;"	m	class:RandomGenerator	access:protected
+RandomGenerator::~RandomGenerator	random.cc	/^RandomGenerator::~RandomGenerator() { } ;$/;"	f	class:RandomGenerator	signature:()
+RandomGenerator::~RandomGenerator	random.h	/^   ~RandomGenerator();$/;"	p	class:RandomGenerator	access:public	signature:()
+activate	node.h	/^   void activate() { this->set_active(true); }$/;"	f	class:Node	access:public	signature:()
+active	node.h	/^   int active() { return this->active_; }$/;"	f	class:Node	access:public	signature:()
+active_	node.h	/^   bool active_;$/;"	m	class:Node	access:private
+addNode	forest.cc	/^void Forest::addNode(Node *node) {$/;"	f	class:Forest	signature:(Node *node)
+addNode	forest.h	/^   void addNode(Node *node);$/;"	p	class:Forest	access:public	signature:(Node *node)
+addNodeAfter	forest.cc	/^void Forest::addNodeAfter(const Node &node, const Node &after_node){$/;"	f	class:Forest	signature:(const Node &node, const Node &after_node)
+addNodeAfter	forest.h	/^   void addNodeAfter(const Node &node, const Node &after_node);$/;"	p	class:Forest	access:public	signature:(const Node &node, const Node &after_node)
+addNodeBefore	forest.cc	/^void Forest::addNodeBefore(const Node &node, const Node &before_node){$/;"	f	class:Forest	signature:(const Node &node, const Node &before_node)
+addNodeBefore	forest.h	/^   void addNodeBefore(const Node &node, const Node &before_node);$/;"	p	class:Forest	access:public	signature:(const Node &node, const Node &before_node)
+buildInitialTree	forest.cc	/^void Forest::buildInitialTree() {$/;"	f	class:Forest	signature:()
+buildInitialTree	forest.h	/^   void buildInitialTree();$/;"	p	class:Forest	access:public	signature:()
+countNodes	forest.cc	/^int Forest::countNodes(){$/;"	f	class:Forest	signature:()
+countNodes	forest.h	/^   int countNodes();$/;"	p	class:Forest	access:public	signature:()
+createSampleNodes	forest.cc	/^void Forest::createSampleNodes() {$/;"	f	class:Forest	signature:()
+createSampleNodes	forest.h	/^   void createSampleNodes();$/;"	p	class:Forest	access:private	signature:()
+deactivate	node.h	/^   void deactivate() { this->set_active(false); }$/;"	f	class:Node	access:public	signature:()
+dec_local_tree_length	forest.h	/^   void dec_local_tree_length(int by) { inc_local_tree_length(-1 * by); }$/;"	f	class:Forest	access:private	signature:(int by)
+dec_total_tree_length	forest.h	/^   void dec_total_tree_length(int by) { inc_total_tree_length(-1 * by); }$/;"	f	class:Forest	access:private	signature:(int by)
+height	node.h	/^   int height() { return this->height_; }$/;"	f	class:Node	access:public	signature:()
+height_	node.h	/^   int height_;$/;"	m	class:Node	access:private
+higher_child	node.h	/^   Node *higher_child() { return this->higher_child_; }$/;"	f	class:Node	access:public	signature:()
+higher_child_	node.h	/^   Node *higher_child_;$/;"	m	class:Node	access:private
+inc_local_tree_length	forest.h	/^   void inc_local_tree_length(int by);$/;"	p	class:Forest	access:private	signature:(int by)
+inc_total_tree_length	forest.h	/^   void inc_total_tree_length(int by);$/;"	p	class:Forest	access:private	signature:(int by)
+init	node.cc	/^void Node::init(int height, bool active, $/;"	f	class:Node	signature:(int height, bool active, Node *parent, Node *higher_child, Node *lower_child)
+init	node.h	/^   void init(int heigh=-1, $/;"	p	class:Node	access:private	signature:(int heigh=-1, bool active=false, Node* parent=NULL, Node* higher_child=NULL, Node* lower_child=NULL)
+initialize	fakerandom.cc	/^void FakeRandomGenerator::initialize() {$/;"	f	class:FakeRandomGenerator	signature:()
+initialize	fakerandom.h	/^   void initialize();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+initialize	random.h	/^   void initialize();$/;"	p	class:RandomGenerator	access:public	signature:()
+local_tree_length	forest.h	/^   int local_tree_length() { return this->local_tree_length_; }$/;"	f	class:Forest	access:public	signature:()
+local_tree_length_	forest.h	/^   int local_tree_length_;$/;"	m	class:Forest	access:private
+lower_child	node.h	/^   Node *lower_child() { return this->lower_child_; }$/;"	f	class:Node	access:public	signature:()
+lower_child_	node.h	/^   Node *lower_child_;$/;"	m	class:Node	access:private
+main	scrm.cc	/^int main () {$/;"	f	signature:()
+model	forest.h	/^   Model model() { return this->model_; }$/;"	f	class:Forest	access:public	signature:()
+model_	forest.h	/^   Model model_;$/;"	m	class:Forest	access:private
+mutation_rate	model.h	/^   double mutation_rate() { return this->mutation_rate_; }$/;"	f	class:Model	access:public	signature:()
+mutation_rate_	model.h	/^   double mutation_rate_;$/;"	m	class:Model	access:private
+nodes	forest.h	/^   std::vector<Node*> nodes() { return this->nodes_; }$/;"	f	class:Forest	access:private	signature:()
+nodes_	forest.h	/^   std::vector<Node*> nodes_;$/;"	m	class:Forest	access:private
+parent	node.h	/^   Node *parent() { return this->parent_; }$/;"	f	class:Node	access:public	signature:()
+parent_	node.h	/^   Node *parent_;$/;"	m	class:Node	access:private
+population_size	model.h	/^   int population_size() { return this->population_size_; }$/;"	f	class:Model	access:public	signature:()
+population_size_	model.h	/^   int population_size_;$/;"	m	class:Model	access:private
+printNodes	forest.cc	/^void Forest::printNodes() {$/;"	f	class:Forest	signature:()
+printNodes	forest.h	/^   void printNodes();$/;"	p	class:Forest	access:private	signature:()
+random_generator	forest.h	/^   RandomGenerator* random_generator() { return &(this->random_generator_); }$/;"	f	class:Forest	access:private	signature:()
+random_generator_	forest.h	/^   RandomGenerator random_generator_;$/;"	m	class:Forest	access:private
+recombination_rate	model.h	/^   double recombination_rate() { return this->recombination_rate_; }$/;"	f	class:Model	access:public	signature:()
+recombination_rate_	model.h	/^   double recombination_rate_;$/;"	m	class:Model	access:private
+rnd_file	fakerandom.h	/^    ifstream* rnd_file() { return this->rnd_file_; }$/;"	f	class:FakeRandomGenerator	access:private	signature:()
+rnd_file_	fakerandom.h	/^    ifstream* rnd_file_;$/;"	m	class:FakeRandomGenerator	access:private
+rng	random.h	/^   rng_type rng;$/;"	m	class:RandomGenerator	access:protected
+rng_type	random.h	/^   typedef boost::mt19937 rng_type;$/;"	t	class:RandomGenerator	access:protected
+sample	fakerandom.cc	/^double FakeRandomGenerator::sample() {$/;"	f	class:FakeRandomGenerator	signature:()
+sample	fakerandom.h	/^   virtual double sample();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+sample	random.cc	/^double RandomGenerator::sample() {$/;"	f	class:RandomGenerator	signature:()
+sample	random.h	/^   virtual double sample();$/;"	p	class:RandomGenerator	access:public	signature:()
+sampleExpo	random.cc	/^double RandomGenerator::sampleExpo(double lambda){$/;"	f	class:RandomGenerator	signature:(double lambda)
+sampleExpo	random.h	/^   double sampleExpo(double lambda);$/;"	p	class:RandomGenerator	access:public	signature:(double lambda)
+sampleInt	random.cc	/^int RandomGenerator::sampleInt(int range) {$/;"	f	class:RandomGenerator	signature:(int range)
+sampleInt	random.h	/^   int sampleInt(int max_value);$/;"	p	class:RandomGenerator	access:public	signature:(int max_value)
+sampleTwoElements	random.cc	/^void RandomGenerator::sampleTwoElements(int size, int *sample1, int *sample2) {$/;"	f	class:RandomGenerator	signature:(int size, int *sample1, int *sample2)
+sampleTwoElements	random.h	/^   void sampleTwoElements(int size, int *sample1, int *sample2);$/;"	p	class:RandomGenerator	access:public	signature:(int size, int *sample1, int *sample2)
+sample_size	forest.h	/^   int sample_size() { return this->model().sample_size(); }$/;"	f	class:Forest	access:public	signature:()
+sample_size	model.h	/^   int sample_size() { return this->sample_size_; }$/;"	f	class:Model	access:public	signature:()
+sample_size_	model.h	/^   int sample_size_;$/;"	m	class:Model	access:private
+scrm_node	node.h	2;"	d
+scrm_src_fakerandom	fakerandom.h	2;"	d
+scrm_src_forest	forest.h	2;"	d
+scrm_src_model	model.h	2;"	d
+scrm_src_random	random.h	2;"	d
+seed	random.h	/^   int seed() { return this->seed_; }$/;"	f	class:RandomGenerator	access:public	signature:()
+seed_	random.h	/^   int seed_;$/;"	m	class:RandomGenerator	access:protected
+set_active	node.h	/^   void set_active(bool active) { this->active_ = active; }$/;"	f	class:Node	access:public	signature:(bool active)
+set_height	node.h	/^   void set_height(int height) { this->height_ = height; }$/;"	f	class:Node	access:public	signature:(int height)
+set_higher_child	node.h	/^   void set_higher_child(Node *higher_child) { this->higher_child_ = higher_child; }$/;"	f	class:Node	access:public	signature:(Node *higher_child)
+set_lower_child	node.h	/^   void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }$/;"	f	class:Node	access:public	signature:(Node *lower_child)
+set_model	forest.h	/^   void set_model(const Model &model) { this->model_ = model; }$/;"	f	class:Forest	access:public	signature:(const Model &model)
+set_mutation_rate	model.h	/^   void set_mutation_rate(const double &mutation_rate) { $/;"	f	class:Model	access:public	signature:(const double &mutation_rate)
+set_parent	node.h	/^   void set_parent(Node *parent) { this->parent_ = parent; }$/;"	f	class:Node	access:public	signature:(Node *parent)
+set_population_size	model.h	/^   void set_population_size(const int &population_size) { $/;"	f	class:Model	access:public	signature:(const int &population_size)
+set_random_generator	forest.h	/^   void set_random_generator(RandomGenerator rg) {$/;"	f	class:Forest	access:private	signature:(RandomGenerator rg)
+set_recombination_rate	model.h	/^   void set_recombination_rate(const double &recombination_rate) {$/;"	f	class:Model	access:public	signature:(const double &recombination_rate)
+set_rnd_file	fakerandom.h	/^    void set_rnd_file(ifstream* rnd_file) { this->rnd_file_ = rnd_file; }$/;"	f	class:FakeRandomGenerator	access:private	signature:(ifstream* rnd_file)
+set_sample_size	model.h	/^   void set_sample_size(const int &sample_size) { this->sample_size_ = sample_size; }$/;"	f	class:Model	access:public	signature:(const int &sample_size)
+set_seed	random.cc	/^void RandomGenerator::set_seed(const int &seed){$/;"	f	class:RandomGenerator	signature:(const int &seed)
+set_seed	random.h	/^   void set_seed(const int &seed);$/;"	p	class:RandomGenerator	access:protected	signature:(const int &seed)
+total_tree_length	forest.h	/^   int total_tree_length() { return this->total_tree_length_; }$/;"	f	class:Forest	access:public	signature:()
+total_tree_length_	forest.h	/^   int total_tree_length_;$/;"	m	class:Forest	access:private
+unif	random.h	/^   boost::uniform_01<double> unif;$/;"	m	class:RandomGenerator	access:protected
+~FakeRandomGenerator	fakerandom.cc	/^FakeRandomGenerator::~FakeRandomGenerator(){$/;"	f	class:FakeRandomGenerator	signature:()
+~FakeRandomGenerator	fakerandom.h	/^   ~FakeRandomGenerator();$/;"	p	class:FakeRandomGenerator	access:public	signature:()
+~Forest	forest.cc	/^Forest::~Forest() { };$/;"	f	class:Forest	signature:()
+~Forest	forest.h	/^   ~Forest();$/;"	p	class:Forest	access:public	signature:()
+~Model	model.cc	/^Model::~Model() { };$/;"	f	class:Model	signature:()
+~Model	model.h	/^   ~Model();$/;"	p	class:Model	access:public	signature:()
+~Node	node.cc	/^Node::~Node() {};$/;"	f	class:Node	signature:()
+~Node	node.h	/^   ~Node();$/;"	p	class:Node	access:public	signature:()
+~RandomGenerator	random.cc	/^RandomGenerator::~RandomGenerator() { } ;$/;"	f	class:RandomGenerator	signature:()
+~RandomGenerator	random.h	/^   ~RandomGenerator();$/;"	p	class:RandomGenerator	access:public	signature:()

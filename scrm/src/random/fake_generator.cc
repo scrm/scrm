@@ -1,4 +1,4 @@
-#include "fakerandom.h"
+#include "fake_generator.h"
 
 #include <sstream>
 
@@ -37,7 +37,7 @@ void FakeRandomGenerator::initialize() {
 
   if (!rnd_file->good()) {
     cout << "Unable to open file 'random.numbers'" << endl;;
-    exit(1);
+    //exit(1);
   }
   
   for (int i=0; i < this->seed(); i++) {

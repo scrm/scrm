@@ -6,7 +6,7 @@ Forest::Forest() {
 
 };
 
-Forest::Forest(Model model, RandomGenerator random_generator) {
+Forest::Forest(Model model, RandomGenerator *random_generator) {
   this->set_model(model);
   this->set_random_generator(random_generator);
 }
@@ -25,14 +25,46 @@ void Forest::addNodeBefore(const Node &node, const Node &before_node){
 
 }
 
-//vector<Node*> Forest::nodes() {
-//  vector<Node*> nodes;
-//  nodes.reserve(this->nodes_.size());
-//  for(vector<Node>::iterator it = this->nodes_.begin(); it != this->nodes_.end(); ++it) {
-//        nodes.push_back(&(*it));
-//  }
-//  return(nodes);
-//}
+void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child) {
+  this->addNode(node);
+  
+  if (parent != NULL) {
+    node->set_parent(parent);
+    if (parent->lower_child() == NULL) parent->set_lower_child(node);
+    else {
+      if (parent->lower_child()->height() > node->height()) {
+        parent->set_higher_child(parent->lower_child());
+        parent->set_lower_child(node);
+      } else {
+        parent->set_higher_child(node);
+      }
+    }
+    double height_above = parent->height() - node->height();
+    node->set_height_above(height_above);
+    this->inc_local_tree_length(height_above);
+    this->inc_total_tree_length(height_above);
+  }
+
+  if (lower_child != NULL) {
+    node->set_lower_child(lower_child);
+    lower_child->set_parent(node);
+    
+    double height_above = node->height() - lower_child->height();
+    lower_child->set_height_above(height_above);
+    this->inc_local_tree_length(height_above);
+    this->inc_total_tree_length(height_above);
+  }
+
+  if (higher_child != NULL) {
+    node->set_higher_child(higher_child);
+    higher_child->set_parent(node);
+
+    double height_above = node->height() - higher_child->height();
+    higher_child->set_height_above(height_above);
+    this->inc_local_tree_length(height_above);
+    this->inc_total_tree_length(height_above);
+  }
+}
 
 void Forest::printNodes() {
   for(int i = 0; i < this->countNodes(); ++i) {
@@ -42,6 +74,9 @@ void Forest::printNodes() {
   }
 }
 
+Node* Forest::getFirstNode() {
+  return(this->nodes_[0]);
+}
 
 void Forest::buildInitialTree() {
   this->createSampleNodes();
@@ -58,20 +93,10 @@ void Forest::buildInitialTree() {
     rg->sampleTwoElements(uncoalesced_nodes.size(), &node1, &node2);
     cout << "Coalescing Nodes " << node1 << " and " << node2 << endl;
 
-    //Creating parent
+    //Creating parent and add it to the tree
     Node* parent = new Node(time);
     uncoalesced_nodes.push_back(parent);
-    this->addNode(parent);
-
-    //Implementing
-    Node* p_node1 = uncoalesced_nodes[node1];
-    Node* p_node2 = uncoalesced_nodes[node2];
-    p_node1->set_parent(parent);
-    p_node2->set_parent(parent);
-    parent->set_higher_child(p_node1);
-    parent->set_lower_child(p_node2);
-    this->inc_local_tree_length(2*time - p_node1->height() - p_node2->height());
-    this->inc_total_tree_length(2*time - p_node1->height() - p_node2->height());
+    this->addNodeToTree(parent, NULL, uncoalesced_nodes[node1], uncoalesced_nodes[node2]);
 
     //Erase coalesced nodes
     uncoalesced_nodes.erase(uncoalesced_nodes.begin() + node1);
@@ -80,7 +105,6 @@ void Forest::buildInitialTree() {
 
     this->printNodes();
   }
-  cout << uncoalesced_nodes.size() << endl;
 }
 
 
@@ -95,10 +119,34 @@ int Forest::countNodes(){
   return(nodes_.size());
 }
 
-void Forest::inc_local_tree_length(const int &by) {
+void Forest::inc_local_tree_length(const double &by) {
   local_tree_length_ = local_tree_length_ + by;
 }
 
-void Forest::inc_total_tree_length(const int &by) {
+void Forest::inc_total_tree_length(const double &by) {
   total_tree_length_ = total_tree_length_ + by;
+}
+
+
+void Forest::samplePoint(bool only_local = true, Node** above_node=NULL, double* height_above=NULL) {
+  //O(#Nodes) implementation
+  double length = 0;
+
+  if (only_local) length = this->local_tree_length();
+  else            length = this->total_tree_length();
+
+  double point = this->random_generator()->sample() * length;
+  cout << "Sampled at height " << point << endl;
+  
+  for (vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
+        cout << (*it)->height_above() << endl;
+        if ((*it)->height_above() > point) {
+          cout << "HERE" << endl;
+          above_node = &(*it);
+          *height_above = point;
+          break;
+        }
+        point -= (*it)->height_above();
+        cout << "LEFT: " << point << endl;
+  }
 }

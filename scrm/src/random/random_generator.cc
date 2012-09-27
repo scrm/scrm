@@ -1,18 +1,4 @@
-#include "random.h"
-
-RandomGenerator::RandomGenerator() { 
-  this->set_seed(std::time(0));
-}
-
-RandomGenerator::RandomGenerator(int seed){
-  this->set_seed(seed);
-}
-
-RandomGenerator::~RandomGenerator() { } ;
-                         
-double RandomGenerator::sample() {
-  return(unif(rng));
-}
+#include "random_generator.h"
 
 // Uniformly samples a number out of 0, ..., range - 1
 int RandomGenerator::sampleInt(int range) {
@@ -32,6 +18,6 @@ double RandomGenerator::sampleExpo(double lambda){
 }
 
 void RandomGenerator::set_seed(const int &seed){
-  this->rng.seed(static_cast<unsigned int>(seed));
+  //this->rng.seed(static_cast<unsigned int>(seed));
   this->seed_ = seed;
 }
