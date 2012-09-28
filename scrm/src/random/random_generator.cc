@@ -18,6 +18,5 @@ double RandomGenerator::sampleExpo(double lambda){
 }
 
 void RandomGenerator::set_seed(const int &seed){
-  //this->rng.seed(static_cast<unsigned int>(seed));
   this->seed_ = seed;
 }

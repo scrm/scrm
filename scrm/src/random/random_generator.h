@@ -11,11 +11,11 @@ class RandomGenerator
  
    //Getters & Setters
    int seed() { return this->seed_; }
-   void set_seed(const int &seed);
 
    //Virtual methods
    virtual void initialize() =0;
    virtual double sample() =0;
+   virtual void set_seed(const int &seed);
 
    //Base class methods
    int sampleInt(int max_value);

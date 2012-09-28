@@ -13,3 +13,8 @@ MersenneTwister::~MersenneTwister() { } ;
 double MersenneTwister::sample() {
   return(unif(rng));
 }
+
+void MersenneTwister::set_seed(const int &seed) {
+  this->seed_ = seed;
+  this->rng.seed(static_cast<unsigned int>(seed));
+}

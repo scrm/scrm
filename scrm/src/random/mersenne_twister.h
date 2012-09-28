@@ -16,6 +16,7 @@ class MersenneTwister : public RandomGenerator
                          
    void initialize() {};
    double sample();
+   void set_seed(const int &seed);
 
   protected:
    typedef boost::mt19937 rng_type;
