@@ -3,12 +3,19 @@
 using namespace std;
 
 Forest::Forest() {
-
+  this->set_model(NULL);
+  this->set_random_generator(NULL);
+  this->set_ultimate_root(NULL);
+  this->set_local_tree_length(-1);
+  this->set_total_tree_length(-1);
 };
 
 Forest::Forest(Model model, RandomGenerator *random_generator) {
   this->set_model(model);
   this->set_random_generator(random_generator);
+  this->set_ultimate_root(NULL);
+  this->set_local_tree_length(0);
+  this->set_total_tree_length(0);
 }
 
 Forest::~Forest() { };
@@ -105,6 +112,7 @@ void Forest::buildInitialTree() {
 
     this->printNodes();
   }
+  this->set_ultimate_root(uncoalesced_nodes[0]);
 }
 
 
@@ -135,18 +143,61 @@ void Forest::samplePoint(bool only_local = true, Node** above_node=NULL, double*
   if (only_local) length = this->local_tree_length();
   else            length = this->total_tree_length();
 
+  cout << "Length: " << length << endl;
   double point = this->random_generator()->sample() * length;
-  cout << "Sampled at height " << point << endl;
+  cout << point << endl;
   
   for (vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
-        cout << (*it)->height_above() << endl;
         if ((*it)->height_above() > point) {
-          cout << "HERE" << endl;
-          above_node = &(*it);
+          *above_node = *it;
           *height_above = point;
+          cout << point << endl;
           break;
         }
         point -= (*it)->height_above();
-        cout << "LEFT: " << point << endl;
+        cout << point << endl;
   }
+}
+
+void Forest::checkTree(Node *root) {
+  if (root == NULL) root = this->ultimate_root();
+  
+  cout << "Checking Node: " << root << endl;
+  Node* h_child = root->higher_child();
+  Node* l_child = root->lower_child();
+  
+  if (h_child != NULL && l_child != NULL) {
+    if (h_child->height() < l_child->height()) 
+      cout << "Error in Node: " << root << "Childs in wrong order" << endl;
+  }
+  else if (! (h_child == NULL && l_child == NULL)) 
+      cout << "Error in Node: " << root << "Has only one child" << endl;
+      
+  if (h_child != NULL) {
+    if (h_child->parent() != root)
+      cout << "Error in Node: " << root << "Child has other parent" << endl;
+    checkTree(h_child);
+  }
+
+  if (l_child != NULL) {
+    if (l_child->parent() != root)
+      cout << "Error in Node: " << root << "Child has other parent" << endl;
+    checkTree(l_child);
+  }
+}
+
+void Forest::sampleNextGenealogy() {
+  // Samples a new genealogy, conditional on a recombination occuring
+
+  // Sample the recombination point
+  Node* idx = NULL;
+  double height_above = 0;
+  this->samplePoint(false, &idx, &height_above);
+  cout << "Recombination at " << height_above << " above " << idx << endl;
+  double total_height = height_above + idx->height();
+  cout << "Total height: " << total_height << endl;
+
+  // Postpone coalesence if not active
+  if (!idx->active()) { ; }
+
 }

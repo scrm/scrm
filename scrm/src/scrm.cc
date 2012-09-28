@@ -14,21 +14,15 @@ int main () {
     Model model = Model(5);
 
     //Different random generators.
-    //MersenneTwister *rg = new MersenneTwister(5);
+    MersenneTwister *rg = new MersenneTwister();
     //ConstantGenerator *rg = new ConstantGenerator();
-    FakeRandomGenerator *rg = new FakeRandomGenerator(5);
-
-    //Forest forest = Forest(model, rg);
-    //forest.buildInitialTree();
-    //double height_above = 0;
-    //Node* node = new Node();
-    //forest.samplePoint(true, &node, &height_above);
-    //cout << node << " " << height_above << endl;
- 
-    cout << rg->sample() << endl;
+    //FakeRandomGenerator *rg = new FakeRandomGenerator(5);
 
     Forest forest = Forest(model, rg);
     forest.buildInitialTree();
+    forest.checkTree(NULL);
+    forest.sampleNextGenealogy();
+    forest.checkTree(NULL);
 
     return 0;
 }

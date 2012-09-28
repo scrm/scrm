@@ -22,9 +22,13 @@ class Forest
    //Getters & Setters
    Model model() { return this->model_; }
    void set_model(const Model &model) { this->model_ = model; }
+   Node* ultimate_root() { return ultimate_root_; }
+   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
    int sample_size() { return this->model().sample_size(); }
-   int local_tree_length() { return this->local_tree_length_; }
-   int total_tree_length() { return this->total_tree_length_; }
+   double local_tree_length() { return this->local_tree_length_; }
+   void set_local_tree_length(const double &length) { local_tree_length_ = length; }
+   double total_tree_length() { return this->total_tree_length_; }
+   void set_total_tree_length(const double &length) { total_tree_length_ = length; }
 
    //Operations on Nodes
    void addNode(Node *node);
@@ -33,10 +37,17 @@ class Forest
    int countNodes();
    Node* getFirstNode();
 
+   //Operations on the Tree
+   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
+
    //
    void buildInitialTree();
    void samplePoint(bool only_local, Node **above_node, double *height_above);
-   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
+   void sampleNextGenealogy();
+
+   //Debugging Tools
+   void checkTree(Node* root = NULL);
+   void printNodes();
 
   private:
    std::vector<Node*> nodes_;
@@ -44,8 +55,8 @@ class Forest
    Model model_;
    RandomGenerator *random_generator_;
 
-   int local_tree_length_;
-   int total_tree_length_;
+   double local_tree_length_;
+   double total_tree_length_;
 
    std::vector<Node*> nodes() { return this->nodes_; }
 
@@ -59,7 +70,6 @@ class Forest
    void dec_total_tree_length(const double &by) { inc_total_tree_length(-1 * by); }
 
    void createSampleNodes();
-   void printNodes();
 };
 
 #endif
