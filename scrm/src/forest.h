@@ -50,6 +50,12 @@ class Forest
    void printNodes();
 
   private:
+   void initialize(Model model = Model(),
+                   RandomGenerator* rg = NULL, 
+                   Node* ultimate_root = NULL, 
+                   int local_tree_length = -1,
+                   int total_tree_length = -1);
+
    std::vector<Node*> nodes_;
    Node* ultimate_root_;
    Model model_;

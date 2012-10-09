@@ -2,23 +2,49 @@
 
 using namespace std;
 
+/******************************************************************
+ * Constructors & initialization
+ *****************************************************************/
+
 Forest::Forest() {
-  this->set_model(NULL);
-  this->set_random_generator(NULL);
-  this->set_ultimate_root(NULL);
-  this->set_local_tree_length(-1);
-  this->set_total_tree_length(-1);
+  this->initialize();
 };
 
-Forest::Forest(Model model, RandomGenerator *random_generator) {
-  this->set_model(model);
-  this->set_random_generator(random_generator);
-  this->set_ultimate_root(NULL);
-  this->set_local_tree_length(0);
-  this->set_total_tree_length(0);
+Forest::Forest(Model model, RandomGenerator* random_generator) {
+  this->initialize(model, random_generator);
 }
 
+// Sets member variable to default values
+void Forest::initialize(Model model, 
+                        RandomGenerator* rg, 
+                        Node* ultimate_root, 
+                        int local_tree_length,
+                        int total_tree_length) {
+
+  this->set_model(model);
+  this->set_random_generator(rg);
+  this->set_ultimate_root(ultimate_root);
+  this->set_local_tree_length(local_tree_length);
+  this->set_total_tree_length(total_tree_length);
+}
+
+
+
+/******************************************************************
+ * Destructor
+ *****************************************************************/
+
 Forest::~Forest() { };
+
+
+
+/******************************************************************
+ * Basic management of nodes
+ *****************************************************************/
+
+Node* Forest::getFirstNode() {
+  return(this->nodes_[0]);
+}
 
 void Forest::addNode(Node *node) {
   nodes_.push_back(node);
@@ -81,9 +107,6 @@ void Forest::printNodes() {
   }
 }
 
-Node* Forest::getFirstNode() {
-  return(this->nodes_[0]);
-}
 
 void Forest::buildInitialTree() {
   this->createSampleNodes();
@@ -199,5 +222,6 @@ void Forest::sampleNextGenealogy() {
 
   // Postpone coalesence if not active
   if (!idx->active()) { ; }
+
 
 }
