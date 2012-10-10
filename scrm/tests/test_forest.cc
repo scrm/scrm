@@ -3,6 +3,7 @@
  */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <stdexcept>
 #include "../src/forest.h"
 #include "../src/node.h"
 #include "../src/random/constant_generator.h"
@@ -14,6 +15,7 @@ class TestForest : public CppUnit::TestCase {
  	CPPUNIT_TEST( testGettersAndSetters );
  	CPPUNIT_TEST( testGetFirstNode );
  	CPPUNIT_TEST( testBuildInitialTree );
+ 	CPPUNIT_TEST( testCheckNodesSorted );
 	CPPUNIT_TEST_SUITE_END();
 
     private:
@@ -60,6 +62,14 @@ class TestForest : public CppUnit::TestCase {
           test_forest.buildInitialTree();
           CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
           CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
+      }
+
+      void testCheckNodesSorted() {
+          CPPUNIT_ASSERT_NO_THROW(forest->checkNodesSorted());
+          Forest test_forest = Forest(Model(0), new ConstantGenerator());
+          test_forest.addNode(new Node(2));
+          test_forest.addNode(new Node(1));
+          CPPUNIT_ASSERT_THROW(test_forest.checkNodesSorted(), std::logic_error);
       }
 };
 

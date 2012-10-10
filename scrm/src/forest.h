@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <stdexcept>
 #include "node.h"
 #include "model.h"
 #include "random/random_generator.h"
@@ -31,11 +32,14 @@ class Forest
    void set_total_tree_length(const double &length) { total_tree_length_ = length; }
 
    //Operations on Nodes
+   Node* getFirstNode();
+   vector<Node*>::iterator getNodesEnd();
+   vector<Node*>::iterator getNodeFwIterator();
+
    void addNode(Node *node);
    void addNodeAfter(const Node &node, const Node &after_node);
    void addNodeBefore(const Node &node, const Node &before_node);
    int countNodes();
-   Node* getFirstNode();
 
    //Operations on the Tree
    void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
@@ -47,6 +51,7 @@ class Forest
 
    //Debugging Tools
    void checkTree(Node* root = NULL);
+   void checkNodesSorted();
    void printNodes();
 
   private:

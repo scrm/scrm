@@ -42,8 +42,19 @@ Forest::~Forest() { };
  * Basic management of nodes
  *****************************************************************/
 
+// Returns a pointer to the first node i.e. the lowest in the tree
 Node* Forest::getFirstNode() {
   return(this->nodes_[0]);
+}
+
+// Returns a pointer the first node i.e. the lowest in the tree
+vector<Node*>::iterator Forest::getNodesEnd() {
+  return(this->nodes_.end());
+}
+
+// Iterator for moving true nodes sorted by height
+vector<Node*>::iterator Forest::getNodeFwIterator() {
+  return(nodes_.begin());
 }
 
 void Forest::addNode(Node *node) {
@@ -183,7 +194,13 @@ void Forest::samplePoint(bool only_local = true, Node** above_node=NULL, double*
 }
 
 void Forest::checkTree(Node *root) {
-  if (root == NULL) root = this->ultimate_root();
+  if (root == NULL) {
+    //Default when called without argument
+    root = this->ultimate_root();
+
+    //Also check if nodes are sorted by height in this case
+    this->checkNodesSorted();
+  }
   
   cout << "Checking Node: " << root << endl;
   Node* h_child = root->higher_child();
@@ -206,6 +223,20 @@ void Forest::checkTree(Node *root) {
     if (l_child->parent() != root)
       cout << "Error in Node: " << root << "Child has other parent" << endl;
     checkTree(l_child);
+  }
+}
+
+void Forest::checkNodesSorted() {
+  double cur_height = 0;
+  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
+       it!=this->getNodesEnd(); ++it) {
+
+    if ((*it)->height() < cur_height) {
+      throw logic_error("Nodes not sorted");
+    } else {
+      cur_height = (*it)->height();
+    }
+
   }
 }
 

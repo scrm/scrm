@@ -11,19 +11,29 @@ using namespace std;
 
 #ifndef UNITTEST
 int main () {
-    Model model = Model(5);
+    try {
+      Model model = Model(5);
 
-    //Different random generators.
-    MersenneTwister *rg = new MersenneTwister();
-    //ConstantGenerator *rg = new ConstantGenerator();
-    //FakeRandomGenerator *rg = new FakeRandomGenerator(5);
+      //Different random generators.
+      MersenneTwister *rg = new MersenneTwister();
+      //ConstantGenerator *rg = new ConstantGenerator();
+      //FakeRandomGenerator *rg = new FakeRandomGenerator(5);
 
-    Forest forest = Forest(model, rg);
-    forest.buildInitialTree();
-    forest.checkTree(NULL);
-    forest.sampleNextGenealogy();
-    forest.checkTree(NULL);
+      Forest forest = Forest(model, rg);
+      forest.buildInitialTree();
+      forest.addNode(new Node(5));
+      forest.addNode(new Node(2));
+      forest.checkNodesSorted();
+      //forest.checkTree(NULL);
+      forest.sampleNextGenealogy();
+      //forest.checkTree(NULL);
 
-    return 0;
+      return 0;
+    }
+    catch (const exception &e)
+    {
+      cerr << "Error: " << e.what() << endl;
+      return EXIT_FAILURE;
+    }
 }
 #endif
