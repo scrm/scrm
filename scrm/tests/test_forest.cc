@@ -3,74 +3,71 @@
  */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include <stdexcept>
 #include "../src/forest.h"
-#include "../src/node.h"
 #include "../src/random/constant_generator.h"
 
 class TestForest : public CppUnit::TestCase {
 
-	CPPUNIT_TEST_SUITE( TestForest );
-	CPPUNIT_TEST( testInitialization );
- 	CPPUNIT_TEST( testGettersAndSetters );
- 	CPPUNIT_TEST( testGetFirstNode );
- 	CPPUNIT_TEST( testBuildInitialTree );
- 	CPPUNIT_TEST( testCheckNodesSorted );
-	CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE( TestForest );
+  CPPUNIT_TEST( testInitialization );
+  CPPUNIT_TEST( testGettersAndSetters );
+  CPPUNIT_TEST( testCreateExampleTree );
+  CPPUNIT_TEST( testGetFirstNode );
+  CPPUNIT_TEST( testBuildInitialTree );
+  CPPUNIT_TEST( testCheckNodesSorted );
+  CPPUNIT_TEST_SUITE_END();
 
-    private:
-     Node *node1, *node2, *node3, *node4;
-     Forest *forest;
+ private:
+  Forest *forest;
+  ConstantGenerator *rg;
 
-	public:
-      void setUp() {
-         node1 = new Node(1);
-         node2 = new Node(2);
-         node3 = new Node(3);
-         node4 = new Node(4);
-         
-         forest = new Forest(Model(0), new ConstantGenerator());
-         
-         forest->addNode(node1);
-         forest->addNode(node2);
-         forest->addNode(node3);
-         forest->addNode(node4);
-      }
+ public:
+  void setUp() {
+    rg = new ConstantGenerator;
+    forest = new Forest(Model(0), rg);
+    forest->createExampleTree();
+  }
 
-      void tearDown() {
-         delete node1;
-         delete node2; 
-         delete node3; 
-         delete node4;
-         delete forest;
-      }
+  void tearDown() {
+    delete forest;
+  }
 
-      void testInitialization() {
-          CPPUNIT_ASSERT( forest->countNodes() == 4 );
-      }
+  void testInitialization() {
+    Forest test_forest = Forest(Model(4), rg);
+    CPPUNIT_ASSERT( test_forest.model().sample_size() == 4 );
+    CPPUNIT_ASSERT( test_forest.random_generator() == rg );
+    CPPUNIT_ASSERT( test_forest.ultimate_root() == NULL );
+    CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
+    CPPUNIT_ASSERT( test_forest.total_tree_length() == 0 );
+  }
 
-      void testGettersAndSetters() {
-          CPPUNIT_ASSERT( forest->model().sample_size() == 0 );
-      }
+  void testGettersAndSetters() {
+    CPPUNIT_ASSERT( forest->model().sample_size() == 0 );
+  }
 
-      void testGetFirstNode() {
-          CPPUNIT_ASSERT( forest->getFirstNode()->height() == 1 );
-      }
+  void testGetFirstNode() {
+    CPPUNIT_ASSERT( forest->getFirstNode()->height() == 0 );
+  }
 
-      void testBuildInitialTree() {
-          Forest test_forest = Forest(Model(3), new ConstantGenerator());
-          test_forest.buildInitialTree();
-          CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
-          CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
-      }
+  void testBuildInitialTree() {
+    Forest test_forest = Forest(Model(3), rg);
+    test_forest.buildInitialTree();
+    CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
+    CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
+    CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
+  }
 
-      void testCheckNodesSorted() {
-          CPPUNIT_ASSERT_NO_THROW(forest->checkNodesSorted());
-          Forest test_forest = Forest(Model(0), new ConstantGenerator());
-          test_forest.addNode(new Node(2));
-          test_forest.addNode(new Node(1));
-          CPPUNIT_ASSERT_THROW(test_forest.checkNodesSorted(), std::logic_error);
-      }
+  void testCheckNodesSorted() {
+    CPPUNIT_ASSERT_NO_THROW(forest->checkNodesSorted());
+    Forest test_forest = Forest(Model(0), rg);
+    test_forest.addNode(new Node(2));
+    test_forest.addNode(new Node(1));
+    CPPUNIT_ASSERT_THROW(test_forest.checkNodesSorted(), std::logic_error);
+  }
+
+  void testCreateExampleTree() {
+    CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
+  }
 };
 
 //Uncomment this to activate the test

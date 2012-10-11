@@ -34,7 +34,12 @@ void Forest::initialize(Model model,
  * Destructor
  *****************************************************************/
 
-Forest::~Forest() { };
+Forest::~Forest() { 
+  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
+       it!=this->getNodesEnd(); ++it) {
+    delete *it;
+  }
+}
 
 
 
@@ -62,7 +67,7 @@ void Forest::addNode(Node *node) {
 }
 
 void Forest::addNodeAfter(const Node &node, const Node &after_node){
-  
+
 }
 
 void Forest::addNodeBefore(const Node &node, const Node &before_node){
@@ -71,7 +76,7 @@ void Forest::addNodeBefore(const Node &node, const Node &before_node){
 
 void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child) {
   this->addNode(node);
-  
+
   if (parent != NULL) {
     node->set_parent(parent);
     if (parent->lower_child() == NULL) parent->set_lower_child(node);
@@ -92,7 +97,7 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *hi
   if (lower_child != NULL) {
     node->set_lower_child(lower_child);
     lower_child->set_parent(node);
-    
+
     double height_above = node->height() - lower_child->height();
     lower_child->set_height_above(height_above);
     this->inc_local_tree_length(height_above);
@@ -112,9 +117,9 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *hi
 
 void Forest::printNodes() {
   for(int i = 0; i < this->countNodes(); ++i) {
-        cout << "Addr: " << this->nodes()[i] << " | ";
-        cout << "Height: " << this->nodes()[i]->height() << " | ";
-        cout << "Parent: " << this->nodes()[i]->parent() << endl;
+    cout << "Addr: " << this->nodes()[i] << " | ";
+    cout << "Height: " << this->nodes()[i]->height() << " | ";
+    cout << "Parent: " << this->nodes()[i]->parent() << endl;
   }
 }
 
@@ -180,65 +185,19 @@ void Forest::samplePoint(bool only_local = true, Node** above_node=NULL, double*
   cout << "Length: " << length << endl;
   double point = this->random_generator()->sample() * length;
   cout << point << endl;
-  
+
   for (vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
-        if ((*it)->height_above() > point) {
-          *above_node = *it;
-          *height_above = point;
-          cout << point << endl;
-          break;
-        }
-        point -= (*it)->height_above();
-        cout << point << endl;
-  }
-}
-
-void Forest::checkTree(Node *root) {
-  if (root == NULL) {
-    //Default when called without argument
-    root = this->ultimate_root();
-
-    //Also check if nodes are sorted by height in this case
-    this->checkNodesSorted();
-  }
-  
-  cout << "Checking Node: " << root << endl;
-  Node* h_child = root->higher_child();
-  Node* l_child = root->lower_child();
-  
-  if (h_child != NULL && l_child != NULL) {
-    if (h_child->height() < l_child->height()) 
-      cout << "Error in Node: " << root << "Childs in wrong order" << endl;
-  }
-  else if (! (h_child == NULL && l_child == NULL)) 
-      cout << "Error in Node: " << root << "Has only one child" << endl;
-      
-  if (h_child != NULL) {
-    if (h_child->parent() != root)
-      cout << "Error in Node: " << root << "Child has other parent" << endl;
-    checkTree(h_child);
-  }
-
-  if (l_child != NULL) {
-    if (l_child->parent() != root)
-      cout << "Error in Node: " << root << "Child has other parent" << endl;
-    checkTree(l_child);
-  }
-}
-
-void Forest::checkNodesSorted() {
-  double cur_height = 0;
-  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
-       it!=this->getNodesEnd(); ++it) {
-
-    if ((*it)->height() < cur_height) {
-      throw logic_error("Nodes not sorted");
-    } else {
-      cur_height = (*it)->height();
+    if ((*it)->height_above() > point) {
+      *above_node = *it;
+      *height_above = point;
+      cout << point << endl;
+      break;
     }
-
+    point -= (*it)->height_above();
+    cout << point << endl;
   }
 }
+
 
 void Forest::sampleNextGenealogy() {
   // Samples a new genealogy, conditional on a recombination occuring
@@ -256,3 +215,82 @@ void Forest::sampleNextGenealogy() {
 
 
 }
+
+
+
+/******************************************************************
+ * Debugging Utils
+ *****************************************************************/
+
+void Forest::createExampleTree() {
+  this->nodes_.clear();
+  this->set_local_tree_length(0);
+  this->set_total_tree_length(0);
+  Node* leaf1 = new Node(0);
+  Node* leaf2 = new Node(0);
+  Node* leaf3 = new Node(0);
+  Node* leaf4 = new Node(0);
+  this->addNode(leaf1);
+  this->addNode(leaf2);
+  this->addNode(leaf3);
+  this->addNode(leaf4);
+
+  Node* node12 = new Node(1);
+  this->addNodeToTree(node12, NULL, leaf1, leaf2);
+  
+  Node* node34 = new Node(3);
+  this->addNodeToTree(node34, NULL, leaf3, leaf4);
+  
+  Node* root = new Node(10);
+  this->addNodeToTree(root, NULL, node12, node34);
+  this->set_ultimate_root(root);
+}
+
+
+void Forest::checkNodesSorted() {
+  double cur_height = 0;
+  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
+       it!=this->getNodesEnd(); ++it) {
+
+    if ((*it)->height() < cur_height) {
+      throw logic_error("Nodes not sorted");
+    } else {
+      cur_height = (*it)->height();
+    }
+
+  }
+}
+
+void Forest::checkTree(Node *root) {
+  if (root == NULL) {
+    //Default when called without argument
+    root = this->ultimate_root();
+
+    //Also check if nodes are sorted by height in this case
+    this->checkNodesSorted();
+  }
+
+  Node* h_child = root->higher_child();
+  Node* l_child = root->lower_child();
+
+  if (h_child != NULL && l_child != NULL) {
+    if (h_child->height() < l_child->height()) 
+      throw logic_error("Child Nodes in wrong order");
+  }
+  else if (! (h_child == NULL && l_child == NULL)) 
+    throw logic_error("Node has only one child");
+
+  if (h_child != NULL) {
+    if (h_child->parent() != root)
+      throw logic_error("Node is child of non-parent");
+    checkTree(h_child);
+  }
+
+  if (l_child != NULL) {
+    if (l_child->parent() != root)
+      throw logic_error("Node is child of non-parent");
+    checkTree(l_child);
+  }
+}
+
+
