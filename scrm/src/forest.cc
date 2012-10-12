@@ -1,6 +1,5 @@
 #include "forest.h"
 
-using namespace std;
 
 /******************************************************************
  * Constructors & initialization
@@ -35,7 +34,7 @@ void Forest::initialize(Model model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
+  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
        it!=this->getNodesEnd(); ++it) {
     delete *it;
   }
@@ -53,12 +52,12 @@ Node* Forest::getFirstNode() {
 }
 
 // Returns a pointer the first node i.e. the lowest in the tree
-vector<Node*>::iterator Forest::getNodesEnd() {
+std::vector<Node*>::iterator Forest::getNodesEnd() {
   return(this->nodes_.end());
 }
 
 // Iterator for moving true nodes sorted by height
-vector<Node*>::iterator Forest::getNodeFwIterator() {
+std::vector<Node*>::iterator Forest::getNodeFwIterator() {
   return(nodes_.begin());
 }
 
@@ -88,38 +87,30 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *hi
         parent->set_higher_child(node);
       }
     }
-    double height_above = parent->height() - node->height();
-    node->set_height_above(height_above);
-    this->inc_local_tree_length(height_above);
-    this->inc_total_tree_length(height_above);
+    this->inc_local_tree_length(node->height_above());
+    this->inc_total_tree_length(node->height_above());
   }
 
   if (lower_child != NULL) {
     node->set_lower_child(lower_child);
     lower_child->set_parent(node);
-
-    double height_above = node->height() - lower_child->height();
-    lower_child->set_height_above(height_above);
-    this->inc_local_tree_length(height_above);
-    this->inc_total_tree_length(height_above);
+    this->inc_local_tree_length(lower_child->height_above());
+    this->inc_total_tree_length(lower_child->height_above());
   }
 
   if (higher_child != NULL) {
     node->set_higher_child(higher_child);
     higher_child->set_parent(node);
-
-    double height_above = node->height() - higher_child->height();
-    higher_child->set_height_above(height_above);
-    this->inc_local_tree_length(height_above);
-    this->inc_total_tree_length(height_above);
+    this->inc_local_tree_length(higher_child->height_above());
+    this->inc_total_tree_length(higher_child->height_above());
   }
 }
 
 void Forest::printNodes() {
   for(int i = 0; i < this->countNodes(); ++i) {
-    cout << "Addr: " << this->nodes()[i] << " | ";
-    cout << "Height: " << this->nodes()[i]->height() << " | ";
-    cout << "Parent: " << this->nodes()[i]->parent() << endl;
+    std::cout << "Addr: " << this->nodes()[i] << " | ";
+    std::cout << "Height: " << this->nodes()[i]->height() << " | ";
+    std::cout << "Parent: " << this->nodes()[i]->parent() << std::endl;
   }
 }
 
@@ -128,8 +119,8 @@ void Forest::buildInitialTree() {
   this->createSampleNodes();
 
   RandomGenerator *rg = this->random_generator();
-  cout << "Preparing coalescence" << endl;
-  vector<Node*> uncoalesced_nodes = this->nodes();
+  std::cout << "Preparing coalescence" << std::endl;
+  std::vector<Node*> uncoalesced_nodes = this->nodes();
   double time = 0;
   while (uncoalesced_nodes.size() > 1) {
     int node1, node2;
@@ -137,7 +128,7 @@ void Forest::buildInitialTree() {
     double rate = (1.0/(2*this->model().population_size()))*n*(n-1)/2.0;
     time += rg->sampleExpo(rate);
     rg->sampleTwoElements(uncoalesced_nodes.size(), &node1, &node2);
-    cout << "Coalescing Nodes " << node1 << " and " << node2 << endl;
+    std::cout << "Coalescing Nodes " << node1 << " and " << node2 << std::endl;
 
     //Creating parent and add it to the tree
     Node* parent = new Node(time);
@@ -152,6 +143,7 @@ void Forest::buildInitialTree() {
     this->printNodes();
   }
   this->set_ultimate_root(uncoalesced_nodes[0]);
+  assert(this->checkTree());
 }
 
 
@@ -168,34 +160,37 @@ int Forest::countNodes(){
 
 void Forest::inc_local_tree_length(const double &by) {
   local_tree_length_ = local_tree_length_ + by;
+  assert(local_tree_length_ > 0);
 }
 
 void Forest::inc_total_tree_length(const double &by) {
   total_tree_length_ = total_tree_length_ + by;
+  assert(total_tree_length_ > 0);
 }
 
 
-void Forest::samplePoint(bool only_local = true, Node** above_node=NULL, double* height_above=NULL) {
+TreePoint Forest::samplePoint(bool only_local) {
   //O(#Nodes) implementation
   double length = 0;
 
   if (only_local) length = this->local_tree_length();
   else            length = this->total_tree_length();
 
-  cout << "Length: " << length << endl;
   double point = this->random_generator()->sample() * length;
-  cout << point << endl;
 
-  for (vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
+  Node* above_node;
+  double height_above;
+
+  for (std::vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
     if ((*it)->height_above() > point) {
-      *above_node = *it;
-      *height_above = point;
-      cout << point << endl;
+      above_node = *it;
+      height_above = point;
       break;
     }
     point -= (*it)->height_above();
-    cout << point << endl;
   }
+
+  return TreePoint(above_node, height_above);
 }
 
 
@@ -203,15 +198,11 @@ void Forest::sampleNextGenealogy() {
   // Samples a new genealogy, conditional on a recombination occuring
 
   // Sample the recombination point
-  Node* idx = NULL;
-  double height_above = 0;
-  this->samplePoint(false, &idx, &height_above);
-  cout << "Recombination at " << height_above << " above " << idx << endl;
-  double total_height = height_above + idx->height();
-  cout << "Total height: " << total_height << endl;
+  TreePoint rec_point = this->samplePoint();
+  std::cout << "Recombination at " << rec_point.height_above() << " above " << rec_point.above_node() << std::endl;
 
   // Postpone coalesence if not active
-  if (!idx->active()) { ; }
+  //if (!idx->active()) { ; }
 
 
 }
@@ -247,50 +238,63 @@ void Forest::createExampleTree() {
 }
 
 
-void Forest::checkNodesSorted() {
+bool Forest::checkNodesSorted() {
   double cur_height = 0;
-  for (vector<Node*>::iterator it = this->getNodeFwIterator(); 
+  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
        it!=this->getNodesEnd(); ++it) {
 
     if ((*it)->height() < cur_height) {
-      throw logic_error("Nodes not sorted");
+      std::cerr << "Nodes not sorted" << std::endl;
+      return(0);
     } else {
       cur_height = (*it)->height();
     }
 
   }
+  return(1);
 }
 
-void Forest::checkTree(Node *root) {
+bool Forest::checkTree(Node *root) {
+  bool sorted = 1;
   if (root == NULL) {
     //Default when called without argument
     root = this->ultimate_root();
 
     //Also check if nodes are sorted by height in this case
-    this->checkNodesSorted();
+    sorted = this->checkNodesSorted();
   }
 
   Node* h_child = root->higher_child();
   Node* l_child = root->lower_child();
 
   if (h_child != NULL && l_child != NULL) {
-    if (h_child->height() < l_child->height()) 
-      throw logic_error("Child Nodes in wrong order");
+    if (h_child->height() < l_child->height()) { 
+      std::cerr << "Child Nodes in wrong order" << std::endl;
+      return 0;
+    }
   }
-  else if (! (h_child == NULL && l_child == NULL)) 
-    throw logic_error("Node has only one child");
-
+  else if (! (h_child == NULL && l_child == NULL)) { 
+    std::cerr << "Node has only one child" << std::endl;
+    return 0;
+  }
+  
+  bool child1 = 1;
   if (h_child != NULL) {
-    if (h_child->parent() != root)
-      throw logic_error("Node is child of non-parent");
-    checkTree(h_child);
+    if (h_child->parent() != root) {
+      std::cerr << "Node is child of non-parent" << std::endl;
+      return 0;
+    }
+    child1 = checkTree(h_child);
   }
 
+  bool child2 = 1;
   if (l_child != NULL) {
-    if (l_child->parent() != root)
-      throw logic_error("Node is child of non-parent");
-    checkTree(l_child);
+    if (l_child->parent() != root) {
+      std::cerr <<"Node is child of non-parent" << std::endl;
+      return 0;
+    }
+    child2 = checkTree(h_child);
   }
+
+  return sorted*child1*child2;
 }
-
-

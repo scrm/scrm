@@ -21,12 +21,8 @@ int main () {
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
-      forest.addNode(new Node(5));
-      forest.addNode(new Node(2));
-      forest.checkNodesSorted();
-      //forest.checkTree(NULL);
+      forest.checkTree();
       forest.sampleNextGenealogy();
-      //forest.checkTree(NULL);
 
       return 0;
     }

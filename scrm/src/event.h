@@ -4,10 +4,20 @@
 #include "forest.h"
 class Forest;
 
-struct Event {
-  const double start_height;
-  const double end_height; 
-  const std::vector<Node*> contemporaries;
+class Event {
+ public:
+  Event();
+  Event(double start_height, double end_height, std::vector<Node*> contemporaries);
+  ~Event() { };
+
+  double start_height() { return this->start_height_; };
+  double end_height() { return this->end_height_; };
+  std::vector<Node*> contemporaries() { return this->contemporaries_; };
+
+ private:
+  double start_height_;
+  double end_height_; 
+  std::vector<Node*> contemporaries_;
 };
 
 class EventIterator {
@@ -16,12 +26,16 @@ class EventIterator {
   EventIterator(Forest *forest, const double &start_height);
   ~EventIterator();
 
-  struct Event next();
+  Event next();
+  
+#ifdef UNITTEST
+  friend class TestEvent;
+#endif
 
  private:
   Forest* forest_;
   std::vector<Node*> contemporaries_;
-  double current_height_;
+  double start_height_;
   std::vector<Node*>::iterator twig_iterator_;
 };
 

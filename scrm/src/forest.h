@@ -1,13 +1,19 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
+//Uncomment do disable asserts
+//#define NDEBUG
+
 #include <vector>
 #include <iostream>
 #include <stdexcept>
 #include <cfloat>
+#include <cassert>
+
 #include "node.h"
 #include "model.h"
 #include "event.h"
+#include "tree_point.h"
 #include "random/random_generator.h"
 
 class Forest
@@ -35,8 +41,8 @@ class Forest
 
   //Operations on Nodes
   Node* getFirstNode();
-  vector<Node*>::iterator getNodesEnd();
-  vector<Node*>::iterator getNodeFwIterator();
+  std::vector<Node*>::iterator getNodesEnd();
+  std::vector<Node*>::iterator getNodeFwIterator();
 
   void addNode(Node *node);
   void addNodeAfter(const Node &node, const Node &after_node);
@@ -48,13 +54,13 @@ class Forest
 
   //
   void buildInitialTree();
-  void samplePoint(bool only_local, Node **above_node, double *height_above);
+  TreePoint samplePoint(bool only_local = false);
   void sampleNextGenealogy();
 
   //Debugging Tools
   void createExampleTree();
-  void checkTree(Node* root = NULL);
-  void checkNodesSorted();
+  bool checkTree(Node* root = NULL);
+  bool checkNodesSorted();
   void printNodes();
 
  private:
@@ -63,17 +69,14 @@ class Forest
   Node* ultimate_root_;
   Model model_;
   RandomGenerator* random_generator_;
+  double local_tree_length_;
+  double total_tree_length_;
   
   void initialize(Model model = Model(),
                   RandomGenerator* rg = NULL, 
                   Node* ultimate_root = NULL, 
                   int local_tree_length = 0,
                   int total_tree_length = 0);
-
-
-
-  double local_tree_length_;
-  double total_tree_length_;
 
   std::vector<Node*> nodes() { return this->nodes_; }
 

@@ -15,6 +15,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testBuildInitialTree );
   CPPUNIT_TEST( testCheckNodesSorted );
+  CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST_SUITE_END();
 
  private:
@@ -58,15 +59,21 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testCheckNodesSorted() {
-    CPPUNIT_ASSERT_NO_THROW(forest->checkNodesSorted());
+    CPPUNIT_ASSERT(forest->checkNodesSorted() == 1);
     Forest test_forest = Forest(Model(0), rg);
     test_forest.addNode(new Node(2));
     test_forest.addNode(new Node(1));
-    CPPUNIT_ASSERT_THROW(test_forest.checkNodesSorted(), std::logic_error);
+    CPPUNIT_ASSERT(test_forest.checkNodesSorted() == 0);
   }
 
   void testCreateExampleTree() {
-    CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
+    CPPUNIT_ASSERT( forest->checkTree() == 1 );
+    CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
+  }
+
+  void testSamplePoint() {
+    TreePoint tp = forest->samplePoint();
+    CPPUNIT_ASSERT( tp.height_above() == 4 );
   }
 };
 

@@ -2,7 +2,7 @@
 #define scrm_node
 
 #include <cstddef>
-using namespace std;
+#include <cfloat>
 
 class Node
 {
@@ -16,9 +16,8 @@ class Node
    double height() { return this->height_; }
    void set_height(const double &height) { this->height_ = height; }
 
-   double height_above() { return this->height_above_; }
-   void set_height_above(const double &height) { this->height_above_ = height; }
-  
+   double parent_height();
+   double height_above() { return this->parent_height() - this->height(); }
 
    bool active() { return this->active_; }
    void set_active(bool active) { this->active_ = active; }
@@ -38,7 +37,7 @@ class Node
    void init(double heigh=-1, bool active=false);
 
    double height_;
-   double height_above_;
+   //double height_above_;
    bool active_;
 
    Node *parent_;
