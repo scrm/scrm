@@ -22,7 +22,7 @@ int main () {
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
       forest.checkTree();
-      forest.sampleNextGenealogy();
+      //forest.sampleNextGenealogy();
 
       return 0;
     }

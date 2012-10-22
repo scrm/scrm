@@ -24,11 +24,18 @@ class Model
    void set_recombination_rate(const double &recombination_rate) {
      this->recombination_rate_ = recombination_rate; }
 
+   bool is_smc_model() { return this->smc_model_; }
+   void set_smc_model(const bool &smc_model) {
+     this->smc_model_ = smc_model;
+   }
+
   private:
    int sample_size_;
    int population_size_;
    double mutation_rate_;
    double recombination_rate_;
+
+   bool smc_model_;
 };
 
 #endif

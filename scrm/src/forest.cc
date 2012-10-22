@@ -62,15 +62,12 @@ std::vector<Node*>::iterator Forest::getNodeFwIterator() {
 }
 
 void Forest::addNode(Node *node) {
-  nodes_.push_back(node);
-}
-
-void Forest::addNodeAfter(const Node &node, const Node &after_node){
-
-}
-
-void Forest::addNodeBefore(const Node &node, const Node &before_node){
-
+  std::vector<Node*>::iterator it;
+  for (it = nodes_.begin(); it!=nodes_.end(); ++it) {
+    if ((*it)->height() > node->height()) break;
+  }
+  nodes_.insert(it, node);
+  assert(this->checkNodesSorted());
 }
 
 void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child) {
@@ -116,8 +113,22 @@ void Forest::printNodes() {
 
 
 void Forest::buildInitialTree() {
-  this->createSampleNodes();
+  for (int i=0; i < this->sample_size(); i++) {
+    Node* node = new Node(0);
+    std::cout << "New node : " << node << std::endl;
+    this->addNode(node);
+    
+    if (i == 0) {
+      this->set_ultimate_root(node);      
+      continue;
+    }
 
+    TreePoint new_leaf = TreePoint(node, 0, true);
+    this->sampleCoalescences(new_leaf, true);
+  }
+}
+ 
+void Forest::buildInitialTree_old() {
   RandomGenerator *rg = this->random_generator();
   std::cout << "Preparing coalescence" << std::endl;
   std::vector<Node*> uncoalesced_nodes = this->nodes();
@@ -148,10 +159,6 @@ void Forest::buildInitialTree() {
 
 
 void Forest::createSampleNodes() {
-  for (int i=0; i < this->sample_size(); i++) {
-    Node* node = new Node(0);
-    this->addNode(node);
-  }
 }
 
 int Forest::countNodes(){
@@ -178,19 +185,19 @@ TreePoint Forest::samplePoint(bool only_local) {
 
   double point = this->random_generator()->sample() * length;
 
-  Node* above_node;
+  Node* base_node;
   double height_above;
 
   for (std::vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
     if ((*it)->height_above() > point) {
-      above_node = *it;
+      base_node = *it;
       height_above = point;
       break;
     }
     point -= (*it)->height_above();
   }
 
-  return TreePoint(above_node, height_above);
+  return TreePoint(base_node, height_above, true);
 }
 
 
@@ -198,15 +205,143 @@ void Forest::sampleNextGenealogy() {
   // Samples a new genealogy, conditional on a recombination occuring
 
   // Sample the recombination point
-  TreePoint rec_point = this->samplePoint();
-  std::cout << "Recombination at " << rec_point.height_above() << " above " << rec_point.above_node() << std::endl;
+  TreePoint rec_point = TreePoint(new Node(0), 0, true);
+  this->addNode(rec_point.base_node());
+  std::cout << "Recombination at " << rec_point.relative_height() << " above " << rec_point.base_node() << std::endl;
 
   // Postpone coalesence if not active
   //if (!idx->active()) { ; }
 
+  this->sampleCoalescences(rec_point);
+}
+
+void Forest::sampleCoalescences(TreePoint &start_point, const bool &for_initial_tree) {
+  EventIterator events = EventIterator(this, start_point.height());
+
+  //Node* coalescence_root_1 = new Node(start_point.height());
+  Node* coalescence_root_1 = start_point.base_node();
+  Node* coalescence_root_2 = this->local_root();
+  bool  coalescence_1_active = false;
+  bool  coalescence_2_active = false;
+
+  double current_time = std::min(start_point.height(), coalescence_root_2->height());
+
+  Event current_event = events.next();
+  double std_expo_sample = this->random_generator()->sampleExpo(1);
+  double expo_sample = -1;
+
+  while (true) {
+    assert(this->checkTree());
+    std::cout << "New Event - Time: " << current_time << std::endl;
+
+    coalescence_1_active = current_time >= coalescence_root_1->height();
+    coalescence_2_active = current_time >= coalescence_root_2->height();
+    if (coalescence_1_active) std::cout << "L1 active" << std::endl;
+    if (coalescence_2_active) std::cout << "L2 active" << std::endl;
+    assert(coalescence_1_active || coalescence_2_active);
+
+    // If SMC or intiatial tree:
+    // Remove branch above recombination point to avoid back coalescence.
+    if ( for_initial_tree  || this->model().is_smc_model() ) {
+      current_event.removeFromContemporaries(start_point.base_node());
+    }
+
+    // Calculate rate of any coalescence occuring
+    double rate = calcCoalescenceRate(current_event.contemporaries().size(),
+                                      coalescence_1_active + coalescence_2_active);
+
+    double intervall_height = current_event.end_height() - current_event.start_height();
+    expo_sample = std_expo_sample / rate;
+
+    if (expo_sample > intervall_height) {
+      std::cout << "No coalescence" << std::endl;
+      std_expo_sample = (expo_sample - intervall_height) * rate;
+    }
+    else {
+      current_time += expo_sample;
+      std::cout << "Coalescence at time " << current_time << std::endl;
+      break;
+    }
+
+    //We should at least coalescence in the last (almost infinite) intervall
+    assert(current_event.end_height() < FLT_MAX);
+    
+    current_time = current_event.end_height();
+    current_event = events.next();
+  }
+      
+  std::cout << "Contemoraries: " << current_event.contemporaries().size() << std::endl;
+
+  TreePoint coal_point;
+  if (coalescence_1_active && coalescence_2_active) {
+    // DOTO: Modification to include non-local trees
+    coal_point = TreePoint(coalescence_root_2, current_time, false);
+    coalesNodeIntoTree(coalescence_root_1, coal_point);
+  } else {
+    coal_point = TreePoint(current_event.getRandomContemporary(), current_time, false);
+    //if (coal_point.base_node() != coalescence_root_1) {
+    // ARE NODES ALLOWED TO COALESCENCE INTO THEIR OWN BRANCH?
+      coalesNodeIntoTree(coalescence_root_1, coal_point);
+    //}
+  }
+
+
 
 }
 
+// Calculates the rate of any coalescence occuring in an intervall with a total of 
+// lines_number lines out of which coal_lines_number are not coalescenced.
+double Forest::calcCoalescenceRate(int lines_number, int coal_lines_number) {
+  assert(lines_number > 0);
+  assert(coal_lines_number > 0 && coal_lines_number <= 2);
+
+  double rate = -1;
+
+  if (coal_lines_number == 2)
+    rate = ( 2 * lines_number + 1 ) / ( 2.0 * this->model().population_size() );
+  else
+    rate = lines_number / ( 2.0 * this->model().population_size() );
+
+  assert(rate > 0);
+  return(rate);
+}
+
+void Forest::coalesNodeIntoTree(Node* coal_node, TreePoint &coal_point) {
+  Node *new_parent = new Node(coal_point.height());
+  std::cout << "New Node: " << new_parent << std::endl;
+  coal_node->set_parent(new_parent);
+  
+  Node *higher_child, *lower_child;
+  if (coal_node->height() >= coal_point.base_node()->height()) {
+    higher_child = coal_node;
+    lower_child = coal_point.base_node();
+  } else {
+    higher_child = coal_point.base_node();
+    lower_child =  coal_node; 
+  }
+
+  //Update above
+  new_parent->set_parent(coal_point.base_node()->parent());
+  if (new_parent->parent() != NULL) {
+    //New_parent is not the new root
+    new_parent->parent()->change_child(coal_point.base_node(), new_parent);
+  } else {
+    this->set_ultimate_root(new_parent);
+  }
+
+  //Update childs
+  new_parent->set_higher_child(higher_child);
+  new_parent->set_lower_child(lower_child);
+  higher_child->set_parent(new_parent);
+  lower_child->set_parent(new_parent);
+
+
+  //this->addNode(coal_node);
+  this->addNode(new_parent);
+
+  this->printNodes();
+  assert(this->checkTree());
+}
 
 
 /******************************************************************
@@ -269,19 +404,21 @@ bool Forest::checkTree(Node *root) {
 
   if (h_child != NULL && l_child != NULL) {
     if (h_child->height() < l_child->height()) { 
-      std::cerr << "Child Nodes in wrong order" << std::endl;
+      std::cerr << root << ": Child Nodes in wrong order" << std::endl;
+      std::cerr << root << ": higher child " << h_child << " at " << h_child->height() << std::endl;
+      std::cerr << root << ": lower child " << l_child << " at " << l_child->height() << std::endl;
       return 0;
     }
   }
   else if (! (h_child == NULL && l_child == NULL)) { 
-    std::cerr << "Node has only one child" << std::endl;
+    std::cerr << root << ": Has only one child" << std::endl;
     return 0;
   }
   
   bool child1 = 1;
   if (h_child != NULL) {
     if (h_child->parent() != root) {
-      std::cerr << "Node is child of non-parent" << std::endl;
+      std::cerr << h_child << ": is child of non-parent" << std::endl;
       return 0;
     }
     child1 = checkTree(h_child);
@@ -290,7 +427,7 @@ bool Forest::checkTree(Node *root) {
   bool child2 = 1;
   if (l_child != NULL) {
     if (l_child->parent() != root) {
-      std::cerr <<"Node is child of non-parent" << std::endl;
+      std::cerr << l_child << ": is child of non-parent" << std::endl;
       return 0;
     }
     child2 = checkTree(h_child);

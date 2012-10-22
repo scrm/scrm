@@ -7,16 +7,17 @@
 class TreePoint {
 public:
   TreePoint() {};
-  TreePoint(Node* above_node, double height_above);
+  TreePoint(Node* base_node, double height, bool relative);
   ~TreePoint () {};
 
-  Node* above_node() { return above_node_; }
-  double height_above() { return height_above_; }
+  Node*  base_node()       { return base_node_; }
+  double relative_height() { return relative_height_; }
+  double height()          { return height_; }
 
 private:
-  Node* above_node_;
-  double height_above_;
+  Node*  base_node_;
+  double relative_height_;
+  double height_;
 };
-
 
 #endif

@@ -1,16 +1,25 @@
 #include "event.h"
 
 Event::Event() {
+  this->forest_ = NULL;
   this->start_height_ = 0;
   this->end_height_ = 0;
 }
 
-Event::Event(double start_height, double end_height, std::vector<Node*> contemporaries){
+Event::Event(Forest* forest, 
+             double start_height, 
+             double end_height, 
+             std::vector<Node*> contemporaries){
+  this->forest_ = forest;
   this->start_height_ = start_height;
   this->end_height_ = end_height;
   this->contemporaries_ = contemporaries;
 }
 
+Node* Event::getRandomContemporary() {
+  int sample = this->forest_->random_generator()->sampleInt(this->contemporaries().size());
+  return(this->contemporaries()[sample]);
+}
 
 EventIterator::EventIterator() {
   this->forest_ = NULL;
@@ -54,7 +63,7 @@ Event EventIterator::next() {
     double cur_height = start_height_;
     start_height_ = 0;
     if ( start_height > cur_height ) {
-      return Event(cur_height, start_height, contemporaries_);
+      return Event(this->forest_, cur_height, start_height, contemporaries_);
     }
   }
   
@@ -80,5 +89,19 @@ Event EventIterator::next() {
   //Don't return Events of length zero, as nothing can happen there...
   if (start_height == end_height) return next();
   
-  return Event(start_height, end_height, contemporaries_);
+  return Event(this->forest_, start_height, end_height, contemporaries_);
+}
+
+//Removes a Node from the contemporaries if it is there. Does nothing if not.
+void Event::removeFromContemporaries(Node* node) {
+    for (std::vector<Node*>::iterator it = contemporaries_.begin();
+         it!=contemporaries_.end(); ++it) {
+      if ( *it == node ) {
+        std::cout << "Removing Branch from contemporaries" << std::endl;
+        std::cout << contemporaries_.size() << std::endl;
+        contemporaries_.erase(it);
+        std::cout << contemporaries_.size() << std::endl;
+        break;
+      }
+    }
 }

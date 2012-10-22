@@ -32,12 +32,14 @@ class Forest
   Model model() { return this->model_; }
   void set_model(const Model &model) { this->model_ = model; }
   Node* ultimate_root() { return ultimate_root_; }
+  Node* local_root() { return ultimate_root_; } //Adapted later
   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
   int sample_size() { return this->model().sample_size(); }
   double local_tree_length() { return this->local_tree_length_; }
   void set_local_tree_length(const double &length) { local_tree_length_ = length; }
   double total_tree_length() { return this->total_tree_length_; }
   void set_total_tree_length(const double &length) { total_tree_length_ = length; }
+  RandomGenerator* random_generator() { return this->random_generator_; }
 
   //Operations on Nodes
   Node* getFirstNode();
@@ -45,8 +47,6 @@ class Forest
   std::vector<Node*>::iterator getNodeFwIterator();
 
   void addNode(Node *node);
-  void addNodeAfter(const Node &node, const Node &after_node);
-  void addNodeBefore(const Node &node, const Node &before_node);
   int countNodes();
 
   //Operations on the Tree
@@ -54,8 +54,12 @@ class Forest
 
   //
   void buildInitialTree();
+  void buildInitialTree_old();
   TreePoint samplePoint(bool only_local = false);
   void sampleNextGenealogy();
+  void sampleCoalescences(TreePoint &start_point, const bool &for_initial_tree = false);
+  double calcCoalescenceRate(int lines_number, int coal_lines_number = 1);
+  void coalesNodeIntoTree(Node* coal_node, TreePoint &coal_point);
 
   //Debugging Tools
   void createExampleTree();
@@ -80,7 +84,6 @@ class Forest
 
   std::vector<Node*> nodes() { return this->nodes_; }
 
-  RandomGenerator* random_generator() { return this->random_generator_; }
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
 

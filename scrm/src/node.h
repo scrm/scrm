@@ -3,6 +3,8 @@
 
 #include <cstddef>
 #include <cfloat>
+#include <stdexcept>
+#include <iostream>
 
 class Node
 {
@@ -32,6 +34,9 @@ class Node
 
    Node *lower_child() { return this->lower_child_; }
    void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }
+
+   void change_child(Node* from, Node* to);
+  
 
   private:
    void init(double heigh=-1, bool active=false);
