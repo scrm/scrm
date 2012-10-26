@@ -97,10 +97,8 @@ void Event::removeFromContemporaries(Node* node) {
     for (std::vector<Node*>::iterator it = contemporaries_.begin();
          it!=contemporaries_.end(); ++it) {
       if ( *it == node ) {
-        std::cout << "Removing Branch from contemporaries" << std::endl;
-        std::cout << contemporaries_.size() << std::endl;
+        dout << "* * * removing branch above " << node << std::endl;
         contemporaries_.erase(it);
-        std::cout << contemporaries_.size() << std::endl;
         break;
       }
     }

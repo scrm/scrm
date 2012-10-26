@@ -12,10 +12,12 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testInitialization );
   CPPUNIT_TEST( testGettersAndSetters );
   CPPUNIT_TEST( testCreateExampleTree );
-  CPPUNIT_TEST( testGetFirstNode );
-  CPPUNIT_TEST( testBuildInitialTree );
+  CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testCheckNodesSorted );
+  CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testCreateRoots );
+  CPPUNIT_TEST( testBuildInitialTree );
   CPPUNIT_TEST_SUITE_END();
 
  private:
@@ -50,30 +52,47 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->getFirstNode()->height() == 0 );
   }
 
-  void testBuildInitialTree() {
-    Forest test_forest = Forest(Model(3), rg);
-    test_forest.buildInitialTree();
-    CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
-    CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
-    CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
+  void testCreateExampleTree() {
+    CPPUNIT_ASSERT( forest->countNodes() == 8 );
+    CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->checkTree() == 1 );
+  }
+  
+  void testCheckTreeLength() {
+    CPPUNIT_ASSERT( forest->checkTreeLength() );
   }
 
   void testCheckNodesSorted() {
     CPPUNIT_ASSERT(forest->checkNodesSorted() == 1);
     Forest test_forest = Forest(Model(0), rg);
-    test_forest.addNode(new Node(2));
-    test_forest.addNode(new Node(1));
+    test_forest.nodes_.push_back(new Node(2));
+    test_forest.nodes_.push_back(new Node(1));
     CPPUNIT_ASSERT(test_forest.checkNodesSorted() == 0);
-  }
-
-  void testCreateExampleTree() {
-    CPPUNIT_ASSERT( forest->checkTree() == 1 );
-    CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
   }
 
   void testSamplePoint() {
     TreePoint tp = forest->samplePoint();
-    CPPUNIT_ASSERT( tp.height_above() == 4 );
+    CPPUNIT_ASSERT( tp.relative_height() == 4 );
+  }
+
+  void testCreateRoots() {
+    Forest test_forest = Forest(Model(3), rg);
+    test_forest.createRoots();
+    CPPUNIT_ASSERT( test_forest.ultimate_root() != NULL );
+    CPPUNIT_ASSERT( test_forest.local_root() != NULL );
+    Node* u_root = test_forest.ultimate_root();
+    Node* l_root = test_forest.local_root();
+    CPPUNIT_ASSERT( u_root->height() == FLT_MAX );
+    CPPUNIT_ASSERT( l_root->parent() == u_root );
+    CPPUNIT_ASSERT( u_root->lower_child() == l_root );
+  }
+  
+  void testBuildInitialTree() {
+    //Forest test_forest = Forest(Model(3), rg);
+    //test_forest.buildInitialTree();
+    //CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
+    //CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
+    //CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
   }
 };
 

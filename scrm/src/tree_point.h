@@ -10,9 +10,9 @@ public:
   TreePoint(Node* base_node, double height, bool relative);
   ~TreePoint () {};
 
-  Node*  base_node()       { return base_node_; }
-  double relative_height() { return relative_height_; }
-  double height()          { return height_; }
+  Node*  base_node()       const { return base_node_; }
+  double relative_height() const { return relative_height_; }
+  double height()          const { return height_; }
 
 private:
   Node*  base_node_;

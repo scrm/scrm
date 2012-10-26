@@ -1,8 +1,13 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Uncomment do disable asserts
-//#define NDEBUG
+//Unless compiled with options NDEBUG, we will produce a debug output using 
+//'dout' instead of cout and execute (expensive) assert statements.
+#ifndef NDEBUG
+#define dout std::cout
+#else
+#define dout 0 && std::cout
+#endif
 
 #include <vector>
 #include <iostream>
@@ -15,6 +20,9 @@
 #include "event.h"
 #include "tree_point.h"
 #include "random/random_generator.h"
+#include "random/constant_generator.h"
+#include "random/fake_generator.h"
+#include "random/mersenne_twister.h"
 
 class Forest
 {
@@ -22,6 +30,7 @@ class Forest
 
 #ifdef UNITTEST
   friend class TestForest;
+  friend class TestNode;
 #endif
 
   Forest();
@@ -31,8 +40,10 @@ class Forest
   //Getters & Setters
   Model model() { return this->model_; }
   void set_model(const Model &model) { this->model_ = model; }
+
   Node* ultimate_root() { return ultimate_root_; }
-  Node* local_root() { return ultimate_root_; } //Adapted later
+  Node* local_root() { return ultimate_root()->lower_child(); }
+
   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
   int sample_size() { return this->model().sample_size(); }
   double local_tree_length() { return this->local_tree_length_; }
@@ -51,6 +62,12 @@ class Forest
 
   //Operations on the Tree
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
+  void cut(const TreePoint &cut_point);
+
+  //Operations to manage the fake binary tree connecting all trees of the forest
+  void createRoots();
+  void registerNonLocalRoot(Node* node);
+  void unregisterNonLocalRoot(Node* node);
 
   //
   void buildInitialTree();
@@ -64,15 +81,19 @@ class Forest
   //Debugging Tools
   void createExampleTree();
   bool checkTree(Node* root = NULL);
+  bool checkTreeLength();
   bool checkNodesSorted();
   void printNodes();
 
  private:
   //Private variables
-  std::vector<Node*> nodes_;
+  std::vector<Node*> nodes_;         //All nodes in the forest, sorted by height
+
   Node* ultimate_root_;
+
   Model model_;
   RandomGenerator* random_generator_;
+
   double local_tree_length_;
   double total_tree_length_;
   
@@ -87,10 +108,9 @@ class Forest
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
 
-  void inc_local_tree_length(const double &by);
-  void dec_local_tree_length(const double &by) { inc_local_tree_length(-1 * by); }
-  void inc_total_tree_length(const double &by);
-  void dec_total_tree_length(const double &by) { inc_total_tree_length(-1 * by); }
+  void inc_tree_length(const double &by, const bool &active);
+  void dec_tree_length(const double &by, const bool &active) 
+    { inc_tree_length(-1 * by, active); }
 
   void createSampleNodes();
   

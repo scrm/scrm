@@ -1,5 +1,6 @@
 CC=g++
-CFLAGS=-c -Wall
+#CFLAGS=-c -Wall -O3 -DNDEBUG
+CFLAGS=-c -Wall -O3
 LDFLAGS=
 SOURCES=$(shell find src | grep .cc)
 OBJECTS=$(SOURCES:.cc=.o)
@@ -9,7 +10,7 @@ REBUILD=src/scrm
 EXECUTABLE=scrm
 
 all: $(SOURCES) $(EXECUTABLE)
-	  
+
 $(EXECUTABLE): $(OBJECTS) 
 	  $(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
@@ -23,7 +24,7 @@ unittest: $(TEST_OBJECTS)
 	  $(CC) $(CFLAGS) $< -o $@
 
 %.to:  %.cc
-	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DUNITTEST $< -o $@
+	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DNDEBUG -DUNITTEST $< -o $@
 
 %.cc: %.h
 	  touch $@

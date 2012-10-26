@@ -1,7 +1,7 @@
 #include "node.h"
 
 Node::Node() { init(); };
-Node::Node(double height) { init(height); };
+Node::Node(double height) { init(height, true); };
 Node::Node(double height, bool active) { init(height, active); };
 Node::~Node() {};
 
@@ -11,10 +11,17 @@ void Node::init(double height, bool active) {
   this->set_parent(NULL);
   this->set_higher_child(NULL); 
   this->set_lower_child(NULL);
+  this->set_uncoalesed(false);
 }
-   
-double Node::parent_height() { 
-  if ( this->parent() == NULL ) return FLT_MAX;
+
+Node* Node::parent() const {
+  if (this->parent_ == NULL) 
+    throw std::logic_error("Trying to access parent of ultimate root"); 
+  return this->parent_; 
+}
+
+double Node::parent_height() const {
+  if ( this->is_root() ) return FLT_MAX;
   return this->parent()->height(); 
 }
 
@@ -30,4 +37,18 @@ void Node::change_child(Node* from, Node* to) {
     this->set_higher_child(this->lower_child());
     this->set_lower_child(tmp);
   }
+}
+
+bool Node::is_root() const {
+  if ( this->is_ultimate_root() ) return true;
+  return ( (!this->is_fake()) && this->parent()->is_fake() );
+}
+   
+bool Node::is_fake() const {
+  return (this->height() == FLT_MAX); 
+}
+
+bool Node::is_ultimate_root() const {
+  bool is_u_root = (this->parent_ == NULL);
+  return (is_u_root); 
 }

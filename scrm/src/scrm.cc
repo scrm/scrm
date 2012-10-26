@@ -7,8 +7,6 @@
 #include "random/constant_generator.h"
 #include "random/fake_generator.h"
 
-using namespace std;
-
 #ifndef UNITTEST
 int main () {
     try {
@@ -21,14 +19,14 @@ int main () {
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
-      forest.checkTree();
-      //forest.sampleNextGenealogy();
+      dout << "----- NEXT -----" << std::endl;
+      forest.sampleNextGenealogy();
 
       return 0;
     }
     catch (const exception &e)
     {
-      cerr << "Error: " << e.what() << endl;
+      std::cerr << "Error: " << e.what() << std::endl;
       return EXIT_FAILURE;
     }
 }
