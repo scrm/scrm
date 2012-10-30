@@ -66,7 +66,7 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->nodes()[4]->is_root() );
     CPPUNIT_ASSERT( !forest->nodes()[5]->is_root() );
     CPPUNIT_ASSERT( forest->nodes()[6]->is_root() );
-    CPPUNIT_ASSERT( forest->nodes()[7]->is_root() );
+    CPPUNIT_ASSERT( !forest->nodes()[7]->is_root() );
   }
 
   void testIsUltimateRoot(){

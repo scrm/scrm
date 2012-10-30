@@ -43,9 +43,7 @@ class Node
    void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }
 
    void change_child(Node* from, Node* to);
-  
-   bool uncoalesed() const { return this->uncoalesed_; }
-   void set_uncoalesed(const bool &uncoalesed) { this->uncoalesed_ = uncoalesed; }
+   int  numberOfChildren();
 
    bool is_fake() const; 
    bool is_root() const; 
@@ -57,7 +55,6 @@ class Node
    double height_;     //The total height of the node
    bool   active_;     //Indicates if the branch above is active, 
                        //i.e. on the local tree
-   bool   uncoalesed_; //The nodes marks an unimplemented coalesence event
 
    //The tree structure
    Node *parent_;

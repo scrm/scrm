@@ -19,8 +19,10 @@ int main () {
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
-      dout << "----- NEXT -----" << std::endl;
-      forest.sampleNextGenealogy();
+      //forest.createExampleTree();
+      forest.checkTree();
+      //dout << "----- NEXT -----" << std::endl;
+      //forest.sampleNextGenealogy();
 
       return 0;
     }

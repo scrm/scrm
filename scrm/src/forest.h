@@ -58,6 +58,8 @@ class Forest
   std::vector<Node*>::iterator getNodeFwIterator();
 
   void addNode(Node *node);
+  void removeNode(Node *node);
+  void moveNode(Node *node, const double &new_height);
   int countNodes();
 
   //Operations on the Tree
@@ -74,9 +76,9 @@ class Forest
   void buildInitialTree_old();
   TreePoint samplePoint(bool only_local = false);
   void sampleNextGenealogy();
-  void sampleCoalescences(TreePoint &start_point, const bool &for_initial_tree = false);
+  void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
   double calcCoalescenceRate(int lines_number, int coal_lines_number = 1);
-  void coalesNodeIntoTree(Node* coal_node, TreePoint &coal_point);
+  void coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point);
 
   //Debugging Tools
   void createExampleTree();
