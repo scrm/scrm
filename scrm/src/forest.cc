@@ -84,105 +84,7 @@ void Forest::moveNode(Node *node, const double &new_height) {
   this->addNode(node);
 }
 
-void Forest::printNodes() {
-  for(int i = 0; i < this->countNodes(); ++i) {
-    dout << "Addr: " << this->nodes()[i] << " | ";
-    dout << "Height: " << this->nodes()[i]->height() << " | ";
-    if (this->nodes()[i]->is_ultimate_root())
-      dout << "Parent: " << "NONE" << " | ";
-    else
-      dout << "Parent: " << this->nodes()[i]->parent() << " | ";
-    dout << "h_child: " << this->nodes()[i]->higher_child() << " | ";
-    dout << "l_child: " << this->nodes()[i]->lower_child() << std::endl;
-  }
-}
 
-/******************************************************************
- * Tree Printing
- *****************************************************************/
-void Forest::printTree() {
-  std::vector<Node*>::reverse_iterator it;
-  std::vector<Node*>::iterator cit;
-  Node* current_node;
-  int lines_left, lines_right, position;
-  
-  std::vector<Node*> branches;
-  for (int i=0; i < this->countNodes(); ++i) branches.push_back(NULL);
-
-  for (it = nodes_.rbegin(); it < nodes_.rend(); ++it) {
-    current_node = *it;
-    if (current_node->is_fake()) continue;
-
-
-    lines_left = countLinesLeft(current_node);
-    lines_right = countLinesRight(current_node);
-    
-
-    if ( current_node->is_root() ) {
-      position = countBelowLinesLeft(current_node) + lines_left;
-      branches[position] = current_node;
-    } else {
-       position = 0;
-       for (cit = branches.begin(); cit < branches.end(); ++cit) {
-         if ( *cit == current_node ) break;
-         ++position;
-       }
-    }
-
-    for (cit = branches.begin(); cit < branches.end(); ++cit) {
-      if (*cit == NULL) dout << " ";
-      else dout << "|";
-    }
-    dout << std::endl;
-    
-    for (int i=0; i < branches.size(); ++i) {
-      if ( i < position - lines_left) {
-        if ( branches[i] == NULL ) dout << " ";
-        else if (areSame(branches[i]->height(), current_node->height())) 
-          dout << "+";
-        else dout << "|";
-      } 
-      else if ( i < position) dout << "-";
-      else if ( i == position) dout << "+";
-      else if ( i <= position + lines_right) dout << "-";
-      else {
-        if ( branches[i] == NULL ) dout << " ";
-        else if (areSame(branches[i]->height(), current_node->height())) 
-          dout << "+";
-        else dout << "|";
-      }
-    }
-    
-    dout << position << " " << lines_left << " " << lines_right;
-    ////dout << " " << countLinesLeft(current_node);
-    dout << std::endl;
-
-    branches[position - lines_left] = current_node->lower_child();
-    branches[position + lines_right] = current_node->higher_child();
-    branches[position] = NULL;
-    if (current_node ->height() == 0) break;
-  }
-}
-
-int Forest::countLinesLeft(Node *node) {
-  if ( node->lower_child() == NULL ) return 0;
-  return ( 1 + countBelowLinesRight(node) );
-}
-
-int Forest::countLinesRight(Node *node) {
-  if ( node->lower_child() == NULL ) return 0;
-  return ( 1 + countBelowLinesLeft(node) );
-}
-
-int Forest::countBelowLinesLeft(Node *node) {
-  if ( node->lower_child() == NULL ) return 0;
-  else return ( countLinesLeft(node->lower_child()) + countBelowLinesLeft(node->lower_child()) );
-}
-
-int Forest::countBelowLinesRight(Node *node) {
-  if ( node->higher_child() == NULL ) return 0;
-  else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
-}
 
 
 //Cuts all nodes below a point on the tree and moves them into a new tree
@@ -637,6 +539,107 @@ bool Forest::checkTree(Node *root) {
   }
 
   return child1*child2;
+}
+
+
+
+
+/******************************************************************
+ * Tree Printing
+ *****************************************************************/
+void Forest::printTree() {
+  std::vector<Node*>::reverse_iterator it;
+  std::vector<Node*>::iterator cit;
+  Node* current_node;
+  int lines_left, lines_right, position;
+  
+  std::vector<Node*> branches;
+  for (int i=0; i < this->countNodes(); ++i) branches.push_back(NULL);
+
+  for (it = nodes_.rbegin(); it < nodes_.rend(); ++it) {
+    current_node = *it;
+    if (current_node->is_fake()) continue;
+
+    lines_left = countLinesLeft(current_node);
+    lines_right = countLinesRight(current_node);
+
+    if ( current_node->is_root() ) {
+      position = countBelowLinesLeft(current_node) + lines_left;
+      branches[position] = current_node;
+    } else {
+       position = 0;
+       for (cit = branches.begin(); cit < branches.end(); ++cit) {
+         if ( *cit == current_node ) break;
+         ++position;
+       }
+    }
+
+    for (cit = branches.begin(); cit < branches.end(); ++cit) {
+      if (*cit == NULL) dout << " ";
+      else dout << "|";
+    }
+    dout << std::endl;
+    
+    for (int i=0; i < branches.size(); ++i) {
+      if ( i < position - lines_left) {
+        if ( branches[i] == NULL ) dout << " ";
+        else if (areSame(branches[i]->height(), current_node->height())) 
+          dout << "+";
+        else dout << "|";
+      } 
+      else if ( i < position) dout << "-";
+      else if ( i == position) dout << "+";
+      else if ( i <= position + lines_right) dout << "-";
+      else {
+        if ( branches[i] == NULL ) dout << " ";
+        else if (areSame(branches[i]->height(), current_node->height())) 
+          dout << "+";
+        else dout << "|";
+      }
+    }
+    
+    dout << current_node->height() << " " << current_node ;
+    ////dout << " " << countLinesLeft(current_node);
+    dout << std::endl;
+
+    branches[position - lines_left] = current_node->lower_child();
+    branches[position + lines_right] = current_node->higher_child();
+    branches[position] = NULL;
+    if (current_node ->height() == 0) break;
+  }
+}
+
+int Forest::countLinesLeft(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  return ( 1 + countBelowLinesRight(node) );
+}
+
+int Forest::countLinesRight(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  return ( 1 + countBelowLinesLeft(node) );
+}
+
+int Forest::countBelowLinesLeft(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  else return ( countLinesLeft(node->lower_child()) + countBelowLinesLeft(node->lower_child()) );
+}
+
+int Forest::countBelowLinesRight(Node *node) {
+  if ( node->higher_child() == NULL ) return 0;
+  else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
+}
+
+void Forest::printNodes() {
+  for(int i = 0; i < this->countNodes(); ++i) {
+    dout << "Addr: " << this->nodes()[i] << " | ";
+    dout << "Height: " << this->nodes()[i]->height() << " | ";
+    if (this->nodes()[i]->is_ultimate_root())
+      dout << "Parent: " << "NONE" << " | ";
+    else
+      dout << "Parent: " << this->nodes()[i]->parent() << " | ";
+    dout << "h_child: " << this->nodes()[i]->higher_child() << " | ";
+    dout << "l_child: " << this->nodes()[i]->lower_child() << std::endl;
+  }
 }
 
 bool areSame(double a, double b) {

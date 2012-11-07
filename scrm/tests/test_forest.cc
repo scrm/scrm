@@ -18,6 +18,10 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST( testCreateRoots );
   CPPUNIT_TEST( testBuildInitialTree );
+  CPPUNIT_TEST( testCountLinesLeft );
+  CPPUNIT_TEST( testCountLinesRight );
+  CPPUNIT_TEST( testCountBelowLinesLeft );
+  CPPUNIT_TEST( testCountBelowLinesRight );
   CPPUNIT_TEST_SUITE_END();
 
  private:
@@ -94,6 +98,31 @@ class TestForest : public CppUnit::TestCase {
     //CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
     //CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
   }
+
+  void testCountLinesLeft() {
+    CPPUNIT_ASSERT( forest->countLinesLeft(forest->local_root()) == 2 );
+    CPPUNIT_ASSERT( forest->countLinesLeft(forest->local_root()->lower_child()) == 1 );
+    CPPUNIT_ASSERT( forest->countLinesLeft(forest->getFirstNode()) == 0);
+  }
+
+  void testCountBelowLinesLeft() {
+    CPPUNIT_ASSERT( forest->countBelowLinesLeft(forest->local_root()) == 1 );
+    CPPUNIT_ASSERT( forest->countBelowLinesLeft(forest->local_root()->lower_child()) == 0 );
+    CPPUNIT_ASSERT( forest->countBelowLinesLeft(forest->getFirstNode()) == 0);
+  }
+
+  void testCountLinesRight() {
+    CPPUNIT_ASSERT( forest->countLinesRight(forest->local_root()) == 2 );
+    CPPUNIT_ASSERT( forest->countLinesRight(forest->local_root()->lower_child()) == 1 );
+    CPPUNIT_ASSERT( forest->countLinesRight(forest->getFirstNode()) == 0);
+  }
+
+  void testCountBelowLinesRight() {
+    CPPUNIT_ASSERT( forest->countBelowLinesRight(forest->local_root()) == 1 );
+    CPPUNIT_ASSERT( forest->countBelowLinesRight(forest->local_root()->lower_child()) == 0 );
+    CPPUNIT_ASSERT( forest->countBelowLinesRight(forest->getFirstNode()) == 0);
+  }
+
 };
 
 //Uncomment this to activate the test
