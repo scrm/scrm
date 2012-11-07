@@ -10,7 +10,7 @@
 #ifndef UNITTEST
 int main () {
     try {
-      Model model = Model(5);
+      Model model = Model(10);
 
       //Different random generators.
       MersenneTwister *rg = new MersenneTwister();
@@ -20,7 +20,10 @@ int main () {
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
       //forest.createExampleTree();
-      forest.checkTree();
+      //forest.printNodes();
+      forest.printTree();
+      //forest.createExampleTree();
+      
       //dout << "----- NEXT -----" << std::endl;
       //forest.sampleNextGenealogy();
 

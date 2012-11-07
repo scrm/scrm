@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
+#include <boost/assign/std/vector.hpp>
 
 #include "node.h"
 #include "model.h"
@@ -66,6 +67,9 @@ class Forest
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   void cut(const TreePoint &cut_point);
 
+  void calcTreeLength(double *local_length, double *total_length);
+  void updateTreeLength();
+
   //Operations to manage the fake binary tree connecting all trees of the forest
   void createRoots();
   void registerNonLocalRoot(Node* node);
@@ -86,6 +90,14 @@ class Forest
   bool checkTreeLength();
   bool checkNodesSorted();
   void printNodes();
+
+  //Tree printing
+  int countLinesLeft(Node *node);
+  int countLinesRight(Node *node);
+  int countBelowLinesLeft(Node *node);
+  int countBelowLinesRight(Node *node);
+  void printTree();
+
 
  private:
   //Private variables
@@ -117,5 +129,7 @@ class Forest
   void createSampleNodes();
   
 };
+
+bool areSame(double a, double b);
 
 #endif

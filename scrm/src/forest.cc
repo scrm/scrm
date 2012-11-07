@@ -36,7 +36,7 @@ void Forest::initialize(Model model,
 Forest::~Forest() { 
   for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
        it!=this->getNodesEnd(); ++it) {
-    delete *it;
+//    delete *it;
   }
 }
 
@@ -97,6 +97,94 @@ void Forest::printNodes() {
   }
 }
 
+/******************************************************************
+ * Tree Printing
+ *****************************************************************/
+void Forest::printTree() {
+  std::vector<Node*>::reverse_iterator it;
+  std::vector<Node*>::iterator cit;
+  Node* current_node;
+  int lines_left, lines_right, position;
+  
+  std::vector<Node*> branches;
+  for (int i=0; i < this->countNodes(); ++i) branches.push_back(NULL);
+
+  for (it = nodes_.rbegin(); it < nodes_.rend(); ++it) {
+    current_node = *it;
+    if (current_node->is_fake()) continue;
+
+
+    lines_left = countLinesLeft(current_node);
+    lines_right = countLinesRight(current_node);
+    
+
+    if ( current_node->is_root() ) {
+      position = countBelowLinesLeft(current_node) + lines_left;
+      branches[position] = current_node;
+    } else {
+       position = 0;
+       for (cit = branches.begin(); cit < branches.end(); ++cit) {
+         if ( *cit == current_node ) break;
+         ++position;
+       }
+    }
+
+    for (cit = branches.begin(); cit < branches.end(); ++cit) {
+      if (*cit == NULL) dout << " ";
+      else dout << "|";
+    }
+    dout << std::endl;
+    
+    for (int i=0; i < branches.size(); ++i) {
+      if ( i < position - lines_left) {
+        if ( branches[i] == NULL ) dout << " ";
+        else if (areSame(branches[i]->height(), current_node->height())) 
+          dout << "+";
+        else dout << "|";
+      } 
+      else if ( i < position) dout << "-";
+      else if ( i == position) dout << "+";
+      else if ( i <= position + lines_right) dout << "-";
+      else {
+        if ( branches[i] == NULL ) dout << " ";
+        else if (areSame(branches[i]->height(), current_node->height())) 
+          dout << "+";
+        else dout << "|";
+      }
+    }
+    
+    dout << position << " " << lines_left << " " << lines_right;
+    ////dout << " " << countLinesLeft(current_node);
+    dout << std::endl;
+
+    branches[position - lines_left] = current_node->lower_child();
+    branches[position + lines_right] = current_node->higher_child();
+    branches[position] = NULL;
+    if (current_node ->height() == 0) break;
+  }
+}
+
+int Forest::countLinesLeft(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  return ( 1 + countBelowLinesRight(node) );
+}
+
+int Forest::countLinesRight(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  return ( 1 + countBelowLinesLeft(node) );
+}
+
+int Forest::countBelowLinesLeft(Node *node) {
+  if ( node->lower_child() == NULL ) return 0;
+  else return ( countLinesLeft(node->lower_child()) + countBelowLinesLeft(node->lower_child()) );
+}
+
+int Forest::countBelowLinesRight(Node *node) {
+  if ( node->higher_child() == NULL ) return 0;
+  else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
+}
+
+
 //Cuts all nodes below a point on the tree and moves them into a new tree
 void Forest::cut(const TreePoint &cut_point) {
   //The node above the cut_point in the old tree
@@ -113,10 +201,29 @@ void Forest::cut(const TreePoint &cut_point) {
   Node* new_root = new Node(cut_point.height());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_higher_child(cut_point.base_node());
-      
+
+  this->updateTreeLength();
   assert( this->checkTree() );
 }
 
+void Forest::calcTreeLength(double *local_length, double *total_length) {
+  *local_length = 0;
+  *total_length = 0;
+
+  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
+       it!=this->getNodesEnd(); ++it) {
+    if ( (*it)->is_fake() || (*it)->is_root() ) continue;
+    *total_length += (*it)->height_above();
+    if ( (*it)->active() ) *local_length += (*it)->height_above();
+  }
+}
+
+void Forest::updateTreeLength() {
+  double local_length = 0, total_length = 0;
+  this->calcTreeLength(&local_length, &total_length);
+  this->set_local_tree_length(local_length);
+  this->set_total_tree_length(total_length);
+}
 
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INTITIAL TREE =====" << std::endl;
@@ -124,7 +231,7 @@ void Forest::buildInitialTree() {
   this->createRoots();
   dout << "done." << std::endl;
 
-  this->printNodes();
+  this->printTree();
 
   dout << "* adding a node ";
   for (int i=1; i < this->sample_size(); i++) {
@@ -325,21 +432,16 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
   coal_node->set_height(coal_point.height());
   this->moveNode(coal_node, coal_point.height());
 
-  dout << 1 << std::endl;
   //Update the coal_node
   coal_node->change_child(NULL, coal_point.base_node());
   coal_node->set_parent(coal_point.base_node()->parent());
-  dout << coal_node->parent() << std::endl;
 
-  dout << 2 << std::endl;
   //Update the new child 
   coal_point.base_node()->set_parent(coal_node);
 
-  dout << 3 << std::endl;
   //Update the parent
   coal_node->parent()->change_child(coal_point.base_node(), coal_node);
 
-  dout << 4 << std::endl;
   //Optimize: Live tracking of tree length?
   double local_length = 0;
   double total_length = 0;
@@ -352,7 +454,7 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
   this->set_local_tree_length(local_length);
   this->set_total_tree_length(total_length);
 
-  this->printNodes();
+  this->printTree();
   assert(this->checkTree());
 }
 
@@ -360,6 +462,8 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
 /******************************************************************
  * Manage roots and fake tree
  *****************************************************************/
+
+// Creates the very first node of the tree and the ultimate root above
 void Forest::createRoots() {
   //Create the first node of the tree (also is the root at this point)
   Node* first_node = new Node(0);
@@ -467,18 +571,14 @@ bool Forest::checkNodesSorted() {
 bool Forest::checkTreeLength() {
   double local_length = 0;
   double total_length = 0;
-  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
-       it!=this->getNodesEnd(); ++it) {
-    if ( (*it)->is_fake() || (*it)->is_root() ) continue;
-    total_length += (*it)->height_above();
-    if ( (*it)->active() ) local_length += (*it)->height_above();
-  }
-  if ( total_length != this->local_tree_length() ) {
+  this->calcTreeLength(&local_length, &total_length);
+
+  if ( !areSame(total_length, total_tree_length()) ) {
     dout << "Error: total tree length is " << this->total_tree_length() << " ";
     dout << "but should be " << total_length << std::endl;
     return(0);
   }
-  if ( local_length != this->local_tree_length() ) {
+  if ( !areSame(local_length, local_tree_length()) ) {
     dout << "Error: local tree length is " << this->local_tree_length() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
@@ -537,4 +637,9 @@ bool Forest::checkTree(Node *root) {
   }
 
   return child1*child2;
+}
+
+bool areSame(double a, double b) {
+      return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+      //return std::fabs(a - b) < 0.0001;
 }
