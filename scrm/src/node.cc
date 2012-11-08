@@ -47,7 +47,7 @@ int Node::numberOfChildren() {
 //false for the ultimate_root
 bool Node::is_root() const {
   if ( this->is_fake() ) return false;
-  //Special case: toot of a tree just cut away for coalescence. These are not
+  //Special case: root of a tree just cut away for coalescence. These are not
   //added to the fake tree to increase performance.
   if ( this->parent_ == NULL ) return true;
   //or root of a tree:

@@ -165,7 +165,8 @@ bool Forest::printTree() {
   std::vector<Node*>::iterator cit;
   Node* current_node;
   int lines_left, lines_right, position;
-  double current_height = FLT_MAX;
+  //double current_height = FLT_MAX;
+  double current_height = -1;
   
   std::vector<Node*> branches;
   for (int i=0; i < this->countNodes(); ++i) branches.push_back(NULL);
@@ -175,6 +176,7 @@ bool Forest::printTree() {
 
     lines_left = countLinesLeft(current_node);
     lines_right = countLinesRight(current_node);
+    if (current_node->is_fake()) --lines_right;
 
     if ( current_node == this->ultimate_root() ) {
       position = countBelowLinesLeft(current_node) + lines_left;
@@ -196,10 +198,15 @@ bool Forest::printTree() {
       }
       dout << std::endl;
     }
-   
-    branches[position - lines_left] = current_node->lower_child();
-    branches[position + lines_right] = current_node->higher_child();
-    branches[position] = NULL;
+  
+    if (current_node->higher_child() == NULL){ 
+      branches[position] = current_node->lower_child();
+    }
+    else {
+      branches[position - lines_left] = current_node->lower_child();
+      branches[position + lines_right] = current_node->higher_child();
+      branches[position] = NULL;
+    }
     
     if (current_node->height() == FLT_MAX) continue;
 
@@ -214,7 +221,8 @@ bool Forest::printTree() {
       if ( i < position - lines_left) {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          dout << "+";
+          if (branches[i]->active()) dout << "+";
+          else dout << "°";
         else dout << "|";
       } 
       else if ( i < position) dout << "-";
@@ -226,17 +234,18 @@ bool Forest::printTree() {
       else {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          dout << "+";
+          if (branches[i]->active()) dout << "+";
+          else dout << "°";
         else dout << "|";
       }
     }
 
     dout << " " << current_node->height() << " " << current_node ;
-    ////dout << " " << countLinesLeft(current_node);
 
   }
-  //Returns true, so that it can be place in asserts
   dout << std::endl;
+  dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
+  //Returns true, so that it can be place in asserts
   return true;
 }
 

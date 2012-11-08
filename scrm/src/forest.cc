@@ -101,7 +101,8 @@ void Forest::cut(const TreePoint &cut_point) {
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
-  Node* new_root = new Node(cut_point.height());
+  Node* new_root = new Node(cut_point.height(), 
+                            cut_point.base_node()->active());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_lower_child(cut_point.base_node());
   //Inefficient to to this for active nodes
@@ -187,6 +188,7 @@ TreePoint Forest::samplePoint(bool only_local) {
   double height_above = -1;
 
   for (std::vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
+    if ((*it)->is_root()) continue;
     if ((*it)->height_above() > point) {
       base_node = *it;
       height_above = point;
@@ -203,7 +205,7 @@ TreePoint Forest::samplePoint(bool only_local) {
 
 void Forest::sampleNextGenealogy() {
   dout << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
-  // Samples a new genealogy, conditional on a recombination occuring
+  // Samples a new genealogy, conditional on a recombination occurring
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
@@ -216,8 +218,13 @@ void Forest::sampleNextGenealogy() {
 
   //assert(this->printTree());
 
-  // Postpone coalesence if not active
-  //if (!idx->active()) { ; }
+  // Postpone coalescence if not active
+  if (!rec_point.base_node()->active()) {
+    dout << "* Not on local tree; Postponing coalescence" << std::endl; 
+    dout << "* Tree:" << std::endl; 
+    assert(this->printTree());
+    return;
+  }
 
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());

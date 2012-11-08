@@ -1,7 +1,5 @@
 #include <iostream>
 #include "forest.h"
-#include "model.h"
-#include "node.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
@@ -10,12 +8,12 @@
 #ifndef UNITTEST
 int main () {
     try {
-      Model model = Model(10);
+      Model model = Model(5);
 
       //Different random generators.
-      MersenneTwister *rg = new MersenneTwister();
+      //MersenneTwister *rg = new MersenneTwister();
       //ConstantGenerator *rg = new ConstantGenerator();
-      //FakeRandomGenerator *rg = new FakeRandomGenerator(5);
+      FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
@@ -24,7 +22,14 @@ int main () {
       //forest.printTree();
       //forest.createExampleTree();
       
-      dout << "----- NEXT -----" << std::endl;
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
+      forest.sampleNextGenealogy();
       forest.sampleNextGenealogy();
 
       return 0;
