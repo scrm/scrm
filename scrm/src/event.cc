@@ -42,8 +42,9 @@ EventIterator::EventIterator(Forest* forest, const double &start_height) {
   while ((*twig_iterator_)->height() < start_height) {
     if ( twig_iterator_ == forest_->getNodesEnd()) break;
     //Does the twig end above start_height?
-    if ((*twig_iterator_)->parent_height() > start_height){
-      contemporaries_.push_back(*twig_iterator_);
+    if ((*twig_iterator_)->height_above() > start_height){
+      if (!(*twig_iterator_)->is_root()) 
+        contemporaries_.push_back(*twig_iterator_);
     }
 
     ++twig_iterator_;
@@ -67,7 +68,7 @@ Event EventIterator::next() {
     }
   }
   
-  contemporaries_.push_back(*twig_iterator_); 
+  if (!(*twig_iterator_)->is_root()) contemporaries_.push_back(*twig_iterator_);
   ++twig_iterator_;
 
   //Set interval borders
@@ -76,6 +77,9 @@ Event EventIterator::next() {
     end_height = FLT_MAX;
   else
     end_height = (*twig_iterator_)->height();
+  
+  //Don't return Events of length zero, as nothing can happen there...
+  if (start_height == end_height) return next();
 
   //Update contemporaries
   //This could be a bit more optimized
@@ -85,21 +89,18 @@ Event EventIterator::next() {
       --i; 
     }
   }
-
-  //Don't return Events of length zero, as nothing can happen there...
-  if (start_height == end_height) return next();
   
   return Event(this->forest_, start_height, end_height, contemporaries_);
 }
 
-//Removes a Node from the contemporaries if it is there. Does nothing if not.
+//Removes a Node from the contemporaries if it is there.
 void Event::removeFromContemporaries(Node* node) {
-    for (std::vector<Node*>::iterator it = contemporaries_.begin();
-         it!=contemporaries_.end(); ++it) {
-      if ( *it == node ) {
-        dout << "* * * removing branch above " << node << std::endl;
-        contemporaries_.erase(it);
-        break;
-      }
+  for (std::vector<Node*>::iterator it = contemporaries_.begin();
+       it!=contemporaries_.end(); ++it) {
+    if ( *it == node ) {
+      contemporaries_.erase(it);
+      return;
     }
+  }
+  throw std::logic_error("Trying to remove non-existing node");
 }

@@ -21,11 +21,11 @@ int main () {
       forest.buildInitialTree();
       //forest.createExampleTree();
       //forest.printNodes();
-      forest.printTree();
+      //forest.printTree();
       //forest.createExampleTree();
       
-      //dout << "----- NEXT -----" << std::endl;
-      //forest.sampleNextGenealogy();
+      dout << "----- NEXT -----" << std::endl;
+      forest.sampleNextGenealogy();
 
       return 0;
     }

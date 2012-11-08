@@ -72,8 +72,8 @@ class Forest
 
   //Operations to manage the fake binary tree connecting all trees of the forest
   void createRoots();
-  void registerNonLocalRoot(Node* node);
-  void unregisterNonLocalRoot(Node* node);
+  void registerNonLocalRoot(Node *node, Node *position = NULL);
+  void unregisterNonLocalRoot(Node* node, Node *position = NULL);
 
   //
   void buildInitialTree();
@@ -96,7 +96,7 @@ class Forest
   int countLinesRight(Node *node);
   int countBelowLinesLeft(Node *node);
   int countBelowLinesRight(Node *node);
-  void printTree();
+  bool printTree();
 
 
  private:
