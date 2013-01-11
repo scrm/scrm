@@ -68,7 +68,8 @@ Event EventIterator::next() {
     }
   }
   
-  if (!(*twig_iterator_)->is_root()) contemporaries_.push_back(*twig_iterator_);
+  if (!( (*twig_iterator_)->is_root() || (*twig_iterator_)->is_fake())) 
+    contemporaries_.push_back(*twig_iterator_);
   ++twig_iterator_;
 
   //Set interval borders
@@ -83,10 +84,12 @@ Event EventIterator::next() {
 
   //Update contemporaries
   //This could be a bit more optimized
-  for (int i=0; i < (contemporaries_.size() - 1); i++) {
+  int i=0;
+  while ( i < (contemporaries_.size()) ) {
     if ( contemporaries_[i]->parent_height() <= start_height ) {
       contemporaries_.erase(contemporaries_.begin() + i);
-      --i; 
+    } else {
+      ++i;
     }
   }
   

@@ -42,9 +42,14 @@ class TestEvent : public CppUnit::TestCase {
     it = EventIterator(forest, 4);
     CPPUNIT_ASSERT( it.start_height_ == 4 );
     CPPUNIT_ASSERT( it.contemporaries_.size() == 2 );
+    it = EventIterator(forest, 11);
+    CPPUNIT_ASSERT( it.start_height_ == 11 );
+    CPPUNIT_ASSERT( it.contemporaries_.size() == 0 );
   }
 
   void testEventIteratorNext() {
+    //forest->printTree();
+    //forest->printNodes();
     EventIterator events = EventIterator(forest, 0.5);
     Event event = events.next();
     CPPUNIT_ASSERT( event.start_height() == 0.5 );
@@ -61,7 +66,7 @@ class TestEvent : public CppUnit::TestCase {
     event = events.next();
     CPPUNIT_ASSERT( event.start_height() == 10 );
     CPPUNIT_ASSERT( event.end_height() == FLT_MAX );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 1);
+    CPPUNIT_ASSERT( event.contemporaries().size() == 0);
     CPPUNIT_ASSERT_THROW( event = events.next(), std::out_of_range );
 
     events = EventIterator(forest, 0);

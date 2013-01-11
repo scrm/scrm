@@ -269,7 +269,7 @@ int Forest::countBelowLinesRight(Node *node) {
   else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
 }
 
-void Forest::printNodes() {
+bool Forest::printNodes() {
   for(int i = 0; i < this->countNodes(); ++i) {
     dout << "Addr: " << this->nodes()[i] << " | ";
     dout << "Height: " << this->nodes()[i]->height() << " | ";
@@ -280,6 +280,7 @@ void Forest::printNodes() {
     dout << "h_child: " << this->nodes()[i]->higher_child() << " | ";
     dout << "l_child: " << this->nodes()[i]->lower_child() << std::endl;
   }
+  return true;
 }
 
 bool areSame(double a, double b) {

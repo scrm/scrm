@@ -62,4 +62,13 @@ class Node
    Node *lower_child_;
 };
 
+//Inlining this functions slighly increases preformance
+inline bool Node::is_fake() const {
+  return ( this->height() == FLT_MAX ); 
+}
+
+inline bool Node::is_ultimate_root() const {
+  return ( this->is_fake() && this->parent_ == NULL );
+}
+
 #endif

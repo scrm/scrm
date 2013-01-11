@@ -108,8 +108,8 @@ void Forest::cut(const TreePoint &cut_point) {
   //Inefficient to to this for active nodes
   this->addNode(new_root);
   this->registerNonLocalRoot(new_root);
-  this->printNodes();
-  this->printTree();
+  assert(this->printNodes());
+  assert(this->printTree());
   dout << "* * New root of subtree: " << new_root << std::endl;
 
   this->updateTreeLength();
@@ -243,66 +243,138 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
   bool  coalescence_2_active = false;
 
   double current_time = std::min(start_node->height(), coalescence_root_2->height());
-
-  Event current_event = events.next();
-  double std_expo_sample = this->random_generator()->sampleExpo(1);
+  double std_expo_sample = -1;
   double expo_sample = -1;
 
   while (true) {
-    assert(this->checkTree());
-    dout << "* * new event (time " << current_time << ")" << std::endl;
+    Event current_event = events.next();
+    double std_expo_sample = this->random_generator()->sampleExpo(1);
 
-    coalescence_1_active = current_time >= coalescence_root_1->height();
-    coalescence_2_active = current_time >= coalescence_root_2->height();
-    assert(coalescence_1_active || coalescence_2_active);
+    while (true) {
+      assert(this->checkTree());
+      dout << "* * new event (time " << current_time << ")" << std::endl;
 
-    // If SMC or intiatial tree:
-    // Remove branch above recombination point to avoid back coalescence.
-    if ( for_initial_tree  || this->model().is_smc_model() ) {
-      dout << "* * removing branch above coalescing node" << std::endl;
-      current_event.removeFromContemporaries(start_node);
+      coalescence_1_active = current_time >= coalescence_root_1->height();
+      coalescence_2_active = current_time >= coalescence_root_2->height();
+      assert(coalescence_1_active || coalescence_2_active);
+      dout << "* * Active: ";
+      if (coalescence_1_active) dout << coalescence_root_1 << " ";
+      if (coalescence_2_active) dout << coalescence_root_2 << " ";
+      dout << std::endl;
+
+      // If SMC or intiatial tree:
+      // Remove branch above recombination point to avoid back coalescence.
+      if ( for_initial_tree  || this->model().is_smc_model() ) {
+        dout << "* * removing branch above coalescing node" << std::endl;
+        current_event.removeFromContemporaries(start_node);
+      }
+
+      // Calculate rate of any coalescence occuring
+      double rate = calcCoalescenceRate(current_event.contemporaries().size(),
+                                        coalescence_1_active + coalescence_2_active);
+      dout << "* * * rate: " << rate << std::endl;
+
+      double intervall_height = current_event.end_height() - current_event.start_height();
+      expo_sample = std_expo_sample / rate;
+
+      if (expo_sample > intervall_height) {
+        std_expo_sample = (expo_sample - intervall_height) * rate;
+      }
+      else {
+        current_time += expo_sample;
+        dout << "* * * coalescence" << std::endl;
+        break;
+      }
+
+      //We should at least coalescence in the last (almost infinite) intervall
+      assert(current_event.end_height() < FLT_MAX);
+      
+      current_time = current_event.end_height();
+      current_event = events.next();
+    }
+        
+    dout << "* * coalescence at time " << current_time << std::endl;
+    dout << "* * #contemoraries: " << current_event.contemporaries().size() << std::endl;
+ 
+    Node *coalescing_root = NULL, *coalescence_target = NULL;
+    
+    if (coalescence_1_active && coalescence_2_active) {
+      // Select which root coaleses
+      if (current_event.contemporaries().size() == 0 ||
+          this->random_generator()->sampleInt(2) == 0) {
+        coalescing_root = coalescence_root_1;
+        // root_1 can also coales into root_2, while the opposit is not possible.
+        // (Or the pair would be overrepresented)
+        int target = this->random_generator()->sampleInt(current_event.contemporaries().size() + 1);
+        if (target == 0) coalescence_target = coalescence_root_2;
+        else coalescence_target = current_event.contemporaries()[target-1];
+      } else {
+        coalescing_root = coalescence_root_2;
+        coalescence_target = current_event.getRandomContemporary();
+      }
+    } else {
+      // One active coalescence
+      assert(coalescence_1_active || coalescence_2_active);
+      if (coalescence_1_active) coalescing_root = coalescence_root_1;
+      else                      coalescing_root = coalescence_root_2;
+      coalescence_target = current_event.getRandomContemporary();
     }
 
-    // Calculate rate of any coalescence occuring
-    double rate = calcCoalescenceRate(current_event.contemporaries().size(),
-                                      coalescence_1_active + coalescence_2_active);
-    dout << "* * * rate: " << rate << std::endl;
+    assert(coalescing_root != NULL);
+    assert(coalescence_target != NULL);
+    assert(coalescing_root != coalescence_target);
+    dout << "* * " << coalescing_root << " >> " << coalescence_target << std::endl;
 
-    double intervall_height = current_event.end_height() - current_event.start_height();
-    expo_sample = std_expo_sample / rate;
+    // Implement the coalescence
+    TreePoint coal_point = TreePoint(coalescence_target, current_time, false);
+    dout << "* * into: " << coal_point.base_node() << std::endl;
+    dout << "* * Updating tree" << std::endl;
+    coalesNodeIntoTree(coalescing_root, coal_point);
 
-    if (expo_sample > intervall_height) {
-      std_expo_sample = (expo_sample - intervall_height) * rate;
-    }
-    else {
-      current_time += expo_sample;
-      dout << "* * * coalescence" << std::endl;
+    // root 1 and 2 coalesed together? => we are done
+    if (coalescing_root == coalescence_root_1 && coalescence_target == coalescence_root_2) {
+      dout << "* * pairwise coalescence" << std::endl;
       break;
     }
 
-    //We should at least coalescence in the last (almost infinite) intervall
-    assert(current_event.end_height() < FLT_MAX);
-    
-    current_time = current_event.end_height();
-    current_event = events.next();
-  }
-      
-  dout << "* * coalescence at time " << current_time << std::endl;
-  dout << "* * #contemoraries: " << current_event.contemporaries().size() << std::endl;
+    // root 2 coalesed? => move upwards until we hid another root, and mark as
+    // active
+    if (coalescing_root == coalescence_root_2) {
+      while (!coalescence_root_2->is_root()) {
+        coalescence_root_2 = coalescence_root_2->parent();
+        coalescence_root_2->activate();
+        dout << "* * Activating node " << coalescence_root_2 << std::endl;
+      }
+      dout << "* * New second root: " << coalescence_root_2 << std::endl;
+    }
 
-  TreePoint coal_point;
-  if (coalescence_1_active && coalescence_2_active) {
-    // DOTO: Modification to include non-local trees
-    coal_point = TreePoint(coalescence_root_2, current_time, false);
-    dout << "* * into: " << coal_point.base_node() << std::endl;
-    dout << "* * Updating tree" << std::endl;
-    coalesNodeIntoTree(coalescence_root_1, coal_point);
-  } else {
-    coal_point = TreePoint(current_event.getRandomContemporary(), current_time, false);
-    dout << "* * into: " << coal_point.base_node() << std::endl;
-    dout << "* * Updating tree" << std::endl;
-    coalesNodeIntoTree(coalescence_root_1, coal_point);
+    // root 1 coalesed? follow branch up until
+    // - we hit ancestral branch => Done
+    // - we hit a root => continue coalescence
+    if (coalescing_root == coalescence_root_1) {
+      while ( !(coalescence_root_1->is_root()) ) {
+        coalescence_root_1 = coalescence_root_1->parent();
+        if (coalescence_root_1->active()) break;
+        dout << "* * Activating node " << coalescence_root_1 << std::endl;
+        coalescence_root_1->activate();
+      }
+      if (coalescence_root_1->active()) {
+        dout << "* * Hit active node " << coalescence_root_1 << std::endl;
+        break;
+      }
+      assert(coalescence_root_1->is_root());
+    }
+
+    if (coalescence_root_1 == coalescence_root_2) {
+      dout << "* We coalesced, apparently." << std::endl;
+      break;
+    }
+
+    current_time = std::max(current_time, std::min(coalescence_root_1->height(), 
+                                                   coalescence_root_2->height()));
+
   }
+
   dout << "* * Tree:" << std::endl;
   assert(this->printTree());
 }
@@ -310,7 +382,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
 // lines_number lines out of which coal_lines_number are not coalescenced.
 double Forest::calcCoalescenceRate(int lines_number, int coal_lines_number) {
-  assert(lines_number > 0);
+  assert(lines_number >= 0);
   assert(coal_lines_number > 0 && coal_lines_number <= 2);
 
   double rate = -1;

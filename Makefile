@@ -1,7 +1,7 @@
 CC=g++
-#CFLAGS=-c -Wall -O3 -DNDEBUG
-CFLAGS=-c -Wall -O3
-LDFLAGS=
+#CFLAGS=-c -Wall -O3 -pg -DNDEBUG
+CFLAGS=-c -Wall -O3 -pg
+LDFLAGS=-pg
 SOURCES=$(shell find src | grep .cc)
 OBJECTS=$(SOURCES:.cc=.o)
 TEST_SOURCES=$(shell find tests | grep .cc)
@@ -24,7 +24,8 @@ unittest: $(TEST_OBJECTS)
 	  $(CC) $(CFLAGS) $< -o $@
 
 %.to:  %.cc
-	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DNDEBUG -DUNITTEST $< -o $@
+	  #$(CC) $(CFLAGS) `cppunit-config --cflags` -DNDEBUG -DUNITTEST $< -o $@
+	  $(CC) $(CFLAGS) `cppunit-config --cflags` -DUNITTEST $< -o $@
 
 %.cc: %.h
 	  touch $@

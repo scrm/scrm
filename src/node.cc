@@ -53,11 +53,7 @@ bool Node::is_root() const {
   //or root of a tree:
   return ( this->parent()->is_fake() );
 }
-   
-bool Node::is_fake() const {
-  return ( this->height() == FLT_MAX ); 
-}
 
-bool Node::is_ultimate_root() const {
-  return ( this->is_fake() && this->parent_ == NULL );
-}
+   
+
+

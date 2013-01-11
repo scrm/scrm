@@ -89,7 +89,7 @@ class Forest
   bool checkTree(Node* root = NULL);
   bool checkTreeLength();
   bool checkNodesSorted();
-  void printNodes();
+  bool printNodes();
 
   //Tree printing
   int countLinesLeft(Node *node);
