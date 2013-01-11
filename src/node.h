@@ -48,6 +48,7 @@ class Node
    bool is_fake() const; 
    bool is_root() const; 
    bool is_ultimate_root() const;
+   bool in_sample() const;
 
   private:
    void init(double heigh=-1, bool active=true);

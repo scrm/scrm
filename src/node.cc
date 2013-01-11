@@ -54,6 +54,9 @@ bool Node::is_root() const {
   return ( this->parent()->is_fake() );
 }
 
-   
+bool Node::in_sample() const {
+  if ( this->height() == 0 ) return true;
+  return false;
+}
 
 

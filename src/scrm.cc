@@ -10,17 +10,17 @@
 int main () {
     try {
       time_t start_time = time(0);
-      Model model = Model(20);
+      Model model = Model(5);
 
       //Different random generators.
-      MersenneTwister *rg = new MersenneTwister(5);
+      MersenneTwister *rg = new MersenneTwister();
       //ConstantGenerator *rg = new ConstantGenerator();
       //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
   
-      for (int i=0; i < 2000; ++i) {    
+      for (int i=0; i < 20; ++i) {    
         forest.sampleNextGenealogy();
       }
 

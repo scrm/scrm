@@ -14,6 +14,7 @@ class TestNode : public CppUnit::TestCase {
   CPPUNIT_TEST( testIsFake );
   CPPUNIT_TEST( testIsUltimateRoot );
   CPPUNIT_TEST( testIsRoot );
+  CPPUNIT_TEST( testInSample );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -89,6 +90,17 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->nodes()[5]->is_fake() );
     CPPUNIT_ASSERT( !forest->nodes()[6]->is_fake() );
     CPPUNIT_ASSERT( forest->nodes()[7]->is_fake() );
+  }
+  
+  void testInSample(){
+    CPPUNIT_ASSERT( forest->nodes()[0]->in_sample() );
+    CPPUNIT_ASSERT( forest->nodes()[1]->in_sample() );
+    CPPUNIT_ASSERT( forest->nodes()[2]->in_sample() );
+    CPPUNIT_ASSERT( forest->nodes()[3]->in_sample() );
+    CPPUNIT_ASSERT( !forest->nodes()[4]->in_sample() );
+    CPPUNIT_ASSERT( !forest->nodes()[5]->in_sample() );
+    CPPUNIT_ASSERT( !forest->nodes()[6]->in_sample() );
+    CPPUNIT_ASSERT( !forest->nodes()[7]->in_sample() );
   }
 
 };

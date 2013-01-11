@@ -101,6 +101,10 @@ bool Forest::checkTreeLength() {
   return(1);
 }
 
+//bool Forest::checkLeafsOnLocalTree() {
+  
+//}
+
 bool Forest::checkTree(Node *root) {
   if (root == NULL) {
     //Default when called without argument

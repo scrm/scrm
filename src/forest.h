@@ -17,6 +17,7 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "node.h"
+#include "node_container.h"
 #include "model.h"
 #include "event.h"
 #include "tree_point.h"
