@@ -1,7 +1,7 @@
 #include "node_container.h"
 
 /*******************************************************
- * Node Container
+ * Con- & Destructor
  *******************************************************/
 
 NodeContainer::NodeContainer() {
@@ -14,13 +14,32 @@ NodeContainer::~NodeContainer() {
   for (it = nodes_.begin(); it!=nodes_.end(); ++it) {
     delete *it;
   }
-
   if (unsorted_node_ != NULL) delete unsorted_node_;
 }
 
-NodeIterator NodeContainer::interator() { 
-  return( NodeIterator(*this) ); 
+
+
+/*******************************************************
+ * Iterators
+ *******************************************************/
+
+NodeIterator NodeContainer::iterator() { 
+  return(NodeIterator(*this)); 
 }
+
+ConstNodeIterator NodeContainer::iterator() const { 
+  return(ConstNodeIterator(*this)); 
+}
+
+ReverseConstNodeIterator NodeContainer::reverse_iterator() const { 
+  return(ReverseConstNodeIterator(*this)); 
+}
+
+
+
+/*******************************************************
+ * Management of Nodes
+ *******************************************************/
 
 Node* NodeContainer::get(size_t nr, const bool &from_sorted) {
   //if (from_sorted) 
@@ -39,6 +58,7 @@ void NodeContainer::add(Node *node, const bool &sort) {
     if ((*it)->height() >= node->height()) break;
   }
   nodes_.insert(it, node);
+  assert( this->sorted() );
 };
 
 void NodeContainer::remove(Node *node) {;
@@ -48,32 +68,34 @@ void NodeContainer::remove(Node *node) {;
   }
   if (it == nodes_.end()) throw std::logic_error("Trying to delete apparently non-existing node");
   nodes_.erase(it);
+  assert( this->sorted() );
 }
 
-void NodeContainer::move(Node *node, const double &new_height) {};
+void NodeContainer::move(Node *node, const double &new_height) {
+  //Optimize!
+  this->remove(node);
+  this->add(node);
+  assert( this->sorted() );
+};
 
-void NodeContainer::sort() {};
-void NodeContainer::is_sorted() {};
-
-size_t NodeContainer::size() {
-  return (nodes_.size());
+size_t NodeContainer::size() const {
+  return nodes_.size();
 };
 
 
+
 /*******************************************************
- * Node Iterator
+ * Consistency checking
  *******************************************************/
 
-NodeIterator::NodeIterator() {
-  //iter_ = new ;
-  //good_ = false;
-}
-
-NodeIterator::NodeIterator(const NodeContainer& nc) {
-  iter_ = nc.nodes_.begin();
-  //good_ = true;
-}
-
-bool NodeIterator::good() {
-  return( ! ((*iter_)->is_fake()) );
-}
+bool NodeContainer::sorted() const { 
+  double cur_height = 0;
+  for (ConstNodeIterator it = iterator(); it.good(); ++it) {
+    if ((*it)->height() < cur_height) {
+      return(0);
+    } else {
+      cur_height = (*it)->height();
+    }
+  }
+  return(1);
+};

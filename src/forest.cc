@@ -2,7 +2,7 @@
 
 
 /******************************************************************
- * Constructors & initialization
+ * Constructors & Initialization
  *****************************************************************/
 
 Forest::Forest() {
@@ -20,6 +20,7 @@ void Forest::initialize(Model model,
                         int local_tree_length,
                         int total_tree_length) {
 
+  this->nodes_ = new NodeContainer();
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_ultimate_root(ultimate_root);
@@ -34,58 +35,8 @@ void Forest::initialize(Model model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
-       it!=this->getNodesEnd(); ++it) {
-    delete *it;
-  }
+  delete nodes_;
 }
-
-
-
-/******************************************************************
- * Basic management of nodes
- *****************************************************************/
-
-// Returns a pointer to the first node i.e. the lowest in the tree
-Node* Forest::getFirstNode() {
-  return(this->nodes_[0]);
-}
-
-// Returns a pointer the first node i.e. the lowest in the tree
-std::vector<Node*>::iterator Forest::getNodesEnd() {
-  return(this->nodes_.end());
-}
-
-// Iterator for moving true nodes sorted by height
-std::vector<Node*>::iterator Forest::getNodeFwIterator() {
-  return(nodes_.begin());
-}
-
-void Forest::addNode(Node *node) {
-  std::vector<Node*>::iterator it;
-  for (it = nodes_.begin(); it!=nodes_.end(); ++it) {
-    if ((*it)->height() >= node->height()) break;
-  }
-  nodes_.insert(it, node);
-  assert(this->checkNodesSorted());
-}
-
-void Forest::removeNode(Node *node) {
-  std::vector<Node*>::iterator it;
-  for (it = nodes_.begin(); it!=nodes_.end(); ++it) {
-    if ((*it) == node ) break;
-  }
-  if (it == nodes_.end()) throw std::logic_error("Trying to delete apparently non-existing node");
-  nodes_.erase(it);
-}
-
-void Forest::moveNode(Node *node, const double &new_height) {
-  this->removeNode(node);
-  this->addNode(node);
-}
-
-
-
 
 //Cuts all nodes below a point on the tree and moves them into a new tree
 void Forest::cut(const TreePoint &cut_point) {
@@ -97,7 +48,7 @@ void Forest::cut(const TreePoint &cut_point) {
   Node* new_leaf = new Node(cut_point.height(), false);
   new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
-  this->addNode(new_leaf);
+  nodes()->add(new_leaf);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
@@ -106,7 +57,7 @@ void Forest::cut(const TreePoint &cut_point) {
   cut_point.base_node()->set_parent(new_root);
   new_root->set_lower_child(cut_point.base_node());
   //Inefficient to to this for active nodes
-  this->addNode(new_root);
+  nodes()->add(new_root);
   this->registerNonLocalRoot(new_root);
   assert(this->printNodes());
   assert(this->printTree());
@@ -117,12 +68,11 @@ void Forest::cut(const TreePoint &cut_point) {
   dout << "* * Done" << std::endl;
 }
 
-void Forest::calcTreeLength(double *local_length, double *total_length) {
+void Forest::calcTreeLength(double *local_length, double *total_length) const {
   *local_length = 0;
   *total_length = 0;
 
-  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
-       it!=this->getNodesEnd(); ++it) {
+  for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
     if ( (*it)->is_fake() || (*it)->is_root() ) continue;
     *total_length += (*it)->height_above();
     if ( (*it)->active() ) *local_length += (*it)->height_above();
@@ -150,8 +100,8 @@ void Forest::buildInitialTree() {
     Node* new_leaf = new Node(0);
     Node* new_root = new Node(0);
     dout << "(" << new_leaf << ")" << std::endl;
-    this->addNode(new_leaf);
-    this->addNode(new_root);
+    nodes()->add(new_leaf);
+    nodes()->add(new_root);
     registerNonLocalRoot(new_root);
     new_leaf->set_parent(new_root);
     new_root->set_higher_child(new_leaf);
@@ -162,10 +112,6 @@ void Forest::buildInitialTree() {
     dout << "* * Tree:" << std::endl;
     assert(this->printTree());
   }
-}
-
-int Forest::countNodes(){
-  return(nodes_.size());
 }
 
 void Forest::inc_tree_length(const double &by, const bool &active) {
@@ -187,7 +133,7 @@ TreePoint Forest::samplePoint(bool only_local) {
   Node* base_node = NULL;
   double height_above = -1;
 
-  for (std::vector<Node*>::iterator it = nodes_.begin(); it!=nodes_.end(); ++it) {
+  for (NodeIterator it = nodes()->iterator(); it.good(); ++it) {
     if ((*it)->is_root()) continue;
     if ((*it)->height_above() > point) {
       base_node = *it;
@@ -248,7 +194,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
   while (true) {
     Event current_event = events.next();
-    double std_expo_sample = this->random_generator()->sampleExpo(1);
+    std_expo_sample = this->random_generator()->sampleExpo(1);
 
     while (true) {
       assert(this->checkTree());
@@ -401,7 +347,7 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
   dout << "* * * Moving root of subtree to it new position" << std::endl;
   coal_node->set_height(coal_point.height());
 
-  this->moveNode(coal_node, coal_point.height());
+  this->nodes()->move(coal_node, coal_point.height());
 
   //Update the coal_node
   dout << "* * * Updating its structure" << std::endl;
@@ -431,17 +377,18 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
 void Forest::createRoots() {
   //Create the first node of the tree (also is the root at this point)
   Node* first_node = new Node(0);
-  this->addNode(first_node);
+  this->nodes()->add(first_node);
 
   //Create the ultimate root
   Node* ultimate_root = new Node(FLT_MAX);
   ultimate_root->deactivate();
-  this->addNode(ultimate_root);
+  this->nodes()->add(ultimate_root);
   this->set_ultimate_root(ultimate_root);
 
   first_node->set_parent(ultimate_root);
   ultimate_root->set_lower_child(first_node);
-  
+ 
+  assert(this->nodes()->size() == 2); 
   assert(this->checkTree());
 }
 
@@ -460,7 +407,7 @@ void Forest::registerNonLocalRoot(Node* node, Node *position) {
     next_fake_node = new Node(FLT_MAX);
     next_fake_node->set_parent(position);
     position->set_higher_child(next_fake_node);
-    this->addNode(next_fake_node);
+    this->nodes()->add(next_fake_node);
   }
 
   registerNonLocalRoot(node, next_fake_node);

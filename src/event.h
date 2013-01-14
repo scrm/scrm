@@ -44,7 +44,7 @@ class EventIterator {
   Forest* forest_;
   std::vector<Node*> contemporaries_;
   double start_height_;
-  std::vector<Node*>::iterator twig_iterator_;
+  NodeIterator twig_iterator_;
 };
 
 #endif

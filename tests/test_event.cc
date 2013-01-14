@@ -35,7 +35,7 @@ class TestEvent : public CppUnit::TestCase {
     EventIterator it = EventIterator(forest, 0);
     CPPUNIT_ASSERT( it.start_height_ == 0 );
     CPPUNIT_ASSERT( it.contemporaries_.size() == 0 );
-    CPPUNIT_ASSERT( *it.twig_iterator_ == forest->getFirstNode() );
+    CPPUNIT_ASSERT( *it.twig_iterator_ == forest->getNodes()->get(0) );
     it = EventIterator(forest, 2);
     CPPUNIT_ASSERT( it.start_height_ == 2 );
     CPPUNIT_ASSERT( it.contemporaries_.size() == 3 );

@@ -5,17 +5,17 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
-  this->nodes_.clear();
+  this->nodes()->clear();
   this->set_local_tree_length(0);
   this->set_total_tree_length(0);
   Node* leaf1 = new Node(0);
   Node* leaf2 = new Node(0);
   Node* leaf3 = new Node(0);
   Node* leaf4 = new Node(0);
-  this->addNode(leaf1);
-  this->addNode(leaf2);
-  this->addNode(leaf3);
-  this->addNode(leaf4);
+  this->nodes()->add(leaf1);
+  this->nodes()->add(leaf2);
+  this->nodes()->add(leaf3);
+  this->nodes()->add(leaf4);
 
   Node* node12 = new Node(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
@@ -29,7 +29,7 @@ void Forest::createExampleTree() {
   //Build the fake tree above
   Node* ultimate_root = new Node(FLT_MAX, false);
   this->set_ultimate_root(ultimate_root);
-  this->addNode(ultimate_root);
+  this->nodes()->add(ultimate_root);
 
   ultimate_root->set_lower_child(root);
   root->set_parent(ultimate_root);
@@ -38,7 +38,7 @@ void Forest::createExampleTree() {
 }
 
 void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child) {
-  this->addNode(node);
+  this->nodes()->add(node);
 
   if (parent != NULL) {
     node->set_parent(parent);
@@ -67,23 +67,8 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *hi
   }
 }
 
-bool Forest::checkNodesSorted() {
-  double cur_height = 0;
-  for (std::vector<Node*>::iterator it = this->getNodeFwIterator(); 
-       it!=this->getNodesEnd(); ++it) {
 
-    if ((*it)->height() < cur_height) {
-      dout << "Error: Nodes not sorted" << std::endl;
-      return(0);
-    } else {
-      cur_height = (*it)->height();
-    }
-
-  }
-  return(1);
-}
-
-bool Forest::checkTreeLength() {
+bool Forest::checkTreeLength() const {
   double local_length = 0;
   double total_length = 0;
   this->calcTreeLength(&local_length, &total_length);
@@ -105,14 +90,13 @@ bool Forest::checkTreeLength() {
   
 //}
 
-bool Forest::checkTree(Node *root) {
+bool Forest::checkTree(Node *root) const {
   if (root == NULL) {
     //Default when called without argument
     root = this->ultimate_root();
 
     //Also check if nodes are sorted by height in this case
-    assert(this->checkNodesSorted());
-    assert(this->checkTreeLength());
+    //assert(this->checkTreeLength());
   }
   assert( root != NULL);
 
@@ -164,18 +148,19 @@ bool Forest::checkTree(Node *root) {
 /******************************************************************
  * Tree Printing
  *****************************************************************/
-bool Forest::printTree() {
-  std::vector<Node*>::reverse_iterator it;
-  std::vector<Node*>::iterator cit;
-  Node* current_node;
-  int lines_left, lines_right, position;
+bool Forest::printTree() const {
+  ReverseConstNodeIterator it;
+  std::vector<const Node*>::iterator cit;
+  Node const* current_node;
+  size_t lines_left, lines_right, position;
   //double current_height = FLT_MAX;
   double current_height = -1;
-  
-  std::vector<Node*> branches;
-  for (int i=0; i < this->countNodes(); ++i) branches.push_back(NULL);
+ 
 
-  for (it = nodes_.rbegin(); it < nodes_.rend(); ++it) {
+  std::vector<const Node*> branches;
+  for (size_t i=0; i < this->getNodes()->size(); ++i) branches.push_back(NULL);
+
+  for (it = getNodes()->reverse_iterator(); it.good(); ++it) {
     current_node = *it;
 
     lines_left = countLinesLeft(current_node);
@@ -193,7 +178,8 @@ bool Forest::printTree() {
        }
     }
 
-    //Print one line of "|" between each event
+
+      //Print one line of "|" between each event
     if (current_node->height() != FLT_MAX && current_node->height() != current_height) {
       dout << std::endl;
       for (cit = branches.begin(); cit < branches.end(); ++cit) {
@@ -221,7 +207,7 @@ bool Forest::printTree() {
 
     current_height = current_node->height();
 
-    for (int i=0; i < branches.size(); ++i) {
+    for (size_t i=0; i < branches.size(); ++i) {
       if ( i < position - lines_left) {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
@@ -253,36 +239,36 @@ bool Forest::printTree() {
   return true;
 }
 
-int Forest::countLinesLeft(Node *node) {
+int Forest::countLinesLeft(Node const* node) const {
   if ( node->lower_child() == NULL ) return 0;
   return ( 1 + countBelowLinesRight(node) );
 }
 
-int Forest::countLinesRight(Node *node) {
+int Forest::countLinesRight(Node const* node) const {
   if ( node->lower_child() == NULL ) return 0;
   return ( 1 + countBelowLinesLeft(node) );
 }
 
-int Forest::countBelowLinesLeft(Node *node) {
+int Forest::countBelowLinesLeft(Node const* node) const {
   if ( node->lower_child() == NULL ) return 0;
   else return ( countLinesLeft(node->lower_child()) + countBelowLinesLeft(node->lower_child()) );
 }
 
-int Forest::countBelowLinesRight(Node *node) {
+int Forest::countBelowLinesRight(Node const* node) const {
   if ( node->higher_child() == NULL ) return 0;
   else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
 }
 
-bool Forest::printNodes() {
-  for(int i = 0; i < this->countNodes(); ++i) {
-    dout << "Addr: " << this->nodes()[i] << " | ";
-    dout << "Height: " << this->nodes()[i]->height() << " | ";
-    if (this->nodes()[i]->is_ultimate_root())
+bool Forest::printNodes() const {
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+    dout << "Addr: " << this->getNodes()->get(i) << " | ";
+    dout << "Height: " << this->getNodes()->get(i)->height() << " | ";
+    if (this->getNodes()->get(i)->is_ultimate_root())
       dout << "Parent: " << "NONE" << " | ";
     else
-      dout << "Parent: " << this->nodes()[i]->parent() << " | ";
-    dout << "h_child: " << this->nodes()[i]->higher_child() << " | ";
-    dout << "l_child: " << this->nodes()[i]->lower_child() << std::endl;
+      dout << "Parent: " << this->getNodes()->get(i)->parent() << " | ";
+    dout << "h_child: " << this->getNodes()->get(i)->higher_child() << " | ";
+    dout << "l_child: " << this->getNodes()->get(i)->lower_child() << std::endl;
   }
   return true;
 }

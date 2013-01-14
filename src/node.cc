@@ -39,7 +39,7 @@ void Node::change_child(Node* from, Node* to) {
   }
 }
 
-int Node::numberOfChildren() { 
+int Node::numberOfChildren() const { 
   return( (this->higher_child() != NULL) + (this->lower_child() != NULL) );
 }
 

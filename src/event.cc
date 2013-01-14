@@ -21,11 +21,13 @@ Node* Event::getRandomContemporary() {
   return(this->contemporaries()[sample]);
 }
 
+
+
 EventIterator::EventIterator() {
   this->forest_ = NULL;
   this->start_height_ = 0;
-  this->contemporaries_ = std::vector<Node*>(0); 
-  this->twig_iterator_ = std::vector<Node*>::iterator();
+  this->contemporaries_ = std::vector<Node*>(0);
+  this->twig_iterator_ = forest_->nodes()->iterator();
 };
   
 EventIterator::EventIterator(Forest* forest, const double &start_height) {
@@ -33,14 +35,14 @@ EventIterator::EventIterator(Forest* forest, const double &start_height) {
     throw std::out_of_range("EventIterator: start_height negative!");
   
   this->forest_ = forest;
-  this->twig_iterator_ = forest->getNodeFwIterator();
+  this->twig_iterator_ = forest->nodes()->iterator();
   this->start_height_ = start_height;
   this->contemporaries_ = std::vector<Node*>(0);
-  this->contemporaries_.reserve(forest_->countNodes());
+  this->contemporaries_.reserve(forest_->nodes()->size());
 
   //Skipt intervals below start_height
   while ((*twig_iterator_)->height() < start_height) {
-    if ( twig_iterator_ == forest_->getNodesEnd()) break;
+    if ( ! twig_iterator_.good() ) break;
     //Does the twig end above start_height?
     if ((*twig_iterator_)->height_above() > start_height){
       if (!(*twig_iterator_)->is_root()) 
@@ -54,7 +56,7 @@ EventIterator::EventIterator(Forest* forest, const double &start_height) {
 EventIterator::~EventIterator() { };
   
 Event EventIterator::next() {
-  if (twig_iterator_ == forest_->getNodesEnd())
+  if ( ! twig_iterator_.good() )
     throw std::out_of_range("EventIterator out of range");
   
   double start_height = (*twig_iterator_)->height();
@@ -74,7 +76,7 @@ Event EventIterator::next() {
 
   //Set interval borders
   double end_height;
-  if (twig_iterator_ == forest_->getNodesEnd()) 
+  if ( ! twig_iterator_.good() ) 
     end_height = FLT_MAX;
   else
     end_height = (*twig_iterator_)->height();

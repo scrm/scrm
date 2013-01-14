@@ -15,6 +15,8 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testSize );
   CPPUNIT_TEST( testRemove );
   CPPUNIT_TEST( testNodeIterator );
+  CPPUNIT_TEST( testReverseIterator );
+  CPPUNIT_TEST( testSorted );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -96,24 +98,56 @@ class TestNodeContainer : public CppUnit::TestCase {
     ultimate_root->deactivate();
     nc.add(ultimate_root);
 
-    NodeIterator it = nc.interator();
-    CPPUNIT_ASSERT( it++ == node1 );
-    CPPUNIT_ASSERT( it++ == node2 );
-    CPPUNIT_ASSERT( it++ == node3 );
+    NodeIterator it = nc.iterator();
+    CPPUNIT_ASSERT( it.good() && it++ == node1 );
+    CPPUNIT_ASSERT( it.good() && it++ == node2 );
+    CPPUNIT_ASSERT( it.good() && it++ == node3 );
+    CPPUNIT_ASSERT( it.good() && it++ == ultimate_root );
+    CPPUNIT_ASSERT( !it.good() );
 
-    it = nc.interator();
+    it = nc.iterator();
     int i = 0;
-    while (it.good()) {
-      ++i;
-      ++it;
-    }
-    CPPUNIT_ASSERT( i == 3 );
-
-    for (it = nc.interator(); it.good(); ++it) {
+    for (it = nc.iterator(); it.good(); ++it) {
+      (*it)->activate();
       ++i;
     }
-    CPPUNIT_ASSERT( i == 6 );
+    CPPUNIT_ASSERT( i == 4 );
   }
+  
+  void testReverseIterator() {
+    Node *node1 = new Node(1);
+    Node *node2 = new Node(2);
+    Node *node3 = new Node(3);
+    NodeContainer nc = NodeContainer();
+    nc.add(node1);
+    nc.add(node2);
+    nc.add(node3);
+
+    //Create the ultimate root
+    Node* ultimate_root = new Node(FLT_MAX);
+    ultimate_root->deactivate();
+    nc.add(ultimate_root);
+
+
+    ReverseConstNodeIterator it = nc.reverse_iterator();
+    CPPUNIT_ASSERT( it.good() );
+    CPPUNIT_ASSERT( it.good() && it++ == ultimate_root );
+    CPPUNIT_ASSERT( it.good() && it++ == node3 );
+    CPPUNIT_ASSERT( it.good() && it++ == node2 );
+    CPPUNIT_ASSERT( it.good() && it++ == node1 );
+    CPPUNIT_ASSERT( !it.good() );
+  }
+   
+  void testSorted() {
+    NodeContainer nc = NodeContainer();
+    nc.add(new Node(1));
+    nc.add(new Node(2));
+    CPPUNIT_ASSERT( nc.sorted() == 1 );
+
+    nc.nodes_.push_back(new Node(1));
+    CPPUNIT_ASSERT( nc.sorted() == 0 );
+  }
+
 };
 
 //Uncomment this to activate the test

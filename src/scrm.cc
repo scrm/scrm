@@ -24,7 +24,7 @@ int main () {
         forest.sampleNextGenealogy();
       }
 
-      std::cout << forest.countNodes() << std::endl;
+      std::cout << forest.getNodes()->size() << std::endl;
 
       time_t end_time = time(0);
       std::cout << "Simulation took about " << end_time - start_time 

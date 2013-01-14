@@ -26,7 +26,7 @@ class Node
    void set_height(const double &height) { this->height_ = height; }
 
    double parent_height() const;
-   double height_above() { return this->parent_height() - this->height(); }
+   double height_above() const { return this->parent_height() - this->height(); }
 
    bool active() const { return this->active_; }
    void set_active(bool active) { this->active_ = active; }
@@ -43,7 +43,7 @@ class Node
    void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }
 
    void change_child(Node* from, Node* to);
-   int  numberOfChildren();
+   int  numberOfChildren() const;
 
    bool is_fake() const; 
    bool is_root() const; 
