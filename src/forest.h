@@ -46,8 +46,14 @@ class Forest
   void set_model(const Model &model) { this->model_ = model; }
 
   Node* ultimate_root() const { return ultimate_root_; }
-  Node* local_root() const { return ultimate_root()->lower_child(); }
-  int sample_size() const { return this->model().sample_size(); }
+  Node* local_root() const { return local_root_; }
+  void set_local_root(Node* local_root) { local_root_ = local_root; };
+  
+  Node* primary_root() const { return primary_root_; }
+  void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
+
+  size_t sample_size() const { return this->sample_size_; }
+
   double local_tree_length() const { return this->local_tree_length_; }
   double total_tree_length() const { return this->total_tree_length_; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
@@ -56,6 +62,8 @@ class Forest
   //Operations on the Tree
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   void cut(const TreePoint &cut_point);
+  void deactivateSubtree(Node* node);
+  void updateAbove(Node* node, bool above_local_root = false);
 
   void calcTreeLength(double *local_length, double *total_length) const;
   void updateTreeLength();
@@ -76,9 +84,9 @@ class Forest
 
   //Debugging Tools
   void createExampleTree();
+  bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node* root = NULL) const;
   bool checkTreeLength() const;
-  bool checkNodesSorted() const;
   bool printNodes() const;
 
   //Tree printing
@@ -91,8 +99,21 @@ class Forest
 
  private:
   //Private variables
-  NodeContainer* nodes_;
-  Node* ultimate_root_;
+  NodeContainer* nodes_;    // The nodes of the Tree/Forest
+
+  // We have 3 different roots that are important:
+  // - local_root: root of the smallest subtree containing all local sequences
+  // - primary_root: root of the tree that contains all local sequences
+  // - ultimate root: root of the fake tree structure connecting all trees of
+  //                the forest into a tree.
+
+  Node* local_root_;
+  Node* primary_root_;      // currently not used
+  Node* ultimate_root_;      
+
+  size_t current_base_;     // The current position of the sequence we are simulating
+
+  size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
 
   Model model_;
   RandomGenerator* random_generator_;
@@ -111,6 +132,8 @@ class Forest
 
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
+
+  void set_sample_size(const size_t &size ) { sample_size_ = size; }
 
   void set_local_tree_length(const double &length) { local_tree_length_ = length; }
   void set_total_tree_length(const double &length) { total_tree_length_ = length; }

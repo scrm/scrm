@@ -49,6 +49,7 @@ void Forest::cut(const TreePoint &cut_point) {
   new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
   nodes()->add(new_leaf);
+  updateAbove(parent);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
@@ -59,13 +60,70 @@ void Forest::cut(const TreePoint &cut_point) {
   //Inefficient to to this for active nodes
   nodes()->add(new_root);
   this->registerNonLocalRoot(new_root);
-  assert(this->printNodes());
   assert(this->printTree());
   dout << "* * New root of subtree: " << new_root << std::endl;
 
   this->updateTreeLength();
   assert( this->checkTree() );
   dout << "* * Done" << std::endl;
+}
+
+void Forest::updateAbove(Node* node, bool above_local_root) {
+  dout << "* * * Updating: " << node << " fastforward: " << above_local_root << std::endl;
+  // Fast forward above local root because this part is non-local
+  if (above_local_root) {
+    node->deactivate();
+    node->set_samples_below(this->sample_size());
+    if ( node->is_root() ) set_primary_root(node);
+    if ( !node->is_ultimate_root() ) updateAbove(node->parent(), true);
+  }
+
+  // Calculate new values for samples_below and length_below for the current
+  // node
+  Node *l_child = node->lower_child();
+  Node *h_child = node->higher_child();
+
+  size_t samples_below = l_child->samples_below();
+  if (h_child != NULL) samples_below += h_child->samples_below();
+
+  double length_below = l_child->length_below();
+  if (l_child->active()) length_below += l_child->height_above();
+
+  if (h_child != NULL) {
+    length_below += h_child->length_below();
+    if (h_child->active()) length_below += h_child->height_above();
+  }
+  
+  // If nothing changed, we also don't need to update the tree further above.
+  if (samples_below == node->samples_below() && areSame(length_below, node->length_below()) ) return;
+  
+  // Update the node
+  if ( samples_below == 0 ) node->deactivate();
+  //else if ( samples_below < this->sample_size() ) node->activate();
+  node->set_samples_below(samples_below);
+  node->set_length_below(length_below);
+
+  // Check if we are above or equal the local root
+  if ( samples_below == this->sample_size() ) {
+    // Are we the local root?
+    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) set_local_root(node);
+    if ( node->is_root() ) set_primary_root(node);
+    above_local_root = true;
+  }
+
+  // Go further up if possible
+  if ( !node->is_ultimate_root() ) updateAbove(node->parent(), above_local_root);
+}
+
+// Recursively finds the largest subtree containing "node" which only
+// has deactivated leafs. Makes sure that all nodes on this tree
+// are deactivated.
+void Forest::deactivateSubtree(Node* node) {
+  if ( node->is_root() ) return;
+  if ( !node->higher_child()->active() && !node->lower_child()->active() ) {
+    node->deactivate();
+    deactivateSubtree(node->parent());
+  }
 }
 
 void Forest::calcTreeLength(double *local_length, double *total_length) const {
@@ -91,13 +149,12 @@ void Forest::buildInitialTree() {
   dout << "* creating roots... ";
   this->createRoots();
   dout << "done." << std::endl;
-
-  assert(printTree());
-
-  for (int i=1; i < this->sample_size(); i++) {
+  
+  for (int i=1; i < this->model().sample_size(); i++) {
+    this->set_sample_size(i+1);
     dout << "* adding node ";
     //Create a new sepearte little tree of and at height zero
-    Node* new_leaf = new Node(0);
+    Node* new_leaf = new Node(0, true, 0, 1);
     Node* new_root = new Node(0);
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
@@ -110,6 +167,7 @@ void Forest::buildInitialTree() {
     //Coales the seperate tree into the main tree
     this->sampleCoalescences(new_root, false);
     dout << "* * Tree:" << std::endl;
+    assert(this->printNodes());
     assert(this->printTree());
   }
 }
@@ -124,7 +182,7 @@ void Forest::inc_tree_length(const double &by, const bool &active) {
 TreePoint Forest::samplePoint(bool only_local) {
   //O(#Nodes) implementation
   double length = 0;
-
+  
   if (only_local) length = this->local_tree_length();
   else            length = this->total_tree_length();
 
@@ -134,8 +192,10 @@ TreePoint Forest::samplePoint(bool only_local) {
   double height_above = -1;
 
   for (NodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ((*it)->is_root()) continue;
-    if ((*it)->height_above() > point) {
+    if ( (*it)->is_root() ) continue;
+    if ( only_local && !(*it)->active() ) continue;
+
+    if ( (*it)->height_above() > point ) {
       base_node = *it;
       height_above = point;
       break;
@@ -154,10 +214,10 @@ void Forest::sampleNextGenealogy() {
   // Samples a new genealogy, conditional on a recombination occurring
 
   // Sample the recombination point
-  TreePoint rec_point = this->samplePoint();
+  TreePoint rec_point = this->samplePoint(true);
 
-  dout << "* Recombination at " << rec_point.relative_height() << " ";
-  dout << "above " << rec_point.base_node() << std::endl;
+  dout << "* Recombination at height " << rec_point.height() << " ";
+  dout << "(above " << rec_point.base_node() << ")"<< std::endl;
 
   dout << "* Cutting subtree below recombination " << std::endl;
   this->cut(rec_point);
@@ -174,17 +234,17 @@ void Forest::sampleNextGenealogy() {
 
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
-  //assert(this->printTree());
+  assert(this->printNodes());
+  assert(this->printTree());
+  assert(this->checkLeafsOnLocalTree());
 }
 
 void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) {
-  EventIterator events = EventIterator(this, start_node->height());
-
   assert(start_node->is_root());
 
   //Node* coalescence_root_1 = new Node(start_point.height());
   Node* coalescence_root_1 = start_node;
-  Node* coalescence_root_2 = this->local_root();
+  Node* coalescence_root_2 = this->primary_root();
   bool  coalescence_1_active = false;
   bool  coalescence_2_active = false;
 
@@ -193,6 +253,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
   double expo_sample = -1;
 
   while (true) {
+    EventIterator events = EventIterator(this, current_time);
     Event current_event = events.next();
     std_expo_sample = this->random_generator()->sampleExpo(1);
 
@@ -216,6 +277,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       }
 
       // Calculate rate of any coalescence occuring
+      dout << "* * #contemoraries: " << current_event.contemporaries().size() << std::endl;
       double rate = calcCoalescenceRate(current_event.contemporaries().size(),
                                         coalescence_1_active + coalescence_2_active);
       dout << "* * * rate: " << rate << std::endl;
@@ -260,10 +322,12 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       }
     } else {
       // One active coalescence
+      dout << "One active" << std::endl;
       assert(coalescence_1_active || coalescence_2_active);
       if (coalescence_1_active) coalescing_root = coalescence_root_1;
       else                      coalescing_root = coalescence_root_2;
       coalescence_target = current_event.getRandomContemporary();
+      dout << "Target: " << coalescence_target << std::endl;
     }
 
     assert(coalescing_root != NULL);
@@ -286,6 +350,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     // root 2 coalesed? => move upwards until we hid another root, and mark as
     // active
     if (coalescing_root == coalescence_root_2) {
+      dout << "* * Root 2 coalesed" << std::endl;
       while (!coalescence_root_2->is_root()) {
         coalescence_root_2 = coalescence_root_2->parent();
         coalescence_root_2->activate();
@@ -298,17 +363,30 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     // - we hit ancestral branch => Done
     // - we hit a root => continue coalescence
     if (coalescing_root == coalescence_root_1) {
-      while ( !(coalescence_root_1->is_root()) ) {
-        coalescence_root_1 = coalescence_root_1->parent();
-        if (coalescence_root_1->active()) break;
-        dout << "* * Activating node " << coalescence_root_1 << std::endl;
+      dout << "* * Root 1 coalesed" << std::endl;
+
+      // Move upwards until we hit a root or active node.
+      // Mark everything below our current position active.
+      while ( !coalescence_root_1->is_root() ) {
         coalescence_root_1->activate();
+        coalescence_root_1 = coalescence_root_1->parent();
+        dout << "* * * Moving upwards: " << coalescence_root_1 << std::endl;        
+        if (coalescence_root_1->active()) {
+          break;
+        }
       }
-      if (coalescence_root_1->active()) {
-        dout << "* * Hit active node " << coalescence_root_1 << std::endl;
+
+      // If the current node is active, then we hit an active node
+      // and are done
+      if ( coalescence_root_1->active() ) {
+        dout << "* * * is active" << std::endl;
         break;
       }
-      assert(coalescence_root_1->is_root());
+
+      // Else also active the current node and continue coalesing
+      dout << "* * * is root" << std::endl;
+      coalescence_root_1->activate();
+      dout << "* * New Root 1: " << coalescence_root_1 << std::endl;
     }
 
     if (coalescence_root_1 == coalescence_root_2) {
@@ -320,9 +398,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
                                                    coalescence_root_2->height()));
 
   }
-
+  dout << "* * Coalescence done" << std::endl;
   dout << "* * Tree:" << std::endl;
-  assert(this->printTree());
 }
 
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
@@ -361,6 +438,7 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
   //Update the parent
   coal_node->parent()->change_child(coal_point.base_node(), coal_node);
 
+  updateAbove(coal_node);
   //Optimize: Live tracking of tree length?
   this->updateTreeLength();
 
@@ -376,8 +454,10 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
 // Creates the very first node of the tree and the ultimate root above
 void Forest::createRoots() {
   //Create the first node of the tree (also is the root at this point)
-  Node* first_node = new Node(0);
+  Node* first_node = new Node(0, true, 0, 1);
   this->nodes()->add(first_node);
+  this->set_local_root(first_node);
+  this->set_primary_root(first_node);
 
   //Create the ultimate root
   Node* ultimate_root = new Node(FLT_MAX);
@@ -416,6 +496,7 @@ void Forest::registerNonLocalRoot(Node* node, Node *position) {
 void Forest::unregisterNonLocalRoot(Node* node, Node* position) {
   if (position == NULL) position = this->ultimate_root();
   if (position->lower_child() == node) position->set_lower_child(NULL);
+  else if (position->higher_child() == node) position->set_higher_child(NULL);
   else {
     if (position->higher_child() == NULL)
       throw std::logic_error("Cannont unregister root: Not found");

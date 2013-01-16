@@ -8,10 +8,10 @@ void Forest::createExampleTree() {
   this->nodes()->clear();
   this->set_local_tree_length(0);
   this->set_total_tree_length(0);
-  Node* leaf1 = new Node(0);
-  Node* leaf2 = new Node(0);
-  Node* leaf3 = new Node(0);
-  Node* leaf4 = new Node(0);
+  Node* leaf1 = new Node(0, true, 0, 1);
+  Node* leaf2 = new Node(0, true, 0, 1);
+  Node* leaf3 = new Node(0, true, 0, 1);
+  Node* leaf4 = new Node(0, true, 0, 1);
   this->nodes()->add(leaf1);
   this->nodes()->add(leaf2);
   this->nodes()->add(leaf3);
@@ -33,6 +33,9 @@ void Forest::createExampleTree() {
 
   ultimate_root->set_lower_child(root);
   root->set_parent(ultimate_root);
+
+  updateAbove(node12);
+  updateAbove(node34);
 
   assert( this->checkTree() );
 }
@@ -86,17 +89,27 @@ bool Forest::checkTreeLength() const {
   return(1);
 }
 
-//bool Forest::checkLeafsOnLocalTree() {
-  
-//}
+bool Forest::checkLeafsOnLocalTree(Node const* node) const {
+  if (node == NULL) {
+    size_t all_on_tree = 1;
+    bool on_tree = 0;
+    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+      if ( !(*it)->in_sample() ) continue;
+      on_tree = checkLeafsOnLocalTree(*it);
+      if (!on_tree) dout << "Leaf " << *it << " is not on local tree!" << std::endl;
+      all_on_tree *= on_tree;
+    }
+    return(all_on_tree);
+  }
+  if ( !node->is_root() ) return( checkLeafsOnLocalTree(node->parent()) );
+
+  return( node->parent()->is_ultimate_root() );
+}
 
 bool Forest::checkTree(Node *root) const {
   if (root == NULL) {
     //Default when called without argument
     root = this->ultimate_root();
-
-    //Also check if nodes are sorted by height in this case
-    //assert(this->checkTreeLength());
   }
   assert( root != NULL);
 
@@ -179,14 +192,14 @@ bool Forest::printTree() const {
     }
 
 
-      //Print one line of "|" between each event
+     // Print one line of "|" between each event
     if (current_node->height() != FLT_MAX && current_node->height() != current_height) {
       dout << std::endl;
-      for (cit = branches.begin(); cit < branches.end(); ++cit) {
-        if (*cit == NULL) dout << " ";
+      /*for (cit = branches.begin(); cit < branches.end(); ++cit) {
+        if ( *cit == NULL || (*cit)->is_root() ) dout << " ";
         else dout << "|";
       }
-      dout << std::endl;
+      dout << std::endl;*/
     }
   
     if (current_node->higher_child() == NULL){ 
@@ -213,6 +226,7 @@ bool Forest::printTree() const {
         else if (areSame(branches[i]->height(), current_node->height())) 
           if (branches[i]->active()) dout << "+";
           else dout << "°";
+        else if ( branches[i]->is_root() ) dout << " ";
         else dout << "|";
       } 
       else if ( i < position) dout << "-";
@@ -226,11 +240,12 @@ bool Forest::printTree() const {
         else if (areSame(branches[i]->height(), current_node->height())) 
           if (branches[i]->active()) dout << "+";
           else dout << "°";
+        else if ( branches[i]->is_root() ) dout << " ";
         else dout << "|";
       }
     }
 
-    dout << " " << current_node->height() << " " << current_node ;
+    dout << " " << current_node->height() << " " << current_node << " " << current_node->samples_below();
 
   }
   dout << std::endl;
@@ -270,6 +285,9 @@ bool Forest::printNodes() const {
     dout << "h_child: " << this->getNodes()->get(i)->higher_child() << " | ";
     dout << "l_child: " << this->getNodes()->get(i)->lower_child() << std::endl;
   }
+  dout << "Local Root:    " << this->local_root() << std::endl;
+  dout << "Primary Root:  " << this->primary_root() << std::endl;
+  dout << "Ultimate Root: " << this->ultimate_root() << std::endl;
   return true;
 }
 

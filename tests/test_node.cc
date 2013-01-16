@@ -15,6 +15,8 @@ class TestNode : public CppUnit::TestCase {
   CPPUNIT_TEST( testIsUltimateRoot );
   CPPUNIT_TEST( testIsRoot );
   CPPUNIT_TEST( testInSample );
+  CPPUNIT_TEST( testSamplesBelow );
+  CPPUNIT_TEST( testLengthBelow );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -101,6 +103,28 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->nodes()->get(5)->in_sample() );
     CPPUNIT_ASSERT( !forest->nodes()->get(6)->in_sample() );
     CPPUNIT_ASSERT( !forest->nodes()->get(7)->in_sample() );
+  }
+
+  void testSamplesBelow(){
+    CPPUNIT_ASSERT( forest->nodes()->get(0)->samples_below() == 1 );
+    CPPUNIT_ASSERT( forest->nodes()->get(1)->samples_below() == 1 );
+    CPPUNIT_ASSERT( forest->nodes()->get(2)->samples_below() == 1 );
+    CPPUNIT_ASSERT( forest->nodes()->get(3)->samples_below() == 1 );
+    CPPUNIT_ASSERT( forest->nodes()->get(4)->samples_below() == 2 );
+    CPPUNIT_ASSERT( forest->nodes()->get(5)->samples_below() == 2 );
+    CPPUNIT_ASSERT( forest->nodes()->get(6)->samples_below() == 4 );
+    CPPUNIT_ASSERT( forest->nodes()->get(7)->samples_below() == 4 );
+  }
+
+  void testLengthBelow(){
+    CPPUNIT_ASSERT( forest->nodes()->get(0)->length_below() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(1)->length_below() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(2)->length_below() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(3)->length_below() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(4)->length_below() == 2 );
+    CPPUNIT_ASSERT( forest->nodes()->get(5)->length_below() == 6 );
+    CPPUNIT_ASSERT( forest->nodes()->get(6)->length_below() == 24 );
+    CPPUNIT_ASSERT( forest->nodes()->get(7)->length_below() == 24 );
   }
 
 };

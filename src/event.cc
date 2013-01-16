@@ -22,7 +22,6 @@ Node* Event::getRandomContemporary() {
 }
 
 
-
 EventIterator::EventIterator() {
   this->forest_ = NULL;
   this->start_height_ = 0;

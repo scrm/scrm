@@ -3,14 +3,24 @@
 Node::Node() { init(); };
 Node::Node(double height) { init(height, true); };
 Node::Node(double height, bool active) { init(height, active); };
+Node::Node(double height, bool active, size_t last_update) { 
+  init(height, active, last_update); };
+Node::Node(double height, bool active, size_t last_update, size_t samples_below)
+  { init(height, active, last_update, samples_below); };
+Node::Node(double height, bool active, size_t last_update, size_t samples_below, double length_below)
+  { init(height, active, last_update, samples_below, length_below); };
 Node::~Node() {};
 
-void Node::init(double height, bool active) {
+void Node::init(double height, bool active, size_t last_update,
+                size_t samples_below, double length_below) {
   this->set_height(height);
   this->set_active(active);
   this->set_parent(NULL);
-  this->set_higher_child(NULL); 
+  this->set_higher_child(NULL);
   this->set_lower_child(NULL);
+  this->set_last_update(last_update);
+  this->set_samples_below(samples_below);
+  this->set_length_below(length_below);
 }
 
 Node* Node::parent() const {
@@ -20,8 +30,19 @@ Node* Node::parent() const {
 }
 
 double Node::parent_height() const {
-  if ( this->is_root() ) return FLT_MAX;
+  if ( this->is_root() ) return this->height();
   return this->parent()->height(); 
+}
+
+//TRUE iff we are the root of a real tree
+//false for the ultimate_root
+bool Node::is_root() const {
+  if ( this->is_fake() ) return false;
+  //Special case: root of a tree just cut away for coalescence. These are not
+  //added to the fake tree to increase performance.
+  if ( this->parent_ == NULL ) return true;
+  //or root of a tree:
+  return ( this->parent()->is_fake() );
 }
 
 void Node::change_child(Node* from, Node* to) {
@@ -43,16 +64,6 @@ int Node::numberOfChildren() const {
   return( (this->higher_child() != NULL) + (this->lower_child() != NULL) );
 }
 
-//TRUE iff we are the root of a real tree
-//false for the ultimate_root
-bool Node::is_root() const {
-  if ( this->is_fake() ) return false;
-  //Special case: root of a tree just cut away for coalescence. These are not
-  //added to the fake tree to increase performance.
-  if ( this->parent_ == NULL ) return true;
-  //or root of a tree:
-  return ( this->parent()->is_fake() );
-}
 
 bool Node::in_sample() const {
   if ( this->height() == 0 ) return true;
