@@ -1,6 +1,7 @@
 CC=g++
-#CFLAGS=-c -Wall -O3 -DNDEBUG
-CFLAGS=-c -Wall -O3 -pg
+#CFLAGS=-c -Wall -O3 -pg -DNDEBUG 	# For gprof
+#CFLAGS=-c -Wall -O3 -DNDEBUG 		# For speed testing
+CFLAGS=-c -O3 -Wall -pg 			# For debugging
 LDFLAGS=-pg
 SOURCES=$(shell find src | grep .cc)
 OBJECTS=$(SOURCES:.cc=.o)
@@ -11,13 +12,16 @@ EXECUTABLE=scrm
 
 all: $(SOURCES) $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS) 
+$(EXECUTABLE): $(OBJECTS) Makefile
 	  $(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+run: $(EXECUTABLE)
+	./scrm
 
 test: unittest
 	./unittest
 
-unittest: $(TEST_OBJECTS)
+unittest: $(TEST_OBJECTS) Makefile
 	  $(CC)  $(TEST_OBJECTS) -o $@ $(LDFLAGS) `cppunit-config --libs`
 
 %.o:  %.cc

@@ -95,7 +95,7 @@ class TestNodeContainer : public CppUnit::TestCase {
 
     //Create the ultimate root
     Node* ultimate_root = new Node(FLT_MAX);
-    ultimate_root->deactivate();
+    ultimate_root->deactivate(0);
     nc.add(ultimate_root);
 
     NodeIterator it = nc.iterator();
@@ -125,7 +125,7 @@ class TestNodeContainer : public CppUnit::TestCase {
 
     //Create the ultimate root
     Node* ultimate_root = new Node(FLT_MAX);
-    ultimate_root->deactivate();
+    ultimate_root->deactivate(0);
     nc.add(ultimate_root);
 
 

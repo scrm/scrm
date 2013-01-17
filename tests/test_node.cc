@@ -56,7 +56,7 @@ class TestNode : public CppUnit::TestCase {
     node1.set_active(true);
     node2.set_active(false);
     CPPUNIT_ASSERT( node1.active() && !node2.active() );
-    node1.deactivate();
+    node1.deactivate(1);
     node2.activate();
     CPPUNIT_ASSERT( (!node1.active()) && node2.active() );
   }

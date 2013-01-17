@@ -33,8 +33,12 @@ class Node
 
   bool active() const { return this->active_; }
   void set_active(bool active) { this->active_ = active; }
+
   void activate() { this->set_active(true); }
-  void deactivate() { this->set_active(false); }
+  void deactivate(const size_t &current_base) { 
+    if ( active() ) set_last_update(current_base);
+    this->set_active(false);
+  }
 
   Node *parent() const; 
   void set_parent(Node *parent) { this->parent_ = parent; }; 

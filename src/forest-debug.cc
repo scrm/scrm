@@ -19,13 +19,15 @@ void Forest::createExampleTree() {
 
   Node* node12 = new Node(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
-  
+
   Node* node34 = new Node(3);
   this->addNodeToTree(node34, NULL, leaf3, leaf4);
-  
+
   Node* root = new Node(10);
   this->addNodeToTree(root, NULL, node12, node34);
-  
+  this->set_local_root(root);
+  this->set_primary_root(root);
+
   //Build the fake tree above
   Node* ultimate_root = new Node(FLT_MAX, false);
   this->set_ultimate_root(ultimate_root);
@@ -76,11 +78,11 @@ bool Forest::checkTreeLength() const {
   double total_length = 0;
   this->calcTreeLength(&local_length, &total_length);
 
-  if ( !areSame(total_length, total_tree_length()) ) {
+  /*if ( !areSame(total_length, total_tree_length()) ) {
     dout << "Error: total tree length is " << this->total_tree_length() << " ";
     dout << "but should be " << total_length << std::endl;
     return(0);
-  }
+    }*/
   if ( !areSame(local_length, local_tree_length()) ) {
     dout << "Error: local tree length is " << this->local_tree_length() << " ";
     dout << "but should be " << local_length << std::endl;
@@ -106,10 +108,27 @@ bool Forest::checkLeafsOnLocalTree(Node const* node) const {
   return( node->parent()->is_ultimate_root() );
 }
 
+bool Forest::checkNodeProperties() const {
+  bool success = true;
+  for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+    if ( (*it)->is_fake() ) continue;
+    if ( !(*it)->active() ) {
+      if ( (*it)->last_update() == 0 ) {
+        dout << "Error: Node " << *it << " non-local without update info" << std::endl;
+        success = false;
+      }
+    }
+  }
+  return success;
+}
+
+
 bool Forest::checkTree(Node *root) const {
   if (root == NULL) {
     //Default when called without argument
     root = this->ultimate_root();
+
+    assert( this->checkNodeProperties() );
   }
   assert( root != NULL);
 
@@ -133,7 +152,7 @@ bool Forest::checkTree(Node *root) const {
       return 0;
     }
   }
-  
+
   bool child1 = 1;
   if (h_child != NULL) {
     if (h_child->parent() != root) {
@@ -168,7 +187,7 @@ bool Forest::printTree() const {
   size_t lines_left, lines_right, position;
   //double current_height = FLT_MAX;
   double current_height = -1;
- 
+
 
   std::vector<const Node*> branches;
   for (size_t i=0; i < this->getNodes()->size(); ++i) branches.push_back(NULL);
@@ -184,24 +203,24 @@ bool Forest::printTree() const {
       position = countBelowLinesLeft(current_node) + lines_left;
       branches[position] = current_node;
     } else {
-       position = 0;
-       for (cit = branches.begin(); cit < branches.end(); ++cit) {
-         if ( *cit == current_node ) break;
-         ++position;
-       }
+      position = 0;
+      for (cit = branches.begin(); cit < branches.end(); ++cit) {
+        if ( *cit == current_node ) break;
+        ++position;
+      }
     }
 
 
-     // Print one line of "|" between each event
+    // Print one line of "|" between each event
     if (current_node->height() != FLT_MAX && current_node->height() != current_height) {
       dout << std::endl;
       /*for (cit = branches.begin(); cit < branches.end(); ++cit) {
         if ( *cit == NULL || (*cit)->is_root() ) dout << " ";
         else dout << "|";
-      }
-      dout << std::endl;*/
+        }
+        dout << std::endl;*/
     }
-  
+
     if (current_node->higher_child() == NULL){ 
       branches[position] = current_node->lower_child();
     }
@@ -210,7 +229,7 @@ bool Forest::printTree() const {
       branches[position + lines_right] = current_node->higher_child();
       branches[position] = NULL;
     }
-    
+
     if (current_node->height() == FLT_MAX) continue;
 
     if (areSame(current_height, current_node->height())) {
@@ -245,7 +264,8 @@ bool Forest::printTree() const {
       }
     }
 
-    dout << " " << current_node->height() << " " << current_node << " " << current_node->samples_below();
+    dout << " " << current_node->height() << " " << current_node 
+        << " " << current_node->last_update();
 
   }
   dout << std::endl;
@@ -292,6 +312,6 @@ bool Forest::printNodes() const {
 }
 
 bool areSame(double a, double b) {
-      return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
-      //return std::fabs(a - b) < 0.0001;
+  return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+  //return std::fabs(a - b) < 0.0001;
 }

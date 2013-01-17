@@ -54,7 +54,10 @@ class Forest
 
   size_t sample_size() const { return this->sample_size_; }
 
-  double local_tree_length() const { return this->local_tree_length_; }
+  size_t current_base() const { return current_base_; }
+  void set_current_base(size_t base) { current_base_ = base; }
+
+  double local_tree_length() const { return this->local_root()->length_below(); }
   double total_tree_length() const { return this->total_tree_length_; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
   NodeContainer const *getNodes() const { return nodes_; };
@@ -63,7 +66,11 @@ class Forest
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   void cut(const TreePoint &cut_point);
   void deactivateSubtree(Node* node);
-  void updateAbove(Node* node, bool above_local_root = false);
+  void updateAbove(Node* node, 
+                   bool above_local_root = false,
+                   bool recursive = true);
+
+  Node* moveUpwardsInTree(Node* node);
 
   void calcTreeLength(double *local_length, double *total_length) const;
   void updateTreeLength();
@@ -87,6 +94,7 @@ class Forest
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node* root = NULL) const;
   bool checkTreeLength() const;
+  bool checkNodeProperties() const;
   bool printNodes() const;
 
   //Tree printing

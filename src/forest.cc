@@ -26,6 +26,7 @@ void Forest::initialize(Model model,
   this->set_ultimate_root(ultimate_root);
   this->set_local_tree_length(local_tree_length);
   this->set_total_tree_length(total_tree_length);
+  this->set_current_base(1);
 }
 
 
@@ -45,13 +46,13 @@ void Forest::cut(const TreePoint &cut_point) {
   assert( parent != NULL );
 
   //The new end of the old branch after the cut
-  Node* new_leaf = new Node(cut_point.height(), false);
+  Node* new_leaf = new Node(cut_point.height(), false, current_base(), 0, 0);
   new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
   nodes()->add(new_leaf);
   updateAbove(parent);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
-
+  
   //The new "root" of the newly formed tree
   Node* new_root = new Node(cut_point.height(), 
                             cut_point.base_node()->active());
@@ -63,19 +64,21 @@ void Forest::cut(const TreePoint &cut_point) {
   assert(this->printTree());
   dout << "* * New root of subtree: " << new_root << std::endl;
 
-  this->updateTreeLength();
   assert( this->checkTree() );
   dout << "* * Done" << std::endl;
 }
 
-void Forest::updateAbove(Node* node, bool above_local_root) {
+void Forest::updateAbove(Node* node, bool above_local_root, bool recursive) {
   dout << "* * * Updating: " << node << " fastforward: " << above_local_root << std::endl;
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
-    node->deactivate();
+    node->deactivate(current_base());
     node->set_samples_below(this->sample_size());
-    if ( node->is_root() ) set_primary_root(node);
-    if ( !node->is_ultimate_root() ) updateAbove(node->parent(), true);
+    if ( node->is_root() ) {
+      set_primary_root(node);
+      return;
+    }
+    if ( recursive ) updateAbove(node->parent(), true);
   }
 
   // Calculate new values for samples_below and length_below for the current
@@ -83,11 +86,15 @@ void Forest::updateAbove(Node* node, bool above_local_root) {
   Node *l_child = node->lower_child();
   Node *h_child = node->higher_child();
 
-  size_t samples_below = l_child->samples_below();
+  size_t samples_below = 1;
+  if (l_child != NULL) samples_below = l_child->samples_below();
   if (h_child != NULL) samples_below += h_child->samples_below();
 
-  double length_below = l_child->length_below();
-  if (l_child->active()) length_below += l_child->height_above();
+  double length_below = 0;
+  if (l_child != NULL) {
+    length_below += l_child->length_below();
+    if (l_child->active()) length_below += l_child->height_above();
+  }
 
   if (h_child != NULL) {
     length_below += h_child->length_below();
@@ -95,36 +102,44 @@ void Forest::updateAbove(Node* node, bool above_local_root) {
   }
   
   // If nothing changed, we also don't need to update the tree further above.
-  if (samples_below == node->samples_below() && areSame(length_below, node->length_below()) ) return;
+  if (recursive &&
+      samples_below == node->samples_below() && 
+      areSame(length_below, node->length_below()) ) return;
   
   // Update the node
-  if ( samples_below == 0 ) node->deactivate();
-  //else if ( samples_below < this->sample_size() ) node->activate();
+  if ( samples_below == 0 ) node->deactivate(current_base());
+  else if ( samples_below < this->sample_size() ) node->activate();
   node->set_samples_below(samples_below);
   node->set_length_below(length_below);
 
   // Check if we are above or equal the local root
   if ( samples_below == this->sample_size() ) {
+    node->deactivate(current_base());
     // Are we the local root?
-    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) set_local_root(node);
+    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) {
+      set_local_root(node);
+    }
     if ( node->is_root() ) set_primary_root(node);
     above_local_root = true;
   }
 
   // Go further up if possible
-  if ( !node->is_ultimate_root() ) updateAbove(node->parent(), above_local_root);
+  if ( recursive && !node->is_root() ) {
+    updateAbove(node->parent(), above_local_root);
+  }
 }
+
 
 // Recursively finds the largest subtree containing "node" which only
 // has deactivated leafs. Makes sure that all nodes on this tree
 // are deactivated.
-void Forest::deactivateSubtree(Node* node) {
+/* void Forest::deactivateSubtree(Node* node) {
   if ( node->is_root() ) return;
   if ( !node->higher_child()->active() && !node->lower_child()->active() ) {
     node->deactivate();
     deactivateSubtree(node->parent());
   }
-}
+}*/
 
 void Forest::calcTreeLength(double *local_length, double *total_length) const {
   *local_length = 0;
@@ -138,14 +153,15 @@ void Forest::calcTreeLength(double *local_length, double *total_length) const {
 }
 
 void Forest::updateTreeLength() {
+  assert( false );
   double local_length = 0, total_length = 0;
   this->calcTreeLength(&local_length, &total_length);
-  this->set_local_tree_length(local_length);
-  this->set_total_tree_length(total_length);
+//  this->set_local_tree_length(local_length);
+//  this->set_total_tree_length(total_length);
 }
 
 void Forest::buildInitialTree() {
-  dout << "===== BUILDING INTITIAL TREE =====" << std::endl;
+  dout << "===== BUILDING INITIAL TREE =====" << std::endl;
   dout << "* creating roots... ";
   this->createRoots();
   dout << "done." << std::endl;
@@ -153,7 +169,7 @@ void Forest::buildInitialTree() {
   for (int i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
     dout << "* adding node ";
-    //Create a new sepearte little tree of and at height zero
+    //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(0, true, 0, 1);
     Node* new_root = new Node(0);
     dout << "(" << new_leaf << ")" << std::endl;
@@ -164,7 +180,7 @@ void Forest::buildInitialTree() {
     new_root->set_higher_child(new_leaf);
     dout << "* * staring coalesces" << std::endl;
     
-    //Coales the seperate tree into the main tree
+    //Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_root, false);
     dout << "* * Tree:" << std::endl;
     assert(this->printNodes());
@@ -211,6 +227,7 @@ TreePoint Forest::samplePoint(bool only_local) {
 
 void Forest::sampleNextGenealogy() {
   dout << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
+  dout << "Sequence position: " << this->current_base() << std::endl;
   // Samples a new genealogy, conditional on a recombination occurring
 
   // Sample the recombination point
@@ -227,8 +244,6 @@ void Forest::sampleNextGenealogy() {
   // Postpone coalescence if not active
   if (!rec_point.base_node()->active()) {
     dout << "* Not on local tree; Postponing coalescence" << std::endl; 
-    dout << "* Tree:" << std::endl; 
-    assert(this->printTree());
     return;
   }
 
@@ -269,15 +284,14 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       if (coalescence_2_active) dout << coalescence_root_2 << " ";
       dout << std::endl;
 
-      // If SMC or intiatial tree:
+      // If SMC or initial tree:
       // Remove branch above recombination point to avoid back coalescence.
       if ( for_initial_tree  || this->model().is_smc_model() ) {
         dout << "* * removing branch above coalescing node" << std::endl;
         current_event.removeFromContemporaries(start_node);
       }
 
-      // Calculate rate of any coalescence occuring
-      dout << "* * #contemoraries: " << current_event.contemporaries().size() << std::endl;
+      // Calculate rate of any coalescence occurring
       double rate = calcCoalescenceRate(current_event.contemporaries().size(),
                                         coalescence_1_active + coalescence_2_active);
       dout << "* * * rate: " << rate << std::endl;
@@ -294,7 +308,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         break;
       }
 
-      //We should at least coalescence in the last (almost infinite) intervall
+      //We should at least coalescence in the last (almost infinite) interval
       assert(current_event.end_height() < FLT_MAX);
       
       current_time = current_event.end_height();
@@ -302,16 +316,16 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     }
         
     dout << "* * coalescence at time " << current_time << std::endl;
-    dout << "* * #contemoraries: " << current_event.contemporaries().size() << std::endl;
+    dout << "* * #contemporaries: " << current_event.contemporaries().size() << std::endl;
  
     Node *coalescing_root = NULL, *coalescence_target = NULL;
     
     if (coalescence_1_active && coalescence_2_active) {
-      // Select which root coaleses
+      // Select which root coalesces
       if (current_event.contemporaries().size() == 0 ||
           this->random_generator()->sampleInt(2) == 0) {
         coalescing_root = coalescence_root_1;
-        // root_1 can also coales into root_2, while the opposit is not possible.
+        // root_1 can also coalesces into root_2, while the opposite is not possible.
         // (Or the pair would be overrepresented)
         int target = this->random_generator()->sampleInt(current_event.contemporaries().size() + 1);
         if (target == 0) coalescence_target = coalescence_root_2;
@@ -341,54 +355,43 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     dout << "* * Updating tree" << std::endl;
     coalesNodeIntoTree(coalescing_root, coal_point);
 
-    // root 1 and 2 coalesed together? => we are done
+    // Root 1 and 2 coalesced together? => we are done
     if (coalescing_root == coalescence_root_1 && coalescence_target == coalescence_root_2) {
-      dout << "* * pairwise coalescence" << std::endl;
+      dout << "* * Both roots coalesced together" << std::endl;
+      updateAbove(local_root(), false, false);    // To active the old local root
+      updateAbove(coalescing_root, false, false); // Update the new node
       break;
     }
 
-    // root 2 coalesed? => move upwards until we hid another root, and mark as
-    // active
+    // Root 2 coalesced? Move upwards until we hid another root
     if (coalescing_root == coalescence_root_2) {
-      dout << "* * Root 2 coalesed" << std::endl;
-      while (!coalescence_root_2->is_root()) {
-        coalescence_root_2 = coalescence_root_2->parent();
-        coalescence_root_2->activate();
-        dout << "* * Activating node " << coalescence_root_2 << std::endl;
-      }
-      dout << "* * New second root: " << coalescence_root_2 << std::endl;
+      dout << "* * Root 2 coalesced" << std::endl;
+      coalescence_root_2 = moveUpwardsInTree(coalescence_root_2);
+      coalescence_root_2->activate();
+      dout << "* * New Root 2: " << coalescence_root_2 << std::endl;
     }
 
-    // root 1 coalesed? follow branch up until
-    // - we hit ancestral branch => Done
-    // - we hit a root => continue coalescence
+    // Root 1 coalesced? Follow branch up until
+    // - we hit a local branch    => Done
+    // - we hit the primary root  => Done 
+    // - we hit another root      => continue coalescence
     if (coalescing_root == coalescence_root_1) {
-      dout << "* * Root 1 coalesed" << std::endl;
+      dout << "* * Root 1 coalesced" << std::endl;
+      coalescence_root_1 = moveUpwardsInTree(coalescence_root_1);
 
-      // Move upwards until we hit a root or active node.
-      // Mark everything below our current position active.
-      while ( !coalescence_root_1->is_root() ) {
-        coalescence_root_1->activate();
-        coalescence_root_1 = coalescence_root_1->parent();
-        dout << "* * * Moving upwards: " << coalescence_root_1 << std::endl;        
-        if (coalescence_root_1->active()) {
-          break;
-        }
-      }
-
-      // If the current node is active, then we hit an active node
-      // and are done
-      if ( coalescence_root_1->active() ) {
-        dout << "* * * is active" << std::endl;
+      // If it is active, then we hit an active node
+      if ( coalescence_root_1->active() || coalescence_root_1 == primary_root() ) {
+        dout << "* * * is active or primary root" << std::endl;
         break;
       }
 
-      // Else also active the current node and continue coalesing
-      dout << "* * * is root" << std::endl;
+      // Else also active the current node and continue coalescing
+      dout << "* * * is another root" << std::endl;
       coalescence_root_1->activate();
       dout << "* * New Root 1: " << coalescence_root_1 << std::endl;
     }
 
+    // Maybe both hit the same third tree...
     if (coalescence_root_1 == coalescence_root_2) {
       dout << "* We coalesced, apparently." << std::endl;
       break;
@@ -399,8 +402,26 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
   }
   dout << "* * Coalescence done" << std::endl;
-  dout << "* * Tree:" << std::endl;
 }
+
+// Starting from "node", this moves upwards in the tree until it hits a
+// root or an local node. Updates the nodes on its way up.
+// The final root or local node is returned.
+Node* Forest::moveUpwardsInTree(Node* node) {
+  while ( !node->is_root() ) {
+    updateAbove(node, false, false); // Updates only "node"
+    node = node->parent();
+    dout << "* * * Moving upwards: " << node << std::endl;        
+    if (node->active()) {
+      updateAbove(node, false); // Updates the rest of the tree
+      return node;
+    }
+  }
+
+  updateAbove(node, false, false); // Updates the found root (only)
+  return node;
+}
+
 
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
 // lines_number lines out of which coal_lines_number are not coalescenced.
@@ -438,9 +459,7 @@ void Forest::coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point) {
   //Update the parent
   coal_node->parent()->change_child(coal_point.base_node(), coal_node);
 
-  updateAbove(coal_node);
-  //Optimize: Live tracking of tree length?
-  this->updateTreeLength();
+  //updateAbove(coal_node);
 
   assert(this->checkTree());
   dout << "* * * Done" << std::endl;
@@ -461,7 +480,7 @@ void Forest::createRoots() {
 
   //Create the ultimate root
   Node* ultimate_root = new Node(FLT_MAX);
-  ultimate_root->deactivate();
+  ultimate_root->deactivate(current_base());
   this->nodes()->add(ultimate_root);
   this->set_ultimate_root(ultimate_root);
 

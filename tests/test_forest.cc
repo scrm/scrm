@@ -44,8 +44,8 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( test_forest.model().sample_size() == 4 );
     CPPUNIT_ASSERT( test_forest.random_generator() == rg );
     CPPUNIT_ASSERT( test_forest.ultimate_root() == NULL );
-    CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
-    CPPUNIT_ASSERT( test_forest.total_tree_length() == 0 );
+    //CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
+    //CPPUNIT_ASSERT( test_forest.total_tree_length() == 0 );
   }
 
   void testGettersAndSetters() {
@@ -58,11 +58,16 @@ class TestForest : public CppUnit::TestCase {
 
   void testCreateExampleTree() {
     CPPUNIT_ASSERT( forest->nodes()->size() == 8 );
-    CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(6) );
+    CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(6) );
+    CPPUNIT_ASSERT( forest->ultimate_root() == forest->nodes()->get(7) );
+    //CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
   }
   
   void testCheckTreeLength() {
+    std::cout << forest->local_tree_length();
     CPPUNIT_ASSERT( forest->checkTreeLength() );
   }
 
