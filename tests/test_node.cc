@@ -113,7 +113,6 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->nodes()->get(4)->samples_below() == 2 );
     CPPUNIT_ASSERT( forest->nodes()->get(5)->samples_below() == 2 );
     CPPUNIT_ASSERT( forest->nodes()->get(6)->samples_below() == 4 );
-    CPPUNIT_ASSERT( forest->nodes()->get(7)->samples_below() == 4 );
   }
 
   void testLengthBelow(){
@@ -124,7 +123,6 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->nodes()->get(4)->length_below() == 2 );
     CPPUNIT_ASSERT( forest->nodes()->get(5)->length_below() == 6 );
     CPPUNIT_ASSERT( forest->nodes()->get(6)->length_below() == 24 );
-    CPPUNIT_ASSERT( forest->nodes()->get(7)->length_below() == 24 );
   }
 
 };

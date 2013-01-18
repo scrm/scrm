@@ -6,6 +6,7 @@
 #ifndef NDEBUG
 #define dout std::cout
 #else
+#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
 
@@ -58,7 +59,6 @@ class Forest
   void set_current_base(size_t base) { current_base_ = base; }
 
   double local_tree_length() const { return this->local_root()->length_below(); }
-  double total_tree_length() const { return this->total_tree_length_; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
   NodeContainer const *getNodes() const { return nodes_; };
 
@@ -73,8 +73,6 @@ class Forest
 
   Node* moveUpwardsInTree(Node* node);
 
-  void calcTreeLength(double *local_length, double *total_length) const;
-  void updateTreeLength();
 
   //Operations to manage the fake binary tree connecting all trees of the forest
   void createRoots();
@@ -83,8 +81,7 @@ class Forest
 
   //
   void buildInitialTree();
-  void buildInitialTree_old();
-  TreePoint samplePoint(bool only_local = false);
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   void sampleNextGenealogy();
   void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
   double calcCoalescenceRate(int lines_number, int coal_lines_number = 1);
@@ -94,6 +91,7 @@ class Forest
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node* root = NULL) const;
+  double calcTreeLength() const;
   bool checkTreeLength() const;
   bool checkNodeProperties() const;
   bool printNodes() const;
@@ -120,8 +118,6 @@ class Forest
   Node* primary_root_;
   Node* ultimate_root_;      
 
-  Node* postponed_update_;  // Temporarily remember one node that (and the tree above) has not been updated
-
   size_t current_base_;     // The current position of the sequence we are simulating
 
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
@@ -134,9 +130,7 @@ class Forest
   
   void initialize(Model model = Model(),
                   RandomGenerator* rg = NULL, 
-                  Node* ultimate_root = NULL, 
-                  int local_tree_length = 0,
-                  int total_tree_length = 0);
+                  Node* ultimate_root = NULL);
 
   NodeContainer *nodes() { return this->nodes_; }
   NodeContainer const *nodes() const { return this->nodes_; }
@@ -146,25 +140,7 @@ class Forest
 
   void set_sample_size(const size_t &size ) { sample_size_ = size; }
 
-  void set_local_tree_length(const double &length) { local_tree_length_ = length; }
-  void set_total_tree_length(const double &length) { total_tree_length_ = length; }
   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
-
-  Node* postponed_update() const { return this->postponed_update_; }
-  void postpone_update(Node* node) { 
-    assert(postponed_update_ == NULL); 
-    this->postponed_update_ = node; 
-  }
-  void doPostponedUpdate() {
-    std::cout << "Doing updates..." << std::endl; 
-    if ( this->postponed_update() == NULL ) return;
-    updateAbove(this->postponed_update());
-    this->postponed_update_ = NULL;
-  }
-
-  void inc_tree_length(const double &by, const bool &active);
-  void dec_tree_length(const double &by, const bool &active) 
-    { inc_tree_length(-1 * by, active); }
 
   void createSampleNodes();
 };

@@ -67,14 +67,14 @@ class TestForest : public CppUnit::TestCase {
   }
   
   void testCheckTreeLength() {
-    std::cout << forest->local_tree_length();
     CPPUNIT_ASSERT( forest->checkTreeLength() );
   }
 
 
   void testSamplePoint() {
     TreePoint tp = forest->samplePoint();
-    CPPUNIT_ASSERT( tp.relative_height() == 4 );
+    CPPUNIT_ASSERT( tp.base_node() != NULL );
+    CPPUNIT_ASSERT( tp.relative_height() > 0 );
   }
 
   void testCreateRoots() {

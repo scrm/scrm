@@ -16,18 +16,13 @@ Forest::Forest(Model model, RandomGenerator* random_generator) {
 // Sets member variable to default values
 void Forest::initialize(Model model, 
                         RandomGenerator* rg, 
-                        Node* ultimate_root, 
-                        int local_tree_length,
-                        int total_tree_length) {
+                        Node* ultimate_root) {
 
   this->nodes_ = new NodeContainer();
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_ultimate_root(ultimate_root);
-  this->set_local_tree_length(local_tree_length);
-  this->set_total_tree_length(total_tree_length);
   this->set_current_base(1);
-  this->postponed_update_ = NULL;
 }
 
 
@@ -137,36 +132,6 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 }
 
 
-// Recursively finds the largest subtree containing "node" which only
-// has deactivated leafs. Makes sure that all nodes on this tree
-// are deactivated.
-/* void Forest::deactivateSubtree(Node* node) {
-  if ( node->is_root() ) return;
-  if ( !node->higher_child()->active() && !node->lower_child()->active() ) {
-    node->deactivate();
-    deactivateSubtree(node->parent());
-  }
-}*/
-
-void Forest::calcTreeLength(double *local_length, double *total_length) const {
-  *local_length = 0;
-  *total_length = 0;
-
-  for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_fake() || (*it)->is_root() ) continue;
-    *total_length += (*it)->height_above();
-    if ( (*it)->active() ) *local_length += (*it)->height_above();
-  }
-}
-
-void Forest::updateTreeLength() {
-  assert( false );
-  double local_length = 0, total_length = 0;
-  this->calcTreeLength(&local_length, &total_length);
-//  this->set_local_tree_length(local_length);
-//  this->set_total_tree_length(total_length);
-}
-
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
   dout << "* creating roots... ";
@@ -195,40 +160,30 @@ void Forest::buildInitialTree() {
   }
 }
 
-void Forest::inc_tree_length(const double &by, const bool &active) {
-  total_tree_length_ += by;
-  if (active) local_tree_length_ += by;
-  assert(local_tree_length_ > 0);
-  assert(total_tree_length_ > 0);
-}
-
-TreePoint Forest::samplePoint(bool only_local) {
-  //O(#Nodes) implementation
-  double length = 0;
-  
-  if (only_local) length = this->local_tree_length();
-  else            length = this->total_tree_length();
-
-  double point = this->random_generator()->sample() * length;
-
-  Node* base_node = NULL;
-  double height_above = -1;
-
-  for (NodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_root() ) continue;
-    if ( only_local && !(*it)->active() ) continue;
-
-    if ( (*it)->height_above() > point ) {
-      base_node = *it;
-      height_above = point;
-      break;
-    }
-    point -= (*it)->height_above();
+// uniformly samples a Point on the local tree
+// iterative log(#nodes) implementation
+// Distribution checked.
+TreePoint Forest::samplePoint(Node* node, double length_left) {
+  if (node == NULL) {
+    // Called without arguments => initialization
+    node = this->local_root();
+    length_left = this->random_generator()->sample() * node->length_below();
   }
 
-  assert(base_node != NULL);
-  assert(height_above >= 0);
-  return TreePoint(base_node, height_above, true);
+  assert( length_left >= 0 );
+  assert( length_left < (node->length_below() + node->height_above()) );
+  
+  if ( length_left < node->height_above() ) {
+    return TreePoint(node, length_left, true);
+  }
+
+  length_left = length_left - node->height_above();
+  assert( length_left >= 0 );
+  double tmp = node->lower_child()->height_above() + node->lower_child()->length_below();
+  if ( length_left <= tmp )
+    return samplePoint(node->lower_child(), length_left);
+  else 
+    return samplePoint(node->higher_child(), length_left - tmp);
 }
 
 
@@ -238,7 +193,7 @@ void Forest::sampleNextGenealogy() {
   // Samples a new genealogy, conditional on a recombination occurring
 
   // Sample the recombination point
-  TreePoint rec_point = this->samplePoint(true);
+  TreePoint rec_point = this->samplePoint();
 
   dout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;
@@ -249,14 +204,12 @@ void Forest::sampleNextGenealogy() {
   // Postpone coalescence if not active
   if (!rec_point.base_node()->active()) {
     dout << "* Not on local tree; Postponing coalescence" << std::endl;
-    this->doPostponedUpdate(); 
     return;
   }
 
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 
-  assert(this->postponed_update() == NULL);
   assert(this->printNodes());
   assert(this->printTree());
   assert(this->checkLeafsOnLocalTree());
@@ -371,7 +324,6 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     dout << "* * into: " << coal_point.base_node() << std::endl;
     dout << "* * Updating tree" << std::endl;
     coalesNodeIntoTree(coalescing_root, coal_point);
-    this->doPostponedUpdate();
 
     // Root 1 and 2 coalesced together? => we are done
     if (coalescing_root == coalescence_root_1 && coalescence_target == coalescence_root_2) {
@@ -546,6 +498,3 @@ void Forest::unregisterNonLocalRoot(Node* node, Node* position) {
     unregisterNonLocalRoot(node, position->higher_child());
   } 
 };
-
-
-
