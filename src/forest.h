@@ -68,7 +68,8 @@ class Forest
   void deactivateSubtree(Node* node);
   void updateAbove(Node* node, 
                    bool above_local_root = false,
-                   bool recursive = true);
+                   bool recursive = true,
+                   bool local_only = false);
 
   Node* moveUpwardsInTree(Node* node);
 
@@ -116,8 +117,10 @@ class Forest
   //                the forest into a tree.
 
   Node* local_root_;
-  Node* primary_root_;      // currently not used
+  Node* primary_root_;
   Node* ultimate_root_;      
+
+  Node* postponed_update_;  // Temporarily remember one node that (and the tree above) has not been updated
 
   size_t current_base_;     // The current position of the sequence we are simulating
 
@@ -146,6 +149,18 @@ class Forest
   void set_local_tree_length(const double &length) { local_tree_length_ = length; }
   void set_total_tree_length(const double &length) { total_tree_length_ = length; }
   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
+
+  Node* postponed_update() const { return this->postponed_update_; }
+  void postpone_update(Node* node) { 
+    assert(postponed_update_ == NULL); 
+    this->postponed_update_ = node; 
+  }
+  void doPostponedUpdate() {
+    std::cout << "Doing updates..." << std::endl; 
+    if ( this->postponed_update() == NULL ) return;
+    updateAbove(this->postponed_update());
+    this->postponed_update_ = NULL;
+  }
 
   void inc_tree_length(const double &by, const bool &active);
   void dec_tree_length(const double &by, const bool &active) 

@@ -36,7 +36,8 @@ class Node
 
   void activate() { this->set_active(true); }
   void deactivate(const size_t &current_base) { 
-    if ( active() ) set_last_update(current_base);
+    if ( !active() ) return;
+    set_last_update(current_base);
     this->set_active(false);
   }
 
