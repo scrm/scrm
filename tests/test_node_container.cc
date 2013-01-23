@@ -93,25 +93,19 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(node2);
     nc.add(node3);
 
-    //Create the ultimate root
-    Node* ultimate_root = new Node(FLT_MAX);
-    ultimate_root->deactivate(0);
-    nc.add(ultimate_root);
-
     NodeIterator it = nc.iterator();
     CPPUNIT_ASSERT( it.good() && it++ == node1 );
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node3 );
-    CPPUNIT_ASSERT( it.good() && it++ == ultimate_root );
     CPPUNIT_ASSERT( !it.good() );
 
     it = nc.iterator();
     int i = 0;
     for (it = nc.iterator(); it.good(); ++it) {
-      (*it)->activate();
+      (*it)->make_local();
       ++i;
     }
-    CPPUNIT_ASSERT( i == 4 );
+    CPPUNIT_ASSERT( i == 3 );
   }
   
   void testReverseIterator() {
@@ -123,15 +117,8 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(node2);
     nc.add(node3);
 
-    //Create the ultimate root
-    Node* ultimate_root = new Node(FLT_MAX);
-    ultimate_root->deactivate(0);
-    nc.add(ultimate_root);
-
-
     ReverseConstNodeIterator it = nc.reverse_iterator();
     CPPUNIT_ASSERT( it.good() );
-    CPPUNIT_ASSERT( it.good() && it++ == ultimate_root );
     CPPUNIT_ASSERT( it.good() && it++ == node3 );
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node1 );
@@ -150,5 +137,5 @@ class TestNodeContainer : public CppUnit::TestCase {
 
 };
 
-//Uncomment this to activate the test
+//Uncomment this to make_local the test
 CPPUNIT_TEST_SUITE_REGISTRATION( TestNodeContainer );

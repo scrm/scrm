@@ -13,11 +13,13 @@ class Event {
         std::vector<Node*> contemporaries);
   ~Event() { };
 
-  double start_height() { return this->start_height_; };
-  double end_height() { return this->end_height_; };
-  std::vector<Node*> contemporaries() { return this->contemporaries_; };
+  double start_height() const { return this->start_height_; };
+  double end_height()   const { return this->end_height_; };
+  double length()       const { return (end_height() - start_height()); };
 
-  Node* getRandomContemporary();
+  std::vector<Node*> contemporaries() const { return this->contemporaries_; };
+
+  Node* getRandomContemporary() const;
   void removeFromContemporaries(Node* node);
 
 
@@ -28,13 +30,22 @@ class Event {
   std::vector<Node*> contemporaries_;
 };
 
+
+
 class EventIterator {
  public:
   EventIterator();
-  EventIterator(Forest *forest, const double &start_height);
-  ~EventIterator();
+  EventIterator(Forest *forest, Node const* start_node);
+  ~EventIterator() {};
 
-  Event next();
+  void next();
+  bool good() const;
+
+  Event operator*() const { return current_event_; }
+  Event operator++() { next(); return current_event_; }
+  Event operator++(int) { Event tmp = current_event_;
+                          next();
+                          return tmp; }
   
 #ifdef UNITTEST
   friend class TestEvent;
@@ -42,9 +53,10 @@ class EventIterator {
 
  private:
   Forest* forest_;
+  Event current_event_;
   std::vector<Node*> contemporaries_;
-  double start_height_;
   NodeIterator twig_iterator_;
+  bool good_;
 };
 
 #endif

@@ -32,48 +32,84 @@ class TestEvent : public CppUnit::TestCase {
   }
 
   void testEventIteratorCreation() {
-    EventIterator it = EventIterator(forest, 0);
-    CPPUNIT_ASSERT( it.start_height_ == 0 );
-    CPPUNIT_ASSERT( it.contemporaries_.size() == 0 );
-    CPPUNIT_ASSERT( *it.twig_iterator_ == forest->getNodes()->get(0) );
-    it = EventIterator(forest, 2);
-    CPPUNIT_ASSERT( it.start_height_ == 2 );
-    CPPUNIT_ASSERT( it.contemporaries_.size() == 3 );
-    it = EventIterator(forest, 4);
-    CPPUNIT_ASSERT( it.start_height_ == 4 );
-    CPPUNIT_ASSERT( it.contemporaries_.size() == 2 );
-    it = EventIterator(forest, 11);
-    CPPUNIT_ASSERT( it.start_height_ == 11 );
-    CPPUNIT_ASSERT( it.contemporaries_.size() == 0 );
+    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+    CPPUNIT_ASSERT( (*it).start_height() == 0 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4 );
+    
+    it = EventIterator(forest, forest->getNodes()->get(4));
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+    
+    it = EventIterator(forest, forest->getNodes()->get(5));
+    CPPUNIT_ASSERT( (*it).start_height() == 3 );
+    CPPUNIT_ASSERT( (*it).end_height() == 4 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+ 
+    it = EventIterator(forest, forest->getNodes()->get(6));
+    CPPUNIT_ASSERT( (*it).start_height() == 4 );
+    CPPUNIT_ASSERT( (*it).end_height() == 6 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+ 
+    it = EventIterator(forest, forest->getNodes()->get(7));
+    CPPUNIT_ASSERT( (*it).start_height() == 6 );
+    CPPUNIT_ASSERT( (*it).end_height() == 10 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    
+    it = EventIterator(forest, forest->getNodes()->get(8));
+    CPPUNIT_ASSERT( (*it).start_height() == 10 );
+    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 0 );
   }
 
   void testEventIteratorNext() {
-    //forest->printTree();
-    //forest->printNodes();
-    EventIterator events = EventIterator(forest, 0.5);
-    Event event = events.next();
-    CPPUNIT_ASSERT( event.start_height() == 0.5 );
-    CPPUNIT_ASSERT( event.end_height() == 1 );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 4);
-    event = events.next();
-    CPPUNIT_ASSERT( event.start_height() == 1 );
-    CPPUNIT_ASSERT( event.end_height() == 3 );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 3);
-    event = events.next();
-    CPPUNIT_ASSERT( event.start_height() == 3 );
-    CPPUNIT_ASSERT( event.end_height() == 10 );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 2);
-    event = events.next();
-    CPPUNIT_ASSERT( event.start_height() == 10 );
-    CPPUNIT_ASSERT( event.end_height() == FLT_MAX );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 0);
-    CPPUNIT_ASSERT_THROW( event = events.next(), std::out_of_range );
+    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+    CPPUNIT_ASSERT( (*it).start_height() == 0 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4);
+    CPPUNIT_ASSERT( it.good() );
+    
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( it.good() );
+  
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 3 );
+    CPPUNIT_ASSERT( (*it).end_height() == 4 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( it.good() );
+ 
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 4 );
+    CPPUNIT_ASSERT( (*it).end_height() == 6 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+    CPPUNIT_ASSERT( it.good() );
+ 
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 6 );
+    CPPUNIT_ASSERT( (*it).end_height() == 10 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( it.good() );
+    
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 10 );
+    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 0 );
+    CPPUNIT_ASSERT( it.good() );
+  
+    ++it;
+    CPPUNIT_ASSERT( !it.good() );
 
-    events = EventIterator(forest, 0);
-    event = events.next();
-    CPPUNIT_ASSERT( event.start_height() == 0 );
-    CPPUNIT_ASSERT( event.end_height() == 1 );
-    CPPUNIT_ASSERT( event.contemporaries().size() == 4 );
+    int i = 0;
+    for (EventIterator events = EventIterator(forest, forest->getNodes()->get(0));
+         events.good(); ++events) { 
+      ++i;
+      //std::cout << (*events).start_height() << " - " << (*events).end_height() << std::endl; 
+    }
+    CPPUNIT_ASSERT( i == 6 );
   }
 
 };

@@ -15,6 +15,7 @@ void Forest::createExampleTree() {
   this->nodes()->add(leaf3);
   this->nodes()->add(leaf4);
 
+
   Node* node12 = new Node(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
 
@@ -26,13 +27,14 @@ void Forest::createExampleTree() {
   this->set_local_root(root);
   this->set_primary_root(root);
 
-  //Build the fake tree above
-  Node* ultimate_root = new Node(FLT_MAX, false);
-  this->set_ultimate_root(ultimate_root);
-  this->nodes()->add(ultimate_root);
-
-  ultimate_root->set_lower_child(root);
-  root->set_parent(ultimate_root);
+  // Add a non-local tree
+  Node* nl_node = new Node(4, false, 5, 0); 
+  Node* nl_root = new Node(6, false, 5, 0);
+  nl_node->set_parent(nl_root);
+  nl_root->set_lower_child(nl_node);
+  this->nodes()->add(nl_node);
+  this->nodes()->add(nl_root);
+  updateAbove(nl_node);
 
   updateAbove(node12);
   updateAbove(node34);
@@ -46,7 +48,7 @@ double Forest::calcTreeLength() const {
   double local_length = 0;
 
   for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_fake() || (*it)->is_root() || !(*it)->active() ) continue;
+    if ( (*it)->is_fake() || (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
   return local_length;
@@ -116,7 +118,7 @@ bool Forest::checkNodeProperties() const {
   bool success = true;
   for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
     if ( (*it)->is_fake() ) continue;
-    if ( !(*it)->active() ) {
+    if ( !(*it)->local() ) {
       if ( (*it)->last_update() == 0 ) {
         dout << "Error: Node " << *it << " non-local without update info" << std::endl;
         success = false;
@@ -127,12 +129,16 @@ bool Forest::checkNodeProperties() const {
 }
 
 
-bool Forest::checkTree(Node *root) const {
+bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
+    bool good = true;
     //Default when called without argument
-    root = this->ultimate_root();
+    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+      if ( (*it)->is_root() ) good = checkTree(*it);
+    }
 
     assert( this->checkNodeProperties() );
+    return good;
   }
   assert( root != NULL);
 
@@ -247,21 +253,21 @@ bool Forest::printTree() const {
       if ( i < position - lines_left) {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->active()) dout << "+";
+          if (branches[i]->local()) dout << "+";
           else dout << "°";
         else if ( branches[i]->is_root() ) dout << " ";
         else dout << "|";
       } 
       else if ( i < position) dout << "-";
       else if ( i == position) { 
-        if (current_node->active()) dout << "+";
+        if (current_node->local()) dout << "+";
         else dout << "°";
       }
       else if ( i <= position + lines_right) dout << "-";
       else {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->active()) dout << "+";
+          if (branches[i]->local()) dout << "+";
           else dout << "°";
         else if ( branches[i]->is_root() ) dout << " ";
         else dout << "|";

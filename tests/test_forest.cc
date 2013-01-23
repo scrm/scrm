@@ -16,7 +16,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST( testCreateRoots );
-  CPPUNIT_TEST( testBuildInitialTree );
+  CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testCountLinesLeft );
   CPPUNIT_TEST( testCountLinesRight );
   CPPUNIT_TEST( testCountBelowLinesLeft );
@@ -57,11 +57,9 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testCreateExampleTree() {
-    CPPUNIT_ASSERT( forest->nodes()->size() == 8 );
-    CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(6) );
-    CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(6) );
-    CPPUNIT_ASSERT( forest->ultimate_root() == forest->nodes()->get(7) );
-    //CPPUNIT_ASSERT( forest->total_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->nodes()->size() == 9 );
+    CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(8) );
+    CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(8) );
     CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
   }
@@ -89,12 +87,12 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( u_root->lower_child() == l_root );
   }
   
-  void testBuildInitialTree() {
-    //Forest test_forest = Forest(Model(3), rg);
-    //test_forest.buildInitialTree();
-    //CPPUNIT_ASSERT(test_forest.getFirstNode()->parent() != NULL);
-    //CPPUNIT_ASSERT(test_forest.getFirstNode()->parent()->parent() != NULL);
-    //CPPUNIT_ASSERT_NO_THROW(forest->checkTree());
+  void testGetNodeState() { 
+    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(0), 5) == 0 );
+    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(8), 5) == 0 );
+    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(8), 11) == 1 );
+    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(6), 11) == 2 );
+    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(7), 11) == 1 );
   }
 
   void testCountLinesLeft() {

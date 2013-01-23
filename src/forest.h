@@ -27,6 +27,8 @@
 #include "random/fake_generator.h"
 #include "random/mersenne_twister.h"
 
+class Event;
+
 class Forest
 {
  public:
@@ -83,14 +85,20 @@ class Forest
   void buildInitialTree();
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   void sampleNextGenealogy();
+
+  // Tools for doing an coalescence
+  size_t getNodeState(Node const *node, const double &current_time) const;
+  double calcRate(Node* node, const int &state, const int &other_state, const Event &event) const;
   void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
-  double calcCoalescenceRate(int lines_number, int coal_lines_number = 1);
+  
+  void sampleCoalescences2(Node *start_node, const bool &for_initial_tree = false);
+
   void coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point);
 
   //Debugging Tools
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
-  bool checkTree(Node* root = NULL) const;
+  bool checkTree(Node const* root = NULL) const;
   double calcTreeLength() const;
   bool checkTreeLength() const;
   bool checkNodeProperties() const;
@@ -105,6 +113,14 @@ class Forest
 
 
  private:
+  double sampleExpTime(double rate, double intervall_length);
+  size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
+
+  Node* possiblyMoveUpwards(Node* node, const Event &event) const;
+  
+  void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+
+
   //Private variables
   NodeContainer* nodes_;    // The nodes of the Tree/Forest
 
@@ -122,11 +138,11 @@ class Forest
 
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
 
+  double expo_sample_;      // Placeholder for exp(1) sampled values
+
   Model model_;
   RandomGenerator* random_generator_;
 
-  double local_tree_length_;
-  double total_tree_length_;
   
   void initialize(Model model = Model(),
                   RandomGenerator* rg = NULL, 
@@ -143,6 +159,7 @@ class Forest
   void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
 
   void createSampleNodes();
+
 };
 
 bool areSame(double a, double b);
