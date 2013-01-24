@@ -15,7 +15,6 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
-  CPPUNIT_TEST( testCreateRoots );
   CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testCountLinesLeft );
   CPPUNIT_TEST( testCountLinesRight );
@@ -43,7 +42,6 @@ class TestForest : public CppUnit::TestCase {
     Forest test_forest = Forest(Model(4), rg);
     CPPUNIT_ASSERT( test_forest.model().sample_size() == 4 );
     CPPUNIT_ASSERT( test_forest.random_generator() == rg );
-    CPPUNIT_ASSERT( test_forest.ultimate_root() == NULL );
     //CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
     //CPPUNIT_ASSERT( test_forest.total_tree_length() == 0 );
   }
@@ -75,17 +73,6 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( tp.relative_height() > 0 );
   }
 
-  void testCreateRoots() {
-    Forest test_forest = Forest(Model(3), rg);
-    test_forest.createRoots();
-    CPPUNIT_ASSERT( test_forest.ultimate_root() != NULL );
-    CPPUNIT_ASSERT( test_forest.local_root() != NULL );
-    Node* u_root = test_forest.ultimate_root();
-    Node* l_root = test_forest.local_root();
-    CPPUNIT_ASSERT( u_root->height() == FLT_MAX );
-    CPPUNIT_ASSERT( l_root->parent() == u_root );
-    CPPUNIT_ASSERT( u_root->lower_child() == l_root );
-  }
   
   void testGetNodeState() { 
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(0), 5) == 0 );

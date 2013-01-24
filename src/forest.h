@@ -11,6 +11,7 @@
 #endif
 
 #include <vector>
+#include <map>
 #include <iostream>
 #include <stdexcept>
 #include <cfloat>
@@ -48,7 +49,6 @@ class Forest
   Model model() const { return this->model_; }
   void set_model(const Model &model) { this->model_ = model; }
 
-  Node* ultimate_root() const { return ultimate_root_; }
   Node* local_root() const { return local_root_; }
   void set_local_root(Node* local_root) { local_root_ = local_root; };
   
@@ -74,12 +74,6 @@ class Forest
                    bool local_only = false);
 
   Node* moveUpwardsInTree(Node* node);
-
-
-  //Operations to manage the fake binary tree connecting all trees of the forest
-  void createRoots();
-  void registerNonLocalRoot(Node *node, Node *position = NULL);
-  void unregisterNonLocalRoot(Node* node, Node *position = NULL);
 
   //
   void buildInitialTree();
@@ -132,7 +126,6 @@ class Forest
 
   Node* local_root_;
   Node* primary_root_;
-  Node* ultimate_root_;      
 
   size_t current_base_;     // The current position of the sequence we are simulating
 
@@ -145,8 +138,7 @@ class Forest
 
   
   void initialize(Model model = Model(),
-                  RandomGenerator* rg = NULL, 
-                  Node* ultimate_root = NULL);
+                  RandomGenerator* rg = NULL);
 
   NodeContainer *nodes() { return this->nodes_; }
   NodeContainer const *nodes() const { return this->nodes_; }
@@ -155,8 +147,6 @@ class Forest
     this->random_generator_ = rg; }
 
   void set_sample_size(const size_t &size ) { sample_size_ = size; }
-
-  void set_ultimate_root(Node* ultimate_root) { ultimate_root_ = ultimate_root; }
 
   void createSampleNodes();
 

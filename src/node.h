@@ -50,7 +50,7 @@ class Node
   Node *lower_child() const { return this->lower_child_; }
   void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }
 
-  size_t last_update() const { if ( local() || is_fake() ) return 0; 
+  size_t last_update() const { if ( local() ) return 0; 
     return(last_update_); }
   void set_last_update(size_t position) { this->last_update_ = position; }
 
@@ -64,9 +64,7 @@ class Node
   void sort_children();
   int  numberOfChildren() const;
 
-  bool is_fake() const; 
   bool is_root() const; 
-  bool is_ultimate_root() const;
   bool in_sample() const;
 
  private:
@@ -77,8 +75,8 @@ class Node
   // i.e. on the local tree
   size_t last_update_;   // The sequence position on which the branch above the node
   // was last checked for recombination events. Ignored for
-  // local nodes, which are always up to date, and for fake
-  // nodes, which don't recombine.
+  // local nodes, which are always up to date
+  
   size_t samples_below_; // the number of sampled nodes in the subtree below this node
   double length_below_;  // the total length of local branches in the subtree below this node
 
@@ -87,15 +85,5 @@ class Node
   Node *higher_child_;
   Node *lower_child_;   // If it has only one child, then it is the lower one
 };
-
-//Inlining this functions slighly increases preformance
-inline bool Node::is_fake() const {
-  return ( this->height() == FLT_MAX ); 
-}
-
-inline bool Node::is_ultimate_root() const {
-  return ( this->is_fake() && this->parent_ == NULL );
-}
-
 
 #endif

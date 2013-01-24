@@ -19,8 +19,7 @@ int main () {
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
- 
-      return 0; 
+       
       for (size_t i=1; i <= 25; ++i) {
         forest.set_current_base(i);    
         forest.sampleNextGenealogy();

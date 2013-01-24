@@ -15,13 +15,11 @@ Forest::Forest(Model model, RandomGenerator* random_generator) {
 
 // Sets member variable to default values
 void Forest::initialize(Model model, 
-                        RandomGenerator* rg, 
-                        Node* ultimate_root) {
+                        RandomGenerator* rg) {
 
   this->nodes_ = new NodeContainer();
   this->set_model(model);
   this->set_random_generator(rg);
-  this->set_ultimate_root(ultimate_root);
   this->set_current_base(1);
   this->expo_sample_ = -1;
 }
@@ -59,7 +57,6 @@ void Forest::cut(const TreePoint &cut_point) {
   new_root->set_lower_child(cut_point.base_node());
   //Inefficient to to this for local nodes
   nodes()->add(new_root);
-  this->registerNonLocalRoot(new_root);
   assert(this->printTree());
   dout << "* * New root of subtree: " << new_root << std::endl;
 
@@ -585,7 +582,6 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
   dout << "* * * Updating its structure" << std::endl;
   coal_node->change_child(NULL, coal_point.base_node());
   coal_node->set_parent(coal_point.base_node()->parent());
-  unregisterNonLocalRoot(coal_node);
 
   //Update the new child 
   coal_point.base_node()->set_parent(coal_node);
@@ -598,61 +594,3 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
   assert(this->checkTree());
   dout << "* * * Done" << std::endl;
 }
-
-
-/******************************************************************
- * Manage roots and fake tree
- *****************************************************************/
-
-// Creates the very first node of the tree and the ultimate root above
-void Forest::createRoots() {
-  //Create the first node of the tree (also is the root at this point)
-  Node* first_node = new Node(0, true, 0, 1);
-  this->nodes()->add(first_node);
-  this->set_local_root(first_node);
-  this->set_primary_root(first_node);
-
-  //Create the ultimate root
-  Node* ultimate_root = new Node(FLT_MAX);
-  ultimate_root->make_nonlocal(current_base());
-  this->nodes()->add(ultimate_root);
-  this->set_ultimate_root(ultimate_root);
-
-  first_node->set_parent(ultimate_root);
-  ultimate_root->set_lower_child(first_node);
- 
-  assert(this->nodes()->size() == 2); 
-  assert(this->checkTree());
-}
-
-void Forest::registerNonLocalRoot(Node* node, Node *position) {
-  if (position == NULL) position = this->ultimate_root();
-  //Do we have a free place to add the node?
-  if (position->lower_child() == NULL) {
-    position->set_lower_child(node);
-    node->set_parent(position);
-    return;
-  }
-
-  //If not, we need to have another fake node immediately below us 
-  Node* next_fake_node = position->higher_child();
-  if (next_fake_node == NULL) {
-    next_fake_node = new Node(FLT_MAX);
-    next_fake_node->set_parent(position);
-    position->set_higher_child(next_fake_node);
-    this->nodes()->add(next_fake_node);
-  }
-
-  registerNonLocalRoot(node, next_fake_node);
-};
-
-void Forest::unregisterNonLocalRoot(Node* node, Node* position) {
-  if (position == NULL) position = this->ultimate_root();
-  if (position->lower_child() == node) position->set_lower_child(NULL);
-  else if (position->higher_child() == node) position->set_higher_child(NULL);
-  else {
-    if (position->higher_child() == NULL)
-      throw std::logic_error("Cannont unregister root: Not found");
-    unregisterNonLocalRoot(node, position->higher_child());
-  } 
-};

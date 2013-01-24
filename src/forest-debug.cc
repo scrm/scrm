@@ -48,7 +48,7 @@ double Forest::calcTreeLength() const {
   double local_length = 0;
 
   for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_fake() || (*it)->is_root() || !(*it)->local() ) continue;
+    if ( (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
   return local_length;
@@ -109,15 +109,13 @@ bool Forest::checkLeafsOnLocalTree(Node const* node) const {
     return(all_on_tree);
   }
   if ( !node->is_root() ) return( checkLeafsOnLocalTree(node->parent()) );
-
-  return( node->parent()->is_ultimate_root() );
+  return( node == this->primary_root() );
 }
 
 
 bool Forest::checkNodeProperties() const {
   bool success = true;
   for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_fake() ) continue;
     if ( !(*it)->local() ) {
       if ( (*it)->last_update() == 0 ) {
         dout << "Error: Node " << *it << " non-local without update info" << std::endl;
@@ -157,7 +155,7 @@ bool Forest::checkTree(Node const* root) const {
   //Do we have only one child?
   else if ( !(h_child == NULL && l_child == NULL) ) {
     //This is only allowed for root and fake nodes
-    if ( !(root->is_root() || root->is_fake()) ) { 
+    if ( !root->is_root() ) { 
       dout << root << ": Has only one child" << std::endl;
       return 0;
     }
@@ -194,25 +192,28 @@ bool Forest::printTree() const {
   ReverseConstNodeIterator it;
   std::vector<const Node*>::iterator cit;
   Node const* current_node;
-  size_t lines_left, lines_right, position;
+  size_t lines_left, lines_right, position, root_offset;
   //double current_height = FLT_MAX;
   double current_height = -1;
 
-
   std::vector<const Node*> branches;
   for (size_t i=0; i < this->getNodes()->size(); ++i) branches.push_back(NULL);
+  root_offset = 0;
 
   for (it = getNodes()->reverse_iterator(); it.good(); ++it) {
     current_node = *it;
 
     lines_left = countLinesLeft(current_node);
     lines_right = countLinesRight(current_node);
-    if (current_node->is_fake()) --lines_right;
 
-    if ( current_node == this->ultimate_root() ) {
-      position = countBelowLinesLeft(current_node) + lines_left;
+    if ( current_node->is_root() ) {
+      // Add root to the right of all current trees
+      position = countBelowLinesLeft(current_node) + lines_left + root_offset;
+      root_offset = position + countBelowLinesRight(current_node) + lines_right + 1;
       branches[position] = current_node;
     } else {
+      // Get the position of the node (which was assigned when looking at is
+      // parent
       position = 0;
       for (cit = branches.begin(); cit < branches.end(); ++cit) {
         if ( *cit == current_node ) break;
@@ -220,36 +221,39 @@ bool Forest::printTree() const {
       }
     }
 
-
-    // Print one line of "|" between each event
-    if (current_node->height() != FLT_MAX && current_node->height() != current_height) {
-      dout << std::endl;
-      /*for (cit = branches.begin(); cit < branches.end(); ++cit) {
-        if ( *cit == NULL || (*cit)->is_root() ) dout << " ";
-        else dout << "|";
-        }
-        dout << std::endl;*/
+    // Insert the child/children into branches
+    if (current_node->lower_child() != NULL) {
+      if (current_node->higher_child() == NULL){ 
+        branches[position + 1] = current_node->lower_child();
+      } else {
+        branches[position - lines_left] =  current_node->lower_child();
+        branches[position + lines_right] = current_node->higher_child();
+      }
     }
-
-    if (current_node->higher_child() == NULL){ 
-      branches[position] = current_node->lower_child();
+   
+    // Print branches
+    /* 
+    for (std::vector<const Node*>::iterator bit = branches.begin(); 
+         bit != branches.end(); ++bit) {
+        if (*bit == NULL) std::cout << "0        ";
+        else std::cout << *bit << " ";
     }
-    else {
-      branches[position - lines_left] = current_node->lower_child();
-      branches[position + lines_right] = current_node->higher_child();
-      branches[position] = NULL;
-    }
+    std::cout << std::endl;
+    continue;
+    */
 
-    if (current_node->height() == FLT_MAX) continue;
 
     if (areSame(current_height, current_node->height())) {
-      dout << " " << current_node;
+      dout << current_node << " ";
       continue;
     }
+    dout << std::endl;
 
     current_height = current_node->height();
+    std::string nodes = "";
 
     for (size_t i=0; i < branches.size(); ++i) {
+      
       if ( i < position - lines_left) {
         if ( branches[i] == NULL ) dout << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
@@ -272,11 +276,13 @@ bool Forest::printTree() const {
         else if ( branches[i]->is_root() ) dout << " ";
         else dout << "|";
       }
+      
+      // remove Nodes after they were printed
+      if ( branches[i] != NULL && areSame(branches[i]->height(), current_height) ) {
+        branches[i] = NULL;
+      }
     }
-
-    dout << " " << current_node->height() << " " << current_node 
-        << " " << current_node->length_below();
-
+    dout << " ---" << current_node->height() << "\t" << current_node << " "; 
   }
   dout << std::endl;
   dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
@@ -286,11 +292,15 @@ bool Forest::printTree() const {
 
 int Forest::countLinesLeft(Node const* node) const {
   if ( node->lower_child() == NULL ) return 0;
+  if ( node->higher_child() == NULL ) return 0;
   return ( 1 + countBelowLinesRight(node) );
 }
 
 int Forest::countLinesRight(Node const* node) const {
-  if ( node->lower_child() == NULL ) return 0;
+  if ( node->lower_child() == NULL ) {
+    if ( node->higher_child() == NULL ) return 0;
+    return 1;
+  }
   return ( 1 + countBelowLinesLeft(node) );
 }
 
@@ -308,16 +318,12 @@ bool Forest::printNodes() const {
   for(size_t i = 0; i < this->getNodes()->size(); ++i) {
     dout << "Addr: " << this->getNodes()->get(i) << " | ";
     dout << "Height: " << this->getNodes()->get(i)->height() << " | ";
-    if (this->getNodes()->get(i)->is_ultimate_root())
-      dout << "Parent: " << "NONE" << " | ";
-    else
-      dout << "Parent: " << this->getNodes()->get(i)->parent() << " | ";
+    dout << "Parent: " << this->getNodes()->get(i)->parent() << " | ";
     dout << "h_child: " << this->getNodes()->get(i)->higher_child() << " | ";
     dout << "l_child: " << this->getNodes()->get(i)->lower_child() << std::endl;
   }
   dout << "Local Root:    " << this->local_root() << std::endl;
   dout << "Primary Root:  " << this->primary_root() << std::endl;
-  dout << "Ultimate Root: " << this->ultimate_root() << std::endl;
   return true;
 }
 

@@ -73,7 +73,7 @@ void EventIterator::next() {
 
   double start_height = (*twig_iterator_)->height();
 
-  if (!( (*twig_iterator_)->is_root() || (*twig_iterator_)->is_fake())) 
+  if ( !(*twig_iterator_)->is_root() ) 
     contemporaries_.push_back(*twig_iterator_);
 
   ++twig_iterator_;
