@@ -87,7 +87,6 @@ class Forest
   
   void sampleCoalescences2(Node *start_node, const bool &for_initial_tree = false);
 
-  void coalesNodeIntoTree(Node* coal_node, const TreePoint &coal_point);
 
   //Debugging Tools
   void createExampleTree();
@@ -111,7 +110,9 @@ class Forest
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
   Node* possiblyMoveUpwards(Node* node, const Event &event) const;
-  
+ 
+  // Implementation of the different events
+  void implementCoalescence(Node *coal_node, const TreePoint &coal_point);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
 
 
