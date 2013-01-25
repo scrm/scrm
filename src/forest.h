@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
@@ -66,7 +67,7 @@ class Forest
 
   //Operations on the Tree
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
-  void cut(const TreePoint &cut_point);
+  Node* cut(const TreePoint &cut_point);
   void deactivateSubtree(Node* node);
   void updateAbove(Node* node, 
                    bool above_local_root = false,

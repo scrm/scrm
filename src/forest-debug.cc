@@ -1,4 +1,5 @@
 #include "forest.h"
+#include <sstream>
 
 /******************************************************************
  * Debugging Utils
@@ -192,24 +193,36 @@ bool Forest::printTree() const {
   ReverseConstNodeIterator it;
   std::vector<const Node*>::iterator cit;
   Node const* current_node;
-  size_t lines_left, lines_right, position, root_offset;
-  //double current_height = FLT_MAX;
+  size_t lines_left, lines_right, position, root_offset = 0;
   double current_height = -1;
 
   std::vector<const Node*> branches;
   for (size_t i=0; i < this->getNodes()->size(); ++i) branches.push_back(NULL);
-  root_offset = 0;
+
+  ostringstream buffer;
 
   for (it = getNodes()->reverse_iterator(); it.good(); ++it) {
     current_node = *it;
+    
+    if (!areSame(current_height, current_node->height())) {
+      dout << buffer.str() << std::endl;
+      
+      // remove old nodes
+      for (size_t i=0; i < branches.size(); ++i) {
+        if ( branches[i] != NULL && areSame(branches[i]->height(), current_height) ) branches[i] = NULL;
+      }
+    }
+    buffer.str("");
 
     lines_left = countLinesLeft(current_node);
     lines_right = countLinesRight(current_node);
 
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
-      position = countBelowLinesLeft(current_node) + lines_left + root_offset;
-      root_offset = position + countBelowLinesRight(current_node) + lines_right + 1;
+      position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
+      //dout << countBelowLinesLeft(current_node->lower_child()) << " " 
+      //     << lines_left << " " << root_offset << endl;
+      root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
       branches[position] = current_node;
     } else {
       // Get the position of the node (which was assigned when looking at is
@@ -230,9 +243,9 @@ bool Forest::printTree() const {
         branches[position + lines_right] = current_node->higher_child();
       }
     }
-   
+
+    /*
     // Print branches
-    /* 
     for (std::vector<const Node*>::iterator bit = branches.begin(); 
          bit != branches.end(); ++bit) {
         if (*bit == NULL) std::cout << "0        ";
@@ -243,48 +256,35 @@ bool Forest::printTree() const {
     */
 
 
-    if (areSame(current_height, current_node->height())) {
-      dout << current_node << " ";
-      continue;
-    }
-    dout << std::endl;
-
     current_height = current_node->height();
-    std::string nodes = "";
 
     for (size_t i=0; i < branches.size(); ++i) {
-      
+     
       if ( i < position - lines_left) {
-        if ( branches[i] == NULL ) dout << " ";
+        if ( branches[i] == NULL ) buffer << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->local()) dout << "+";
-          else dout << "°";
-        else if ( branches[i]->is_root() ) dout << " ";
-        else dout << "|";
+          if (branches[i]->local()) buffer << "+";
+          else buffer << "°";
+        else buffer << "|";
       } 
-      else if ( i < position) dout << "-";
+      else if ( i < position) buffer << "-";
       else if ( i == position) { 
-        if (current_node->local()) dout << "+";
-        else dout << "°";
+        if (current_node->local()) buffer << "+";
+        else buffer << "°";
       }
-      else if ( i <= position + lines_right) dout << "-";
+      else if ( i <= position + lines_right) buffer << "-";
       else {
-        if ( branches[i] == NULL ) dout << " ";
+        if ( branches[i] == NULL ) buffer << " ";
         else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->local()) dout << "+";
-          else dout << "°";
-        else if ( branches[i]->is_root() ) dout << " ";
-        else dout << "|";
+          if (branches[i]->local()) buffer << "+";
+          else buffer << "°";
+        else buffer << "|";
       }
       
-      // remove Nodes after they were printed
-      if ( branches[i] != NULL && areSame(branches[i]->height(), current_height) ) {
-        branches[i] = NULL;
-      }
     }
-    dout << " ---" << current_node->height() << "\t" << current_node << " "; 
+    buffer << " ---" << current_node->height() << "\t" << current_node << " ";
   }
-  dout << std::endl;
+  dout << buffer.str() << std::endl;
   dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
   //Returns true, so that it can be place in asserts
   return true;
@@ -293,7 +293,7 @@ bool Forest::printTree() const {
 int Forest::countLinesLeft(Node const* node) const {
   if ( node->lower_child() == NULL ) return 0;
   if ( node->higher_child() == NULL ) return 0;
-  return ( 1 + countBelowLinesRight(node) );
+  return ( 1 + countBelowLinesRight(node->lower_child()) );
 }
 
 int Forest::countLinesRight(Node const* node) const {
@@ -301,26 +301,47 @@ int Forest::countLinesRight(Node const* node) const {
     if ( node->higher_child() == NULL ) return 0;
     return 1;
   }
-  return ( 1 + countBelowLinesLeft(node) );
+  return ( 1 + countBelowLinesLeft(node->higher_child()) );
 }
 
 int Forest::countBelowLinesLeft(Node const* node) const {
+  if ( node == NULL ) return 0;
   if ( node->lower_child() == NULL ) return 0;
-  else return ( countLinesLeft(node->lower_child()) + countBelowLinesLeft(node->lower_child()) );
+  else return ( countLinesLeft(node) + countBelowLinesLeft(node->lower_child()) );
 }
 
 int Forest::countBelowLinesRight(Node const* node) const {
+  if ( node == NULL ) return 0;
   if ( node->higher_child() == NULL ) return 0;
-  else return ( countLinesRight(node->higher_child()) + countBelowLinesRight(node->higher_child()) );
+  else return ( countLinesRight(node) + countBelowLinesRight(node->higher_child()) );
 }
 
 bool Forest::printNodes() const {
+  dout << std::setw(10) << std::right << "Node";
+  dout << std::setw(10) << std::right << "Height";
+  dout << std::setw(10) << std::right << "Parent";
+  dout << std::setw(10) << std::right << "h_child";
+  dout << std::setw(10) << std::right << "l_child";
+  dout << std::setw(6) << std::right << "local";
+  dout << std::setw(6) << std::right << "l_upd";
+  dout << std::setw(6) << std::right << "s_bel";
+  dout << std::setw(10) << std::right << "l_bel";
+  dout << std::endl;
+      
+   //   \t\t Height\t Parent\t h_child\t  l_child" << std::endl;
+  //    std::cout << std::setw(20) << std::right << "Hi there!" << std::endl;
+  //        std::cout << std::setw(20) << std::right << "shorter" << std::endl;
   for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-    dout << "Addr: " << this->getNodes()->get(i) << " | ";
-    dout << "Height: " << this->getNodes()->get(i)->height() << " | ";
-    dout << "Parent: " << this->getNodes()->get(i)->parent() << " | ";
-    dout << "h_child: " << this->getNodes()->get(i)->higher_child() << " | ";
-    dout << "l_child: " << this->getNodes()->get(i)->lower_child() << std::endl;
+    dout << std::setw(10) << std::right << this->getNodes()->get(i);
+    dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
+    dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
+    dout << std::setw(10) << std::right << this->getNodes()->get(i)->higher_child();
+    dout << std::setw(10) << std::right << this->getNodes()->get(i)->lower_child();
+    dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
+    dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
+    dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
+    dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
+    dout << std::endl;
   }
   dout << "Local Root:    " << this->local_root() << std::endl;
   dout << "Primary Root:  " << this->primary_root() << std::endl;

@@ -13,14 +13,14 @@ int main () {
       Model model = Model(5);
 
       //Different random generators.
-      MersenneTwister *rg = new MersenneTwister();
+      MersenneTwister *rg = new MersenneTwister(1);
       //ConstantGenerator *rg = new ConstantGenerator();
       //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
        
-      for (size_t i=1; i <= 25; ++i) {
+      for (size_t i=2; i <= 25; ++i) {
         forest.set_current_base(i);    
         forest.sampleNextGenealogy();
       }
