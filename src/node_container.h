@@ -40,6 +40,7 @@ class NodeContainer {
   friend class ReverseConstNodeIterator;
 
  private:
+  const std::vector<Node*> nodes() const { return nodes_; }
 
   std::vector<Node*> nodes_;
   Node* unsorted_node_;
@@ -50,8 +51,8 @@ class NodeIterator {
  public:
   NodeIterator() {};
   NodeIterator(NodeContainer& nc) { 
-    iter_ = nc.nodes_.begin(); 
-    end_ = nc.nodes_.end();
+    iter_ = nc.nodes_.begin();
+    nc_ = &nc;
   }
   ~NodeIterator() {};
 
@@ -59,7 +60,7 @@ class NodeIterator {
   Node* operator++() { return *(++iter_); }
   Node* operator++(int) { return *(iter_++); }
 
-  bool good() const { return( iter_ != end_ ); }
+  bool good() const { return( iter_ != nc_->nodes_.end() ); }
   
 #ifdef UNITTEST
   friend class TestNodeContainer;
@@ -67,7 +68,7 @@ class NodeIterator {
 
  private:
   std::vector<Node*>::iterator iter_;
-  std::vector<Node*>::iterator end_;
+  NodeContainer* nc_;
 };
 
 
@@ -76,7 +77,7 @@ class ConstNodeIterator {
   ConstNodeIterator() {};
   ConstNodeIterator(const NodeContainer& nc) { 
     iter_ = nc.nodes_.begin(); 
-    end_ = nc.nodes_.end();
+    nc_ = &nc;
   }
   ~ConstNodeIterator() {};
 
@@ -84,11 +85,11 @@ class ConstNodeIterator {
   Node const* operator++() { return *(++iter_); }
   Node const* operator++(int) { return *(iter_++); }
  
-  bool good() const { return( iter_ != end_ ); }
+  bool good() const { return( iter_ != nc_->nodes().end() ); }
 
  private:
   std::vector<Node*>::const_iterator iter_;
-  std::vector<Node*>::const_iterator end_;
+  NodeContainer const* nc_;
 };
 
 
@@ -97,7 +98,7 @@ class ReverseConstNodeIterator {
   ReverseConstNodeIterator() {};
   ReverseConstNodeIterator(const NodeContainer& nc) { 
     iter_ = nc.nodes_.rbegin(); 
-    end_ = nc.nodes_.rend();
+    nc_ = &nc;
   };
   ~ReverseConstNodeIterator() {};
 
@@ -106,11 +107,11 @@ class ReverseConstNodeIterator {
   Node const* operator++(int) { return *(iter_++); }
 
   bool good() const {
-    return( iter_ != end_ ); 
+    return( iter_ != nc_->nodes().rend() ); 
   }
 
  private:
   std::vector<Node*>::const_reverse_iterator iter_;
-  std::vector<Node*>::const_reverse_iterator end_;
+  NodeContainer const* nc_;
 }; 
 #endif

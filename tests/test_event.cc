@@ -13,6 +13,7 @@ class TestEvent : public CppUnit::TestCase {
 
   CPPUNIT_TEST( testEventIteratorCreation );
   CPPUNIT_TEST( testEventIteratorNext );
+  CPPUNIT_TEST( testSplitIntervall );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -110,6 +111,26 @@ class TestEvent : public CppUnit::TestCase {
       //std::cout << (*events).start_height() << " - " << (*events).end_height() << std::endl; 
     }
     CPPUNIT_ASSERT( i == 6 );
+  }
+
+  void testSplitIntervall() {
+    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+    Node* split_node = new Node(0.5);
+    it.splitCurrentInterval(split_node);
+    ++it;
+
+    // Check split interval
+    CPPUNIT_ASSERT( (*it).start_height() == 0.5 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4);
+    CPPUNIT_ASSERT( it.good() );
+
+    // Check that next interval is unchanged
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( it.good() );
   }
 
 };

@@ -41,6 +41,7 @@ EventIterator::EventIterator() {
   this->contemporaries_ = std::vector<Node*>(0);
   this->twig_iterator_ = forest_->nodes()->iterator();
   this->good_ = true;
+  this->inside_node_ = NULL;
 };
 
 
@@ -49,6 +50,7 @@ EventIterator::EventIterator(Forest* forest, Node const* start_node) {
   this->contemporaries_ = std::vector<Node*>(0);
   this->contemporaries_.reserve(forest_->nodes()->size());
   this->good_ = true;
+  this->inside_node_ = NULL;
 
   //Skipt intervals below start_height
   for( twig_iterator_ = forest->nodes()->iterator();
@@ -64,8 +66,15 @@ EventIterator::EventIterator(Forest* forest, Node const* start_node) {
 }
 
 
-
 void EventIterator::next() {
+  if (this->inside_node_ != NULL ) {
+    this->current_event_.start_height_ = inside_node_->height();
+    // end_height doesn't change
+    // contemporaries are already changed
+    this->inside_node_ = NULL;
+    return;
+  }
+
   if (!twig_iterator_.good()) {
     good_ = false;
     return;

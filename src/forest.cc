@@ -185,7 +185,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 
 
 void Forest::sampleNextGenealogy() {
-  dout << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
+  dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
   // Samples a new genealogy, conditional on a recombination occurring
 
@@ -258,7 +258,6 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
     assert( active_node_1 != active_node_2 );
     assert( state_1 != 0 || state_2 != 0 );                   
-    assert( rate_1 + rate_2 > 0 );
 
     // Sample the time at which the next thing happens
     current_time = sampleExpTime(rate_1 + rate_2, (*event).length());
@@ -269,8 +268,20 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
     // Go on if nothing happens in this time interval
     if ( current_time == -1 ) {
-      if (state_1 == 2) active_node_1 = possiblyMoveUpwards(active_node_1, *event);
+      if (state_1 == 2) {
+        active_node_1 = possiblyMoveUpwards(active_node_1, *event);
+        if (active_node_1->local()) {
+          dout << "* * * Active Node 1 hit a local node. Done" << std::endl;
+          return;
+        }
+      }
       if (state_2 == 2) active_node_2 = possiblyMoveUpwards(active_node_2, *event);
+      
+      if (active_node_1 == active_node_2) {
+        dout << "* * * Active Nodes hit each other in " << active_node_1 
+             << ". Done." << std::endl;
+        return;
+      }
       continue;
     }
 
@@ -280,8 +291,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
           random_generator()->sample() * (1 + 2 * (*event).contemporaries().size() ) <= 1 ) {
 
         implementPwCoalescence(active_node_1, active_node_2, current_time);
+        return;
       }
-      return;
     }
 
     // Determine for which active node the event occurred
@@ -297,28 +308,37 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     assert( event_state != 0 );
     if ( event_state == 1 ) {
       dout << "* * * Active Node " << event_nr  << ": Coalescence" << std::endl;
+      dout << "* * * #Contemporaries: " << (*event).contemporaries().size() << std::endl;
       event_point = TreePoint((*event).getRandomContemporary(), current_time, false);
       dout << "* * * Above node " << event_point.base_node() << std::endl;
-      implementCoalescence(*event_node, event_point);
+      *event_node = implementCoalescence(*event_node, event_point);
 
-      *event_node = (*event_node)->parent();
       if ( (*event_node)->local() ) {
-        dout << "* * * Parent is local. Done." << std::endl; 
+        dout << "* * * We hit the local tree. Done." << std::endl;
+        updateAbove(*event_node); 
         return;
       }
       if (active_node_1 == active_node_2) {
         dout << "* * * Coalescend into other Active Node. Done." << std::endl;
+        updateAbove(*event_node); 
         return;
       }
+      // If we hit an non-local branch:
+      // Begin next interval at the coalescence height and remove the branch
+      // below from contemporaries.
+      event.splitCurrentInterval(*event_node, event_point.base_node());
     } 
     else if (event_state == 2) {
       dout << "* * * Active Node " << event_nr<< ": Recombination" << std::endl;
+      updateAbove(*event_node, false, false);
       event_point = TreePoint(*event_node, current_time, false);
       *event_node = cut(event_point);
+      updateAbove(*event_node, false, false);
       continue;
     }
   }  
 }
+
 
 // Function to determine the state of a (branch above an) local node
 // - 0 = off
@@ -330,6 +350,54 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   if (!node->local()) return(2);
   return(0);
 }
+
+
+// Does all the changes to the forest if one node (coal_node) coalescences into
+// an point (coal_point) on a existing tree.
+// Returns the new node at the point of coalescence. 
+// Attention: The returned node does still require an update!
+Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point) {
+  Node* new_node;
+
+  // Look if we can reuse the root that coalesced as new node
+  if ( coal_node->numberOfChildren() == 1 ){
+    new_node = coal_node;
+    coal_node = coal_node->lower_child();
+    nodes()->move(new_node, coal_point.height());
+  } else {
+    new_node = new Node(coal_point.height());
+    new_node->change_child(NULL, coal_node);
+    coal_node->set_parent(new_node);
+    nodes()->add(new_node);
+  }
+
+  // Now we have:
+  // coal_point.base_node() = Node in the target tree under the coalescence
+  // coal_node =  Root of the coalescing tree 
+  // new_node =   New parent of both other nodes
+
+  // Update new_node
+  new_node->change_child(NULL, coal_point.base_node());
+  new_node->set_parent(coal_point.base_node()->parent());
+  if (!coal_point.base_node()->local()) {
+    new_node->set_local(false);
+    new_node->set_last_update(coal_point.base_node()->last_update());
+  }
+
+  // Integrate it into the tree
+  coal_point.base_node()->set_parent(new_node);
+  new_node->parent()->change_child(coal_point.base_node(), new_node);
+
+  // And update
+  updateAbove(coal_node, false, false); // Update coal_node ONLY
+  // updateAbove(new_node, false, false); 
+  // Updating the new_node will always activate it, but there may still be
+  // unimplemented recombinations above
+
+  assert(this->checkTree());
+  return(new_node);
+}
+
 
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
@@ -373,192 +441,13 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   dout << " done" << std::endl;
 }
 
-void Forest::sampleCoalescences2(Node *start_node, const bool &for_initial_tree) {
-  assert(start_node->is_root());
 
-  Node* coalescence_root_1 = start_node;
-  Node* coalescence_root_2 = this->local_root();
-  bool  coalescence_1_local = false;
-  bool  coalescence_2_local = false;
-
-  double current_time = std::min(start_node->height(), coalescence_root_2->height());
-  double std_expo_sample = -1;
-  double expo_sample = -1;
-
-  while (true) {
-    EventIterator events = EventIterator(this, coalescence_root_1);
-    Event current_event = ++events;
-    std_expo_sample = this->random_generator()->sampleExpo(1);
-
-    while (true) {
-      assert(this->checkTree());
-      dout << "* * new event (time " << current_time << ")" << std::endl;
-
-      coalescence_1_local = current_time >= coalescence_root_1->height();
-      coalescence_2_local = current_time >= coalescence_root_2->height();
-      assert(coalescence_1_local || coalescence_2_local);
-
-      // If root_1 reaches the height of the local_root, we need to move root_2
-      // upwards though the (possibly existing) primary tree,  
-      if (coalescence_2_local && coalescence_root_2 == this->local_root()) {
-        dout << "* * Passing local_root. Moving Root 2 upwards." << std::endl;
-        coalescence_root_2 = moveUpwardsInTree(coalescence_root_2);
-        dout << "* * * New Root 2: " << coalescence_root_2 << std::endl;
-        coalescence_2_local = current_time >= coalescence_root_2->height();
-      }
-
-      dout << "* * Active: ";
-      if (coalescence_1_local) dout << coalescence_root_1 << " ";
-      if (coalescence_2_local) dout << coalescence_root_2 << " ";
-      dout << std::endl;
-
-
-      // If SMC or initial tree:
-      // Remove branch above recombination point to avoid back coalescence.
-      if ( for_initial_tree  || this->model().is_smc_model() ) {
-        dout << "* * removing branch above coalescing node" << std::endl;
-        current_event.removeFromContemporaries(start_node);
-      }
-
-      // Calculate rate of any coalescence occurring
-      double rate = 0.05;
-      dout << "* * * rate: " << rate << std::endl;
-
-      double intervall_height = current_event.end_height() - current_event.start_height();
-      expo_sample = std_expo_sample / rate;
-
-      if (expo_sample > intervall_height) {
-        std_expo_sample = (expo_sample - intervall_height) * rate;
-      }
-      else {
-        current_time += expo_sample;
-        dout << "* * * coalescence" << std::endl;
-        break;
-      }
-
-      //We should at least coalescence in the last (almost infinite) interval
-      assert(current_event.end_height() < FLT_MAX);
-
-      current_time = current_event.end_height();
-      current_event = ++events;
-    }
-
-    dout << "* * coalescence at time " << current_time << std::endl;
-    dout << "* * #contemporaries: " << current_event.contemporaries().size() << std::endl;
-
-    Node *coalescing_root = NULL, *coalescence_target = NULL;
-
-    if (coalescence_1_local && coalescence_2_local) {
-      // Select which root coalesces
-      if (current_event.contemporaries().size() == 0 ||
-          this->random_generator()->sampleInt(2) == 0) {
-        coalescing_root = coalescence_root_1;
-        // root_1 can also coalesces into root_2, while the opposite is not possible.
-        // (Or the pair would be overrepresented)
-        int target = this->random_generator()->sampleInt(current_event.contemporaries().size() + 1);
-        if (target == 0) coalescence_target = coalescence_root_2;
-        else coalescence_target = current_event.contemporaries()[target-1];
-      } else {
-        coalescing_root = coalescence_root_2;
-        coalescence_target = current_event.getRandomContemporary();
-      }
-    } else {
-      // One local coalescence
-      assert(coalescence_1_local || coalescence_2_local);
-      if (coalescence_1_local) coalescing_root = coalescence_root_1;
-      else                      coalescing_root = coalescence_root_2;
-      coalescence_target = current_event.getRandomContemporary();
-    }
-
-    assert(coalescing_root != NULL);
-    assert(coalescence_target != NULL);
-    assert(coalescing_root != coalescence_target);
-    dout << "* * " << coalescing_root << " >> " << coalescence_target << std::endl;
-
-    // Implement the coalescence
-    TreePoint coal_point = TreePoint(coalescence_target, current_time, false);
-    dout << "* * into: " << coal_point.base_node() << std::endl;
-    dout << "* * Updating tree" << std::endl;
-    //coalesNodeIntoTree(coalescing_root, coal_point);
-
-    // Root 1 and 2 coalesced together? => we are done
-    if (coalescing_root == coalescence_root_1 && coalescence_target == coalescence_root_2) {
-      dout << "* * Both roots coalesced together" << std::endl;
-      updateAbove(local_root(), false, false);    // To local the old local root
-      updateAbove(coalescing_root, false, false); // Update the new node
-      break;
-    }
-
-    // Root 2 coalesced? Move upwards until we hid another root
-    if (coalescing_root == coalescence_root_2) {
-      dout << "* * Root 2 coalesced" << std::endl;
-      coalescence_root_2 = moveUpwardsInTree(coalescence_root_2);
-      coalescence_root_2->make_local();
-      dout << "* * New Root 2: " << coalescence_root_2 << std::endl;
-    }
-
-    // Root 1 coalesced? Follow branch up until
-    // - we hit a local branch or the local root => Done  
-    //   (happens iff we originally hit the primary tree below the local root
-    // - we hit the primary root  => Done 
-    //   (happens iff we hit the primary tree elsewhere
-    // - we hit another root      => continue coalescence
-    //   (happens iff we hit another tree
-    if (coalescing_root == coalescence_root_1) {
-      dout << "* * Root 1 coalesced" << std::endl;
-      coalescence_root_1 = moveUpwardsInTree(coalescence_root_1);
-
-      // If it is not root, then we hit a local node
-      if ( (!coalescence_root_1->is_root()) || coalescence_root_1 == local_root() ) {
-        dout << "* * * is local (or local root)" << std::endl;
-        break;
-      }
-
-      // Else also local the current node and continue coalescing
-      dout << "* * * is another root" << std::endl;
-      coalescence_root_1->make_local();
-      dout << "* * New Root 1: " << coalescence_root_1 << std::endl;
-    }
-
-    // Maybe both hit the same third tree...
-    if (coalescence_root_1 == coalescence_root_2) {
-      dout << "* We coalesced, apparently." << std::endl;
-      break;
-    }
-
-    current_time = std::max(current_time, std::min(coalescence_root_1->height(), 
-                                                   coalescence_root_2->height()));
-
-  }
-  dout << "* * Coalescence done" << std::endl;
-}
-
-Node* Forest::possiblyMoveUpwards(Node* node, const Event &event) const {
+Node* Forest::possiblyMoveUpwards(Node* node, const Event &event) {
   if ( node->parent_height() == event.end_height() ) {
     node->set_last_update(this->current_base());
+    updateAbove(node, false, false);
     return node->parent();
   }
-  return node;
-}
-
-// Starting from "node", this moves upwards in the tree until it hits a
-// root or an local node. Updates the nodes on its way up.
-// If it encounters a non-local branch, it also checks for possible postponed
-// recombination events. If there is one, it cuts the subtree out and returns
-// the 
-// The final root or local node is returned.
-Node* Forest::moveUpwardsInTree(Node* node) {
-  while ( !node->is_root() ) {
-    updateAbove(node, false, false); // Updates only "node"
-    node = node->parent();
-    dout << "* * * Moving upwards: " << node << std::endl;        
-    if (node->local()) {
-      updateAbove(node, false); // Updates the rest of the tree
-      return node;
-    }
-  }
-
-  updateAbove(node, false, false); // Updates the found root (only)
   return node;
 }
 
@@ -585,6 +474,7 @@ double Forest::calcRate(Node* node, const int &state, const int &other_state, co
 // Looks whether an exp(rate) distributed waiting time runs off in a time
 // interval of a given length. Return the time if so, and -1 otherwise.
 double Forest::sampleExpTime(double rate, double intervall_length) {
+  if (rate == 0) return -1;
   if (this->expo_sample_ == -1) expo_sample_ = this->random_generator()->sampleExpo(1);
 
   // Scale interval with rate to bring it on exp(1) timescale
@@ -607,33 +497,3 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
   return 1;
 }
 
-void Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point) {
-  Node* new_node;
-  // Look if we can reuse the root that coalescend as new node
-
-  if ( coal_node->numberOfChildren() == 1 ){
-    new_node = coal_node;
-    coal_node = coal_node->lower_child();
-    nodes()->move(new_node, coal_point.height());
-  } else {
-    new_node = new Node(coal_point.height());
-    new_node->change_child(NULL, coal_node);
-    coal_node->set_parent(new_node);
-    nodes()->add(new_node);
-  }
-
-  //Update the new node
-  new_node->change_child(NULL, coal_point.base_node());
-  new_node->set_parent(coal_point.base_node()->parent());
-
-  //Update the new child 
-  coal_point.base_node()->set_parent(new_node);
-
-  //Update the parent
-  new_node->parent()->change_child(coal_point.base_node(), new_node);
-
-  updateAbove(coal_node, false, false);
-  updateAbove(new_node);
-
-  assert(this->checkTree());
-}

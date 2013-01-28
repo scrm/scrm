@@ -6,6 +6,8 @@ class Forest;
 
 class Event {
  public:
+  friend class EventIterator;
+
   Event();
   Event(Forest* forest, 
         double start_height, 
@@ -46,7 +48,16 @@ class EventIterator {
   Event operator++(int) { Event tmp = current_event_;
                           next();
                           return tmp; }
-  
+
+  // Splits the current interval in two parts by adding a node inside the interval;
+  // Only affects the event after the next "next()" which than represents the
+  // second part of the interval.
+  void splitCurrentInterval(Node* splitting_node, Node* del_node = NULL) {
+    this->inside_node_ = splitting_node;
+    if (del_node != NULL) current_event_.removeFromContemporaries(del_node);
+    //current_event_.end_height_ = splitting_node->height();
+  };
+
 #ifdef UNITTEST
   friend class TestEvent;
 #endif
@@ -57,6 +68,8 @@ class EventIterator {
   std::vector<Node*> contemporaries_;
   NodeIterator twig_iterator_;
   bool good_;
+
+  Node* inside_node_;
 };
 
 #endif

@@ -110,11 +110,11 @@ class Forest
   double sampleExpTime(double rate, double intervall_length);
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
-  Node* possiblyMoveUpwards(Node* node, const Event &event) const;
+  Node* possiblyMoveUpwards(Node* node, const Event &event);
  
   // Implementation of the different events
-  void implementCoalescence(Node *coal_node, const TreePoint &coal_point);
-  void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);
+  void  implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
 
 
   //Private variables

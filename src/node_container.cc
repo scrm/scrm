@@ -74,6 +74,7 @@ void NodeContainer::remove(Node *node) {;
 void NodeContainer::move(Node *node, const double &new_height) {
   //Optimize!
   this->remove(node);
+  node->set_height(new_height);
   this->add(node);
   assert( this->sorted() );
 };
