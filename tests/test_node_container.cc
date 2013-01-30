@@ -108,6 +108,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( i == 3 );
   }
   
+
   void testReverseIterator() {
     Node *node1 = new Node(1);
     Node *node2 = new Node(2);
@@ -118,13 +119,13 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(node3);
 
     ReverseConstNodeIterator it = nc.reverse_iterator();
-    CPPUNIT_ASSERT( it.good() );
     CPPUNIT_ASSERT( it.good() && it++ == node3 );
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node1 );
     CPPUNIT_ASSERT( !it.good() );
   }
-   
+  
+
   void testSorted() {
     NodeContainer nc = NodeContainer();
     nc.add(new Node(1));

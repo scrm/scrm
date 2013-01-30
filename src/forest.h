@@ -87,6 +87,7 @@ class Forest
   void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
   
   void sampleCoalescences2(Node *start_node, const bool &for_initial_tree = false);
+  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
 
   //Debugging Tools
@@ -95,6 +96,7 @@ class Forest
   bool checkTree(Node const* root = NULL) const;
   double calcTreeLength() const;
   bool checkTreeLength() const;
+  bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
   bool printNodes() const;
 

@@ -97,6 +97,43 @@ bool Forest::checkTreeLength() const {
 }
 
 
+bool Forest::checkInvariants(Node const* node) const {
+  if (node == NULL) {
+    bool okay = 1;
+
+    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+      okay *= checkInvariants(*it);
+    }
+    return(okay);
+  }
+
+  size_t samples_below = node->in_sample();
+  double length_below = 0;
+
+  if (node->lower_child() != NULL) {
+    samples_below += node->lower_child()->samples_below();
+    length_below += node->lower_child()->length_below();
+    if (node->lower_child()->local()) 
+      length_below += node->lower_child()->height_above();
+  }
+
+  if (node->higher_child() != NULL) {
+    samples_below += node->higher_child()->samples_below();
+    length_below += node->higher_child()->length_below();
+    if (node->higher_child()->local()) 
+      length_below += node->higher_child()->height_above();
+  }
+
+  if ( samples_below != node->samples_below() ||
+       !areSame(length_below, node->length_below()) ) {
+    dout << "Node " << node << " not up to date" << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+
 bool Forest::checkLeafsOnLocalTree(Node const* node) const {
   if (node == NULL) {
     size_t all_on_tree = 1;
@@ -118,7 +155,7 @@ bool Forest::checkNodeProperties() const {
   bool success = true;
   for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
     if ( !(*it)->local() ) {
-      if ( (*it)->last_update() == 0 ) {
+      if ( (*it)->last_update() == 0 && !(*it)->is_root() ) {
         dout << "Error: Node " << *it << " non-local without update info" << std::endl;
         success = false;
       }
@@ -136,7 +173,9 @@ bool Forest::checkTree(Node const* root) const {
       if ( (*it)->is_root() ) good = checkTree(*it);
     }
 
+    assert( this->checkInvariants() );
     assert( this->checkNodeProperties() );
+    assert( this->checkLeafsOnLocalTree() );
     return good;
   }
   assert( root != NULL);

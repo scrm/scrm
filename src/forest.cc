@@ -42,6 +42,8 @@ Node* Forest::cut(const TreePoint &cut_point) {
 
   //The new end of the old branch after the cut
   Node* new_leaf = new Node(cut_point.height(), false, current_base(), 0, 0);
+  if ( !cut_point.base_node()->local() )
+    new_leaf->set_last_update(cut_point.base_node()->last_update() );
   new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
   nodes()->add(new_leaf);
@@ -57,28 +59,28 @@ Node* Forest::cut(const TreePoint &cut_point) {
   new_root->set_lower_child(cut_point.base_node());
   //Inefficient to to this for local nodes
   nodes()->add(new_root);
-  assert(this->printTree());
   dout << "* * New root of subtree: " << new_root << std::endl;
 
-  assert( this->checkTree() );
   dout << "* * Done" << std::endl;
   return(new_root);
 }
 
 void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool local_only) {
   if (local_only && !node->local()) return;
-  //dout << "* * * Updating: " << node << " local: " << node->local()
-  //    << " fastforward: " << above_local_root << std::endl;
+  dout << "* * * Updating: " << node << " local: " << node->local()
+       << " fastforward: " << above_local_root << std::endl;
 
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
     node->set_samples_below(this->sample_size());
+    node->set_length_below(this->local_root()->length_below());
     if ( node->is_root() ) {
       set_primary_root(node);
       return;
     }
     if ( recursive ) updateAbove(node->parent(), true);
+    return;
   }
 
   // Calculate new values for samples_below and length_below for the current
@@ -104,7 +106,10 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   // If nothing changed, we also don't need to update the tree further above.
   if (recursive &&
       samples_below == node->samples_below() && 
-      areSame(length_below, node->length_below()) ) return;
+      areSame(length_below, node->length_below()) ) {
+    dout << "FF STOPED:" << node << std::endl; 
+    return;
+  }
 
   // Update the node
   if ( samples_below == 0 ) node->make_nonlocal(current_base());
@@ -154,8 +159,10 @@ void Forest::buildInitialTree() {
     dout << "* * Tree:" << std::endl;
     assert(this->printTree());
     assert(this->printNodes());
+    assert(this->checkTree());
   }
 }
+
 
 // uniformly samples a Point on the local tree
 // iterative log(#nodes) implementation
@@ -204,12 +211,14 @@ void Forest::sampleNextGenealogy() {
     return;
   }
 
+  assert(this->printTree());
+
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 
   assert(this->printTree());
   assert(this->printNodes());
-  assert(this->checkLeafsOnLocalTree());
+  assert(this->checkTree());
 }
 
 void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) {
@@ -231,8 +240,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
   double current_time;
   size_t event_nr;
-  Node** event_node;
-  size_t event_state;
+  Node **event_node, **other_node;
+  size_t event_state, other_state;
   TreePoint event_point;
 
   // If the start_node is above the local tree, then we start with coalescence
@@ -257,7 +266,9 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         << " Rate: " << rate_2 << std::endl;
 
     assert( active_node_1 != active_node_2 );
-    assert( state_1 != 0 || state_2 != 0 );                   
+    assert( state_1 != 0 || state_2 != 0 );
+    assert( state_1 != 2 || active_node_1->parent_height() >= (*event).start_height() );
+    assert( state_2 != 2 || active_node_2->parent_height() >= (*event).start_height() );
 
     // Sample the time at which the next thing happens
     current_time = sampleExpTime(rate_1 + rate_2, (*event).length());
@@ -272,6 +283,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         active_node_1 = possiblyMoveUpwards(active_node_1, *event);
         if (active_node_1->local()) {
           dout << "* * * Active Node 1 hit a local node. Done" << std::endl;
+          updateAbove(active_node_1);
           return;
         }
       }
@@ -300,9 +312,13 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     if (event_nr == 1) {
       event_node = &active_node_1;
       event_state = state_1;
+      other_node = &active_node_2;
+      other_state = state_2; 
     } else {
       event_node = &active_node_2;
       event_state = state_2;
+      other_node = &active_node_1;
+      other_state = state_1; 
     }
 
     assert( event_state != 0 );
@@ -312,6 +328,22 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       event_point = TreePoint((*event).getRandomContemporary(), current_time, false);
       dout << "* * * Above node " << event_point.base_node() << std::endl;
       *event_node = implementCoalescence(*event_node, event_point);
+
+      // If the other node was looking for a recombination, we must ensure that
+      // the branch below the event get marked as updated.
+      if ( other_state == 2 ) {
+        // If the coalescing node coalesced into the branch directly above 
+        // the recombining node, then we are done.
+        if ( (*other_node)->parent() == *event_node ) {
+          (*other_node)->set_last_update(this->current_base());
+          dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
+          updateAbove(*other_node);
+          return;
+        }
+
+        // Otherwise mark the part below as updated and continue;
+        *other_node = updateBranchBelowEvent(*other_node, event_point);
+      }
 
       if ( (*event_node)->local() ) {
         dout << "* * * We hit the local tree. Done." << std::endl;
@@ -327,6 +359,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       // Begin next interval at the coalescence height and remove the branch
       // below from contemporaries.
       event.splitCurrentInterval(*event_node, event_point.base_node());
+      assert(this->printTree());
     } 
     else if (event_state == 2) {
       dout << "* * * Active Node " << event_nr<< ": Recombination" << std::endl;
@@ -334,6 +367,12 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       event_point = TreePoint(*event_node, current_time, false);
       *event_node = cut(event_point);
       updateAbove(*event_node, false, false);
+
+      // Again, if the other node was also looking for a recombination, then
+      // update the branch below as updated.
+      if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
+
+      assert(this->printTree());
       continue;
     }
   }  
@@ -394,7 +433,6 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
   // Updating the new_node will always activate it, but there may still be
   // unimplemented recombinations above
 
-  assert(this->checkTree());
   return(new_node);
 }
 
@@ -452,6 +490,27 @@ Node* Forest::possiblyMoveUpwards(Node* node, const Event &event) {
 }
 
 
+
+Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
+  assert( node->height() < event_point.height() );
+  
+  Node* inter_node = new Node(event_point.height(), false, node->last_update(),
+                              node->samples_below(), node->length_below());
+  node->set_last_update(this->current_base());
+
+  inter_node->set_parent(node->parent());
+  node->parent()->change_child(node, inter_node);
+
+  node->set_parent(inter_node);
+  inter_node->set_lower_child(node);
+  this->nodes()->add(inter_node);
+
+  updateAbove(node, false, false);
+  return(inter_node);
+}
+
+
+
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
 // lines_number lines out of which coal_lines_number are not coalescenced.
 double Forest::calcRate(Node* node, const int &state, const int &other_state, const Event &event) const {
@@ -470,6 +529,7 @@ double Forest::calcRate(Node* node, const int &state, const int &other_state, co
 
   throw std::logic_error("Error calculating rates");
 }
+
 
 // Looks whether an exp(rate) distributed waiting time runs off in a time
 // interval of a given length. Return the time if so, and -1 otherwise.
