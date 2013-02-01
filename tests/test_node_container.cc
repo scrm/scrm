@@ -84,6 +84,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     */
   }
 
+
   void testNodeIterator() {
     Node *node1 = new Node(1);
     Node *node2 = new Node(2);
@@ -98,6 +99,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node3 );
     CPPUNIT_ASSERT( !it.good() );
+    CPPUNIT_ASSERT_THROW( ++it, std::out_of_range );
 
     it = nc.iterator();
     int i = 0;
@@ -123,6 +125,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node1 );
     CPPUNIT_ASSERT( !it.good() );
+    CPPUNIT_ASSERT_THROW( ++it, std::out_of_range );
   }
   
 

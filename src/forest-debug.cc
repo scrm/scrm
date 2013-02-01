@@ -110,6 +110,9 @@ bool Forest::checkInvariants(Node const* node) const {
   size_t samples_below = node->in_sample();
   double length_below = 0;
 
+  // Allow non-local roots of have false invariants
+  //if ( node->is_root() && !node->local() ) return true;
+
   if (node->lower_child() != NULL) {
     samples_below += node->lower_child()->samples_below();
     length_below += node->lower_child()->length_below();

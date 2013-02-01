@@ -2,10 +2,12 @@
 
 MersenneTwister::MersenneTwister() {
   this->set_seed(std::time(0));
+  std::cout << "Seed: " << this->seed() << std::endl;
 };
 
 MersenneTwister::MersenneTwister(int seed){
   this->set_seed(seed);
+  std::cout << "Seed: " << this->seed() << std::endl;
 }
 
 MersenneTwister::~MersenneTwister() { } ;

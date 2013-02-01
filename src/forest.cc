@@ -34,6 +34,7 @@ Forest::~Forest() {
   delete nodes_;
 }
 
+
 //Cuts all nodes below a point on the tree and moves them into a new tree
 Node* Forest::cut(const TreePoint &cut_point) {
   //The node above the cut_point in the old tree
@@ -49,7 +50,6 @@ Node* Forest::cut(const TreePoint &cut_point) {
   nodes()->add(new_leaf);
   // Update all local nodes above.
   updateAbove(parent, false, true, true);
-  //this->postpone_update(parent);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
@@ -65,10 +65,22 @@ Node* Forest::cut(const TreePoint &cut_point) {
   return(new_root);
 }
 
-void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool local_only) {
-  if (local_only && !node->local()) return;
-  dout << "* * * Updating: " << node << " local: " << node->local()
-       << " fastforward: " << above_local_root << std::endl;
+
+// Function to update the invariants (local, samples_below, length_below) 
+// of a 'node' and all of its (grand-)parents. Also registers the local_root if it
+// encounters it. 
+// Options:
+//  above_local_root: If true, it uses a faster algorithm that is only correct
+//                    for nodes above the local root. Default false. Best don't touch
+//                    this.
+//  recursive:        If false, only 'node' is updated, but not its parent.
+//                    Default true.
+//  dont_localize:    If true, the function does not set non-local nodes local.
+//                    Needed for updating the tree above the 'left_over' above 
+//                    a recombination.
+void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool dont_localize) {
+  //dout << "* * * Updating: " << node << " local: " << node->local()
+  //     << " fastforward: " << above_local_root << std::endl;
 
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
@@ -103,17 +115,18 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
     if (h_child->local()) length_below += h_child->height_above();
   }
 
-  // If nothing changed, we also don't need to update the tree further above.
+  // If nothing changed, we also don't need to update the tree further above...
+  // (Is that really the case?)
   if (recursive &&
       samples_below == node->samples_below() && 
       areSame(length_below, node->length_below()) ) {
-    dout << "FF STOPED:" << node << std::endl; 
+      dout << "FF STOPED:" << node << std::endl; 
     return;
   }
 
   // Update the node
   if ( samples_below == 0 ) node->make_nonlocal(current_base());
-  else if ( samples_below < this->sample_size() ) node->make_local();
+  else if ( samples_below < this->sample_size() && !dont_localize ) node->make_local();
   node->set_samples_below(samples_below);
   node->set_length_below(length_below);
 
@@ -131,7 +144,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 
   // Go further up if possible
   if ( recursive && !node->is_root() ) {
-    updateAbove(node->parent(), above_local_root, recursive, local_only);
+    updateAbove(node->parent(), above_local_root, recursive, dont_localize);
   }
 }
 
@@ -174,15 +187,32 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
     length_left = this->random_generator()->sample() * node->length_below();
   }
 
+  assert( node->local() || node == this->local_root() );
   assert( length_left >= 0 );
   assert( length_left < (node->length_below() + node->height_above()) );
 
-  if ( length_left < node->height_above() ) {
-    return TreePoint(node, length_left, true);
-  }
+  if ( node != this->local_root() ) {
+    if ( length_left < node->height_above() ) {
+      return TreePoint(node, length_left, true);
+    }
 
-  length_left = length_left - node->height_above();
-  assert( length_left >= 0 );
+    length_left = length_left - node->height_above();
+    assert( length_left >= 0 );
+  }
+  
+  // At this point, we should have at least one local child
+  assert( node->lower_child() != NULL );
+  assert( node->lower_child()->local() || node->higher_child()->local() );
+
+  // If we have only one local child, then give it the full length we have left.
+  if ( !node->lower_child()->local() ) {
+    return samplePoint(node->higher_child(), length_left);
+  }
+  if ( node->higher_child() == NULL || !node->higher_child()->local() ) {
+    return samplePoint(node->lower_child(), length_left);
+  }
+  
+  // If we have two local children, the look if we should go down left or right.
   double tmp = node->lower_child()->height_above() + node->lower_child()->length_below();
   if ( length_left <= tmp )
     return samplePoint(node->lower_child(), length_left);
@@ -206,10 +236,11 @@ void Forest::sampleNextGenealogy() {
   this->cut(rec_point);
 
   // Postpone coalescence if not local
-  if (!rec_point.base_node()->local()) {
-    dout << "* Not on local tree; Postponing coalescence" << std::endl;
-    return;
-  }
+  //if (!rec_point.base_node()->local()) {
+  //  dout << "* Not on local tree; Postponing coalescence" << std::endl;
+  //  return;
+  //}
+  assert( rec_point.base_node()->local() );
 
   assert(this->printTree());
 
@@ -220,6 +251,7 @@ void Forest::sampleNextGenealogy() {
   assert(this->printNodes());
   assert(this->checkTree());
 }
+
 
 void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) {
   // We can have one or active local nodes: If the coalescing node passes the
@@ -250,7 +282,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
   for (EventIterator event = EventIterator(this, start_node); event.good(); ++event) {
     dout << "* * Time interval: " << (*event).start_height() << " - "
-        << (*event).end_height() << std::endl;
+         << (*event).end_height() << std::endl;
 
     // What is currently happening?
     state_1 = getNodeState(active_node_1, (*event).start_height());
@@ -292,6 +324,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       if (active_node_1 == active_node_2) {
         dout << "* * * Active Nodes hit each other in " << active_node_1 
              << ". Done." << std::endl;
+        updateAbove(active_node_1);
         return;
       }
       continue;
@@ -307,7 +340,10 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       }
     }
 
-    // Determine for which active node the event occurred
+    // Now look for coalescence of only one line and recombinations
+    //
+    // First determine for which active node the event occurred, so we
+    // don't have to duplicate the code.
     event_nr = sampleWhichRateRang(rate_1, rate_2);
     if (event_nr == 1) {
       event_node = &active_node_1;
@@ -321,8 +357,10 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       other_state = state_1; 
     }
 
+    // Now do the real work
     assert( event_state != 0 );
     if ( event_state == 1 ) {
+      // Coalescence: sample target point and implement the coalescence
       dout << "* * * Active Node " << event_nr  << ": Coalescence" << std::endl;
       dout << "* * * #Contemporaries: " << (*event).contemporaries().size() << std::endl;
       event_point = TreePoint((*event).getRandomContemporary(), current_time, false);
@@ -337,17 +375,23 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         if ( (*other_node)->parent() == *event_node ) {
           (*other_node)->set_last_update(this->current_base());
           dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
-          updateAbove(*other_node);
+          updateAbove(*other_node, false, false);
+          updateAbove((*other_node)->parent());
           return;
         }
 
         // Otherwise mark the part below as updated and continue;
-        *other_node = updateBranchBelowEvent(*other_node, event_point);
+        // *other_node = updateBranchBelowEvent(*other_node, event_point);
       }
 
+      // Check if are can stop.
       if ( (*event_node)->local() ) {
         dout << "* * * We hit the local tree. Done." << std::endl;
         updateAbove(*event_node); 
+        if ( other_state == 2) {
+          dout << "JUHU" << std::endl;
+          *other_node = updateBranchBelowEvent(*other_node, event_point);
+        }
         return;
       }
       if (active_node_1 == active_node_2) {
@@ -355,22 +399,23 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         updateAbove(*event_node); 
         return;
       }
+
       // If we hit an non-local branch:
       // Begin next interval at the coalescence height and remove the branch
       // below from contemporaries.
       event.splitCurrentInterval(*event_node, event_point.base_node());
       assert(this->printTree());
-    } 
+    }
     else if (event_state == 2) {
+      // Recombination: sample point of recombination and implement
       dout << "* * * Active Node " << event_nr<< ": Recombination" << std::endl;
       updateAbove(*event_node, false, false);
       event_point = TreePoint(*event_node, current_time, false);
       *event_node = cut(event_point);
       updateAbove(*event_node, false, false);
-
       // Again, if the other node was also looking for a recombination, then
       // update the branch below as updated.
-      if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
+      // if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
 
       assert(this->printTree());
       continue;
@@ -459,6 +504,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   } 
   else if (root_2->numberOfChildren() == 1) {
     // only root_2 has a single branch => use as new root
+    this->nodes()->move(root_2, time);
     new_root = root_2;
     root_2 = root_2->lower_child();
   }

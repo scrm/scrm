@@ -57,8 +57,15 @@ class NodeIterator {
   ~NodeIterator() {};
 
   Node* operator*() { return *iter_; }
-  Node* operator++() { return *(++iter_); }
-  Node* operator++(int) { return *(iter_++); }
+  Node const* operator++() {
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(++iter_); 
+  }
+  
+  Node const* operator++(int) { 
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(iter_++); 
+  }
 
   bool good() const { return( iter_ != nc_->nodes_.end() ); }
   
@@ -82,8 +89,16 @@ class ConstNodeIterator {
   ~ConstNodeIterator() {};
 
   Node const* operator*() { return *iter_; }
-  Node const* operator++() { return *(++iter_); }
-  Node const* operator++(int) { return *(iter_++); }
+  
+  Node const* operator++() {
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(++iter_); 
+  }
+  
+  Node const* operator++(int) { 
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(iter_++); 
+  }
  
   bool good() const { return( iter_ != end_ ); }
 
@@ -103,8 +118,15 @@ class ReverseConstNodeIterator {
   ~ReverseConstNodeIterator() {};
 
   Node const* operator*() { return *iter_; }
-  Node const* operator++() { return *(++iter_); }
-  Node const* operator++(int) { return *(iter_++); }
+  Node const* operator++() {
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(++iter_); 
+  }
+  
+  Node const* operator++(int) { 
+    if ( !good() ) throw std::out_of_range("NodeIterator out of range");
+    return *(iter_++); 
+  }
 
   bool good() const { return( iter_ != end_ ); }
 

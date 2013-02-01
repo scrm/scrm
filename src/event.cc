@@ -67,6 +67,7 @@ EventIterator::EventIterator(Forest* forest, Node const* start_node) {
 
 
 void EventIterator::next() {
+  dout << "1" << std::endl;
   if (this->inside_node_ != NULL ) {
     this->current_event_.start_height_ = inside_node_->height();
     // end_height doesn't change
@@ -74,13 +75,17 @@ void EventIterator::next() {
     this->inside_node_ = NULL;
     return;
   }
+  dout << "1.5" << std::endl;
 
   if (!twig_iterator_.good()) {
     good_ = false;
     return;
   }
 
+  dout << "1.75" << std::endl;
+  dout << *twig_iterator_ << std::endl;
   double start_height = (*twig_iterator_)->height();
+  dout << "2" << std::endl;
 
   if ( !(*twig_iterator_)->is_root() ) 
     contemporaries_.push_back(*twig_iterator_);
