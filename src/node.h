@@ -67,8 +67,21 @@ class Node
   bool is_root() const; 
   bool in_sample() const;
 
+  bool is_first() const { return( previous() == NULL ); }
+  bool is_last() const { return( next() == NULL ); }
+
+  Node* next() const { return next_; }
+  Node* previous() const { return previous_; }
+
+  void set_next(Node* next) { next_ = next; }
+  void set_previous(Node* previous) { previous_ = previous; }
+
  private:
-  void init(double heigh=-1, bool local=true, size_t last_update = 0, size_t samples_below=0, double length_below=0);
+  void init(double heigh=-1, 
+            bool local=true, 
+            size_t last_update = 0, 
+            size_t samples_below=0, 
+            double length_below=0);
 
   double height_;        // The total height of the node
   bool   local_;        // Indicates if the branch above is local,
@@ -79,6 +92,9 @@ class Node
   
   size_t samples_below_; // the number of sampled nodes in the subtree below this node
   double length_below_;  // the total length of local branches in the subtree below this node
+
+  Node* next_;
+  Node* previous_;
 
   //The tree structure
   Node *parent_;

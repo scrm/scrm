@@ -31,6 +31,14 @@ class TestNodeContainer : public CppUnit::TestCase {
     Node *node1 = new Node(1);
     nc.add(node1);
     CPPUNIT_ASSERT( nc.get(0) == node1 );
+    
+    Node *node2 = new Node(2);
+    nc.add(node2);
+    CPPUNIT_ASSERT( nc.get(1) == node2 );
+   
+    Node *node3 = new Node(3);
+    nc.add(node3);
+    CPPUNIT_ASSERT( nc.get(2) == node3 );
   }
 
   void testAdd() {
@@ -46,15 +54,9 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( nc.get(0) == node1 );
     CPPUNIT_ASSERT( nc.get(1) == node2 );
     CPPUNIT_ASSERT( nc.get(2) == node3 );
-    
-    /*Unsorted
-    node1 = new Node(1);
-    node2 = new Node(2);
-    nc.add(node2, false);
-    nc.add(node1, false);
-    CPPUNIT_ASSERT( nc.get(0, false) == node2 );
-    CPPUNIT_ASSERT( nc.get(1, false) == node1 );
-    */
+  
+    CPPUNIT_ASSERT( nc.first() == node1 );
+    CPPUNIT_ASSERT( nc.last() == node3 );
   }
 
   void testSize() {
@@ -95,6 +97,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(node3);
 
     NodeIterator it = nc.iterator();
+    CPPUNIT_ASSERT( it.good() );
     CPPUNIT_ASSERT( it.good() && it++ == node1 );
     CPPUNIT_ASSERT( it.good() && it++ == node2 );
     CPPUNIT_ASSERT( it.good() && it++ == node3 );
@@ -134,9 +137,6 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(new Node(1));
     nc.add(new Node(2));
     CPPUNIT_ASSERT( nc.sorted() == 1 );
-
-    nc.nodes_.push_back(new Node(1));
-    CPPUNIT_ASSERT( nc.sorted() == 0 );
   }
 
 };

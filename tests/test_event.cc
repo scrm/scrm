@@ -136,4 +136,4 @@ class TestEvent : public CppUnit::TestCase {
 };
 
 //Uncomment this to activate the test
-CPPUNIT_TEST_SUITE_REGISTRATION( TestEvent );
+// CPPUNIT_TEST_SUITE_REGISTRATION( TestEvent );

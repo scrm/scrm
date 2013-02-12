@@ -21,6 +21,8 @@ void Node::init(double height, bool local, size_t last_update,
   this->set_last_update(last_update);
   this->set_samples_below(samples_below);
   this->set_length_below(length_below);
+  this->set_previous(NULL);
+  this->set_next(NULL);
 }
 
 Node* Node::parent() const {
