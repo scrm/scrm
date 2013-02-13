@@ -67,11 +67,17 @@ class Node
   bool is_root() const; 
   bool in_sample() const;
 
-  bool is_first() const { return( previous() == NULL ); }
-  bool is_last() const { return( next() == NULL ); }
+  bool is_first() const { return( previous_ == NULL ); }
+  bool is_last() const { return( next_ == NULL ); }
 
-  Node* next() const { return next_; }
-  Node* previous() const { return previous_; }
+  Node* next() const { 
+    if ( next_ == NULL ) throw std::out_of_range("Node has no next node");
+    return next_; 
+  }
+  Node* previous() const { 
+    if ( previous_ == NULL ) throw std::out_of_range("Node has no previous node");
+    return previous_; 
+  }
 
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }

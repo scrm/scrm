@@ -1,25 +1,27 @@
-#ifndef scrm_src_event
-#define scrm_src_event
+#ifndef scrm_src_time_interval
+#define scrm_src_time_interval
 
 #include "forest.h"
+#include <set>
+
 class Forest;
 
-class Event {
+class TimeInterval {
  public:
-  friend class EventIterator;
+  friend class TimeIntervalIterator;
 
-  Event();
-  Event(Forest* forest, 
+  TimeInterval();
+  TimeInterval(Forest* forest, 
         double start_height, 
         double end_height, 
-        std::vector<Node*> contemporaries);
-  ~Event() { };
+        std::set<Node*> contemporaries);
+  ~TimeInterval() { };
 
   double start_height() const { return this->start_height_; };
   double end_height()   const { return this->end_height_; };
   double length()       const { return (end_height() - start_height()); };
 
-  std::vector<Node*> contemporaries() const { return this->contemporaries_; };
+  std::set<Node*> contemporaries() const { return this->contemporaries_; };
 
   Node* getRandomContemporary() const;
   void removeFromContemporaries(Node* node);
@@ -29,23 +31,23 @@ class Event {
   Forest* forest_;
   double start_height_;
   double end_height_; 
-  std::vector<Node*> contemporaries_;
+  std::set<Node*> contemporaries_;
 };
 
 
 
-class EventIterator {
+class TimeIntervalIterator {
  public:
-  EventIterator();
-  EventIterator(Forest *forest, Node const* start_node);
-  ~EventIterator() {};
+  TimeIntervalIterator();
+  TimeIntervalIterator(Forest *forest, Node const* start_node);
+  ~TimeIntervalIterator() {};
 
   void next();
   bool good() const;
 
-  Event operator*() const { return current_event_; }
-  Event operator++() { next(); return current_event_; }
-  Event operator++(int) { Event tmp = current_event_;
+  TimeInterval operator*() const { return current_event_; }
+  TimeInterval operator++() { next(); return current_event_; }
+  TimeInterval operator++(int) { TimeInterval tmp = current_event_;
                           next();
                           return tmp; }
 
@@ -59,14 +61,14 @@ class EventIterator {
   };
 
 #ifdef UNITTEST
-  friend class TestEvent;
+  friend class TestTimeInterval;
 #endif
 
  private:
   Forest* forest_;
-  Event current_event_;
-  std::vector<Node*> contemporaries_;
-  NodeIterator twig_iterator_;
+  TimeInterval current_event_;
+  std::set<Node*> contemporaries_;
+  NodeIterator node_iterator_;
   bool good_;
 
   Node* inside_node_;

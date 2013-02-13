@@ -15,22 +15,22 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-  ~NodeContainer();
+  ~NodeContainer() { clear(); }
   
   NodeIterator iterator();
   ConstNodeIterator iterator() const;
   ReverseConstNodeIterator reverse_iterator() const;
 
-  void add(Node *node, const bool &sort=true);
-  void remove(Node *node);
+  void add(Node *node, Node* after_node=NULL);
+  void remove(Node *node, const bool &del=true);
   void move(Node *node, const double &new_height);
-  void clear() { };
+  void clear();
 
-  Node const* get(size_t nr) const { return get(nr); };
-  Node* get(size_t nr, const bool &from_sorted=true);
+  Node const* get(size_t nr) const; 
   
   size_t size() const;  
   bool sorted() const; 
+  void print() const;
 
 #ifdef UNITTEST
   friend class TestNodeContainer;
@@ -42,7 +42,7 @@ class NodeContainer {
  private:
   //const std::vector<Node*> nodes() const { return nodes_; }
 
-  void add_after(Node* add, Node* after);
+  void add_before(Node* add, Node* next_node);
 
   Node* first_node_;
   Node* last_node_;
@@ -63,13 +63,18 @@ class NodeIterator {
   NodeIterator(NodeContainer& nc) { current_node_ = nc.first(); };
   ~NodeIterator() {};
 
-  Node* operator*() { return current_node_; };
+  Node* operator*() { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+    return current_node_; 
+  }
   
   Node const* operator++() {
     if (current_node_ == NULL) 
       throw std::out_of_range("Node iterator out of range");
 
-    current_node_ = current_node_->next();
+    if ( current_node_->is_last() ) current_node_ = NULL;
+    else current_node_ = current_node_->next();
     return current_node_;
   }
   
@@ -78,7 +83,8 @@ class NodeIterator {
       throw std::out_of_range("Node iterator out of range");
     
     Node* ret = current_node_;
-    current_node_ = current_node_->next();
+    if ( current_node_->is_last() ) current_node_ = NULL;
+    else current_node_ = current_node_->next();
     return ret;
   }
 
@@ -92,48 +98,86 @@ class NodeIterator {
 
  private:
   Node* current_node_;
-  NodeContainer* nc_;
 };
 
 
 class ConstNodeIterator {
  public:
-  ConstNodeIterator() {};
-  ConstNodeIterator(const NodeContainer& nc) { 
-  }
+  ConstNodeIterator() { current_node_ = NULL; };
+  ConstNodeIterator(const NodeContainer& nc) { current_node_ = nc.first(); };
   ~ConstNodeIterator() {};
 
-  Node const* operator*() { return NULL; }
-  
-  Node const* operator++() { return NULL;
+  Node const* operator*() { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+    return current_node_; 
   }
   
+  Node const* operator++() { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+
+    if ( current_node_->is_last() ) current_node_ = NULL;
+    else current_node_ = current_node_->next();
+
+    return current_node_;
+  }
+     
   Node const* operator++(int) { 
-    return NULL;
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+    
+    Node* ret = current_node_;
+    if ( current_node_->is_last() ) current_node_ = NULL;
+    else current_node_ = current_node_->next();
+    return ret;
   }
  
-  bool good() const { return 1; }
+  bool good() const { 
+    return current_node_ != NULL;
+  }
 
  private:
+  Node* current_node_;
 };
 
 
 class ReverseConstNodeIterator {
  public:
-  ReverseConstNodeIterator() {};
-  ReverseConstNodeIterator(const NodeContainer &nc) { 
-  };
+  ReverseConstNodeIterator() { current_node_ = NULL; };
+  ReverseConstNodeIterator(const NodeContainer &nc) {  current_node_ = nc.last(); };
   ~ReverseConstNodeIterator() {};
 
-  Node const* operator*() { return NULL; }
-  Node const* operator++() { return NULL;
+  Node const* operator*() { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+    return current_node_; 
+  }
+
+  Node const* operator++() { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+
+    if ( current_node_->is_first() ) current_node_ = NULL;
+    else current_node_ = current_node_->previous();
+    return current_node_;
   }
   
-  Node const* operator++(int) { return NULL;
+  Node const* operator++(int) { 
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+    
+    Node* ret = current_node_;
+    if ( current_node_->is_first() ) current_node_ = NULL;
+    else current_node_ = current_node_->previous();
+    return ret;
   }
 
-  bool good() const { return 1;  }
+  bool good() const { 
+    return current_node_ != NULL;
+  }
 
  private:
+  Node* current_node_;
 }; 
 #endif

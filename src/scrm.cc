@@ -1,10 +1,11 @@
 #include <iostream>
+#include <ctime>
+
 #include "forest.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
 #include "random/fake_generator.h"
-#include <ctime>
 
 #ifndef UNITTEST
 int main () {
@@ -19,7 +20,7 @@ int main () {
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
-       
+
       for (size_t i=2; i <= 50; ++i) {
         forest.set_current_base(i);    
         forest.sampleNextGenealogy();

@@ -280,7 +280,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
   // of the local root
   if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
 
-  for (EventIterator event = EventIterator(this, start_node); event.good(); ++event) {
+  for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node); event.good(); ++event) {
     dout << "* * Time interval: " << (*event).start_height() << " - "
          << (*event).end_height() << std::endl;
 
@@ -381,7 +381,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         }
 
         // Otherwise mark the part below as updated and continue;
-        // *other_node = updateBranchBelowEvent(*other_node, event_point);
+        // *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
       }
 
       // Check if are can stop.
@@ -390,7 +390,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         updateAbove(*event_node); 
         if ( other_state == 2) {
           dout << "JUHU" << std::endl;
-          *other_node = updateBranchBelowEvent(*other_node, event_point);
+          *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
         }
         return;
       }
@@ -415,7 +415,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       updateAbove(*event_node, false, false);
       // Again, if the other node was also looking for a recombination, then
       // update the branch below as updated.
-      // if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
+      // if ( other_state == 2 ) *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
 
       assert(this->printTree());
       continue;
@@ -484,41 +484,50 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
 
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
-  dout << "* * Implementing...";
+  dout << "* * Implementing..." << std::endl;
   Node* new_root = NULL;
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
   if (root_1->numberOfChildren() == 1) {
+    dout << "* * ...1" << std::endl;
     if (root_2->numberOfChildren() == 1) {
+      dout << "* * ...1.1" << std::endl;
       // both trees have a single branch => delete one
       root_2 = root_2->lower_child();
       this->nodes()->remove(root_2->parent());
       assert( root_2 != NULL );
     }
     // (now) only root_1 has a single branch => use as new root
+      dout << "* * ...1.2" << std::endl;
     this->nodes()->move(root_1, time);
+      dout << "* * ...1.3" << std::endl;
     new_root = root_1;
     root_1 = root_1->lower_child();
     assert( root_1 != NULL );
   } 
   else if (root_2->numberOfChildren() == 1) {
+    dout << "* * ...2" << std::endl;
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
     root_2 = root_2->lower_child();
   }
   else {
+    dout << "* * ...3" << std::endl;
     // No tree a has single branch on top => create a new root
     new_root = new Node(time);
     this->nodes()->add(new_root);
   }
 
+  dout << "Updating Tree" << std::endl;
   root_1->set_parent(new_root);
   root_2->set_parent(new_root);
   new_root->set_higher_child(root_1);
   new_root->set_lower_child(root_2);
   new_root->sort_children();
+
+  dout << " Staring updates" << std::endl;
   updateAbove(root_1, false, false);
   updateAbove(root_2, false, false);
   updateAbove(new_root, false, false);
@@ -526,7 +535,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 }
 
 
-Node* Forest::possiblyMoveUpwards(Node* node, const Event &event) {
+Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &event) {
   if ( node->parent_height() == event.end_height() ) {
     node->set_last_update(this->current_base());
     updateAbove(node, false, false);
@@ -537,7 +546,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const Event &event) {
 
 
 
-Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
+Node* Forest::updateBranchBelowTimeInterval(Node* node, const TreePoint &event_point) {
   assert( node->height() < event_point.height() );
   
   Node* inter_node = new Node(event_point.height(), false, node->last_update(),
@@ -559,7 +568,7 @@ Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
 
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
 // lines_number lines out of which coal_lines_number are not coalescenced.
-double Forest::calcRate(Node* node, const int &state, const int &other_state, const Event &event) const {
+double Forest::calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const {
   // Node is off
   if (state == 0) return 0;
 

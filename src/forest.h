@@ -22,14 +22,14 @@
 #include "node.h"
 #include "model.h"
 #include "node_container.h"
-#include "event.h"
+#include "time_interval.h"
 #include "tree_point.h"
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
 #include "random/fake_generator.h"
 #include "random/mersenne_twister.h"
 
-class Event;
+class TimeInterval;
 
 class Forest
 {
@@ -39,8 +39,8 @@ class Forest
   friend class TestForest;
   friend class TestNode;
 #endif
-  friend class Event;
-  friend class EventIterator;
+  friend class TimeInterval;
+  friend class TimeIntervalIterator;
 
   Forest();
   Forest(Model model, RandomGenerator *random_generator);
@@ -83,11 +83,11 @@ class Forest
 
   // Tools for doing an coalescence
   size_t getNodeState(Node const *node, const double &current_time) const;
-  double calcRate(Node* node, const int &state, const int &other_state, const Event &event) const;
+  double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
   void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
   
   void sampleCoalescences2(Node *start_node, const bool &for_initial_tree = false);
-  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
+  Node* updateBranchBelowTimeInterval(Node* node, const TreePoint &event_point); 
 
 
   //Debugging Tools
@@ -112,7 +112,7 @@ class Forest
   double sampleExpTime(double rate, double intervall_length);
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
-  Node* possiblyMoveUpwards(Node* node, const Event &event);
+  Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
  
   // Implementation of the different events
   Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);

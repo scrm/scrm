@@ -7,13 +7,14 @@
 #include "../src/random/constant_generator.h"
 
 
-class TestEvent : public CppUnit::TestCase {
+class TestTimeInterval : public CppUnit::TestCase {
 
-  CPPUNIT_TEST_SUITE( TestEvent );
+  CPPUNIT_TEST_SUITE( TestTimeInterval );
 
-  CPPUNIT_TEST( testEventIteratorCreation );
-  CPPUNIT_TEST( testEventIteratorNext );
+  CPPUNIT_TEST( testIteratorCreation );
+  CPPUNIT_TEST( testIteratorNext );
   CPPUNIT_TEST( testSplitIntervall );
+  CPPUNIT_TEST( testSampleContemporary );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -23,8 +24,8 @@ class TestEvent : public CppUnit::TestCase {
 
  public:
   void setUp() {
-    rg = new ConstantGenerator;
-    forest = new Forest(Model(0), rg);
+    rg = new ConstantGenerator();
+    forest = new Forest(Model(0), new MersenneTwister(5));
     forest->createExampleTree();
   }
 
@@ -32,40 +33,40 @@ class TestEvent : public CppUnit::TestCase {
     delete forest;
   }
 
-  void testEventIteratorCreation() {
-    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+  void testIteratorCreation() {
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 4 );
     
-    it = EventIterator(forest, forest->getNodes()->get(4));
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(4));
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
     
-    it = EventIterator(forest, forest->getNodes()->get(5));
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(5));
     CPPUNIT_ASSERT( (*it).start_height() == 3 );
     CPPUNIT_ASSERT( (*it).end_height() == 4 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
  
-    it = EventIterator(forest, forest->getNodes()->get(6));
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(6));
     CPPUNIT_ASSERT( (*it).start_height() == 4 );
     CPPUNIT_ASSERT( (*it).end_height() == 6 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
  
-    it = EventIterator(forest, forest->getNodes()->get(7));
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(7));
     CPPUNIT_ASSERT( (*it).start_height() == 6 );
     CPPUNIT_ASSERT( (*it).end_height() == 10 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
     
-    it = EventIterator(forest, forest->getNodes()->get(8));
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(8));
     CPPUNIT_ASSERT( (*it).start_height() == 10 );
     CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 0 );
   }
 
-  void testEventIteratorNext() {
-    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+  void testIteratorNext() {
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT( (*it).contemporaries().size() == 4);
@@ -105,7 +106,7 @@ class TestEvent : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !it.good() );
 
     int i = 0;
-    for (EventIterator events = EventIterator(forest, forest->getNodes()->get(0));
+    for (TimeIntervalIterator events = TimeIntervalIterator(forest, forest->getNodes()->get(0));
          events.good(); ++events) { 
       ++i;
       //std::cout << (*events).start_height() << " - " << (*events).end_height() << std::endl; 
@@ -114,7 +115,7 @@ class TestEvent : public CppUnit::TestCase {
   }
 
   void testSplitIntervall() {
-    EventIterator it = EventIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
     Node* split_node = new Node(0.5);
     it.splitCurrentInterval(split_node);
     ++it;
@@ -133,7 +134,23 @@ class TestEvent : public CppUnit::TestCase {
     CPPUNIT_ASSERT( it.good() );
   }
 
+  void testSampleContemporary() {
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(7));
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+    CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
+
+    ++it;
+    CPPUNIT_ASSERT_THROW( (*it).getRandomContemporary(), std::out_of_range );
+  }
 };
 
 //Uncomment this to activate the test
-// CPPUNIT_TEST_SUITE_REGISTRATION( TestEvent );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestTimeInterval );

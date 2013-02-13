@@ -15,7 +15,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
-  CPPUNIT_TEST( testGetNodeState );
+  //CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
 
@@ -85,4 +85,4 @@ class TestForest : public CppUnit::TestCase {
 };
 
 //Uncomment this to activate the test
-// CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
