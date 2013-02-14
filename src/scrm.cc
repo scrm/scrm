@@ -11,17 +11,18 @@
 int main () {
     try {
       time_t start_time = time(0);
-      Model model = Model(5);
+      Model model = Model(20);
 
       //Different random generators.
-      MersenneTwister *rg = new MersenneTwister(1359724090);
+      MersenneTwister *rg = new MersenneTwister();
       //ConstantGenerator *rg = new ConstantGenerator();
       //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
 
-      for (size_t i=2; i <= 50; ++i) {
+      for (size_t i=2; i <= 400; ++i) {
+        if ( i % 100 == 0 ) std::cout << "Rec " << i << std::endl;
         forest.set_current_base(i);    
         forest.sampleNextGenealogy();
       }
@@ -32,7 +33,6 @@ int main () {
       std::cout << "Simulation took about " << end_time - start_time 
                 << " second(s)" << std::endl;
 
-      delete rg;
       return 0;
     }
     catch (const exception &e)

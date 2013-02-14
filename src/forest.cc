@@ -47,7 +47,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
     new_leaf->set_last_update(cut_point.base_node()->last_update() );
   new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
-  nodes()->add(new_leaf);
+  nodes()->add(new_leaf, cut_point.base_node());
   // Update all local nodes above.
   updateAbove(parent, false, true, true);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
@@ -57,11 +57,11 @@ Node* Forest::cut(const TreePoint &cut_point) {
                             cut_point.base_node()->local());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_lower_child(cut_point.base_node());
-  //Inefficient to to this for local nodes
-  nodes()->add(new_root);
+  nodes()->add(new_root, new_leaf);
   dout << "* * New root of subtree: " << new_root << std::endl;
 
   dout << "* * Done" << std::endl;
+  this->printNodes();
   return(new_root);
 }
 
@@ -270,7 +270,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
   double rate_1;
   double rate_2;
 
-  double current_time;
+  double current_time = -1;
   size_t event_nr;
   Node **event_node, **other_node;
   size_t event_state, other_state;
@@ -283,6 +283,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
   for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node); event.good(); ++event) {
     dout << "* * Time interval: " << (*event).start_height() << " - "
          << (*event).end_height() << std::endl;
+
+    assert( current_time < 0 || current_time == (*event).start_height() );
 
     // What is currently happening?
     state_1 = getNodeState(active_node_1, (*event).start_height());
@@ -413,6 +415,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       event_point = TreePoint(*event_node, current_time, false);
       *event_node = cut(event_point);
       updateAbove(*event_node, false, false);
+      event.recalculateInterval();
       // Again, if the other node was also looking for a recombination, then
       // update the branch below as updated.
       // if ( other_state == 2 ) *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
@@ -484,50 +487,42 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
 
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
-  dout << "* * Implementing..." << std::endl;
+  dout << "* * Implementing..." << std::flush;
   Node* new_root = NULL;
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
   if (root_1->numberOfChildren() == 1) {
-    dout << "* * ...1" << std::endl;
     if (root_2->numberOfChildren() == 1) {
-      dout << "* * ...1.1" << std::endl;
       // both trees have a single branch => delete one
       root_2 = root_2->lower_child();
       this->nodes()->remove(root_2->parent());
       assert( root_2 != NULL );
     }
     // (now) only root_1 has a single branch => use as new root
-      dout << "* * ...1.2" << std::endl;
     this->nodes()->move(root_1, time);
-      dout << "* * ...1.3" << std::endl;
     new_root = root_1;
     root_1 = root_1->lower_child();
     assert( root_1 != NULL );
   } 
   else if (root_2->numberOfChildren() == 1) {
-    dout << "* * ...2" << std::endl;
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
     root_2 = root_2->lower_child();
   }
   else {
-    dout << "* * ...3" << std::endl;
     // No tree a has single branch on top => create a new root
     new_root = new Node(time);
     this->nodes()->add(new_root);
   }
 
-  dout << "Updating Tree" << std::endl;
   root_1->set_parent(new_root);
   root_2->set_parent(new_root);
   new_root->set_higher_child(root_1);
   new_root->set_lower_child(root_2);
   new_root->sort_children();
 
-  dout << " Staring updates" << std::endl;
   updateAbove(root_1, false, false);
   updateAbove(root_2, false, false);
   updateAbove(new_root, false, false);

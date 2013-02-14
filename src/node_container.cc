@@ -52,7 +52,7 @@ Node const* NodeContainer::get(size_t nr) const {
 // If you know that the node is higher in the tree than a other node,
 // than you can specify the latter as 'after_node' to speedup the process.
 void NodeContainer::add(Node* node, Node* after_node) {
-  assert( after_node == NULL || node->height() > after_node->height() );
+  assert( after_node == NULL || node->height() >= after_node->height() );
 
   if (first() == NULL) {
     this->set_first(node);

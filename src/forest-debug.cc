@@ -262,9 +262,19 @@ bool Forest::printTree() const {
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
       position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
-      //dout << countBelowLinesLeft(current_node->lower_child()) << " " 
-      //     << lines_left << " " << root_offset << endl;
-      root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
+      //dout << position << " = " << countBelowLinesLeft(current_node->lower_child()) << "+" 
+      //     << lines_left << "+" << root_offset << endl;
+
+      if (current_node->numberOfChildren() == 1) {
+        //dout << root_offset << "=" << position << "+" << 
+        //        countBelowLinesRight(current_node->lower_child()) << "+1" << std::endl;
+        root_offset = position + countBelowLinesRight(current_node->lower_child()) + 1;
+      } else {
+        root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
+        //dout << root_offset << "=" << position << "+" 
+        //                    << countBelowLinesRight(current_node->higher_child()) 
+        //                    << "+" << lines_right << "+" << 1 << std::endl;
+      }
       branches[position] = current_node;
     } else {
       // Get the position of the node (which was assigned when looking at is

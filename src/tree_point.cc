@@ -12,8 +12,10 @@ TreePoint::TreePoint(Node* base_node, double height, bool relative) {
     relative_height_ = height - base_node->height();
     height_ = height;
   }
-
-  //assert( relative_height_ <= base_node->height_above() );
+  
+  //std::cout << base_node << ": " << base_node->height() 
+  //                       << " - " << base_node->parent_height() << std::endl;
+  assert( relative_height_ <= base_node->height_above() );
   assert( relative_height_ >= 0 ); 
 }
 

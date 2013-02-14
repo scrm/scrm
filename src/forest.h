@@ -38,7 +38,9 @@ class Forest
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
+  friend class TestTimeInterval;
 #endif
+
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 

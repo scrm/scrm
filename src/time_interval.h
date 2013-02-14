@@ -24,7 +24,7 @@ class TimeInterval {
   std::set<Node*> contemporaries() const { return this->contemporaries_; };
 
   Node* getRandomContemporary() const;
-  void removeFromContemporaries(Node* node);
+  bool checkContemporaries() const;
 
 
  private:
@@ -56,9 +56,12 @@ class TimeIntervalIterator {
   // second part of the interval.
   void splitCurrentInterval(Node* splitting_node, Node* del_node = NULL) {
     this->inside_node_ = splitting_node;
-    if (del_node != NULL) current_event_.removeFromContemporaries(del_node);
+    if (del_node != NULL) removeFromContemporaries(del_node);
     //current_event_.end_height_ = splitting_node->height();
   };
+
+  void recalculateInterval();
+  void removeFromContemporaries(Node* node);
 
 #ifdef UNITTEST
   friend class TestTimeInterval;

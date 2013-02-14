@@ -15,6 +15,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST( testIteratorNext );
   CPPUNIT_TEST( testSplitIntervall );
   CPPUNIT_TEST( testSampleContemporary );
+  CPPUNIT_TEST( testRecalculateTI );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -149,6 +150,36 @@ class TestTimeInterval : public CppUnit::TestCase {
 
     ++it;
     CPPUNIT_ASSERT_THROW( (*it).getRandomContemporary(), std::out_of_range );
+  }
+
+  void testRecalculateTI() {
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    ++it;
+
+    // Check that is does not change anything if the underlying tree is
+    // unchanged
+    it.recalculateInterval();
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( it.good() );
+
+    // Now change the current interval
+    forest->nodes()->add(new Node(2));
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    it.recalculateInterval();
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 2 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( it.good() );
+
+    // Also test the next interval
+    ++it;
+    CPPUNIT_ASSERT( (*it).start_height() == 2 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( it.good() );
   }
 };
 

@@ -77,6 +77,15 @@ class NodeIterator {
     else current_node_ = current_node_->next();
     return current_node_;
   }
+
+  Node const* operator--() {
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+
+    if ( current_node_->is_first() ) current_node_ = NULL;
+    else current_node_ = current_node_->previous();
+    return current_node_;
+  }
   
   Node const* operator++(int) {
     if (current_node_ == NULL) 
@@ -162,7 +171,7 @@ class ReverseConstNodeIterator {
     else current_node_ = current_node_->previous();
     return current_node_;
   }
-  
+
   Node const* operator++(int) { 
     if (current_node_ == NULL) 
       throw std::out_of_range("Node iterator out of range");

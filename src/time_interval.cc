@@ -40,12 +40,15 @@ Node* TimeInterval::getRandomContemporary() const {
 }
 
 
-//Removes a Node from the contemporaries if it is there.
-void TimeInterval::removeFromContemporaries(Node* node) {
-  contemporaries_.erase(node);
+bool TimeInterval::checkContemporaries() const {
+  for (std::set<Node*>::iterator it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+    if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
+      std::cout << "Non-comtemporary node " << *it << " in contemporaries" << std::endl; 
+      return 0;
+    }
+  }
+  return 1;
 }
-
-
 
 
 /* --------------------------------------------------------------------
@@ -80,25 +83,20 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_nod
 
 
 void TimeIntervalIterator::next() {
-  dout << "1" << std::endl;
   if (this->inside_node_ != NULL ) {
     this->current_event_.start_height_ = inside_node_->height();
-    // end_height doesn't change
-    // contemporaries are already changed
+    this->current_event_.contemporaries_ = this->contemporaries_;
     this->inside_node_ = NULL;
+    assert( this->current_event_.checkContemporaries() );  
     return;
   }
-  dout << "1.5" << std::endl;
 
   if (!node_iterator_.good()) {
     good_ = false;
     return;
   }
 
-  dout << "1.75" << std::endl;
-  dout << *node_iterator_ << std::endl;
   double start_height = (*node_iterator_)->height();
-  dout << "2" << std::endl;
 
   //Update contemporaries
   if ( (*node_iterator_)->lower_child() != NULL ) 
@@ -118,10 +116,29 @@ void TimeIntervalIterator::next() {
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == end_height) return next();
   
-  this->current_event_ = TimeInterval(this->forest_, start_height, end_height, contemporaries_); 
+  this->current_event_ = TimeInterval(this->forest_, start_height, end_height, contemporaries_);
+  assert( this->current_event_.checkContemporaries() );  
 }
+
 
 bool TimeIntervalIterator::good() const {
  return this->good_;
 }
 
+
+//Removes a Node from the contemporaries if it is there.
+void TimeIntervalIterator::removeFromContemporaries(Node* node) {
+  this->contemporaries_.erase(node);
+}
+
+
+// Recalculates the borders of the current interval. 
+// Used after one or more nodes where created inside the interval due to events
+// occurring within.
+void TimeIntervalIterator::recalculateInterval() {
+  // Set node iterator back to the node at the current start_height
+  while ( (*node_iterator_)->height() > current_event_.start_height() ) --node_iterator_;
+  // Than go to the next node
+  ++node_iterator_;
+  current_event_.end_height_ = (*node_iterator_)->height();
+}

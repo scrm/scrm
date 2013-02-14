@@ -176,13 +176,21 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !it.good() );
     CPPUNIT_ASSERT_THROW( ++it, std::out_of_range );
 
-    /*it = nc.iterator();
+    it = nc.iterator();
     int i = 0;
     for (it = nc.iterator(); it.good(); ++it) {
       (*it)->make_local();
       ++i;
     }
-    CPPUNIT_ASSERT( i == 3 );*/
+    CPPUNIT_ASSERT( i == 3 );
+
+    it = nc.iterator();
+    ++it; --it;
+    CPPUNIT_ASSERT( it.good() && *it == node1 );
+    ++it; ++it; --it;
+    CPPUNIT_ASSERT( it.good() && *it == node2 );
+    --it; --it;
+    CPPUNIT_ASSERT_THROW( --it, std::out_of_range );
   }
   
 
