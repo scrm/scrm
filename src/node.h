@@ -28,7 +28,11 @@ class Node
   double height() const { return this->height_; }
   void set_height(const double &height) { this->height_ = height; }
 
-  double parent_height() const;
+  double parent_height() const {
+    if ( this->is_root() ) return this->height();
+    return this->parent()->height();
+  }
+
   double height_above() const { return this->parent_height() - this->height(); }
 
   bool local() const { return this->local_; }
@@ -64,7 +68,7 @@ class Node
   void sort_children();
   int  numberOfChildren() const;
 
-  bool is_root() const; 
+  bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
 
   bool is_first() const { return( previous_ == NULL ); }

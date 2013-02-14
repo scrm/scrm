@@ -61,7 +61,6 @@ Node* Forest::cut(const TreePoint &cut_point) {
   dout << "* * New root of subtree: " << new_root << std::endl;
 
   dout << "* * Done" << std::endl;
-  this->printNodes();
   return(new_root);
 }
 
@@ -334,8 +333,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 
     // First take care of pairwise coalescence
     if (state_1 == 1 && state_2 == 1) {
-      if ( (*event).contemporaries().size() == 0 ||
-          random_generator()->sample() * (1 + 2 * (*event).contemporaries().size() ) <= 1 ) {
+      if ( (*event).numberOfContemporaries() == 0 ||
+          random_generator()->sample() * (1 + 2 * (*event).numberOfContemporaries() ) <= 1 ) {
 
         implementPwCoalescence(active_node_1, active_node_2, current_time);
         return;
@@ -364,7 +363,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
     if ( event_state == 1 ) {
       // Coalescence: sample target point and implement the coalescence
       dout << "* * * Active Node " << event_nr  << ": Coalescence" << std::endl;
-      dout << "* * * #Contemporaries: " << (*event).contemporaries().size() << std::endl;
+      dout << "* * * #Contemporaries: " << (*event).numberOfContemporaries() << std::endl;
       event_point = TreePoint((*event).getRandomContemporary(), current_time, false);
       dout << "* * * Above node " << event_point.base_node() << std::endl;
       *event_node = implementCoalescence(*event_node, event_point);
@@ -563,15 +562,18 @@ Node* Forest::updateBranchBelowTimeInterval(Node* node, const TreePoint &event_p
 
 // Calculates the rate of any coalescence occuring in an intervall with a total of 
 // lines_number lines out of which coal_lines_number are not coalescenced.
-double Forest::calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const {
+double Forest::calcRate(Node* node, 
+                        const int &state, 
+                        const int &other_state, 
+                        const TimeInterval &event) const {
   // Node is off
   if (state == 0) return 0;
 
   // Coalescence
   if (state == 1 && other_state != 1)
-    return ( event.contemporaries().size() / ( 2.0 * this->model().population_size() ) );
+    return ( event.numberOfContemporaries() / ( 2.0 * this->model().population_size() ) );
   if (state == 1 && other_state == 1)
-    return ( 2 * event.contemporaries().size() + 0.5 ) / ( 2.0 * this->model().population_size() );
+    return ( 2 * event.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
 
   // Recombination
   if (state == 2)

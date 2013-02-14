@@ -14,24 +14,24 @@ class TimeInterval {
   TimeInterval(Forest* forest, 
         double start_height, 
         double end_height, 
-        std::set<Node*> contemporaries);
+        std::set<Node*>* contemporaries);
   ~TimeInterval() { };
 
   double start_height() const { return this->start_height_; };
   double end_height()   const { return this->end_height_; };
   double length()       const { return (end_height() - start_height()); };
 
-  std::set<Node*> contemporaries() const { return this->contemporaries_; };
-
+  size_t numberOfContemporaries() const { return contemporaries_->size(); }
   Node* getRandomContemporary() const;
   bool checkContemporaries() const;
 
-
  private:
+  const std::set<Node*> contemporaries() const { return *contemporaries_; };
+  
   Forest* forest_;
   double start_height_;
   double end_height_; 
-  std::set<Node*> contemporaries_;
+  std::set<Node*> const* contemporaries_;
 };
 
 

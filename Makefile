@@ -1,7 +1,7 @@
 CC=g++
-#CFLAGS=-c -Wall -O3 -pg -DNDEBUG 	# For gprof
-CFLAGS=-c -Wall -O3 -DNDEBUG 		# For speed testing
-#CFLAGS=-c -O3 -Wall -pg 			# For debugging
+#CFLAGS=-c -Wall -O3 -pg -DNDEBUG  	# For gprof
+#CFLAGS=-c -Wall -O3 -DNDEBUG 		# For speed testing
+CFLAGS=-c -O3 -Wall -pg 			# For debugging
 LDFLAGS=-pg
 SOURCES=$(shell find src | grep .cc)
 HEADERS=$(shell find src | grep .h)

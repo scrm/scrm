@@ -14,7 +14,7 @@ TimeInterval::TimeInterval() {
 TimeInterval::TimeInterval(Forest* forest, 
              double start_height, 
              double end_height,
-             std::set<Node*> contemporaries) {
+             std::set<Node*>* contemporaries) {
 
   this->forest_ = forest;
   this->start_height_ = start_height;
@@ -30,7 +30,7 @@ Node* TimeInterval::getRandomContemporary() const {
     throw std::out_of_range("Error: Sampling from empty contemporaries");
   size_t sample = this->forest_->random_generator()->sampleInt(this->contemporaries().size());
 
-  std::set<Node*>::iterator it = contemporaries_.begin();
+  std::set<Node*>::iterator it = contemporaries().begin();
   while (sample > 0) {
     ++it;
     --sample;
@@ -41,7 +41,7 @@ Node* TimeInterval::getRandomContemporary() const {
 
 
 bool TimeInterval::checkContemporaries() const {
-  for (std::set<Node*>::iterator it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+  for (std::set<Node*>::iterator it = contemporaries().begin(); it != contemporaries().end(); ++it) {
     if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
       std::cout << "Non-comtemporary node " << *it << " in contemporaries" << std::endl; 
       return 0;
@@ -85,7 +85,6 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_nod
 void TimeIntervalIterator::next() {
   if (this->inside_node_ != NULL ) {
     this->current_event_.start_height_ = inside_node_->height();
-    this->current_event_.contemporaries_ = this->contemporaries_;
     this->inside_node_ = NULL;
     assert( this->current_event_.checkContemporaries() );  
     return;
@@ -116,7 +115,7 @@ void TimeIntervalIterator::next() {
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == end_height) return next();
   
-  this->current_event_ = TimeInterval(this->forest_, start_height, end_height, contemporaries_);
+  this->current_event_ = TimeInterval(this->forest_, start_height, end_height, &contemporaries_);
   assert( this->current_event_.checkContemporaries() );  
 }
 

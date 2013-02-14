@@ -31,25 +31,6 @@ Node* Node::parent() const {
   return this->parent_; 
 }
 
-double Node::parent_height() const {
-  if ( this->is_root() ) return this->height();
-  return this->parent()->height(); 
-}
-
-//TRUE iff we are the root of a real tree
-//false for the ultimate_root
-bool Node::is_root() const {
-  /*
-  if ( this->is_fake() ) return false;
-  //Special case: root of a tree just cut away for coalescence. These are not
-  //added to the fake tree to increase performance.
-  if ( this->parent_ == NULL ) return true;
-  //or root of a tree:
-  return ( this->parent()->is_fake() );
-  */
-  return ( this->parent_ == NULL );
-}
-
 void Node::change_child(Node* from, Node* to) {
   if ( this->lower_child() == from )
     this->set_lower_child(to);
