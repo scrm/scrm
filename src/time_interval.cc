@@ -36,13 +36,15 @@ Node* TimeInterval::getRandomContemporary() const {
 }
 
 
+// Checks if all nodes in contemporaries are contempoaries.
+// Does not check if their are an nodes missing.
 bool TimeInterval::checkContemporaries() const {
-  std::cout << "Cont: " << contemporaries_ << std::endl;
+  //std::cout << "Cont: " << contemporaries_ << std::endl;
   assert( contemporaries_ != NULL );
   for (std::vector<Node*>::const_iterator it = contemporaries_->begin(); 
        it != contemporaries_->end(); ++it) {
 
-    std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
+    //std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
     if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
       std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
       return 0;
@@ -88,11 +90,12 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_nod
 }
 
 
+// Sets current_interval_ to the next time interval.
 void TimeIntervalIterator::next() {
   if (this->inside_node_ != NULL ) {
-    this->current_event_.start_height_ = inside_node_->height();
+    this->current_interval_.start_height_ = inside_node_->height();
     this->inside_node_ = NULL;
-    assert( this->current_event_.checkContemporaries() );  
+    assert( this->current_interval_.checkContemporaries() );  
     return;
   }
 
@@ -120,17 +123,14 @@ void TimeIntervalIterator::next() {
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == end_height) return next();
   
-  this->current_event_ = TimeInterval(this->forest_, start_height, end_height, &contemporaries_);
-  assert( this->current_event_.checkContemporaries() );  
+  this->current_interval_ = TimeInterval(this->forest_, start_height, end_height, &contemporaries_);
+  assert( this->current_interval_.checkContemporaries() );  
 }
 
 
-bool TimeIntervalIterator::good() const {
- return this->good_;
-}
-
-
-//Removes a Node from the contemporaries if it is there.
+// Removes a Node from the contemporaries if it is there.
+// Currently their are situations where we try to do this also for nodes not in
+// contemporaries. Maybe we could optimize this, but this may not be easy.
 void TimeIntervalIterator::removeFromContemporaries(Node* node) {
   //std::cout << "Removing " << node << std::endl;
   std::vector<Node*>::iterator it;
@@ -145,22 +145,13 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
 }
 
 
-void TimeIntervalIterator::addToContemporaries(Node* node) {
-  contemporaries_.push_back(node);
-}
-
-
 // Recalculates the borders of the current interval. 
 // Used after one or more nodes where created inside the interval due to events
 // occurring within.
 void TimeIntervalIterator::recalculateInterval() {
   // Set node iterator back to the node at the current start_height
-  while ( (*node_iterator_)->height() > current_event_.start_height() ) --node_iterator_;
+  while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;
   // Than go to the next node
   ++node_iterator_;
-  current_event_.end_height_ = (*node_iterator_)->height();
+  current_interval_.end_height_ = (*node_iterator_)->height();
 }
-
-
-
-

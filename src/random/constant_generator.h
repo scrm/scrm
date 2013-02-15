@@ -13,7 +13,7 @@ class ConstantGenerator : public RandomGenerator
   public:
    ConstantGenerator();
    ConstantGenerator(int seed);
-   ~ConstantGenerator();
+   virtual ~ConstantGenerator();
 
    virtual double sample();
    void initialize();

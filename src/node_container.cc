@@ -214,7 +214,7 @@ bool NodeContainer::sorted() const {
 
 
 void NodeContainer::print() const {
-  std::cout << "NodeContainer with " << this->size() << " Nodes" << std::endl;
+  //std::cout << "NodeContainer with " << this->size() << " Nodes" << std::endl;
   for ( ConstNodeIterator it = this->iterator(); it.good(); ++it ) {
     std::cout << *it << ": Prev " << (*it)->previous() 
                      << " Next " <<  (*it)->next() << std::endl;

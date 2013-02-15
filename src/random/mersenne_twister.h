@@ -12,7 +12,7 @@ class MersenneTwister : public RandomGenerator
   public:
    MersenneTwister();
    MersenneTwister(int seed);
-   ~MersenneTwister();
+   virtual ~MersenneTwister();
                          
    void initialize() {};
    double sample();

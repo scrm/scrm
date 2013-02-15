@@ -1,6 +1,5 @@
 #include "forest.h"
 
-
 /******************************************************************
  * Constructors & Initialization
  *****************************************************************/
@@ -119,7 +118,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   if (recursive &&
       samples_below == node->samples_below() && 
       areSame(length_below, node->length_below()) ) {
-      dout << "FF STOPED:" << node << std::endl; 
+      //dout << "FF STOPED:" << node << std::endl; 
     return;
   }
 

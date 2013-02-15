@@ -46,11 +46,11 @@ class TimeIntervalIterator {
   ~TimeIntervalIterator() {};
 
   void next();
-  bool good() const;
+  bool good() const { return this->good_; }
 
-  TimeInterval operator*() const { return current_event_; }
-  TimeInterval operator++() { next(); return current_event_; }
-  TimeInterval operator++(int) { TimeInterval tmp = current_event_;
+  TimeInterval operator*() const { return current_interval_; }
+  TimeInterval operator++() { next(); return current_interval_; }
+  TimeInterval operator++(int) { TimeInterval tmp = current_interval_;
                           next();
                           return tmp; }
 
@@ -60,12 +60,11 @@ class TimeIntervalIterator {
   void splitCurrentInterval(Node* splitting_node, Node* del_node = NULL) {
     this->inside_node_ = splitting_node;
     if (del_node != NULL) removeFromContemporaries(del_node);
-    //current_event_.end_height_ = splitting_node->height();
   };
 
   void recalculateInterval();
   void removeFromContemporaries(Node* node);
-  void addToContemporaries(Node* node);
+  void addToContemporaries(Node* node) { contemporaries_.push_back(node); };
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
@@ -73,13 +72,12 @@ class TimeIntervalIterator {
 
  private:
   Forest* forest_;
-  TimeInterval current_event_;
+  TimeInterval current_interval_;
   std::vector<Node*> contemporaries_;
   NodeIterator node_iterator_;
   bool good_;
 
   Node* inside_node_;
-
 };
 
 #endif

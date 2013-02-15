@@ -26,7 +26,6 @@
 #include "tree_point.h"
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
-#include "random/fake_generator.h"
 #include "random/mersenne_twister.h"
 
 class TimeInterval;

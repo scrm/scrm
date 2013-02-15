@@ -7,7 +7,7 @@ class RandomGenerator
 {
   public:
    RandomGenerator() {};
-   ~RandomGenerator() {};
+   virtual ~RandomGenerator() {};
  
    //Getters & Setters
    int seed() { return this->seed_; }
