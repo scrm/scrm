@@ -2,7 +2,6 @@
 #define scrm_src_time_interval
 
 #include "forest.h"
-#include <set>
 
 class Forest;
 
@@ -10,11 +9,15 @@ class TimeInterval {
  public:
   friend class TimeIntervalIterator;
 
+#ifdef UNITTEST
+  friend class TestTimeInterval;
+#endif
+
   TimeInterval();
   TimeInterval(Forest* forest, 
         double start_height, 
         double end_height, 
-        std::set<Node*>* contemporaries);
+        std::vector<Node*> *contemporaries);
   ~TimeInterval() { };
 
   double start_height() const { return this->start_height_; };
@@ -23,15 +26,15 @@ class TimeInterval {
 
   size_t numberOfContemporaries() const { return contemporaries_->size(); }
   Node* getRandomContemporary() const;
-  bool checkContemporaries() const;
 
  private:
-  const std::set<Node*> contemporaries() const { return *contemporaries_; };
+  bool checkContemporaries() const;
+  const std::vector<Node*> contemporaries() const { return *contemporaries_; };
   
   Forest* forest_;
   double start_height_;
   double end_height_; 
-  std::set<Node*> const* contemporaries_;
+  std::vector<Node*> *contemporaries_;
 };
 
 
@@ -62,6 +65,7 @@ class TimeIntervalIterator {
 
   void recalculateInterval();
   void removeFromContemporaries(Node* node);
+  void addToContemporaries(Node* node);
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
@@ -70,11 +74,12 @@ class TimeIntervalIterator {
  private:
   Forest* forest_;
   TimeInterval current_event_;
-  std::set<Node*> contemporaries_;
+  std::vector<Node*> contemporaries_;
   NodeIterator node_iterator_;
   bool good_;
 
   Node* inside_node_;
+
 };
 
 #endif

@@ -21,7 +21,7 @@ class NodeContainer {
   ConstNodeIterator iterator() const;
   ReverseConstNodeIterator reverse_iterator() const;
 
-  void add(Node *node, Node* after_node=NULL);
+  void add(Node* node, Node* after_node=NULL);
   void remove(Node *node, const bool &del=true);
   void move(Node *node, const double &new_height);
   void clear();

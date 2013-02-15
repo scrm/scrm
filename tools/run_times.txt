@@ -1,0 +1,11 @@
+# start with 20 individuals
+# simulate 6000 recombination events
+
+                user        system
+2013-01-14      1m3.132s    0m0.056s
+2013-01-16      1m38.186s   0m0.132s   # fixed one of many bugs with node deactivation
+                1m20.045s   0m0.080s   # now maybe all are fixed ~12k Nodes
+2013-01-17      0m36.062s   0m0.080s   # Live update of local tree length
+
+# Now 3000 recombination events in active material
+2013-02-13      2m8.500s    0m0.388s   # ~83k nodes

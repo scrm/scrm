@@ -8,14 +8,16 @@ TimeInterval::TimeInterval() {
   this->forest_ = NULL;
   this->start_height_ = 0;
   this->end_height_ = 0;
+  this->contemporaries_ = NULL;
 }
 
 
 TimeInterval::TimeInterval(Forest* forest, 
              double start_height, 
              double end_height,
-             std::set<Node*>* contemporaries) {
+             std::vector<Node*> *contemporaries) {
 
+  assert( contemporaries != NULL );
   this->forest_ = forest;
   this->start_height_ = start_height;
   this->end_height_ = end_height;
@@ -26,29 +28,30 @@ TimeInterval::TimeInterval(Forest* forest,
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
 Node* TimeInterval::getRandomContemporary() const {
-  if ( this->contemporaries().size() == 0) 
+  if ( this->numberOfContemporaries() == 0) 
     throw std::out_of_range("Error: Sampling from empty contemporaries");
-  size_t sample = this->forest_->random_generator()->sampleInt(this->contemporaries().size());
 
-  std::set<Node*>::iterator it = contemporaries().begin();
-  while (sample > 0) {
-    ++it;
-    --sample;
-  }
-  
-  return *it;
+  size_t sample = this->forest_->random_generator()->sampleInt(this->numberOfContemporaries());
+  return contemporaries().at(sample);
 }
 
 
 bool TimeInterval::checkContemporaries() const {
-  for (std::set<Node*>::iterator it = contemporaries().begin(); it != contemporaries().end(); ++it) {
+  std::cout << "Cont: " << contemporaries_ << std::endl;
+  assert( contemporaries_ != NULL );
+  for (std::vector<Node*>::const_iterator it = contemporaries_->begin(); 
+       it != contemporaries_->end(); ++it) {
+
+    std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
     if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
-      std::cout << "Non-comtemporary node " << *it << " in contemporaries" << std::endl; 
+      std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
       return 0;
     }
   }
   return 1;
 }
+
+
 
 
 /* --------------------------------------------------------------------
@@ -64,10 +67,12 @@ TimeIntervalIterator::TimeIntervalIterator() {
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_node) {
+  //std::cout << "New Iterator" << std::endl;
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator();
+  this->contemporaries_ = std::vector<Node*>(0);
   
   //Skipt intervals below start_height
   for( ; *node_iterator_ != start_node; node_iterator_++ ) {
@@ -75,10 +80,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_nod
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
     if ( (*node_iterator_)->parent_height() > start_node->height() )
-      contemporaries_.insert(*node_iterator_);
+      this->addToContemporaries(*node_iterator_);
   }
   
   next();
+  //std::cout << "New Iterator Created" << std::endl;
 }
 
 
@@ -99,18 +105,17 @@ void TimeIntervalIterator::next() {
 
   //Update contemporaries
   if ( (*node_iterator_)->lower_child() != NULL ) 
-    contemporaries_.erase((*node_iterator_)->lower_child());
+    this->removeFromContemporaries((*node_iterator_)->lower_child());
   if ( (*node_iterator_)->higher_child() != NULL ) 
-    contemporaries_.erase((*node_iterator_)->higher_child());
+    this->removeFromContemporaries((*node_iterator_)->higher_child());
   
   if ( !(*node_iterator_)->is_root() ) 
-    contemporaries_.insert(*node_iterator_);
+    this->addToContemporaries(*node_iterator_);
 
   ++node_iterator_;
   double end_height;
   if (node_iterator_.good()) end_height = (*node_iterator_)->height();
   else end_height = FLT_MAX;
- 
 
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == end_height) return next();
@@ -127,7 +132,21 @@ bool TimeIntervalIterator::good() const {
 
 //Removes a Node from the contemporaries if it is there.
 void TimeIntervalIterator::removeFromContemporaries(Node* node) {
-  this->contemporaries_.erase(node);
+  //std::cout << "Removing " << node << std::endl;
+  std::vector<Node*>::iterator it;
+  for (it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+    //std::cout << *it << " == " << node << " ?" << std::endl;
+    if ( *it == node ) {
+      contemporaries_.erase(it);
+      return;
+    }
+  }
+  //throw std::logic_error("Trying to delete noexisting node from contemporaries");
+}
+
+
+void TimeIntervalIterator::addToContemporaries(Node* node) {
+  contemporaries_.push_back(node);
 }
 
 
@@ -141,3 +160,7 @@ void TimeIntervalIterator::recalculateInterval() {
   ++node_iterator_;
   current_event_.end_height_ = (*node_iterator_)->height();
 }
+
+
+
+

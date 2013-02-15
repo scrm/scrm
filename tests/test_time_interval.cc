@@ -38,69 +38,69 @@ class TestTimeInterval : public CppUnit::TestCase {
     TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
     
     it = TimeIntervalIterator(forest, forest->getNodes()->get(4));
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
     
     it = TimeIntervalIterator(forest, forest->getNodes()->get(5));
     CPPUNIT_ASSERT( (*it).start_height() == 3 );
     CPPUNIT_ASSERT( (*it).end_height() == 4 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
  
     it = TimeIntervalIterator(forest, forest->getNodes()->get(6));
     CPPUNIT_ASSERT( (*it).start_height() == 4 );
     CPPUNIT_ASSERT( (*it).end_height() == 6 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
  
     it = TimeIntervalIterator(forest, forest->getNodes()->get(7));
     CPPUNIT_ASSERT( (*it).start_height() == 6 );
     CPPUNIT_ASSERT( (*it).end_height() == 10 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
     
     it = TimeIntervalIterator(forest, forest->getNodes()->get(8));
     CPPUNIT_ASSERT( (*it).start_height() == 10 );
     CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 0 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 0 );
   }
 
   void testIteratorNext() {
     TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4);
     CPPUNIT_ASSERT( it.good() );
     
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
   
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 3 );
     CPPUNIT_ASSERT( (*it).end_height() == 4 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
     CPPUNIT_ASSERT( it.good() );
  
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 4 );
     CPPUNIT_ASSERT( (*it).end_height() == 6 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
     CPPUNIT_ASSERT( it.good() );
  
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 6 );
     CPPUNIT_ASSERT( (*it).end_height() == 10 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 2 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
     CPPUNIT_ASSERT( it.good() );
     
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 10 );
     CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 0 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 0 );
     CPPUNIT_ASSERT( it.good() );
   
     ++it;
@@ -124,14 +124,14 @@ class TestTimeInterval : public CppUnit::TestCase {
     // Check split interval
     CPPUNIT_ASSERT( (*it).start_height() == 0.5 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 4);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4);
     CPPUNIT_ASSERT( it.good() );
 
     // Check that next interval is unchanged
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
   }
 
@@ -161,7 +161,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     it.recalculateInterval();
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
 
     // Now change the current interval
@@ -171,14 +171,14 @@ class TestTimeInterval : public CppUnit::TestCase {
     it.recalculateInterval();
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 2 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
 
     // Also test the next interval
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 2 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).contemporaries().size() == 3);
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
   }
 };

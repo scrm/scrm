@@ -21,7 +21,7 @@ int main () {
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
 
-      for (size_t i=2; i <= 25; ++i) {
+      for (size_t i=2; i <= 3000; ++i) {
         if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
         forest.set_current_base(i);    
         forest.sampleNextGenealogy();
