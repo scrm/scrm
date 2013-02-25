@@ -1,3 +1,16 @@
+/*
+ * forest.h
+ * Contains the class Forest, which is the central class in scrm
+ *
+ * The central data structure of scrm is a forest, which is a collection of
+ * trees. This class on the one hand contains a NodeContainer object with all
+ * nodes building the trees, and on the other hand functions to manipulate to
+ * forest.
+ *
+ * Most functions are defined in forest.cc with exception of pure debugging
+ * functions, with are in forest-debug.cc.
+ */
+
 #ifndef scrm_src_forest
 #define scrm_src_forest
 

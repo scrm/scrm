@@ -1,3 +1,11 @@
+/*
+ * model.h
+ *
+ * This file contains the class Model, which is a simple container object for
+ * model parameters.
+ *
+ */
+
 #ifndef scrm_src_model
 #define scrm_src_model
 

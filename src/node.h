@@ -1,3 +1,11 @@
+/*
+ * node.h
+ *
+ * A Node is the most elemental unit of a tree/forest. It represents the
+ * point of coalescence of two branches, as well as the single branch above. 
+ *
+ */
+
 #ifndef scrm_node
 #define scrm_node
 
