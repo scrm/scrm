@@ -79,8 +79,8 @@ class Forest
   RandomGenerator* random_generator() const { return this->random_generator_; }
   NodeContainer const *getNodes() const { return nodes_; };
 
+
   //Operations on the Tree
-  void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   Node* cut(const TreePoint &cut_point);
   void deactivateSubtree(Node* node);
   void updateAbove(Node* node, 
@@ -90,21 +90,22 @@ class Forest
 
   Node* moveUpwardsInTree(Node* node);
 
-  //
+
+  // Central functions
   void buildInitialTree();
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   void sampleNextGenealogy();
 
-  // Tools for doing an coalescence
+
+  // Tools for doing an coalescence & recombination
+  void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
-  void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
-  
-  void sampleCoalescences2(Node *start_node, const bool &for_initial_tree = false);
   Node* updateBranchBelowTimeInterval(Node* node, const TreePoint &event_point); 
 
 
   //Debugging Tools
+  void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node const* root = NULL) const;
@@ -136,11 +137,10 @@ class Forest
   //Private variables
   NodeContainer* nodes_;    // The nodes of the Tree/Forest
 
-  // We have 3 different roots that are important:
+  // We have 2 different roots that are important:
   // - local_root: root of the smallest subtree containing all local sequences
-  // - primary_root: root of the tree that contains all local sequences
-  // - ultimate root: root of the fake tree structure connecting all trees of
-  //                the forest into a tree.
+  // - primary_root: root of the tree that contains all local sequences (do we
+  //   need this one?)
 
   Node* local_root_;
   Node* primary_root_;
