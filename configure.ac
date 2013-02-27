@@ -1,5 +1,5 @@
-#AC_INIT([hybrid_sim],esyscmd([sh -c "date \"+%Y%m%d\" | tr -d '\n'"]),[joe.zhu@pg.canterbury.ac.nz])
-AC_INIT([hybrid_sim],[beta],[joe.zhu@pg.canterbury.ac.nz])
+#AC_INIT([scrm],esyscmd([sh -c "date \"+%Y%m%d\" | tr -d '\n'"]),[staab@biologie.uni-muenchen.de])
+AC_INIT([scrm],[beta],[staab@biologie.uni-muenchen.de])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
 #AC_CONFIG_HEADER([config.h])
@@ -21,7 +21,7 @@ AC_PROG_RANLIB
 AC_HEADER_STDC
 #AC_CHECK_HEADERS([float.h stdlib.h string.h unistd.h])
 AC_LANG(C++) 
-AC_CHECK_HEADERS([iostream string sstream fstream vector iomanip valarray math.h stdio.h ctime])
+AC_CHECK_HEADERS([iostream string sstream fstream vector iomanip valarray math.h stdio.h ctime boost])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -36,15 +36,7 @@ AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([pow])
 AC_HEADER_STDBOOL
 
-DX_INIT_DOXYGEN(hybrid_sim, Doxyfile, html/)
-DX_HTML_FEATURE(ON)
-DX_CHM_FEATURE(OFF)
-DX_CHI_FEATURE(OFF)
-DX_MAN_FEATURE(OFF)
-DX_RTF_FEATURE(OFF)
-DX_XML_FEATURE(OFF)
-DX_PDF_FEATURE(OFF)
-DX_PS_FEATURE(OFF)
+
 
 
 # Check for presence of pdfLaTeX
