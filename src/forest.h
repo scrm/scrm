@@ -82,14 +82,10 @@ class Forest
 
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
-  void deactivateSubtree(Node* node);
   void updateAbove(Node* node, 
                    bool above_local_root = false,
                    bool recursive = true,
                    bool local_only = false);
-
-  Node* moveUpwardsInTree(Node* node);
-
 
   // Central functions
   void buildInitialTree();
@@ -97,11 +93,11 @@ class Forest
 
 
   // Tools for doing an coalescence & recombination
-  void sampleCoalescences(Node *start_node, const bool &for_initial_tree = false);
+  void sampleCoalescences(Node *start_node);
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
-  Node* updateBranchBelowTimeInterval(Node* node, const TreePoint &event_point); 
+  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
 
   //Debugging Tools

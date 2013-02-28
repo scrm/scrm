@@ -34,7 +34,16 @@ Forest::~Forest() {
 }
 
 
-//Cuts all nodes below a point on the tree and moves them into a new tree
+/** 
+ * function that cuts a subtree out of a tree of the forest and reinserts it as
+ * a separate tree.
+ *
+ * This is primarily used to cut the subtree below an recombination
+ * away. 
+ *
+ * \param cut_point   A TreePoint marking the top of the subtree to cut.
+ * \return            The root of the now separated subtree.
+ */
 Node* Forest::cut(const TreePoint &cut_point) {
   //The node above the cut_point in the old tree
   Node* parent = cut_point.base_node()->parent();
@@ -64,18 +73,26 @@ Node* Forest::cut(const TreePoint &cut_point) {
 }
 
 
-// Function to update the invariants (local, samples_below, length_below) 
-// of a 'node' and all of its (grand-)parents. Also registers the local_root if it
-// encounters it. 
-// Options:
-//  above_local_root: If true, it uses a faster algorithm that is only correct
-//                    for nodes above the local root. Default false. Best don't touch
-//                    this.
-//  recursive:        If false, only 'node' is updated, but not its parent.
-//                    Default true.
-//  dont_localize:    If true, the function does not set non-local nodes local.
-//                    Needed for updating the tree above the 'left_over' above 
-//                    a recombination.
+/**
+ * Function to update the invariants (local, samples_below, length_below) 
+ * of a 'node' and all of its (grand-)parents. Also sets local_root_ if it
+ * encounters it. 
+ *
+ *  \param node       The node at which the functions starts updating the
+ *                    invariants. Then updates it's parent and the parents
+ *                    parent.
+ *  \param above_local_root If true, it uses a faster algorithm that is only correct
+ *                    for nodes above the local root. Default false. Best don't touch
+ *                    this.
+ *  \param recursive  If false, only the given node is updated, but not its parent.
+ *                    Default true.
+ *  \param dont_localize If true, the function does not set non-local nodes local.
+ *                    Needed for updating the tree above the 'left_over' above
+ *                    a recombination.
+ */
+ // Think this function should not make any non-local local, because we may
+ // ignore postponed recombinations this way. Will investigate this further. 
+ // -Paul
 void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool dont_localize) {
   //dout << "* * * Updating: " << node << " local: " << node->local()
   //     << " fastforward: " << above_local_root << std::endl;
@@ -147,6 +164,11 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 }
 
 
+/**
+ * Function that build the initial tree at the very left end of the sequence.
+ *
+ * Also creates the sample nodes.
+ */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
   dout << "* Adding first node... ";
@@ -166,7 +188,7 @@ void Forest::buildInitialTree() {
     dout << "* staring coalesces" << std::endl;
 
     //Coalesces the separate tree into the main tree
-    this->sampleCoalescences(new_leaf, false);
+    this->sampleCoalescences(new_leaf);
     dout << "* * Tree:" << std::endl;
     assert(this->printTree());
     assert(this->printNodes());
@@ -175,9 +197,26 @@ void Forest::buildInitialTree() {
 }
 
 
-// uniformly samples a Point on the local tree
-// iterative log(#nodes) implementation
-// Distribution checked.
+/**
+ * Uniformly samples a TreePoint on the local tree.
+ *
+ * Its arguments are meant to be used only when the function iteratively calls
+ * itself. Just call it without any arguments if you want to sample a TreePoint.
+ *
+ * The function first samples a part of the total height of the tree and then
+ * goes down from the root, deciding at each node if that point is to the left
+ * or right, which should give us an O(log(#nodes)) algorithm.
+ *
+ * I checked the distribution of this function in multiple cases. -Paul
+ *
+ * \param node The current position in the tree when the functions goes down
+ *             iteratively.
+ *
+ * \param length_left The length that is left until we encounter the sampled
+ *              length.
+ *
+ * \return The sampled point on the tree.
+ */
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
@@ -219,6 +258,12 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 }
 
 
+/** 
+ * Function to modify the tree after we encountered a recombination on the
+ * sequence. Also samples a place for this recombination on the tree, marks the
+ * branch above as non-local (and updates invariants) if needed, cuts the
+ * subtree below away and starts a coalescence from it's root.
+ */
 void Forest::sampleNextGenealogy() {
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
@@ -251,7 +296,14 @@ void Forest::sampleNextGenealogy() {
 }
 
 
-void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) {
+/** 
+ * Function for doing a coalescence.
+ *
+ * \param start_node The node at which the coalescence starts. Must be the root
+ *                   of a tree.
+ */
+void Forest::sampleCoalescences(Node *start_node) {
+  assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
   Node* active_node_1 = start_node;
@@ -381,7 +433,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         }
 
         // Otherwise mark the part below as updated and continue;
-        // *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
+        // *other_node = updateBranchBelowEvent(*other_node, event_point);
       }
 
       // Check if are can stop.
@@ -389,8 +441,8 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
         dout << "* * * We hit the local tree. Done." << std::endl;
         updateAbove(*event_node); 
         if ( other_state == 2) {
-          dout << "JUHU" << std::endl;
-          *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
+          dout << "JUHU" << std::endl; // I'm not sure this actually occurs... -Paul
+          *other_node = updateBranchBelowEvent(*other_node, event_point);
         }
         return;
       }
@@ -416,7 +468,7 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
       event.recalculateInterval();
       // Again, if the other node was also looking for a recombination, then
       // update the branch below as updated.
-      // if ( other_state == 2 ) *other_node = updateBranchBelowTimeInterval(*other_node, event_point);
+      // if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
 
       assert(this->printTree());
       continue;
@@ -425,10 +477,16 @@ void Forest::sampleCoalescences(Node *start_node, const bool &for_initial_tree) 
 }
 
 
-// Function to determine the state of a (branch above an) local node
-// - 0 = off
-// - 1 = potentially coalescing
-// - 2 = potentially recombining
+/**
+ *  Function to determine the state of (the branch above) a node for an ongoing
+ *  coalescence.
+ *
+ *  The States are: 0 = off, 1 = potentially coalescing, 2 = potentially recombining
+ *
+ *  \param node the node for which to tell the start
+ *  \param current_time the time at which the coalescence is
+ *  \return The state of the node
+ */
 size_t Forest::getNodeState(Node const *node, const double &current_time) const {
   if (node->height() > current_time) return(0);
   if (node->is_root()) return(1);
@@ -437,10 +495,17 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 }
 
 
-// Does all the changes to the forest if one node (coal_node) coalescences into
-// an point (coal_point) on a existing tree.
-// Returns the new node at the point of coalescence. 
-// Attention: The returned node does still require an update!
+/**
+ * Modifies the forest to reflect the coalescences of a coalescing node into
+ * a point on a existing tree.
+ *
+ * Attention: The returned node does still require an update!
+ *
+ * \param coal_node The coalescing node
+ * \param coal_point The point on the tree into which coal_node coalesces.
+ *
+ * \return The new node at the point of coalescence.
+ */
 Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point) {
   Node* new_node;
 
@@ -483,6 +548,14 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
 }
 
 
+/** 
+ * Modifies the forest to reflect that two coalescing nodes coalesced together.
+ * 
+ * \param root_1 The first coalescing node
+ * \param root_2 The second coalescing node
+ * \param time   The time at which the coalescence happens
+ *
+ */
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
   dout << "* * Implementing..." << std::flush;
@@ -528,8 +601,27 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 }
 
 
-Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &event) {
-  if ( node->parent_height() == event.end_height() ) {
+/** 
+ * Helper function for doing a coalescence.
+ * Moves the 'active' flag (i.e. the node stored in root_1 or root_2 in sampleCoalescence)
+ * from a node to it's parent if the branch above the node
+ * ends this the current time interval.
+ *
+ * This function is used the pass the active flag upwards in the tree if the
+ * node is active, but neither coalescing nor a recombination happens on the
+ * branch above, e.g. after a local-branch became active because it was hit by a
+ * coalescence or a non-local branch was active and no recombination occurred.
+ *
+ * Also updates the active node if it moves up.
+ *
+ * \param node An active node
+ * \param time_interval The time interval the coalescence is currently in.
+ * 
+ * \return  Either the parent of 'node' if we need to move upwards or 'node'
+ *          itself
+ */
+Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval) {
+  if ( node->parent_height() == time_interval.end_height() ) {
     node->set_last_update(this->current_base());
     updateAbove(node, false, false);
     return node->parent();
@@ -538,8 +630,23 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &event) {
 }
 
 
-
-Node* Forest::updateBranchBelowTimeInterval(Node* node, const TreePoint &event_point) {
+/**
+ * Helper function for doing a coalescence. Marks the part of a branch which is
+ * below the point of coalescence as updated, i.e. in particular sets
+ * last_update_ to the current sequence position.
+ *
+ * Imagine we have to active nodes, one in coalescing and the other one looking
+ * for a potential recombination. If the coalescing node coalesces and thereby
+ * finishes the current coalescence (CAN THIS ACTUALLY HAPPEN?), we need to remember 
+ * that we looked for recombinations below the coalescence point - but didn't
+ * get any... THIS NEEDS MORE THOUGHT
+ * 
+ * \param node The active node that is recombining
+ * \param event_point The point in the tree at which the event of the other node
+ *             happened.
+ * \return A new node on the branch above 'node' at the height of the event.
+ */
+Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
   assert( node->height() < event_point.height() );
   
   Node* inter_node = new Node(event_point.height(), false, node->last_update(),
@@ -559,8 +666,19 @@ Node* Forest::updateBranchBelowTimeInterval(Node* node, const TreePoint &event_p
 
 
 
-// Calculates the rate of any coalescence occuring in an intervall with a total of 
-// lines_number lines out of which coal_lines_number are not coalescenced.
+/** 
+ * Calculates the rate of an event occurring above a node in an time interval.
+ *
+ * In case both nodes are coalescing, it splits the rate of pair wise
+ * coalescence equally on both nodes.
+ *
+ * \param node The node for which we calculation the rate.
+ * \param state The state of 'node'
+ * \param other_state The state of the other active node
+ * \param event The current time interval
+ *
+ * \returns The rate.
+ */
 double Forest::calcRate(Node* node, 
                         const int &state, 
                         const int &other_state, 
@@ -582,16 +700,27 @@ double Forest::calcRate(Node* node,
 }
 
 
-// Looks whether an exp(rate) distributed waiting time runs off in a time
-// interval of a given length. Return the time if so, and -1 otherwise.
-double Forest::sampleExpTime(double rate, double intervall_length) {
+/**
+ * Looks whether an exponentially distributed waiting time runs off in a time
+ * interval. 
+ *
+ * This function reuses the same sample for multiple interval as long as the
+ * waiting time does not run off, which greatly improves performance and is
+ * correct because of the Markov property of waiting times.
+ *
+ * \param rate The rate of the waiting time
+ * \interval_length The length of the current time interval.
+ *
+ * \return The time at which the rate ran of if it did, or -1 otherwise.
+ */
+double Forest::sampleExpTime(double rate, double interval_length) {
   if (rate == 0) return -1;
   if (this->expo_sample_ == -1) expo_sample_ = this->random_generator()->sampleExpo(1);
 
   // Scale interval with rate to bring it on exp(1) timescale
-  intervall_length *= rate;
-  if (intervall_length < expo_sample_) {
-    expo_sample_ -= intervall_length; // Still exp(1) distributed
+  interval_length *= rate;
+  if (interval_length < expo_sample_) {
+    expo_sample_ -= interval_length; // Still exp(1) distributed
     return -1;
   } else {
     double time = expo_sample_;
@@ -600,6 +729,16 @@ double Forest::sampleExpTime(double rate, double intervall_length) {
   }
 }
 
+
+/**
+ * Sample which of two waiting time ran off, conditioned on that one of them
+ * did.
+ *
+ * \param rate_1 The rate of the first waiting time
+ * \param rate_2 The rate of the second waiting time
+ *
+ * \return 1 if the first one ran off, and 2 if the second one did.
+ */
 size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) const {
   if (rate_1 == 0) return 2;
   if (rate_2 == 0) return 1;
