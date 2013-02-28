@@ -1,7 +1,35 @@
 \documentclass{article}
-\title{scrm manual}
-\author{Paul}
+\usepackage{hyperref}
+
+\usepackage{natbib}
+\bibliographystyle{chicagoa}
+
+\newcommand{\cm}[1]{\begin{center}{\tt #1}\end{center}}
+
+\title{{\tt scrm} manual}
+\author{Paul R. Staab}
 
 \begin{document}
 \maketitle
+
+\section{Blah Blah Introduction or something}
+
+\section{Download and installation}
+{\tt scrm} can be downloaded from \url{https://...}. Extract the source code by executing the following command:
+\cm{tar -xf scrm-VERSION.tar.gz.}
+
+It is fairly standard to compile {\tt scrm} on UNIX-like systems. In the directory of {\tt scrm-VERSION}, execute the following command:
+\begin{verbatim}
+$./bootstrap
+$make
+\end{verbatim}
+
+\section{Blah Blah examples or something}
+
+\nocite{McVean2005}
+\nocite{Wiuf1999}
+
+\bibliography{manualbib.bib}
+
+
 \end{document}

@@ -1,4 +1,4 @@
-#docfiles = manual.tex 
+#docfiles = manual.pdf
 if HAVE_PDFLATEX
 doc_DATA = manual.pdf
 MANNAME = manual
