@@ -51,6 +51,8 @@ class Forest
   friend class TestForest;
   friend class TestNode;
   friend class TestTimeInterval;
+  friend class TestModel;
+  friend class TestNodeContainer;
 #endif
 
   friend class TimeInterval;
@@ -80,17 +82,19 @@ class Forest
   NodeContainer const *getNodes() const { return nodes_; };
 
 
+
+  // Central functions
+  void buildInitialTree();
+  void sampleNextGenealogy();
+
+
+ private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
   void updateAbove(Node* node, 
                    bool above_local_root = false,
                    bool recursive = true,
                    bool local_only = false);
-
-  // Central functions
-  void buildInitialTree();
-  void sampleNextGenealogy();
-
 
   // Tools for doing an coalescence & recombination
   void sampleCoalescences(Node *start_node);
@@ -119,7 +123,6 @@ class Forest
   bool printTree() const;
 
 
- private:
   double sampleExpTime(double rate, double intervall_length);
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
