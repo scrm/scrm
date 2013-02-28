@@ -81,12 +81,9 @@ class Forest
   RandomGenerator* random_generator() const { return this->random_generator_; }
   NodeContainer const *getNodes() const { return nodes_; };
 
-
-
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
-
 
  private:
   //Operations on the Tree
@@ -96,7 +93,7 @@ class Forest
                    bool recursive = true,
                    bool local_only = false);
 
-  // Tools for doing an coalescence & recombination
+  // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node);
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
