@@ -49,6 +49,9 @@ doc/latex
 doc/html
 *.bbl
 *.blg
+*.aux
+*.pdf
+*.out
 
 # Compiled Object files
 *.slo

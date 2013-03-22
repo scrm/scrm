@@ -7,7 +7,7 @@ MANAUX = $(MANNAME).aux
 MANPDF = $(MANNAME).pdf
 DOCDIR=$(abs_top_builddir)/doc
 CLEANFILES = $(MANPDF) $(MANNAME).log $(MANNAME).idx $(MANNAME).out \
- $(MANNAME).toc $(MANAUX)
+ $(MANNAME).toc $(MANNAME).bbl $(MANNAME).blg $(MANAUX)
 
 $(MANPDF): $(srcdir)/$(MANTEXSRC)
 	$(PDFLATEX) $(MANTEXSRC)
