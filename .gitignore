@@ -30,7 +30,25 @@
 
 scrm/unittest
 scrm/scrm
-tags
+
+# automake
+Makefile
+Makefile.in
+autom4te.cache
+config.*
+depcomp
+install-sh
+missing
+configure
+aclocal.m4
+.deps
+INSTALL
+
+# ./docs
+doc/latex
+doc/html
+*.bbl
+*.blg
 
 # Compiled Object files
 *.slo
