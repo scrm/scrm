@@ -28,8 +28,8 @@
 *.sqlite
 *.swp
 
-scrm/unittest
-scrm/scrm
+tests/tests
+src/scrm
 
 # automake
 Makefile
@@ -43,6 +43,7 @@ configure
 aclocal.m4
 .deps
 INSTALL
+
 
 # ./docs
 doc/latex
