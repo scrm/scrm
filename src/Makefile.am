@@ -2,7 +2,7 @@ bin_PROGRAMS = scrm
 PROG = SCRM
 #CXXFLAGS=-c -Wall -O3 -pg -DNDEBUG  	# For gprof
 #CXXFLAGS= -Wall -O3 -DNDEBUG 		# For speed testing
-CXXFLAGS=  -O3 -Wall -pg 	-DNDEBUG		# For debugging
+scrm_CXXFLAGS=  -O3 -Wall -pg # For debugging
 #scrm_CXXFLAGS=  -O3 -Wall -pg 	-DNDEBUG		# For debugging
 #scrm_LDFLAGS=-pg #-pg flag is for debug
 
@@ -21,6 +21,3 @@ random/mersenne_twister.cc   random/random_generator.h
 
 
 include_HEADERS = forest.h model.h node.h node_container.h time_interval.h tree_point.h
-
-
-
