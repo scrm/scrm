@@ -15,14 +15,16 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 
 #Checks for libraries
-AC_CHECK_LIB([cppunit])
-
+#AC_CHECK_LIB(cppunit,TestCase,[],AC_MSG_WARN([cppunit is not installed]))
+#AC_CHECK_LIB(cppunit,TestCase,[],AC_MSG_WARN([User define 'cppunit' location. e.g. LDFLAGS=-L/opt/local/lib]))
+AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L../libcppunit)
 
 # Checks for header files for scrm.
 AC_HEADER_STDC
 AC_LANG(C++) 
-AC_CHECK_HEADERS([cassert cstddef cfloat stdexcept iostream vector map iomanip fstream ctime cmath boost/assign/std/vector.hpp boost/random.hpp])
-
+#AC_CHECK_HEADERS([cassert cstddef cfloat stdexcept iostream vector map iomanip fstream ctime cmath boost/assign/std/vector.hpp boost/random.hpp])
+#AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],AC_MSG_WARN([User define 'boost' location. e.g. CXXFLAGS=-I/opt/local/include]))
+AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I../)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

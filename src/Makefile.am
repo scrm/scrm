@@ -3,7 +3,7 @@ PROG = SCRM
 #CXXFLAGS=-c -Wall -O3 -pg -DNDEBUG  	# For gprof
 #CXXFLAGS= -Wall -O3 -DNDEBUG 		# For speed testing
 scrm_CXXFLAGS=  -O3 -Wall -pg # For debugging
-AM_CPPFLAGS= -I/opt/local/include # include the library for boost, given that boost was installed through macports
+#AM_CPPFLAGS= -I/opt/local/include # include the library for boost, given that boost was installed through macports
 #scrm_CXXFLAGS=  -O3 -Wall -pg 	-DNDEBUG		# For debugging
 #scrm_LDFLAGS=-pg #-pg flag is for debug
 
