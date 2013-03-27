@@ -14,11 +14,15 @@ AC_CANONICAL_HOST
 AC_PROG_CXX
 AC_PROG_RANLIB
 
+#Checks for libraries
+AC_CHECK_LIB([cppunit])
+
 
 # Checks for header files for scrm.
 AC_HEADER_STDC
 AC_LANG(C++) 
 AC_CHECK_HEADERS([cassert cstddef cfloat stdexcept iostream vector map iomanip fstream ctime cmath boost/assign/std/vector.hpp boost/random.hpp])
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
