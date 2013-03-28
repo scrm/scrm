@@ -9,6 +9,8 @@
 #ifndef scrm_src_model
 #define scrm_src_model
 
+#include <cstddef>
+
 class Model
 {
   public:
@@ -37,12 +39,18 @@ class Model
      this->smc_model_ = smc_model;
    }
 
+   size_t exact_window_length() const { return exact_window_length_; }
+   void set_exact_window_length(const size_t &exact_window_length) {
+     this->exact_window_length_ = exact_window_length;
+   }
+
   private:
    int sample_size_;
    int population_size_;
    double mutation_rate_;
    double recombination_rate_;
 
+   size_t exact_window_length_;
    bool smc_model_;
 };
 

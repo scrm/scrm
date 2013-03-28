@@ -129,6 +129,9 @@ class Forest
   Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);
   void  implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
 
+  // Pruning
+  bool isPrunable(Node const* node) const;
+  void prune(Node* node); 
 
   //Private variables
   NodeContainer* nodes_;    // The nodes of the Tree/Forest
@@ -142,9 +145,7 @@ class Forest
   Node* primary_root_;
 
   size_t current_base_;     // The current position of the sequence we are simulating
-
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-
   double expo_sample_;      // Placeholder for exp(1) sampled values
 
   Model model_;
@@ -155,7 +156,6 @@ class Forest
                   RandomGenerator* rg = NULL);
 
   NodeContainer *nodes() { return this->nodes_; }
-  NodeContainer const *nodes() const { return this->nodes_; }
 
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }

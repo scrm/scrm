@@ -7,13 +7,13 @@ scrm_CXXFLAGS=  -O3 -Wall -pg # For debugging
 #scrm_CXXFLAGS=  -O3 -Wall -pg 	-DNDEBUG		# For debugging
 #scrm_LDFLAGS=-pg #-pg flag is for debug
 
-scrm_SOURCES = \ 
-forest.cc forest.h forest-debug.cc \ 
-model.cc model.h \ 
-node.cc node.h \ 
+scrm_SOURCES = \
+forest.cc forest.h forest-debug.cc \
+model.cc model.h \
+node.cc node.h \
 node_container.cc node_container.h \
-time_interval.cc time_interval.h \ 
-tree_point.cc tree_point.h \ 
+time_interval.cc time_interval.h \
+tree_point.cc tree_point.h \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc  random/constant_generator.h \

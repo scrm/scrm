@@ -90,9 +90,9 @@ Node* Forest::cut(const TreePoint &cut_point) {
  *                    Needed for updating the tree above the 'left_over' above
  *                    a recombination.
  */
- // Think this function should not make any non-local local, because we may
- // ignore postponed recombinations this way. Will investigate this further. 
- // -Paul
+// Think this function should not make any non-local local, because we may
+// ignore postponed recombinations this way. Will investigate this further. 
+// -Paul
 void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool dont_localize) {
   //dout << "* * * Updating: " << node << " local: " << node->local()
   //     << " fastforward: " << above_local_root << std::endl;
@@ -135,7 +135,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   if (recursive &&
       samples_below == node->samples_below() && 
       areSame(length_below, node->length_below()) ) {
-      //dout << "FF STOPED:" << node << std::endl; 
+    //dout << "FF STOPED:" << node << std::endl; 
     return;
   }
 
@@ -236,7 +236,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
     length_left = length_left - node->height_above();
     assert( length_left >= 0 );
   }
-  
+
   // At this point, we should have at least one local child
   assert( node->lower_child() != NULL );
   assert( node->lower_child()->local() || node->higher_child()->local() );
@@ -248,7 +248,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
   if ( node->higher_child() == NULL || !node->higher_child()->local() ) {
     return samplePoint(node->lower_child(), length_left);
   }
-  
+
   // If we have two local children, the look if we should go down left or right.
   double tmp = node->lower_child()->height_above() + node->lower_child()->length_below();
   if ( length_left <= tmp )
@@ -332,7 +332,7 @@ void Forest::sampleCoalescences(Node *start_node) {
 
   for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node); event.good(); ++event) {
     dout << "* * Time interval: " << (*event).start_height() << " - "
-         << (*event).end_height() << std::endl;
+        << (*event).end_height() << std::endl;
 
     assert( current_time < 0 || current_time == (*event).start_height() );
 
@@ -372,10 +372,10 @@ void Forest::sampleCoalescences(Node *start_node) {
         }
       }
       if (state_2 == 2) active_node_2 = possiblyMoveUpwards(active_node_2, *event);
-      
+
       if (active_node_1 == active_node_2) {
         dout << "* * * Active Nodes hit each other in " << active_node_1 
-             << ". Done." << std::endl;
+            << ". Done." << std::endl;
         updateAbove(active_node_1);
         return;
       }
@@ -648,7 +648,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
  */
 Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
   assert( node->height() < event_point.height() );
-  
+
   Node* inter_node = new Node(event_point.height(), false, node->last_update(),
                               node->samples_below(), node->length_below());
   node->set_last_update(this->current_base());
@@ -747,3 +747,49 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
   return 1;
 }
 
+bool Forest::isPrunable(Node const* node) const {
+  // Never remove local nodes, or ones with 2 children
+  if ( node->local() ) return false;
+  if ( node->numberOfChildren() == 2 ) return false;
+
+  // remove orphaned roots
+  if ( node->is_root() && node->numberOfChildren() == 0 ) return true;  
+
+  // remove unneeded nodes inside branches (= 1 child, 1 parent)
+  if ( (!node->is_root()) && node->numberOfChildren() == 1 ) return true;
+
+  // remove old external nodes
+  if ( node->numberOfChildren() == 0 && 
+      this->current_base() - node->last_update() > model().exact_window_length() ) return true;
+
+  return false; 
+}
+
+void Forest::prune(Node *node) {
+  assert( isPrunable(node) );
+  dout << "* * PRUNING: Removing node " << node << " from tree" << std::endl;
+
+  /* Possible Cases:
+   * + Orphaned root => just delete 
+   * + Unneeded node => relink and delete
+   * + Old external branch => unset in parent and delete 
+   * */
+
+  // Orphaned root
+  if ( node->numberOfChildren() == 1 ) {
+    Node* child;
+    if ( node->lower_child() == NULL ) child = node->higher_child();
+    else child = node->lower_child();
+  
+    child->set_parent( node->parent() );
+    node->parent()->change_child(node, child); 
+  } 
+
+  // Unneeded node
+  else if ( !node->is_root() ) {
+    node->parent()->change_child(node, NULL);
+  }
+
+  // And delete
+  nodes()->remove(node);
+}

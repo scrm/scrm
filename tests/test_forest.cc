@@ -15,6 +15,8 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testIsPrunable );
+  CPPUNIT_TEST( testPrune );
   //CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
@@ -80,6 +82,28 @@ class TestForest : public CppUnit::TestCase {
 
   void testPrintTree() {
     CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
+  }
+
+  void testIsPrunable() {
+    forest->set_current_base(forest->model().exact_window_length() + 10);
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(0)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(1)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(2)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(3)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(4)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(5)) );
+    CPPUNIT_ASSERT(  forest->isPrunable(forest->getNodes()->get(6)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(7)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(8)) );
+  }
+
+  void testPrune() {
+    forest->set_current_base(forest->model().exact_window_length() + 10);
+    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT( forest->nodes()->size() == 8);
+    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT( forest->nodes()->size() == 7);
+    CPPUNIT_ASSERT( forest->checkTree() == 1 );
   }
 
 };

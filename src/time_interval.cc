@@ -116,6 +116,12 @@ void TimeIntervalIterator::next() {
     this->addToContemporaries(*node_iterator_);
 
   ++node_iterator_;
+  
+  // Pruning
+  while ( node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
+    forest_->prune(node_iterator_++);
+  }
+
   double end_height;
   if (node_iterator_.good()) end_height = (*node_iterator_)->height();
   else end_height = FLT_MAX;

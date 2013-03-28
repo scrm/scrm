@@ -6,6 +6,7 @@ Model::Model() {
   this->set_mutation_rate(10);
   this->set_recombination_rate(20);
   this->set_smc_model(false);
+  this->set_exact_window_length(10);
 }
 
 Model::Model(int sample_size) {
@@ -14,6 +15,7 @@ Model::Model(int sample_size) {
   this->set_mutation_rate(0.00001);
   this->set_recombination_rate(0.00002);
   this->set_smc_model(false);
+  this->set_exact_window_length(10);
 }
 
 Model::~Model() { };

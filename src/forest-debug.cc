@@ -39,7 +39,8 @@ void Forest::createExampleTree() {
 
   updateAbove(node12);
   updateAbove(node34);
-  
+
+  this->set_current_base(5);  
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
 }
@@ -48,7 +49,7 @@ void Forest::createExampleTree() {
 double Forest::calcTreeLength() const {
   double local_length = 0;
 
-  for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+  for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
     if ( (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
@@ -101,7 +102,7 @@ bool Forest::checkInvariants(Node const* node) const {
   if (node == NULL) {
     bool okay = 1;
 
-    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+    for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
       okay *= checkInvariants(*it);
     }
     return(okay);
@@ -141,7 +142,7 @@ bool Forest::checkLeafsOnLocalTree(Node const* node) const {
   if (node == NULL) {
     size_t all_on_tree = 1;
     bool on_tree = 0;
-    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+    for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
       if ( !(*it)->in_sample() ) continue;
       on_tree = checkLeafsOnLocalTree(*it);
       if (!on_tree) dout << "Leaf " << *it << " is not on local tree!" << std::endl;
@@ -156,7 +157,7 @@ bool Forest::checkLeafsOnLocalTree(Node const* node) const {
 
 bool Forest::checkNodeProperties() const {
   bool success = true;
-  for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+  for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
     if ( !(*it)->local() ) {
       if ( (*it)->last_update() == 0 && !(*it)->is_root() ) {
         dout << "Error: Node " << *it << " non-local without update info" << std::endl;
@@ -172,7 +173,7 @@ bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
     bool good = true;
     //Default when called without argument
-    for (ConstNodeIterator it = nodes()->iterator(); it.good(); ++it) {
+    for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
       if ( (*it)->is_root() ) good = checkTree(*it);
     }
 
@@ -195,14 +196,8 @@ bool Forest::checkTree(Node const* root) const {
       return 0;
     }
   }
-  //Do we have only one child?
-  else if ( !(h_child == NULL && l_child == NULL) ) {
-    //This is only allowed for root and fake nodes
-    if ( !root->is_root() ) { 
-      dout << root << ": Has only one child" << std::endl;
-      return 0;
-    }
-  }
+  // Do we have only one child?
+  // else if ( !(h_child == NULL && l_child == NULL) ) { }
 
   bool child1 = 1;
   if (h_child != NULL) {

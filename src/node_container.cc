@@ -35,7 +35,7 @@ ReverseConstNodeIterator NodeContainer::reverse_iterator() const {
  * Management of Nodes
  *******************************************************/
 
-Node const* NodeContainer::get(size_t nr) const {
+Node* NodeContainer::at(size_t nr) const {
   Node* current = first();
 
   for (size_t i=0; i < nr; ++i) {
