@@ -16,4 +16,12 @@ Model::Model(int sample_size) {
   this->set_smc_model(false);
 }
 
+Model::Model(param user_input) {
+  this->set_sample_size(user_input.nsam);
+  this->set_population_size(user_input.npop);
+  this->set_mutation_rate(user_input.theta);
+  this->set_recombination_rate(user_input.rho);
+  this->set_smc_model(false);
+}
+
 Model::~Model() { };

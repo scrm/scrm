@@ -5,6 +5,7 @@
  * model parameters.
  *
  */
+#include"param.h"
 
 #ifndef scrm_src_model
 #define scrm_src_model
@@ -14,6 +15,8 @@ class Model
   public:
    Model();
    Model(int sample_size);
+   Model(param user_input);
+   
    ~Model();
                          
    //Getters & Setters

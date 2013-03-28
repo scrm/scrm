@@ -7,10 +7,14 @@
 #include "random/constant_generator.h"
 
 #ifndef UNITTEST
-int main () {
+int main(int argc, char *argv[]){
+	param user_para;
+	//param user_para(argc, argv);
+	user_para.print_param();
     try {
       time_t start_time = time(0);
-      Model model = Model(5);
+      //Model model = Model(5);
+      Model model = Model(user_para);
 
       //Different random generators.
       MersenneTwister *rg = new MersenneTwister();
