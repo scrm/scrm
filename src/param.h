@@ -3,7 +3,12 @@
 
 #include<iostream>
 #include<iomanip>      
-
+#include<string>
+#include<sstream>
+#include<fstream>
+#include<iostream>
+#include<stdlib.h>  
+#include<stdio.h>
 
 class param{
 	public:
@@ -20,8 +25,21 @@ class param{
 	//and nsites is the number of sites between which recombination can occur.
 	double theta; // mutation rate per site theta, 
 	
+	size_t ith_change; // the i_th change of the genealogy
+	
 	param();
 	param(int argc, char *argv[]);
 	
 	void print_param();
+	
+	private:
+	void log_param();
 };
+
+
+void print_help();
+void read_input_to_double(char inchar[], double &input);
+void read_input_to_int(char inchar[], int &input);
+void read_input_to_size_t(char inchar[], size_t &input);
+void appending_log_file(std::string log_file_input /*! Information added*/);
+
