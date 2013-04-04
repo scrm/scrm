@@ -16,7 +16,6 @@ int main(int argc, char *argv[]){
     try {
       time_t start_time = time(0);
 
-      //Model model = Model(5);
       Model model = Model(user_para);
 
       //Different random generators.
@@ -40,6 +39,7 @@ int main(int argc, char *argv[]){
       
       std::cout << "Simulation took about " << end_time - start_time 
                 << " second(s)" << std::endl;
+
 	std::ofstream log_file;
 	log_file.open ("scrm.log", std::ios::out | std::ios::app | std::ios::binary); 
 	log_file << "Simulation took about " << end_time - start_time << " second(s) \n";

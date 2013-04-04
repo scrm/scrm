@@ -24,6 +24,7 @@ Model::Model(param user_input) {
   this->set_mutation_rate(user_input.theta);
   this->set_recombination_rate(user_input.rho);
   this->set_smc_model(false);
+  this->set_exact_window_length(10);
 }
 
 Model::~Model() { };
