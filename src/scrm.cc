@@ -40,11 +40,13 @@ int main(int argc, char *argv[]){
       
       std::cout << "Simulation took about " << end_time - start_time 
                 << " second(s)" << std::endl;
-	std::ofstream log_file;
-	log_file.open ("scrm.log", std::ios::out | std::ios::app | std::ios::binary); 
-	log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
-	log_file.close();
-
+                
+      if (user_para.log_bool){          
+				std::ofstream log_file;
+				log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+				log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
+				log_file.close();
+			}
       // RUN UNTIL ERROR:
       // (BE SURE TO DISCARD STDOUT)
       /*

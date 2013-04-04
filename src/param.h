@@ -9,7 +9,6 @@
 #include<iostream>
 #include<stdlib.h>  
 #include<stdio.h>
-
 class param{
 	public:
 	
@@ -31,6 +30,9 @@ class param{
 	param(int argc, char *argv[]);
 	
 	void print_param();
+	
+	bool log_bool;
+	std::string log_NAME;
 	
 	private:
 	void log_param();
