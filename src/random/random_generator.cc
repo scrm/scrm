@@ -16,6 +16,9 @@ void RandomGenerator::sampleTwoElements(int range, int *sample1, int *sample2) {
   assert( 0 <= *sample2 && *sample2 < range );
 }
 
+
+// Samples from an exponential distribution 
+// Distribution checked -Paul
 double RandomGenerator::sampleExpo(double lambda){
   return -std::log(this->sample()) / lambda;
 }
