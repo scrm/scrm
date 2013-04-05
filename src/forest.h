@@ -84,23 +84,7 @@ class Forest
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
-
- private:
-  //Operations on the Tree
-  Node* cut(const TreePoint &cut_point);
-  void updateAbove(Node* node, 
-                   bool above_local_root = false,
-                   bool recursive = true,
-                   bool local_only = false);
-
-  // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node);
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
-  size_t getNodeState(Node const *node, const double &current_time) const;
-  double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
-  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
-
-
+  
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
   void createExampleTree();
@@ -118,6 +102,25 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
+  std::vector< std::vector<Node const*> > createPositionMatrix() const;
+  void printPositionMatrix(const std::vector<std::vector<Node const*> > &position_matrix) const;
+
+ private:
+  //Operations on the Tree
+  Node* cut(const TreePoint &cut_point);
+  void updateAbove(Node* node, 
+                   bool above_local_root = false,
+                   bool recursive = true,
+                   bool local_only = false);
+
+  // Tools for doing coalescence & recombination
+  void sampleCoalescences(Node *start_node);
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
+  size_t getNodeState(Node const *node, const double &current_time) const;
+  double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
+  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
+
+
 
 
   double sampleExpTime(double rate, double intervall_length);

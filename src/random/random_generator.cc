@@ -11,6 +11,8 @@ void RandomGenerator::sampleTwoElements(int size, int *sample1, int *sample2) {
   *sample1 = this->sampleInt(size - 2);
   *sample2 = this->sampleInt(size - 1);
   if (*sample1 == *sample2) *sample2 = size - 1;
+  assert( 0 <= *sample1 && *sample1 < size );
+  assert( 0 <= *sample2 && *sample2 < size );
 }
 
 double RandomGenerator::sampleExpo(double lambda){

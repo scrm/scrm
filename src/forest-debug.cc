@@ -230,6 +230,7 @@ bool Forest::printTree() const {
   ReverseConstNodeIterator it;
   std::vector<const Node*>::iterator cit;
   Node const* current_node;
+  Node const* print_once = NULL;
   size_t lines_left, lines_right, position, root_offset = 0;
   double current_height = -1;
 
@@ -257,22 +258,15 @@ bool Forest::printTree() const {
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
       position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
-      //dout << position << " = " << countBelowLinesLeft(current_node->lower_child()) << "+" 
-      //     << lines_left << "+" << root_offset << endl;
 
       if (current_node->numberOfChildren() == 1) {
-        //dout << root_offset << "=" << position << "+" << 
-        //        countBelowLinesRight(current_node->lower_child()) << "+1" << std::endl;
         root_offset = position + countBelowLinesRight(current_node->lower_child()) + 1;
       } else {
         root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
-        //dout << root_offset << "=" << position << "+" 
-        //                    << countBelowLinesRight(current_node->higher_child()) 
-        //                    << "+" << lines_right << "+" << 1 << std::endl;
       }
       branches[position] = current_node;
     } else {
-      // Get the position of the node (which was assigned when looking at is
+      // Get the position of the node (which was assigned when looking at its
       // parent
       position = 0;
       for (cit = branches.begin(); cit < branches.end(); ++cit) {
@@ -284,7 +278,8 @@ bool Forest::printTree() const {
     // Insert the child/children into branches
     if (current_node->lower_child() != NULL) {
       if (current_node->higher_child() == NULL){ 
-        branches[position + 1] = current_node->lower_child();
+        branches[position] = current_node->lower_child();
+        print_once = current_node;
       } else {
         branches[position - lines_left] =  current_node->lower_child();
         branches[position + lines_right] = current_node->higher_child();
@@ -316,7 +311,12 @@ bool Forest::printTree() const {
       } 
       else if ( i < position) buffer << "-";
       else if ( i == position) { 
-        if (current_node->local()) buffer << "+";
+        if ( print_once != NULL ) {
+          if ( print_once->local() ) buffer << "+";
+          else buffer << "°";
+          print_once = NULL;
+        }
+        else if (current_node->local()) buffer << "+";
         else buffer << "°";
       }
       else if ( i <= position + lines_right) buffer << "-";
@@ -335,6 +335,20 @@ bool Forest::printTree() const {
   dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
   //Returns true, so that it can be place in asserts
   return true;
+}
+
+std::vector<std::vector<Node const*> > Forest::createPositionMatrix() const {
+  vector<vector<Node const*> > position_matrix(3, vector<Node const*>(2,NULL));
+  return position_matrix;
+}
+
+void Forest::printPositionMatrix(const std::vector<std::vector<Node const*> > &position_matrix) const {
+  for (size_t row = 0; row < position_matrix.size(); ++row) {
+    for (size_t col = 0; col < position_matrix[row].size() ; ++col) {
+      std::cout << position_matrix[row][col] << " ";
+    } 
+    std::cout << std::endl;
+  }
 }
 
 int Forest::countLinesLeft(Node const* node) const {
