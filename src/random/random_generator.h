@@ -1,6 +1,7 @@
 #ifndef scrm_src_random_random_generator
 #define scrm_src_random_random_generator
 
+#include <cassert>
 #include <cmath>
 
 class RandomGenerator
