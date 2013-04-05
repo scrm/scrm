@@ -11,33 +11,42 @@ param::param(){
 	theta=0.00001;
 	rho=0.00002;	
 	ith_change=25;
+	log_bool=false;
+	log_NAME="scrm.log";
+
 }
 
 param::param(int argc, char *argv[]){
+	
+	if (argc==1 ){
+		print_help();
+	}
+	//else, proceed
+	
 	int argc_i=0;
-	bool help=false;
+	read_input_to_int(argv[argc_i+1],nsam);
+	argc_i++;
 
 	random_seed=time(0); //int
 	nsites=25; //int
-	nsam=5; //int
+	//nsam=5; //int
 	npop=10000; //int
 	theta=0.00001;	//double
 	rho=0.00002;	//double
 	ith_change=25; //size_t
+	log_bool=false;
+	log_NAME="scrm.log";
 	
 	while( argc_i < argc ){
 		std::string argv_i(argv[argc_i]);
-		if (argv_i=="-h" || argv_i=="-help"){
-			help=true;
-		}
 		if (argv_i=="-seed"){
 			read_input_to_int(argv[argc_i+1],random_seed);
 			argc_i++;
 		}
-		if (argv_i=="-nsam"){
-			read_input_to_int(argv[argc_i+1],nsam);
-			argc_i++;
-		}	
+		//if (argv_i=="-nsam"){
+			//read_input_to_int(argv[argc_i+1],nsam);
+			//argc_i++;
+		//}	
 		if (argv_i=="-npop"){
 			read_input_to_int(argv[argc_i+1],npop);
 			argc_i++;
@@ -46,19 +55,27 @@ param::param(int argc, char *argv[]){
 			read_input_to_double(argv[argc_i+1],theta);
 			argc_i++;
 		}
-		
 		if (argv_i=="-r"){
 			read_input_to_double(argv[argc_i+1],rho);
 			argc_i++;
 		}
+		if (argv_i=="-log"){
+			log_bool=true;
+			argc_i++;
+			if (argc_i < argc){
+				if (argv[argc_i][0]!='-'){
+					log_NAME=argv[argc_i];
+					argc_i++;
+				}
+			}
+		}
 		argc_i++;
 	}
 	
-	if (help ){
-		print_help();
+	if (log_bool){
+		log_param();
 	}
-	remove("scrm.log");
-	log_param();
+	
 }
 
 
@@ -104,7 +121,8 @@ void param::print_param(){
 
 void param::log_param(){
 	std::ofstream log_file;
-	log_file.open ("scrm.log", std::ios::out | std::ios::app | std::ios::binary); 
+	remove(log_NAME.c_str());
+	log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file<<"Simulation parameters: \n";
 	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
 	log_file<<std::setw(10)<<"nsam ="<<std::setw(10)<<nsam<< "\n";
@@ -125,23 +143,28 @@ void print_help(){
 	std::cout<<"*		  Author: Paul R Staab, Sha Zhu			*"<<std::endl;
 	std::cout<<"*****************************************************************"<<std::endl;
 	std::cout<<std::endl<<std::endl;
-	std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
+	std::cout<<"Too few command line arguments"<<std::endl;
+	std::cout<<"usage: ms nsam howmany"<<std::endl;
+	std::cout<<"	Options:"<<std::endl;
+	//std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
 	std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO."<<std::endl;
 	std::cout<<std::setw(20)<<"-t THETA"<<"  --  "<<"User define the mutation rate THETA."<<std::endl;
-	std::cout<<std::setw(20)<<"-nsam NSAM"<<"  --  "<<"User define the sample size NSAM."<<std::endl;
+	//std::cout<<std::setw(20)<<"-nsam NSAM"<<"  --  "<<"User define the sample size NSAM."<<std::endl;
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
 	std::cout<<"Example:"<<std::endl;
-	std::cout<<"./scrm -help"<<std::endl;
-	std::cout<<"./scrm -t 0.002 -r 0.00004 -npop 20000 -nsam 6"<<std::endl;
-	std::cout<<"./scrm -t 0.0002 -r 0.00003 -npop 10000 -nsam 5 -seed 1314"<<std::endl;
+	std::cout<<"./scrm 3"<<std::endl;
+	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
+	std::cout<<"./scrm 5 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314"<<std::endl;
+	std::cout<<"./scrm 6 -t 0.002 -log -r 0.00004 "<<std::endl;
+	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
 	exit(1);
 }
 
 
-void appending_log_file(std::string log_file_input /*! Information added*/){
+void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
 	std::ofstream log_file;
-	log_file.open ("scrm.log", std::ios::out | std::ios::app | std::ios::binary); 
+	log_file.open (log_file_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file << log_file_input << "\n";
 	log_file.close();
 }
