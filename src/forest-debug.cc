@@ -226,80 +226,58 @@ bool Forest::checkTree(Node const* root) const {
 /******************************************************************
  * Tree Printing
  *****************************************************************/
-bool Forest::printTree() const {
-  ReverseConstNodeIterator it;
-  std::vector<const Node*>::iterator cit;
-  Node const* current_node;
-  Node const* print_once = NULL;
-  size_t lines_left, lines_right, position, root_offset = 0;
-  double current_height = -1;
+bool Forest::printTree() {
+  std::vector<Node const*> positions = this->createPositions();
+  this->printPositionMatrix(positions);
+  std::vector<Node const*>::iterator position;
+  int h_line;
 
-  std::vector<const Node*> branches;
-  for (size_t i=0; i < this->getNodes()->size(); ++i) branches.push_back(NULL);
+  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0)); tii.good(); ++tii) {
+    //dout << (*tii).start_height() << std::endl;
+    h_line = 0;
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      if (*position == NULL) dout << " ";
+      else if ( (*position)->height() == (*tii).start_height() ) {
+        if ( (*position)->local() ) dout << "╦";
+        else dout << "┬";
+        if ( (*position)->numberOfChildren() == 2 ) {
+          h_line = 1 + !((*position)->local());
+          //if ( *position == local_root() ) h_line = 2;
+        }
+      } 
+      else if ( (*position)->height() < (*tii).start_height() &&
+                (*position)->parent_height() >= (*tii).end_height() ) {
+        if ( (*position)->local() ) dout << "║";
+        else dout << "│";
 
-  ostringstream buffer;
-
-  for (it = getNodes()->reverse_iterator(); it.good(); ++it) {
-    current_node = *it;
-
-    if (!areSame(current_height, current_node->height())) {
-      dout << buffer.str() << std::endl;
-
-      // remove old nodes
-      for (size_t i=0; i < branches.size(); ++i) {
-        if ( branches[i] != NULL && areSame(branches[i]->height(), current_height) ) branches[i] = NULL;
+      } 
+      else if ( (*position)->parent_height() == (*tii).start_height() ) {
+        if ( *position == (*position)->parent()->lower_child() ) {
+          if ( (*position)->local() ) { 
+            dout << "╚";
+            h_line = 1;
+          }
+          else {
+            dout << "└";
+            h_line = 2;
+          }
+        }
+        else {
+          if ( (*position)->local() ) dout << "╝";
+          else dout << "┘";
+          h_line = 0;
+        }
+      }
+      else {
+        if ( h_line == 0 ) dout << " ";
+        else if ( h_line == 1 ) dout << "═";
+        else dout << "─";
       }
     }
-    buffer.str("");
-
-    lines_left = countLinesLeft(current_node);
-    lines_right = countLinesRight(current_node);
-
-    if ( current_node->is_root() ) {
-      // Add root to the right of all current trees
-      position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
-
-      if (current_node->numberOfChildren() == 1) {
-        root_offset = position + countBelowLinesRight(current_node->lower_child()) + 1;
-      } else {
-        root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
-      }
-      branches[position] = current_node;
-    } else {
-      // Get the position of the node (which was assigned when looking at its
-      // parent
-      position = 0;
-      for (cit = branches.begin(); cit < branches.end(); ++cit) {
-        if ( *cit == current_node ) break;
-        ++position;
-      }
-    }
-
-    // Insert the child/children into branches
-    if (current_node->lower_child() != NULL) {
-      if (current_node->higher_child() == NULL){ 
-        branches[position] = current_node->lower_child();
-        print_once = current_node;
-      } else {
-        branches[position - lines_left] =  current_node->lower_child();
-        branches[position + lines_right] = current_node->higher_child();
-      }
-    }
-
-    /*
-    // Print branches
-    for (std::vector<const Node*>::iterator bit = branches.begin(); 
-    bit != branches.end(); ++bit) {
-    if (*bit == NULL) std::cout << "0        ";
-    else std::cout << *bit << " ";
-    }
-    std::cout << std::endl;
-    continue;
-    */
-
-
-    current_height = current_node->height();
-
+    dout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height(); 
+    dout << std::endl;
+  }
+  /*
     for (size_t i=0; i < branches.size(); ++i) {
 
       if ( i < position - lines_left) {
@@ -334,6 +312,7 @@ bool Forest::printTree() const {
   dout << buffer.str() << std::endl;
   dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
   //Returns true, so that it can be place in asserts
+  */
   return true;
 }
 

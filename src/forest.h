@@ -101,7 +101,7 @@ class Forest
   int countLinesRight(Node const* node) const;
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
-  bool printTree() const;
+  bool printTree();
   std::vector<Node const*> createPositions() const;
   void printPositionMatrix(const std::vector<Node const*> &positions) const;
 
