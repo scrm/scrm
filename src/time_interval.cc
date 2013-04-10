@@ -68,13 +68,16 @@ TimeIntervalIterator::TimeIntervalIterator() {
 };
 
 
-TimeIntervalIterator::TimeIntervalIterator(Forest* forest, Node const* start_node) {
+TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
+                                           Node const* start_node, 
+                                           bool pruning) {
   //std::cout << "New Iterator" << std::endl;
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator();
   this->contemporaries_ = std::vector<Node*>(0);
+  this->pruning_ = pruning;
   
   //Skipt intervals below start_height
   for( ; *node_iterator_ != start_node; node_iterator_++ ) {
@@ -118,7 +121,7 @@ void TimeIntervalIterator::next() {
   ++node_iterator_;
   
   // Pruning
-  while ( node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
+  while ( pruning_ && node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
     forest_->prune(node_iterator_++);
   }
 

@@ -232,17 +232,20 @@ bool Forest::printTree() {
   std::vector<Node const*>::iterator position;
   int h_line;
 
-  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0)); tii.good(); ++tii) {
-    //dout << (*tii).start_height() << std::endl;
+  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0), false); 
+       tii.good(); ++tii) {
     h_line = 0;
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) dout << " ";
       else if ( (*position)->height() == (*tii).start_height() ) {
-        if ( (*position)->local() ) dout << "╦";
+        if ( (*position)->local() || *position == local_root() ) dout << "╦";
         else dout << "┬";
         if ( (*position)->numberOfChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
-          //if ( *position == local_root() ) h_line = 2;
+          if ( *position == local_root() ) h_line = 1;
+        }
+        if ( (*position)->numberOfChildren() == 1 ) {
+          h_line = 0;
         }
       } 
       else if ( (*position)->height() < (*tii).start_height() &&
@@ -274,45 +277,15 @@ bool Forest::printTree() {
         else dout << "─";
       }
     }
-    dout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height(); 
+    dout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height() << " - "; 
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      if (*position == NULL) continue;
+      if ( (*position)->height() == (*tii).start_height() ) {
+        dout << *position << " ";
+      }
+    }
     dout << std::endl;
   }
-  /*
-    for (size_t i=0; i < branches.size(); ++i) {
-
-      if ( i < position - lines_left) {
-        if ( branches[i] == NULL ) buffer << " ";
-        else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->local()) buffer << "+";
-          else buffer << "°";
-        else buffer << "|";
-      } 
-      else if ( i < position) buffer << "-";
-      else if ( i == position) { 
-        if ( print_once != NULL ) {
-          if ( print_once->local() ) buffer << "+";
-          else buffer << "°";
-          print_once = NULL;
-        }
-        else if (current_node->local()) buffer << "+";
-        else buffer << "°";
-      }
-      else if ( i <= position + lines_right) buffer << "-";
-      else {
-        if ( branches[i] == NULL ) buffer << " ";
-        else if (areSame(branches[i]->height(), current_node->height())) 
-          if (branches[i]->local()) buffer << "+";
-          else buffer << "°";
-        else buffer << "|";
-      }
-
-    }
-    buffer << " ---" << current_node->height() << "\t" << current_node << " ";
-  }
-  dout << buffer.str() << std::endl;
-  dout << "(Nodes on the right are not sorted)" << std::endl << std::endl;
-  //Returns true, so that it can be place in asserts
-  */
   return true;
 }
 
@@ -333,9 +306,9 @@ std::vector<Node const*> Forest::createPositions() const {
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
       position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
-      std::cout << current_node << " " << position << " " << lines_right << std::endl;
+      std::cout << current_node << " " << position << " " << lines_left << " "
+                << countBelowLinesLeft(current_node->lower_child()) << std::endl;
       
-
       root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
       positions[position] = current_node;
     } else {
@@ -370,7 +343,7 @@ std::vector<Node const*> Forest::createPositions() const {
 
   int Forest::countLinesLeft(Node const* node) const {
     if ( node->lower_child() == NULL ) return 0;
-    if ( node->higher_child() == NULL ) return 1;
+    //if ( node->higher_child() == NULL ) return 1;
     return ( 1 + countBelowLinesRight(node->lower_child()) );
   }
 
@@ -417,6 +390,8 @@ std::vector<Node const*> Forest::createPositions() const {
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
+      if ( this->getNodes()->get(i) != getNodes()->last() )
+        dout << std::setw(10) << std::right << this->getNodes()->get(i)->next();
       dout << std::endl;
     }
     dout << "Local Root:    " << this->local_root() << std::endl;

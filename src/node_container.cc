@@ -174,7 +174,7 @@ void NodeContainer::add_before(Node* add, Node* next_node){
   add->set_next(next_node);
   add->set_previous(next_node->previous());
 
-  if ( next_node->previous() != NULL ) next_node->previous()->set_next(add);
+  if ( add->previous() != NULL ) add->previous()->set_next(add);
   next_node->set_previous(add);
   if ( add->is_last() ) this->set_last(add);
 }

@@ -42,7 +42,7 @@ class TimeInterval {
 class TimeIntervalIterator {
  public:
   TimeIntervalIterator();
-  TimeIntervalIterator(Forest *forest, Node const* start_node);
+  TimeIntervalIterator(Forest *forest, Node const* start_node, bool pruning = true);
   ~TimeIntervalIterator() {};
 
   void next();
@@ -76,6 +76,7 @@ class TimeIntervalIterator {
   std::vector<Node*> contemporaries_;
   NodeIterator node_iterator_;
   bool good_;
+  bool pruning_;
 
   Node* inside_node_;
 };

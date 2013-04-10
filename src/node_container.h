@@ -29,6 +29,9 @@ class NodeContainer {
   Node* at(size_t nr) const; 
   Node const* get(size_t nr) const { return at(nr); }; 
   
+  Node* first() const { return first_node_; };
+  Node* last() const { return last_node_; };
+  
   size_t size() const;  
   bool sorted() const; 
   void print() const;
@@ -47,9 +50,6 @@ class NodeContainer {
 
   Node* first_node_;
   Node* last_node_;
-
-  Node* first() const { return first_node_; };
-  Node* last() const { return last_node_; };
   
   void set_first(Node* node) { first_node_ = node; }
   void set_last(Node* node) { last_node_ = node; }
