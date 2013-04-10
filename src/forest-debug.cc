@@ -227,8 +227,9 @@ bool Forest::checkTree(Node const* root) const {
  * Tree Printing
  *****************************************************************/
 bool Forest::printTree() {
+  //this->printNodes();
   std::vector<Node const*> positions = this->createPositions();
-  this->printPositionMatrix(positions);
+  //this->printPositionMatrix(positions);
   std::vector<Node const*>::iterator position;
   int h_line;
 
@@ -236,8 +237,8 @@ bool Forest::printTree() {
        tii.good(); ++tii) {
     h_line = 0;
     for (position = positions.begin(); position != positions.end(); ++position) {
-      if (*position == NULL) dout << " ";
-      else if ( (*position)->height() == (*tii).start_height() ) {
+      assert( *position != NULL );
+      if ( (*position)->height() == (*tii).start_height() ) {
         if ( (*position)->local() || *position == local_root() ) dout << "╦";
         else dout << "┬";
         if ( (*position)->numberOfChildren() == 2 ) {
@@ -306,10 +307,15 @@ std::vector<Node const*> Forest::createPositions() const {
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
       position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
-      std::cout << current_node << " " << position << " " << lines_left << " "
-                << countBelowLinesLeft(current_node->lower_child()) << std::endl;
+      //std::cout << current_node << " " << position << " " << lines_left << " "
+      //          << lines_right << " "  
+      //          << countBelowLinesLeft(current_node->lower_child()) << std::endl;
       
-      root_offset = position + countBelowLinesRight(current_node->higher_child()) + lines_right + 1;
+      root_offset = position + 
+                    countBelowLinesRight(current_node->higher_child()) + 
+                    lines_right + 1;
+
+      assert( positions[position] == NULL ); 
       positions[position] = current_node;
     } else {
       // Get the position of the node (which was assigned when looking at its
@@ -323,10 +329,13 @@ std::vector<Node const*> Forest::createPositions() const {
     
     // Insert the child/children into branches
     if (current_node->lower_child() != NULL) {
+        assert( positions.at(position - lines_left) == NULL );         
         positions[position - lines_left] =  current_node->lower_child();
     }
+    
 
     if (current_node->higher_child() != NULL) { 
+        assert( positions.at(position + lines_right) == NULL );         
         positions[position + lines_right] = current_node->higher_child();
     }
   

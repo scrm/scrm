@@ -82,6 +82,8 @@ class Node
   bool is_first() const { return( previous_ == NULL ); }
   bool is_last() const { return( next_ == NULL ); }
 
+  void remove_child(Node* child);
+
   Node* next() const { 
     if ( next_ == NULL ) throw std::out_of_range("Node has no next node");
     return next_; 

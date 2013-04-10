@@ -351,8 +351,8 @@ void Forest::sampleCoalescences(Node *start_node) {
 
     assert( active_node_1 != active_node_2 );
     assert( state_1 != 0 || state_2 != 0 );
-    assert( state_1 != 2 || active_node_1->parent_height() >= (*event).start_height() );
-    assert( state_2 != 2 || active_node_2->parent_height() >= (*event).start_height() );
+    assert( state_1 == 1 || active_node_1->parent_height() >= current_time );
+    assert( state_2 == 1 || active_node_2->parent_height() >= current_time );
 
     // Sample the time at which the next thing happens
     current_time = sampleExpTime(rate_1 + rate_2, (*event).length());
@@ -491,7 +491,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   if (node->height() > current_time) return(0);
   if (node->is_root()) return(1);
   if (!node->local()) return(2);
-  return(0);
+  assert( false );
 }
 
 
@@ -748,8 +748,9 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
 }
 
 bool Forest::isPrunable(Node const* node) const {
-  // Never remove local nodes, or ones with 2 children
-  if ( node->local() ) return false;
+  // Never remove samples, the local root, or ones with 2 children
+  if ( node->in_sample() ) return false;
+  if ( node == local_root() ) return false;
   if ( node->numberOfChildren() == 2 ) return false;
 
   // remove orphaned roots
@@ -759,8 +760,10 @@ bool Forest::isPrunable(Node const* node) const {
   if ( (!node->is_root()) && node->numberOfChildren() == 1 ) return true;
 
   // remove old external nodes
-  if ( node->numberOfChildren() == 0 && 
-      this->current_base() - node->last_update() > model().exact_window_length() ) return true;
+  if ( (!node->local()) &&
+       node->numberOfChildren() == 0 && 
+       this->current_base() - node->last_update() > model().exact_window_length() ) 
+    return true;
 
   return false; 
 }
@@ -768,6 +771,9 @@ bool Forest::isPrunable(Node const* node) const {
 void Forest::prune(Node *node) {
   assert( isPrunable(node) );
   dout << "* * PRUNING: Removing node " << node << " from tree" << std::endl;
+  dout << "* * PRUNING:  Parent: " << node->parent() << std::endl;
+  dout << "* * PRUNING: l_child: " << node->lower_child() << std::endl;
+  dout << "* * PRUNING: h_child: " << node->higher_child() << std::endl;
 
   /* Possible Cases:
    * + Orphaned root => just delete 
@@ -775,7 +781,7 @@ void Forest::prune(Node *node) {
    * + Old external branch => unset in parent and delete 
    * */
 
-  // Orphaned root
+  // Unneeded node
   if ( node->numberOfChildren() == 1 ) {
     Node* child;
     if ( node->lower_child() == NULL ) child = node->higher_child();
@@ -783,11 +789,12 @@ void Forest::prune(Node *node) {
   
     child->set_parent( node->parent() );
     node->parent()->change_child(node, child); 
+    if ( node->local() ) updateAbove(node->parent());
   } 
 
-  // Unneeded node
+  // External branch 
   else if ( !node->is_root() ) {
-    node->parent()->change_child(node, NULL);
+    node->parent()->remove_child(node);
   }
 
   // And delete
