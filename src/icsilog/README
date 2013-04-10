@@ -1,0 +1,110 @@
+ICSI log - A fast logarithm C code implementation
+===================================================
+
+Version 0.6 beta
+Build date: November 13th, 2007
+
+
+Introduction
+------------
+
+This package contains a C implementation of the ICSI logarithm function. It implements a fast single precision approximation of the natural logarithm with adjustable accuracy. 
+
+The function uses bit level operations and a look up table of adjustable size. The accuracy is defined by the table size. However, the execution speed of the logarithm reduces as the table grows and does not fit into the cache anymore. We measured a speed up of about factor 7 while keeping the error as low as 10e-5 with respect to the math.h logarithm implementation.
+
+Package Structure
+-----------------
+
+This package contains the following files:
+
+-README : This file
+
+-INSTALL : Installation and usage instructions for the benchmark tool
+
+-LICENSE : GNU License agreement
+
+-Makefile : to build the benchmark testing
+
+-benchmark.c : source code of a simple tool to check the speedup of the ICSI logarithm function in your system.
+
+-icsilog.h : header file that should be included in your code that provides two functions: declaration of the function that fills the table and the code for the ICSI logarithm function.
+
+-icsilog.c : source code that should be included in your code when you use the ICSI logarithm function.
+
+Usage
+-----
+
+To use the ICSI logarithm in your own code, you have to deal with the following two functions:
+
+- void fill_icsi_log_table(const int n,float *lookup_table);
+This method fills a given array of floats with the information necessary to compute the icsi_log. This method has to be called before any call to icsi_log.
+Parameters:
+	n is the number of bits used from the mantissa (0<=n<=23). Higher n means higher accuracy but slower execution. We found that a good value for n is 14.
+	lookup_table requires a float* pointing to a continuous (preallocated) memory array of 2^n*sizeof(float) bytes.
+Return values: void
+
+- inline float icsi_log(float val,const float *lookup_table,const int n);
+This method computes the icsi_log. A fast approximation of the log() function with adjustable accuracy.
+Parameters:
+	val should be an IEEE 753 float with a value in the interval ]0,+inf[. A value smaller or equal zero results in undefined behaviour. 
+	lookup_table requires a float* pointing to the table created by fill_icsi_log_table.
+	n is the number of bits used from the mantissa (0<=n<=23). Higher n means higher accuracy but slower execution. We found that a good value for n is 14.
+Return values: approximation of the natural logarithm of val
+
+Example
+-------
+
+A source code that uses the icsi_log would look like this:
+
+   //Initialization of stuff, 2^N is the size of the look up table   
+   float *LOOKUP_TABLE = (float*) malloc(((int) pow(2,N))*sizeof(float)); //memory allocation for the table
+   fill_icsi_log_table(N,LOOKUP_TABLE); //fill the table
+
+   ...
+
+   //we need a log here
+   output = icsi_log(input,LOOKUP_TABLE,N); //output = log(input)
+
+Copyright
+---------
+
+Copyright (C) 2007 International Computer Science Institute
+1947 Center Street, Suite 600
+Berkeley, CA 94704
+   
+Contact information: 
+   Oriol Vinyals	vinyals@icsi.berkeley.edu
+   Gerald Friedland 	fractor@icsi.berkeley.edu
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+Authors
+-------
+
+Oriol Vinyals		vinyals@icsi.berkeley.edu
+Gerald Friedland 	fractor@icsi.berkeley.edu
+
+Acknowledgements
+----------------
+
+Thanks to Harrison Ainsworth (hxa7241@gmail.com) for his idea that
+doubled the accuracy.
+
+Further Information
+-------------------
+
+Website under construction.
+
+Visit http://www.flipcode.com/cgi-bin/fcarticles.cgi?show=63828 where Laurent de Soras has posted the Taylor implementation that we also test in our benchmark.

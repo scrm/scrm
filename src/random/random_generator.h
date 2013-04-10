@@ -3,11 +3,27 @@
 
 #include <cassert>
 #include <cmath>
+#include <stdint.h>
+
+// remove if normal logarithm is to be used
+#define ICSILOG_PRECISION 12
+
+#ifdef ICSILOG_PRECISION
+#include "../icsilog/icsilog.h"
+#include <malloc.h>
+#endif
+
 
 class RandomGenerator
 {
   public:
-   RandomGenerator() { unit_exponential_ = 0.5; }
+   RandomGenerator() { 
+     unit_exponential_ = 0.5; 
+#ifdef ICSILOG_PRECISION
+     icsi_table_ = (float*) malloc(((int) pow(2,ICSILOG_PRECISION))*sizeof(float));
+     fill_icsi_log_table2(ICSILOG_PRECISION,icsi_table_);     
+#endif
+   }
    virtual ~RandomGenerator() {}
  
    //Getters & Setters
@@ -21,7 +37,10 @@ class RandomGenerator
    //Base class methods
    int sampleInt(int max_value);
    void sampleTwoElements(int size, int *sample1, int *sample2);
+   double mylog(double);
    double sampleExpo(double lambda);
+   double sampleExpoLimit(double lambda, double limit);
+   double sampleExpoExpoLimit(double b, double c, double limit);
 
 #ifdef UNITTEST
    friend class TestRandomGenerator;
@@ -32,6 +51,11 @@ class RandomGenerator
    int seed_;
    // cache for a unit-exponentially distributed variable
    double unit_exponential_;
+
+#ifdef ICSILOG_PRECISION
+   float *icsi_table_;
+#endif
+
 };
 
 
@@ -44,11 +68,8 @@ class _DoubleBits {
   union {
     double d;
     struct {
-#ifdef BIG_ENDIAN
-    int j, i;
-#else
-    int i, j;
-#endif
+      int32_t j;
+      int32_t i;
     } n;
   } _double_bits;
 public:
@@ -59,11 +80,31 @@ public:
   double value() const { return _double_bits.d; }
 };
 
-#define EXP_A (1048576/M_LN2) 
-#define EXP_C_UP 90253  /* for upper bound to exp */
-#define EXP_C_LO -1     /* for lower bound to exp */
-#define EXP_UP(y) ( _DoubleBits(EXP_A*(y) + (1072693248 - EXP_C_UP)).value() ) // upper bound to exp; at most 6.148% too high
-#define EXP_LO(y) ( _DoubleBits(EXP_A*(y) + (1072693248 - EXP_C_LO)).value() ) // lower bound to exp; at most 5.792% too low
+const double EXP_A=1048576/M_LN2;
+const int EXP_C_LO=90253;  /* for lower bound to exp */
+const int EXP_C_UP=-1;     /* for upper bound to exp */
+
+// upper bound to exp; at most 6.148% too high
+inline double EXP_UP(double y) {
+  return (y<-700.0 ? 0.0 : (y>700.0 ? INFINITY : _DoubleBits(EXP_A*y + (1072693248 - EXP_C_UP)).value() ) ); 
+}
+
+// lower bound to exp; at most 5.792% too low
+inline double EXP_LO(double y) {
+  return (y<-700.0 ? 0.0 : (y>700.0 ? INFINITY : _DoubleBits(EXP_A*y + (1072693248 - EXP_C_LO)).value() ) );
+}
+
+// fast log
+inline double RandomGenerator::mylog(double x) {
+#ifdef ICSILOG_PRECISION
+  return icsi_log_v2(x, this->icsi_table_, ICSILOG_PRECISION);
+#else
+  // return std::log(x);
+#endif
+}
+
+
+
 
 
 #endif
