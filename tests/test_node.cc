@@ -25,7 +25,7 @@ class TestNode : public CppUnit::TestCase {
  public:
   void setUp() {
     rg = new ConstantGenerator();
-    forest = new Forest(Model(0), rg);
+    forest = new Forest(new Model(0), rg);
     forest->createExampleTree();
   }
 

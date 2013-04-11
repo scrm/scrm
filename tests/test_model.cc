@@ -8,27 +8,30 @@
 
 class TestModel : public CppUnit::TestCase {
 
-	CPPUNIT_TEST_SUITE( TestModel );
+  CPPUNIT_TEST_SUITE( TestModel );
 
- 	CPPUNIT_TEST( testGettersAndSetters );
-	CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST( testGettersAndSetters );
+  CPPUNIT_TEST_SUITE_END();
 
-	public:
-        void testGettersAndSetters() {
-            Model model = Model();
-            
-            model.set_sample_size(5);
-			CPPUNIT_ASSERT( model.sample_size() == 5 );
+ public:
+  void testGettersAndSetters() {
+    Model model = Model();
 
-            model.set_population_size(5000);
-			CPPUNIT_ASSERT( model.population_size() == 5000 );
+    model.set_sample_size(5);
+    CPPUNIT_ASSERT( model.sample_size() == 5 );
 
-            model.set_mutation_rate(10.7);
-			CPPUNIT_ASSERT( model.mutation_rate() == 10.7 );
+    model.set_population_size(5000);
+    CPPUNIT_ASSERT( model.population_size() == 5000 );
 
-            model.set_recombination_rate(20.1);
-			CPPUNIT_ASSERT( model.recombination_rate() == 20.1 );
-        }
+    model.set_mutation_rate(10.7);
+    CPPUNIT_ASSERT( model.mutation_rate() == 10.7 );
+
+    model.set_recombination_rate(20.1);
+    CPPUNIT_ASSERT( model.recombination_rate() == 20.1 );
+
+    model.set_exact_window_length(100);
+    CPPUNIT_ASSERT( model.exact_window_length() == 100 );
+  }
 };
 
 //Uncomment this to activate the test

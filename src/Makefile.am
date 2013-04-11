@@ -21,4 +21,5 @@ random/random_generator.cc   random/constant_generator.h \
 random/mersenne_twister.cc   random/random_generator.h \
 random/fastfunc.cc           random/fastfunc.h
 
-include_HEADERS = forest.h model.h node.h node_container.h time_interval.h tree_point.h
+include_HEADERS = forest.h model.h node.h node_container.h time_interval.h tree_point.h \
+	          random/constant_generator.h random/mersenne_twister.h random/random_generator.h
