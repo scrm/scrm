@@ -3,17 +3,23 @@
 #include <iostream>
 
 
+// Sample from a unit exponential distribution
+double RandomGenerator::sampleUnitExponential(void) {
+  double exposample = -ff.fastlog( sample() );
+  return exposample;
+}
+
 // Sets new seed, and initializes unit_exponential
 void RandomGenerator::set_seed(const int &seed){
   this->seed_ = seed;
-  this->unit_exponential_ = -RandomGenerator::mylog(this->sample());
+  unit_exponential_ = sampleUnitExponential();
 }
 
 
 // Samples from an exponential distribution 
 // Distribution checked -Paul
 double RandomGenerator::sampleExpo(double lambda){
-  return -RandomGenerator::mylog(this->sample()) / lambda;
+  return sampleUnitExponential() / lambda;
 }
 
 
@@ -25,7 +31,7 @@ double RandomGenerator::sampleExpoLimit(double lambda, double limit){
     return -1;
   } else {
     double result = unit_exponential_ / lambda;
-    unit_exponential_ = -RandomGenerator::mylog(this->sample());
+    unit_exponential_ = sampleUnitExponential();
     return result;
   }
 }
@@ -48,31 +54,27 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
   //  -c log p < b (exp_up(c t)-1)    [c<0]
   //  -c log p > b (exp_lo(c t)-1)    [c>0]
   // where exp_up and exp_lo are upper and lower bounds for the exp(x) function resp.
-  if (c<0) {
-    double c_logp_limit = b*(EXP_LO(c*limit)-1);  // negative
+  if (c < 0) {
+    double c_logp_limit = b*(ff.fastexp_lo(c*limit)-1);  // negative
     if (c*unit_exponential_ < c_logp_limit) {
       unit_exponential_ -= c_logp_limit / c;
       return -1;
     }
     double y = 1.0 + c*unit_exponential_ / b;
-    unit_exponential_ = -RandomGenerator::mylog(this->sample());
+    unit_exponential_ = sampleUnitExponential();
     if (y <= 0.0) return -1; // no event at all
-    y = RandomGenerator::mylog(y)/c;       
-    if (y>limit) return -1;  // the event time; can still be beyond limit
+    y = ff.fastlog( y )/c;       
+    if (y > limit) return -1;  // the event time; can still be beyond limit
     return y;
-  } else if (c>0) {
-    double c_logp_limit = b*(EXP_UP(c*limit)-1);  // positive
-    //std::cout << "clogplimit=" << c_logp_limit << std::endl;
+  } else if (c > 0) {
+    double c_logp_limit = b*(ff.fastexp_up( c*limit )-1);  // positive
     if (c*unit_exponential_ > c_logp_limit) {
-      //std::cout << "no sample:" << c*unit_exponential_ << std::endl;
-      //std::cout << "unit expo was:" << unit_exponential_ << std::endl;
       unit_exponential_ -= c_logp_limit / c;
-      //std::cout << "unit expo is: " << unit_exponential_ << std::endl;
       return -1;
     }
-    double y = RandomGenerator::mylog( 1.0 + c*unit_exponential_ / b ) / c;
-    unit_exponential_ = -RandomGenerator::mylog(this->sample());
-    if (y>limit) return -1;
+    double y = ff.fastlog( 1.0 + c*unit_exponential_ / b ) / c;
+    unit_exponential_ = sampleUnitExponential();
+    if (y > limit) return -1;
     return y;
   } else {
     if (unit_exponential_ >= limit * b) {
@@ -80,7 +82,7 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
       return -1;
     } else {
       double result = unit_exponential_ / b;
-      unit_exponential_ = -RandomGenerator::mylog(this->sample());
+      unit_exponential_ = sampleUnitExponential();
       return result;
     }
   }
