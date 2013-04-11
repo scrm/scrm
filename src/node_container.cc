@@ -150,6 +150,7 @@ void NodeContainer::move(Node *node, const double &new_height) {
 };
 
 
+// Inefficient, but currently only used for debugging...
 size_t NodeContainer::size() const {
   Node* current = first();
   if ( current == NULL ) return 0;

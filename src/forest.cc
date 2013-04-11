@@ -8,12 +8,12 @@ Forest::Forest() {
   this->initialize();
 };
 
-Forest::Forest(Model model, RandomGenerator* random_generator) {
+Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
 }
 
 // Sets member variable to default values
-void Forest::initialize(Model model, 
+void Forest::initialize(Model* model, 
                         RandomGenerator* rg) {
 
   this->nodes_ = new NodeContainer();
@@ -491,6 +491,12 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   if (node->height() > current_time) return(0);
   if (node->is_root()) return(1);
   if (!node->local()) return(2);
+  dout << "Error getting node state." << std::endl;
+  dout << "Height: " << node->height() 
+       << " current time: " << current_time 
+       << " diff: " << node->height() - current_time << std::endl;
+  dout << "Node local: " << node->local() << std::endl;
+  dout << "Node root: " << node->is_root() << std::endl;
   assert( false );
 }
 
@@ -761,6 +767,7 @@ bool Forest::isPrunable(Node const* node) const {
 
   // remove old external nodes
   if ( (!node->local()) &&
+       model().exact_window_length() != 0 &&
        node->numberOfChildren() == 0 && 
        this->current_base() - node->last_update() > model().exact_window_length() ) 
     return true;
@@ -770,10 +777,11 @@ bool Forest::isPrunable(Node const* node) const {
 
 void Forest::prune(Node *node) {
   assert( isPrunable(node) );
-  dout << "* * PRUNING: Removing node " << node << " from tree" << std::endl;
-  dout << "* * PRUNING:  Parent: " << node->parent() << std::endl;
-  dout << "* * PRUNING: l_child: " << node->lower_child() << std::endl;
-  dout << "* * PRUNING: h_child: " << node->higher_child() << std::endl;
+  dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
+  dout << "* * * PRUNING: Parent: " << node->parent() << "; " 
+       << "l_child: " << node->lower_child() << "; "
+       << "h_child: " << node->higher_child() << "; "
+       << "local: " << node->local() << std::endl;
 
   /* Possible Cases:
    * + Orphaned root => just delete 
@@ -783,17 +791,19 @@ void Forest::prune(Node *node) {
 
   // Unneeded node
   if ( node->numberOfChildren() == 1 ) {
+    dout << "* * * PRUNING: Reason: Unneeded Node" << std::endl;
     Node* child;
     if ( node->lower_child() == NULL ) child = node->higher_child();
     else child = node->lower_child();
   
     child->set_parent( node->parent() );
     node->parent()->change_child(node, child); 
-    if ( node->local() ) updateAbove(node->parent());
+    //if ( node->local() ) updateAbove(node->parent());
   } 
 
   // External branch 
   else if ( !node->is_root() ) {
+    dout << "* * * PRUNING: Reason: Old external branch" << std::endl;
     node->parent()->remove_child(node);
   }
 

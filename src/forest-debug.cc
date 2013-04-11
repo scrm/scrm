@@ -129,8 +129,13 @@ bool Forest::checkInvariants(Node const* node) const {
   }
 
   if ( samples_below != node->samples_below() ||
-      !areSame(length_below, node->length_below()) ) {
+      !areSame(length_below, node->length_below(), 0.00001) ) {
     dout << "Node " << node << " not up to date" << std::endl;
+    dout << "samples_below: is " << node->samples_below() 
+         << " and should be " << samples_below << std::endl;
+    dout << "length_below: is " << node->length_below() 
+         << " and should be " << length_below 
+         << " ( Diff " << node->length_below() - length_below << " )" << std::endl;
     return false;
   }
 
@@ -228,8 +233,8 @@ bool Forest::checkTree(Node const* root) const {
  *****************************************************************/
 bool Forest::printTree() {
   //this->printNodes();
-  std::vector<Node const*> positions = this->createPositions();
-  //this->printPositionMatrix(positions);
+  std::vector<Node const*> positions = this->determinePositions();
+  //this->printPositions(positions);
   std::vector<Node const*>::iterator position;
   int h_line;
 
@@ -290,7 +295,15 @@ bool Forest::printTree() {
   return true;
 }
 
-std::vector<Node const*> Forest::createPositions() const {
+
+/**
+ *  For printing the tree, each node gets assigned its own column in the printed area, 
+ *  referred to as its positions. This function determines the position for all
+ *  nodes and returns the nodes in a vector sorted by position.   
+ *
+ *  \return Vector of all nodes, sorted by position 
+ */
+std::vector<Node const*> Forest::determinePositions() const {
   std::vector<Node const*> positions(this->getNodes()->size(), NULL); 
 
   ReverseConstNodeIterator it;
@@ -343,7 +356,7 @@ std::vector<Node const*> Forest::createPositions() const {
   return positions;
 }
 
-  void Forest::printPositionMatrix(const std::vector<Node const*> &positions) const {
+  void Forest::printPositions(const std::vector<Node const*> &positions) const {
       for (size_t col = 0; col < positions.size() ; ++col) {
         std::cout << positions[col] << " ";
       } 
@@ -408,7 +421,7 @@ std::vector<Node const*> Forest::createPositions() const {
     return true;
   }
 
-  bool areSame(double a, double b) {
-    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
-    //return std::fabs(a - b) < 0.0001;
+  bool areSame(const double &a, const double &b, const double &epsilon) {
+    // from Knuths "The art of computer programming"
+    return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
   }

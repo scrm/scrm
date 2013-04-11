@@ -11,14 +11,13 @@ int main(int argc, char *argv[]){
 	//param user_para;
 	//check_and_remove("scrm.log");
 
-  
-
 	param user_para(argc, argv);
 	//user_para.print_param();
     try {
       time_t start_time = time(0);
 
-      Model model = Model(user_para);
+      //Model model = Model(5);
+      Model *model = new Model(user_para);
 
       //Different random generators.
       MersenneTwister *rg = new MersenneTwister(user_para.random_seed);
@@ -27,10 +26,6 @@ int main(int argc, char *argv[]){
 
       // NORMAL RUN
       Forest forest = Forest(model, rg);
-      forest.createExampleTree();
-      forest.printPositionMatrix(forest.createPositionMatrix);
-      return 0; 
-
       forest.buildInitialTree();
 
       for (size_t i=2; i <= user_para.ith_change; ++i) {
