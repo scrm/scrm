@@ -11,6 +11,7 @@ param::param(){
 	theta=0.00001;
 	rho=0.00002;	
 	ith_change=25;
+  exact_window_length=0;
 	log_bool=false;
 	log_NAME="scrm.log";
 
@@ -34,6 +35,7 @@ param::param(int argc, char *argv[]){
 	theta=0.00001;	//double
 	rho=0.00002;	//double
 	ith_change=25; //size_t
+  exact_window_length=0; //size_t
 	log_bool=false;
 	log_NAME="scrm.log";
 	
@@ -57,6 +59,10 @@ param::param(int argc, char *argv[]){
 		}
 		if (argv_i=="-r"){
 			read_input_to_double(argv[argc_i+1],rho);
+			argc_i++;
+		}
+		if (argv_i=="-l"){
+			read_input_to_size_t(argv[argc_i+1],exact_window_length);
 			argc_i++;
 		}
 		if (argv_i=="-log"){
@@ -117,6 +123,7 @@ void param::print_param(){
 	std::cout<<std::setw(6)<<"npop"<<std::setw(10)<<npop<<std::endl;
 	std::cout<<std::setw(6)<<"theta"<<std::setw(10)<<theta<<std::endl;
 	std::cout<<std::setw(6)<<"rho"<<std::setw(10)<<rho<<std::endl;
+	std::cout<<std::setw(6)<<"l"<<std::setw(10)<<exact_window_length<<std::endl;
 	}	
 
 void param::log_param(){
@@ -130,6 +137,7 @@ void param::log_param(){
 	log_file<<std::setw(10)<<"theta ="<<std::setw(10)<<theta<< "\n";
 	log_file<<std::setw(10)<<"rho ="<<std::setw(10)<<rho<< "\n";
 	log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
+	log_file<<std::setw(10)<<"l ="<<std::setw(10)<<exact_window_length<<std::endl;
 	log_file.close();
 }		
 
@@ -152,6 +160,8 @@ void print_help(){
 	//std::cout<<std::setw(20)<<"-nsam NSAM"<<"  --  "<<"User define the sample size NSAM."<<std::endl;
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
+	std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
+      <<"User define the length of the exact window."<<std::endl;
 	std::cout<<"Example:"<<std::endl;
 	std::cout<<"./scrm 3"<<std::endl;
 	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;

@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
       time_t start_time = time(0);
 
       //Model model = Model(5);
-      Model model = Model(user_para);
+      Model *model = new Model(user_para);
 
       //Different random generators.
       MersenneTwister *rg = new MersenneTwister(user_para.random_seed);

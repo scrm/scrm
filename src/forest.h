@@ -59,12 +59,13 @@ class Forest
   friend class TimeIntervalIterator;
 
   Forest();
-  Forest(Model model, RandomGenerator *random_generator);
+  Forest(Model *model, RandomGenerator *random_generator);
   ~Forest();
 
   //Getters & Setters
-  Model model() const { return this->model_; }
-  void set_model(const Model &model) { this->model_ = model; }
+  const Model model() const { return *model_; }
+  Model* writable_model() { return this->model_; };
+  void set_model(Model* model) { this->model_ = model; }
 
   Node* local_root() const { return local_root_; }
   void set_local_root(Node* local_root) { local_root_ = local_root; };
@@ -84,6 +85,26 @@ class Forest
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
+  
+  //Debugging Tools
+  void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
+  void createExampleTree();
+  bool checkLeafsOnLocalTree(Node const* node=NULL) const;
+  bool checkTree(Node const* root = NULL) const;
+  double calcTreeLength() const;
+  bool checkTreeLength() const;
+  bool checkInvariants(Node const* node = NULL) const;
+  bool checkNodeProperties() const;
+  bool printNodes() const;
+
+  //Tree printing
+  int countLinesLeft(Node const* node) const;
+  int countLinesRight(Node const* node) const;
+  int countBelowLinesLeft(Node const* node) const;
+  int countBelowLinesRight(Node const* node) const;
+  bool printTree();
+  std::vector<Node const*> determinePositions() const;
+  void printPositions(const std::vector<Node const*> &positions) const;
 
  private:
   //Operations on the Tree
@@ -101,23 +122,6 @@ class Forest
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
 
-  //Debugging Tools
-  void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
-  void createExampleTree();
-  bool checkLeafsOnLocalTree(Node const* node=NULL) const;
-  bool checkTree(Node const* root = NULL) const;
-  double calcTreeLength() const;
-  bool checkTreeLength() const;
-  bool checkInvariants(Node const* node = NULL) const;
-  bool checkNodeProperties() const;
-  bool printNodes() const;
-
-  //Tree printing
-  int countLinesLeft(Node const* node) const;
-  int countLinesRight(Node const* node) const;
-  int countBelowLinesLeft(Node const* node) const;
-  int countBelowLinesRight(Node const* node) const;
-  bool printTree() const;
 
 
   double sampleExpTime(double rate, double intervall_length);
@@ -129,6 +133,9 @@ class Forest
   Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);
   void  implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
 
+  // Pruning
+  bool isPrunable(Node const* node) const;
+  void prune(Node* node); 
 
   //Private variables
   NodeContainer* nodes_;    // The nodes of the Tree/Forest
@@ -142,20 +149,17 @@ class Forest
   Node* primary_root_;
 
   size_t current_base_;     // The current position of the sequence we are simulating
-
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-
   double expo_sample_;      // Placeholder for exp(1) sampled values
 
-  Model model_;
+  Model* model_;
   RandomGenerator* random_generator_;
 
   
-  void initialize(Model model = Model(),
-                  RandomGenerator* rg = NULL);
+  void initialize(Model *model = new Model(),
+                  RandomGenerator *rg = NULL);
 
   NodeContainer *nodes() { return this->nodes_; }
-  NodeContainer const *nodes() const { return this->nodes_; }
 
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
@@ -166,6 +170,7 @@ class Forest
 
 };
 
-bool areSame(double a, double b);
+bool areSame(const double &a, const double &b, 
+             const double &epsilon = std::numeric_limits<double>::epsilon());
 
 #endif

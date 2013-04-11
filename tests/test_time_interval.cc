@@ -26,7 +26,7 @@ class TestTimeInterval : public CppUnit::TestCase {
  public:
   void setUp() {
     rg = new ConstantGenerator();
-    forest = new Forest(Model(0), new MersenneTwister(5));
+    forest = new Forest(new Model(0), new MersenneTwister(5));
     forest->createExampleTree();
   }
 

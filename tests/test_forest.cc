@@ -15,6 +15,8 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testIsPrunable );
+  CPPUNIT_TEST( testPrune );
   //CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
@@ -26,7 +28,7 @@ class TestForest : public CppUnit::TestCase {
  public:
   void setUp() {
     rg = new ConstantGenerator;
-    forest = new Forest(Model(0), rg);
+    forest = new Forest(new Model(0), rg);
     forest->createExampleTree();
   }
 
@@ -35,7 +37,7 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testInitialization() {
-    Forest test_forest = Forest(Model(4), rg);
+    Forest test_forest = Forest(new Model(4), rg);
     CPPUNIT_ASSERT( test_forest.model().sample_size() == 4 );
     CPPUNIT_ASSERT( test_forest.random_generator() == rg );
     //CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
@@ -80,6 +82,30 @@ class TestForest : public CppUnit::TestCase {
 
   void testPrintTree() {
     CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
+  }
+
+  void testIsPrunable() {
+    forest->writable_model()->set_exact_window_length(5);
+    forest->set_current_base(15);
+    std::cout << forest->model().exact_window_length();
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(0)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(1)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(2)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(3)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(4)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(5)) );
+    CPPUNIT_ASSERT(  forest->isPrunable(forest->getNodes()->get(6)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(7)) );
+    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(8)) );
+  }
+
+  void testPrune() {
+    forest->set_current_base(forest->model().exact_window_length() + 10);
+    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT( forest->nodes()->size() == 8);
+    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT( forest->nodes()->size() == 7);
+    CPPUNIT_ASSERT( forest->checkTree() == 1 );
   }
 
 };

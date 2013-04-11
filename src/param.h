@@ -25,6 +25,7 @@ class param{
 	double theta; // mutation rate per site theta, 
 	
 	size_t ith_change; // the i_th change of the genealogy
+  size_t exact_window_length;
 	
 	param();
 	param(int argc, char *argv[]);

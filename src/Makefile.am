@@ -7,7 +7,7 @@ scrm_CXXFLAGS=  -O3 -Wall -pg # For debugging
 #scrm_CXXFLAGS=  -O3 -Wall -pg 	-DNDEBUG		# For debugging
 #scrm_LDFLAGS=-pg #-pg flag is for debug
 
-scrm_SOURCES = \ 
+scrm_SOURCES = \
 param.cc param.h \
 forest.cc forest.h forest-debug.cc \
 model.cc model.h \

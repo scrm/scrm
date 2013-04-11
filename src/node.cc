@@ -54,6 +54,20 @@ int Node::numberOfChildren() const {
   return( (this->higher_child() != NULL) + (this->lower_child() != NULL) );
 }
 
+void Node::remove_child(Node* child) {
+  if ( this->lower_child() == child ) {
+    this->set_lower_child(this->higher_child());
+    this->set_higher_child(NULL);
+    return;
+  } 
+
+  if ( this->higher_child() == child ) {
+    this->set_higher_child(NULL);
+    return;
+  }
+
+  throw std::invalid_argument("Can't find child to delete");
+}
 
 bool Node::in_sample() const {
   if ( this->height() == 0 ) return true;
