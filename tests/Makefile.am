@@ -3,7 +3,7 @@ TESTS = tests
 check_PROGRAMS = tests
 
 tests_SOURCES = test_forest.cc test_model.cc test_node.cc test_node_container.cc\
-			   	test_runner.cc test_time_interval.cc\
+			   	test_runner.cc test_time_interval.cc test_fastfunc.cc\
 			   	../src/forest.h ../src/model.h ../src/node.h ../src/node_container.h\
 			   	../src/time_interval.h ../src/tree_point.h ../src/forest.cc ../src/model.cc\
 			   	../src/node.cc ../src/node_container.cc ../src/time_interval.cc ../src/tree_point.cc\
