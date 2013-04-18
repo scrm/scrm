@@ -753,6 +753,28 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
   return 1;
 }
 
+
+/**
+ * Test if a branch above a given node can be pruned, i.e. removed from the
+ * forest.
+ *
+ * Currently, there are three types of nodes that will be pruned:
+ * 1) orphaned roots: roots with no children, i.e. a tree consisting just of one
+ * node. This single node trees are created when all other nodes on the tree are
+ * pruned.
+ * 2) in-between nodes: nodes that artificially split a single branch into two
+ * parts. Can be created if the former other child of the node is pruned or can
+ * be insert into the tree to mark a partial update of the branch during
+ * coalescence.
+ * 3) old nodes: If specified, non-local nodes that have not been updated for a
+ * while can be pruned to keep the tree from exploding in size.
+ * 
+ * Gets called from the TimeIntervalIterator when creating time intervals.
+ *
+ * \param node The node to be examined for pruning
+ * 
+ * \param return TRUE iff the node can be pruned
+ */
 bool Forest::isPrunable(Node const* node) const {
   // Never remove samples, the local root, or ones with 2 children
   if ( node->in_sample() ) return false;
@@ -760,10 +782,12 @@ bool Forest::isPrunable(Node const* node) const {
   if ( node->numberOfChildren() == 2 ) return false;
 
   // remove orphaned roots
-  if ( node->is_root() && node->numberOfChildren() == 0 ) return true;  
+  if ( node->is_root() && node->numberOfChildren() == 0 && !node->local() ) return true;  
 
-  // remove unneeded nodes inside branches (= 1 child, 1 parent)
-  if ( (!node->is_root()) && node->numberOfChildren() == 1 ) return true;
+  // remove unneeded nodes inside branches (= 1 child, 1 parent (=not root),
+  // updated at same time)
+  if ( (!node->is_root()) && node->numberOfChildren() == 1 &&
+        node->last_update() == node->lower_child()->last_update() ) return true;
 
   // remove old external nodes
   if ( (!node->local()) &&
@@ -775,6 +799,17 @@ bool Forest::isPrunable(Node const* node) const {
   return false; 
 }
 
+
+/**
+ * Remove a prunable node from the tree.
+ *
+ * This function perform the actual pruning. See isPunable for details about
+ * pruning.
+ *
+ * Gets called from the TimeIntervalIterator when creating time intervals.
+ *
+ * \param node The node to be pruned.
+ */
 void Forest::prune(Node *node) {
   assert( isPrunable(node) );
   dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
@@ -785,11 +820,11 @@ void Forest::prune(Node *node) {
 
   /* Possible Cases:
    * + Orphaned root => just delete 
-   * + Unneeded node => relink and delete
-   * + Old external branch => unset in parent and delete 
+   * + In-between node => relink and delete
+   * + Old branch => unset in parent and delete 
    * */
 
-  // Unneeded node
+  // In-between node
   if ( node->numberOfChildren() == 1 ) {
     dout << "* * * PRUNING: Reason: Unneeded Node" << std::endl;
     Node* child;

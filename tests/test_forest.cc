@@ -87,7 +87,8 @@ class TestForest : public CppUnit::TestCase {
   void testIsPrunable() {
     forest->writable_model()->set_exact_window_length(5);
     forest->set_current_base(15);
-    std::cout << forest->model().exact_window_length();
+    // Node 6 and 7 are old in this setting, but only node 6 is external and can
+    // be pruned.
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(0)) );
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(1)) );
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(2)) );
@@ -97,15 +98,87 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT(  forest->isPrunable(forest->getNodes()->get(6)) );
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(7)) );
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(8)) );
+
+    // Orphaned nodes should be pruned
+    Node* orphaned = new Node(12, false);
+    forest->nodes()->add(orphaned);
+    CPPUNIT_ASSERT( forest->isPrunable(orphaned) );
+
+    // Orphaned active not should not occur, but we wont prune them for safety
+    // in case they do...
+    Node* orphaned2 = new Node(14, true);
+    forest->nodes()->add(orphaned2);
+    CPPUNIT_ASSERT( !forest->isPrunable(orphaned2) );
+
+    // In-Between Nodes should be pruned, iff they are of same age
+    Node *parent = new Node(20, false, 15), 
+         *inbetween1 = new Node(19, false, 15), 
+         *inbetween2 = new Node(18, false, 13), 
+         *child = new Node(17, false, 13);
+    forest->nodes()->add(parent);
+    forest->nodes()->add(inbetween1);
+    forest->nodes()->add(inbetween2);
+    forest->nodes()->add(child);
+    
+    parent->set_lower_child(inbetween1);
+    inbetween1->set_lower_child(inbetween2);
+    inbetween2->set_lower_child(child);
+    child->set_parent(inbetween2);
+    inbetween2->set_parent(inbetween1);
+    inbetween1->set_parent(parent);
+    
+    CPPUNIT_ASSERT( !forest->isPrunable(parent) );
+    CPPUNIT_ASSERT( !forest->isPrunable(inbetween1) );
+    CPPUNIT_ASSERT(  forest->isPrunable(inbetween2) );
+    CPPUNIT_ASSERT( !forest->isPrunable(child) );
+
+    // Local in-between nodes
+    parent->make_local();
+    inbetween1->make_local();
+    inbetween2->make_local();
+    child->make_local();
+    CPPUNIT_ASSERT( !forest->isPrunable(parent) );
+    CPPUNIT_ASSERT(  forest->isPrunable(inbetween1) );
+    CPPUNIT_ASSERT(  forest->isPrunable(inbetween2) );
+    CPPUNIT_ASSERT( !forest->isPrunable(child) );
   }
 
   void testPrune() {
-    forest->set_current_base(forest->model().exact_window_length() + 10);
+    // Old node
+    forest->writable_model()->set_exact_window_length(5);
+    forest->set_current_base(15);
     forest->prune( forest->nodes()->at(6) );
     CPPUNIT_ASSERT( forest->nodes()->size() == 8);
+    CPPUNIT_ASSERT( forest->checkTree() );
+    // Orphaned node
     forest->prune( forest->nodes()->at(6) );
     CPPUNIT_ASSERT( forest->nodes()->size() == 7);
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
+
+    // In-Between Nodes should be pruned, iff they are of same age
+    Node *parent = new Node(20, false, 15), 
+         *inbetween1 = new Node(19, false, 15), 
+         *inbetween2 = new Node(18, false, 13), 
+         *child = new Node(17, false, 13);
+    forest->nodes()->add(parent);
+    forest->nodes()->add(inbetween1);
+    forest->nodes()->add(inbetween2);
+    forest->nodes()->add(child);
+    
+    parent->set_lower_child(inbetween1);
+    inbetween1->set_lower_child(inbetween2);
+    inbetween2->set_lower_child(child);
+    child->set_parent(inbetween2);
+    inbetween2->set_parent(inbetween1);
+    inbetween1->set_parent(parent);
+
+    forest->prune(inbetween2);
+    CPPUNIT_ASSERT( child->parent() == inbetween1 );
+    CPPUNIT_ASSERT( inbetween1->parent() == parent );
+    CPPUNIT_ASSERT( parent->is_root() );
+    CPPUNIT_ASSERT( parent->lower_child() == inbetween1 );
+    CPPUNIT_ASSERT( inbetween1->lower_child() == child );
+    CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
   }
 
 };
