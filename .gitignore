@@ -30,6 +30,8 @@
 
 tests/tests
 src/scrm
+src/scrm_dbg
+src/scrm_prof
 
 # automake
 Makefile

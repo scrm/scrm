@@ -138,7 +138,7 @@ void TimeIntervalIterator::next() {
 
 
 // Removes a Node from the contemporaries if it is there.
-// Currently their are situations where we try to do this also for nodes not in
+// Currently there are situations where we try to do this also for nodes not in
 // contemporaries. Maybe we could optimize this, but this may not be easy.
 void TimeIntervalIterator::removeFromContemporaries(Node* node) {
   //std::cout << "Removing " << node << std::endl;

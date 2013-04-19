@@ -1,25 +1,24 @@
 #!/bin/bash
 #
-# %title%
-# %description%
-# 
+# runTillError.sh
+# Systematically calls the debug version of scrm for different seeds until an
+# error occurs. Passes command line parameters to scrm. 
+#
 # Author:   Paul R. Staab 
 # Email:    staab (at) bio.lmu.de
-# Date:     2013-02-01
+# Date:     2013-04-19
 # Licence:  GPLv3 or later
 #
 
 count=0
 i=0
 
+pars=$@
+[ $# == 0 ] && pars=5
+
 while [ 1 ]; do
   ((i++))
-  ./scrm 2>&1 > tmp/run_$i.log
-  count=$?
-  echo "$i: return: $count"
-  [ $count -eq 0 ] || exit 1
-  juhu=$(grep -c "JUHU" tmp/run_$i.log)
-  echo "   juhus: $juhu"
-  [ $juhu -eq 0 ] || exit 1
-  sleep 2
+  echo "Seed: $i"
+  ./src/scrm_dbg $pars -seed $i > /dev/null 
+  [ $? -eq 0 ] || exit 1
 done
