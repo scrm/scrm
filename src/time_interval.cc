@@ -110,10 +110,10 @@ void TimeIntervalIterator::next() {
   double start_height = (*node_iterator_)->height();
 
   //Update contemporaries
-  if ( (*node_iterator_)->lower_child() != NULL ) 
-    this->removeFromContemporaries((*node_iterator_)->lower_child());
-  if ( (*node_iterator_)->higher_child() != NULL ) 
-    this->removeFromContemporaries((*node_iterator_)->higher_child());
+  if ( (*node_iterator_)->first_child() != NULL ) 
+    this->removeFromContemporaries((*node_iterator_)->first_child());
+  if ( (*node_iterator_)->second_child() != NULL ) 
+    this->removeFromContemporaries((*node_iterator_)->second_child());
   
   if ( !(*node_iterator_)->is_root() ) 
     this->addToContemporaries(*node_iterator_);

@@ -16,8 +16,8 @@ void Node::init(double height, bool local, size_t last_update,
   this->set_height(height);
   this->set_local(local);
   this->set_parent(NULL);
-  this->set_higher_child(NULL);
-  this->set_lower_child(NULL);
+  this->set_second_child(NULL);
+  this->set_first_child(NULL);
   this->set_last_update(last_update);
   this->set_samples_below(samples_below);
   this->set_length_below(length_below);
@@ -32,37 +32,28 @@ Node* Node::parent() const {
 }
 
 void Node::change_child(Node* from, Node* to) {
-  if ( this->lower_child() == from )
-    this->set_lower_child(to);
-  else if ( this->higher_child() == from )
-    this->set_higher_child(to);
+  if ( this->first_child() == from )
+    this->set_first_child(to);
+  else if ( this->second_child() == from )
+    this->set_second_child(to);
   else throw std::invalid_argument("Can't find child node to replace");
-
-  if (this->numberOfChildren() < 2) return;
-  this->sort_children();
-}
-
-void Node::sort_children() {
-  if (this->higher_child()->height() < this->lower_child()->height()) {
-    Node* tmp = this->higher_child();
-    this->set_higher_child(this->lower_child());
-    this->set_lower_child(tmp);
-  }
 }
 
 int Node::numberOfChildren() const { 
-  return( (this->higher_child() != NULL) + (this->lower_child() != NULL) );
+  if (first_child() == NULL) return 0;
+  else if (second_child() == NULL) return 1;
+  else return 2;
 }
 
 void Node::remove_child(Node* child) {
-  if ( this->lower_child() == child ) {
-    this->set_lower_child(this->higher_child());
-    this->set_higher_child(NULL);
+  if ( this->first_child() == child ) {
+    this->set_first_child(this->second_child());
+    this->set_second_child(NULL);
     return;
   } 
 
-  if ( this->higher_child() == child ) {
-    this->set_higher_child(NULL);
+  if ( this->second_child() == child ) {
+    this->set_second_child(NULL);
     return;
   }
 

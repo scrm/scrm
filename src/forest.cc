@@ -64,7 +64,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   Node* new_root = new Node(cut_point.height(), 
                             cut_point.base_node()->local());
   cut_point.base_node()->set_parent(new_root);
-  new_root->set_lower_child(cut_point.base_node());
+  new_root->set_first_child(cut_point.base_node());
   nodes()->add(new_root, new_leaf);
   dout << "* * New root of subtree: " << new_root << std::endl;
 
@@ -112,8 +112,8 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 
   // Calculate new values for samples_below and length_below for the current
   // node
-  Node *l_child = node->lower_child();
-  Node *h_child = node->higher_child();
+  Node *l_child = node->first_child();
+  Node *h_child = node->second_child();
 
   size_t samples_below = node->in_sample();
   if (l_child != NULL) samples_below = l_child->samples_below();
@@ -238,23 +238,23 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
   }
 
   // At this point, we should have at least one local child
-  assert( node->lower_child() != NULL );
-  assert( node->lower_child()->local() || node->higher_child()->local() );
+  assert( node->first_child() != NULL );
+  assert( node->first_child()->local() || node->second_child()->local() );
 
   // If we have only one local child, then give it the full length we have left.
-  if ( !node->lower_child()->local() ) {
-    return samplePoint(node->higher_child(), length_left);
+  if ( !node->first_child()->local() ) {
+    return samplePoint(node->second_child(), length_left);
   }
-  if ( node->higher_child() == NULL || !node->higher_child()->local() ) {
-    return samplePoint(node->lower_child(), length_left);
+  if ( node->second_child() == NULL || !node->second_child()->local() ) {
+    return samplePoint(node->first_child(), length_left);
   }
 
   // If we have two local children, the look if we should go down left or right.
-  double tmp = node->lower_child()->height_above() + node->lower_child()->length_below();
+  double tmp = node->first_child()->height_above() + node->first_child()->length_below();
   if ( length_left <= tmp )
-    return samplePoint(node->lower_child(), length_left);
+    return samplePoint(node->first_child(), length_left);
   else 
-    return samplePoint(node->higher_child(), length_left - tmp);
+    return samplePoint(node->second_child(), length_left - tmp);
 }
 
 
@@ -493,6 +493,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   dout << "Node local: " << node->local() << std::endl;
   dout << "Node root: " << node->is_root() << std::endl;
   assert( false );
+  return(0);
 }
 
 
@@ -513,7 +514,7 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
   // Look if we can reuse the root that coalesced as new node
   if ( coal_node->numberOfChildren() == 1 ){
     new_node = coal_node;
-    coal_node = coal_node->lower_child();
+    coal_node = coal_node->first_child();
     nodes()->move(new_node, coal_point.height());
   } else {
     new_node = new Node(coal_point.height());
@@ -569,21 +570,21 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   if (root_1->numberOfChildren() == 1) {
     if (root_2->numberOfChildren() == 1) {
       // both trees have a single branch => delete one
-      root_2 = root_2->lower_child();
+      root_2 = root_2->first_child();
       this->nodes()->remove(root_2->parent());
       assert( root_2 != NULL );
     }
     // (now) only root_1 has a single branch => use as new root
     this->nodes()->move(root_1, time);
     new_root = root_1;
-    root_1 = root_1->lower_child();
+    root_1 = root_1->first_child();
     assert( root_1 != NULL );
   } 
   else if (root_2->numberOfChildren() == 1) {
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
-    root_2 = root_2->lower_child();
+    root_2 = root_2->first_child();
   }
   else {
     // No tree a has single branch on top => create a new root
@@ -593,9 +594,8 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 
   root_1->set_parent(new_root);
   root_2->set_parent(new_root);
-  new_root->set_higher_child(root_1);
-  new_root->set_lower_child(root_2);
-  new_root->sort_children();
+  new_root->set_second_child(root_1);
+  new_root->set_first_child(root_2);
 
   updateAbove(root_1, false, false);
   updateAbove(root_2, false, false);
@@ -748,7 +748,7 @@ bool Forest::isPrunable(Node const* node) const {
   // remove unneeded nodes inside branches (= 1 child, 1 parent (=not root),
   // updated at same time)
   if ( (!node->is_root()) && node->numberOfChildren() == 1 &&
-        node->last_update() == node->lower_child()->last_update() ) return true;
+        node->last_update() == node->first_child()->last_update() ) return true;
 
   // remove old external nodes
   if ( (!node->local()) &&
@@ -775,8 +775,8 @@ void Forest::prune(Node *node) {
   assert( isPrunable(node) );
   dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
   dout << "* * * PRUNING: Parent: " << node->parent() << "; " 
-       << "l_child: " << node->lower_child() << "; "
-       << "h_child: " << node->higher_child() << "; "
+       << "l_child: " << node->first_child() << "; "
+       << "h_child: " << node->second_child() << "; "
        << "local: " << node->local() << std::endl;
 
   /* Possible Cases:
@@ -789,8 +789,8 @@ void Forest::prune(Node *node) {
   if ( node->numberOfChildren() == 1 ) {
     dout << "* * * PRUNING: Reason: Unneeded Node" << std::endl;
     Node* child;
-    if ( node->lower_child() == NULL ) child = node->higher_child();
-    else child = node->lower_child();
+    if ( node->first_child() == NULL ) child = node->second_child();
+    else child = node->first_child();
   
     child->set_parent( node->parent() );
     node->parent()->change_child(node, child); 

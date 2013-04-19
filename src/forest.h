@@ -87,7 +87,7 @@ class Forest
   void sampleNextGenealogy();
   
   //Debugging Tools
-  void addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child);
+  void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node const* root = NULL) const;

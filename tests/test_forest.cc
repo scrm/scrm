@@ -120,9 +120,9 @@ class TestForest : public CppUnit::TestCase {
     forest->nodes()->add(inbetween2);
     forest->nodes()->add(child);
     
-    parent->set_lower_child(inbetween1);
-    inbetween1->set_lower_child(inbetween2);
-    inbetween2->set_lower_child(child);
+    parent->set_first_child(inbetween1);
+    inbetween1->set_first_child(inbetween2);
+    inbetween2->set_first_child(child);
     child->set_parent(inbetween2);
     inbetween2->set_parent(inbetween1);
     inbetween1->set_parent(parent);
@@ -165,9 +165,9 @@ class TestForest : public CppUnit::TestCase {
     forest->nodes()->add(inbetween2);
     forest->nodes()->add(child);
     
-    parent->set_lower_child(inbetween1);
-    inbetween1->set_lower_child(inbetween2);
-    inbetween2->set_lower_child(child);
+    parent->set_first_child(inbetween1);
+    inbetween1->set_first_child(inbetween2);
+    inbetween2->set_first_child(child);
     child->set_parent(inbetween2);
     inbetween2->set_parent(inbetween1);
     inbetween1->set_parent(parent);
@@ -176,8 +176,8 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( child->parent() == inbetween1 );
     CPPUNIT_ASSERT( inbetween1->parent() == parent );
     CPPUNIT_ASSERT( parent->is_root() );
-    CPPUNIT_ASSERT( parent->lower_child() == inbetween1 );
-    CPPUNIT_ASSERT( inbetween1->lower_child() == child );
+    CPPUNIT_ASSERT( parent->first_child() == inbetween1 );
+    CPPUNIT_ASSERT( inbetween1->first_child() == child );
     CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
   }
 

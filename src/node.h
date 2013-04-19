@@ -56,11 +56,11 @@ class Node
   Node *parent() const; 
   void set_parent(Node *parent) { this->parent_ = parent; }; 
 
-  Node *higher_child() const { return this->higher_child_; }
-  void set_higher_child(Node *higher_child) { this->higher_child_ = higher_child; }
+  Node *second_child() const { return this->second_child_; }
+  void set_second_child(Node *second_child) { this->second_child_ = second_child; }
 
-  Node *lower_child() const { return this->lower_child_; }
-  void set_lower_child(Node *lower_child) { this->lower_child_ = lower_child; }
+  Node *first_child() const { return this->first_child_; }
+  void set_first_child(Node *first_child) { this->first_child_ = first_child; }
 
   size_t last_update() const { if ( local() ) return 0; 
     return(last_update_); }
@@ -73,7 +73,6 @@ class Node
   void set_length_below(double length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
-  void sort_children();
   int  numberOfChildren() const;
 
   bool is_root() const { return ( this->parent_ == NULL ); }
@@ -118,8 +117,8 @@ class Node
 
   //The tree structure
   Node *parent_;
-  Node *higher_child_;
-  Node *lower_child_;   // If it has only one child, then it is the lower one
+  Node *first_child_;
+  Node *second_child_;
 };
 
 #endif

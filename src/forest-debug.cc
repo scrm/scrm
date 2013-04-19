@@ -32,7 +32,7 @@ void Forest::createExampleTree() {
   Node* nl_node = new Node(4, false, 5, 0); 
   Node* nl_root = new Node(6, false, 5, 0);
   nl_node->set_parent(nl_root);
-  nl_root->set_lower_child(nl_node);
+  nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
   updateAbove(nl_node);
@@ -57,30 +57,30 @@ double Forest::calcTreeLength() const {
 }
 
 
-void Forest::addNodeToTree(Node *node, Node *parent, Node *lower_child, Node *higher_child) {
+void Forest::addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child) {
   this->nodes()->add(node);
 
   if (parent != NULL) {
     node->set_parent(parent);
-    if (parent->lower_child() == NULL) parent->set_lower_child(node);
+    if (parent->first_child() == NULL) parent->set_first_child(node);
     else {
-      if (parent->lower_child()->height() > node->height()) {
-        parent->set_higher_child(parent->lower_child());
-        parent->set_lower_child(node);
+      if (parent->first_child()->height() > node->height()) {
+        parent->set_second_child(parent->first_child());
+        parent->set_first_child(node);
       } else {
-        parent->set_higher_child(node);
+        parent->set_second_child(node);
       }
     }
   }
 
-  if (lower_child != NULL) {
-    node->set_lower_child(lower_child);
-    lower_child->set_parent(node);
+  if (first_child != NULL) {
+    node->set_first_child(first_child);
+    first_child->set_parent(node);
   }
 
-  if (higher_child != NULL) {
-    node->set_higher_child(higher_child);
-    higher_child->set_parent(node);
+  if (second_child != NULL) {
+    node->set_second_child(second_child);
+    second_child->set_parent(node);
   }
 }
 
@@ -114,18 +114,18 @@ bool Forest::checkInvariants(Node const* node) const {
   // Allow non-local roots of have false invariants
   //if ( node->is_root() && !node->local() ) return true;
 
-  if (node->lower_child() != NULL) {
-    samples_below += node->lower_child()->samples_below();
-    length_below += node->lower_child()->length_below();
-    if (node->lower_child()->local()) 
-      length_below += node->lower_child()->height_above();
+  if (node->first_child() != NULL) {
+    samples_below += node->first_child()->samples_below();
+    length_below += node->first_child()->length_below();
+    if (node->first_child()->local()) 
+      length_below += node->first_child()->height_above();
   }
 
-  if (node->higher_child() != NULL) {
-    samples_below += node->higher_child()->samples_below();
-    length_below += node->higher_child()->length_below();
-    if (node->higher_child()->local()) 
-      length_below += node->higher_child()->height_above();
+  if (node->second_child() != NULL) {
+    samples_below += node->second_child()->samples_below();
+    length_below += node->second_child()->length_below();
+    if (node->second_child()->local()) 
+      length_below += node->second_child()->height_above();
   }
 
   if ( samples_below != node->samples_below() ||
@@ -189,23 +189,15 @@ bool Forest::checkTree(Node const* root) const {
   }
   assert( root != NULL);
 
-  Node* h_child = root->higher_child();
-  Node* l_child = root->lower_child();
-
-  //Do we have two childs?
-  if (h_child != NULL && l_child != NULL) {
-    if (h_child->height() < l_child->height()) { 
-      dout << root << ": Child Nodes in wrong order" << std::endl;
-      dout << root << ": higher child " << h_child << " at " << h_child->height() << std::endl;
-      dout << root << ": lower child " << l_child << " at " << l_child->height() << std::endl;
-      return 0;
-    }
-  }
-  // Do we have only one child?
-  // else if ( !(h_child == NULL && l_child == NULL) ) { }
+  Node* h_child = root->second_child();
+  Node* l_child = root->first_child();
 
   bool child1 = 1;
   if (h_child != NULL) {
+    if (l_child == NULL) {
+      dout << root << ": only child is second child" << std::endl;
+      return 0;
+    }
     if (h_child->parent() != root) {
       dout << h_child << ": is child of non-parent" << std::endl;
       return 0;
@@ -261,7 +253,7 @@ bool Forest::printTree() {
 
       } 
       else if ( (*position)->parent_height() == (*tii).start_height() ) {
-        if ( *position == (*position)->parent()->lower_child() ) {
+        if ( *position == (*position)->parent()->first_child() ) {
           if ( (*position)->local() ) { 
             dout << "╚";
             h_line = 1;
@@ -319,13 +311,13 @@ std::vector<Node const*> Forest::determinePositions() const {
 
     if ( current_node->is_root() ) {
       // Add root to the right of all current trees
-      position = countBelowLinesLeft(current_node->lower_child()) + lines_left + root_offset;
+      position = countBelowLinesLeft(current_node->first_child()) + lines_left + root_offset;
       //std::cout << current_node << " " << position << " " << lines_left << " "
       //          << lines_right << " "  
-      //          << countBelowLinesLeft(current_node->lower_child()) << std::endl;
+      //          << countBelowLinesLeft(current_node->first_child()) << std::endl;
       
       root_offset = position + 
-                    countBelowLinesRight(current_node->higher_child()) + 
+                    countBelowLinesRight(current_node->second_child()) + 
                     lines_right + 1;
 
       assert( positions[position] == NULL ); 
@@ -341,15 +333,15 @@ std::vector<Node const*> Forest::determinePositions() const {
     }
     
     // Insert the child/children into branches
-    if (current_node->lower_child() != NULL) {
+    if (current_node->first_child() != NULL) {
         assert( positions.at(position - lines_left) == NULL );         
-        positions[position - lines_left] =  current_node->lower_child();
+        positions[position - lines_left] =  current_node->first_child();
     }
     
 
-    if (current_node->higher_child() != NULL) { 
+    if (current_node->second_child() != NULL) { 
         assert( positions.at(position + lines_right) == NULL );         
-        positions[position + lines_right] = current_node->higher_child();
+        positions[position + lines_right] = current_node->second_child();
     }
   
   }
@@ -364,27 +356,27 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
   int Forest::countLinesLeft(Node const* node) const {
-    if ( node->lower_child() == NULL ) return 0;
-    //if ( node->higher_child() == NULL ) return 1;
-    return ( 1 + countBelowLinesRight(node->lower_child()) );
+    if ( node->first_child() == NULL ) return 0;
+    //if ( node->second_child() == NULL ) return 1;
+    return ( 1 + countBelowLinesRight(node->first_child()) );
   }
 
   int Forest::countLinesRight(Node const* node) const {
-    if ( node->lower_child() == NULL ) return 0;
-    if ( node->higher_child() == NULL ) return 0;
-    return ( 1 + countBelowLinesLeft(node->higher_child()) );
+    if ( node->first_child() == NULL ) return 0;
+    if ( node->second_child() == NULL ) return 0;
+    return ( 1 + countBelowLinesLeft(node->second_child()) );
   }
 
   int Forest::countBelowLinesLeft(Node const* node) const {
     if ( node == NULL ) return 0;
-    if ( node->lower_child() == NULL ) return 0;
-    else return ( countLinesLeft(node) + countBelowLinesLeft(node->lower_child()) );
+    if ( node->first_child() == NULL ) return 0;
+    else return ( countLinesLeft(node) + countBelowLinesLeft(node->first_child()) );
   }
 
   int Forest::countBelowLinesRight(Node const* node) const {
     if ( node == NULL ) return 0;
-    if ( node->higher_child() == NULL ) return 0;
-    else return ( countLinesRight(node) + countBelowLinesRight(node->higher_child()) );
+    if ( node->second_child() == NULL ) return 0;
+    else return ( countLinesRight(node) + countBelowLinesRight(node->second_child()) );
   }
 
   bool Forest::printNodes() const {
@@ -406,8 +398,8 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i);
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->higher_child();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->lower_child();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();

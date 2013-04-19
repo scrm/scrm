@@ -11,10 +11,9 @@ int main(int argc, char *argv[]){
 	//param user_para;
 	//check_and_remove("scrm.log");
 
-	param user_para(argc, argv);
-	//user_para.print_param();
     try {
       time_t start_time = time(0);
+	    param user_para(argc, argv);
 
       //Model model = Model(5);
       Model *model = new Model(user_para);

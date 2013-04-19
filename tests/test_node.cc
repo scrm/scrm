@@ -45,10 +45,10 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( node2.parent()->height() == 1 );
 
     //Children
-    node2.set_higher_child(&node1);
-    CPPUNIT_ASSERT( node2.higher_child()->height() == 1 );
-    node2.set_lower_child(&node1);
-    CPPUNIT_ASSERT( node2.lower_child()->height() == 1 );
+    node2.set_second_child(&node1);
+    CPPUNIT_ASSERT( node2.second_child()->height() == 1 );
+    node2.set_first_child(&node1);
+    CPPUNIT_ASSERT( node2.first_child()->height() == 1 );
 
     //local
     node1.set_local(true);
