@@ -98,6 +98,16 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 }
 
 
+// If we prune, then also prune nodes at the top of the tree
+TimeIntervalIterator::~TimeIntervalIterator() {
+  if (!pruning_) return;
+
+  for( ; node_iterator_.good(); node_iterator_++ ) {
+    if ( forest_->isPrunable(*node_iterator_) ) forest_->prune(*node_iterator_);
+  }
+}
+
+
 // Sets current_interval_ to the next time interval.
 void TimeIntervalIterator::next() {
   if (this->inside_node_ != NULL ) {

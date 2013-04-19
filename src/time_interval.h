@@ -43,7 +43,7 @@ class TimeIntervalIterator {
  public:
   TimeIntervalIterator();
   TimeIntervalIterator(Forest *forest, Node const* start_node, bool pruning = true);
-  ~TimeIntervalIterator() {};
+  ~TimeIntervalIterator();
 
   void next();
   bool good() const { return this->good_; }
