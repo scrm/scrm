@@ -431,21 +431,19 @@ void Forest::sampleCoalescences(Node *start_node) {
           updateAbove((*other_node)->parent());
           return;
         }
-
-        // Otherwise mark the part below as updated and continue;
-        // *other_node = updateBranchBelowEvent(*other_node, event_point);
       }
 
       // Check if are can stop.
       if ( (*event_node)->local() ) {
+        // Only one node should be active if there are still local nodes at the
+        // current height. Hence we are done if so.
+        assert( other_state == 0 );
+
         dout << "* * * We hit the local tree. Done." << std::endl;
         updateAbove(*event_node); 
-        if ( other_state == 2) {
-          dout << "JUHU" << std::endl; // I'm not sure this actually occurs... -Paul
-          *other_node = updateBranchBelowEvent(*other_node, event_point);
-        }
         return;
       }
+
       if (active_node_1 == active_node_2) {
         dout << "* * * Coalescend into other Active Node. Done." << std::endl;
         updateAbove(*event_node); 
@@ -466,9 +464,6 @@ void Forest::sampleCoalescences(Node *start_node) {
       *event_node = cut(event_point);
       updateAbove(*event_node, false, false);
       event.recalculateInterval();
-      // Again, if the other node was also looking for a recombination, then
-      // update the branch below as updated.
-      // if ( other_state == 2 ) *other_node = updateBranchBelowEvent(*other_node, event_point);
 
       assert(this->printTree());
       continue;
@@ -538,6 +533,8 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
   if (!coal_point.base_node()->local()) {
     new_node->set_local(false);
     new_node->set_last_update(coal_point.base_node()->last_update());
+  } else {
+    new_node->set_local(true);
   }
 
   // Integrate it into the tree
@@ -634,42 +631,6 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
   }
   return node;
 }
-
-
-/**
- * Helper function for doing a coalescence. Marks the part of a branch which is
- * below the point of coalescence as updated, i.e. in particular sets
- * last_update_ to the current sequence position.
- *
- * Imagine we have to active nodes, one in coalescing and the other one looking
- * for a potential recombination. If the coalescing node coalesces and thereby
- * finishes the current coalescence (CAN THIS ACTUALLY HAPPEN?), we need to remember 
- * that we looked for recombinations below the coalescence point - but didn't
- * get any... THIS NEEDS MORE THOUGHT
- * 
- * \param node The active node that is recombining
- * \param event_point The point in the tree at which the event of the other node
- *             happened.
- * \return A new node on the branch above 'node' at the height of the event.
- */
-Node* Forest::updateBranchBelowEvent(Node* node, const TreePoint &event_point) {
-  assert( node->height() < event_point.height() );
-
-  Node* inter_node = new Node(event_point.height(), false, node->last_update(),
-                              node->samples_below(), node->length_below());
-  node->set_last_update(this->current_base());
-
-  inter_node->set_parent(node->parent());
-  node->parent()->change_child(node, inter_node);
-
-  node->set_parent(inter_node);
-  inter_node->set_lower_child(node);
-  this->nodes()->add(inter_node);
-
-  updateAbove(node, false, false);
-  return(inter_node);
-}
-
 
 
 /** 
