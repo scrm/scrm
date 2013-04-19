@@ -26,6 +26,31 @@ AC_LANG(C++)
 #AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],AC_MSG_WARN([User define 'boost' location. e.g. CXXFLAGS=-I/opt/local/include]))
 AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I../)
 
+#
+# Platform specific setup
+#
+#############################
+AC_CANONICAL_HOST
+# Check for which host we are on and setup a few things
+# specifically based on the host
+case $host_os in
+  darwin* )
+    AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I/opt/local/include)
+        ;;
+  linux*)
+AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp])        ;;
+   *BSD*)
+        # Do something specific for BSD
+        ;;
+    *)
+        #Default Case
+        AC_MSG_ERROR([Your platform is not currently supported])
+        ;;
+esac
+
+
+
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE

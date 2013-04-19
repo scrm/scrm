@@ -3,8 +3,10 @@
 
 #include <stdint.h>
 #include <math.h>
+//#include <malloc.h>
+#if !defined(__APPLE__)
 #include <malloc.h>
-
+#endif
 #include <iostream>
 
 class FastFunc {
