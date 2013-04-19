@@ -84,6 +84,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
     if ( ! node_iterator_.good() )
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
+    if ( pruning_ && forest_->isPrunable(*node_iterator_) ) {
+      forest_->prune(*node_iterator_);
+      continue;
+    }
+
     if ( (*node_iterator_)->parent_height() > start_node->height() )
       this->addToContemporaries(*node_iterator_);
   }

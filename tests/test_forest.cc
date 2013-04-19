@@ -106,9 +106,9 @@ class TestForest : public CppUnit::TestCase {
 
     // Orphaned active not should not occur, but we wont prune them for safety
     // in case they do...
-    Node* orphaned2 = new Node(14, true);
-    forest->nodes()->add(orphaned2);
-    CPPUNIT_ASSERT( !forest->isPrunable(orphaned2) );
+    // Node* orphaned2 = new Node(14, true);
+    // forest->nodes()->add(orphaned2);
+    // CPPUNIT_ASSERT( !forest->isPrunable(orphaned2) );
 
     // In-Between Nodes should be pruned, iff they are of same age
     Node *parent = new Node(20, false, 15), 

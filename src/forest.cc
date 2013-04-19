@@ -21,6 +21,7 @@ void Forest::initialize(Model* model,
   this->set_random_generator(rg);
   this->set_current_base(1);
   this->expo_sample_ = -1;
+  this->prune_countdown_ = model->prune_interval();
 }
 
 
@@ -188,7 +189,7 @@ void Forest::buildInitialTree() {
     dout << "* staring coalesces" << std::endl;
 
     //Coalesces the separate tree into the main tree
-    this->sampleCoalescences(new_leaf);
+    this->sampleCoalescences(new_leaf, false);
     dout << "* * Tree:" << std::endl;
     assert(this->printTree());
     assert(this->printNodes());
@@ -267,7 +268,17 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 void Forest::sampleNextGenealogy() {
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
-  // Samples a new genealogy, conditional on a recombination occurring
+
+  // Check if we prune while building the genealogy
+  pruning_ = false;
+  if ( model().exact_window_length() != 0 && current_base() >= model().exact_window_length() ) {
+    if (prune_countdown_ == 0) {
+      prune_countdown_ = model().prune_interval();
+      pruning_ = true;
+    }
+    --prune_countdown_;
+  }
+  if (pruning_) dout << "We will prune the tree this time" << std::endl;
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
@@ -278,17 +289,11 @@ void Forest::sampleNextGenealogy() {
   dout << "* Cutting subtree below recombination " << std::endl;
   this->cut(rec_point);
 
-  // Postpone coalescence if not local
-  //if (!rec_point.base_node()->local()) {
-  //  dout << "* Not on local tree; Postponing coalescence" << std::endl;
-  //  return;
-  //}
   assert( rec_point.base_node()->local() );
-
   assert(this->printTree());
 
   dout << "* Starting coalescence" << std::endl;
-  this->sampleCoalescences(rec_point.base_node()->parent());
+  this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
   assert(this->printTree());
   assert(this->printNodes());
@@ -302,7 +307,7 @@ void Forest::sampleNextGenealogy() {
  * \param start_node The node at which the coalescence starts. Must be the root
  *                   of a tree.
  */
-void Forest::sampleCoalescences(Node *start_node) {
+void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
@@ -311,8 +316,8 @@ void Forest::sampleCoalescences(Node *start_node) {
 
   // States: Each (branch above a) node can either be in state
   // - 0 = off (the other coalescence has not reached it yet) or
-  // - 1 = potentially coalescing in a time intervall or
-  // - 2 = potentially recombining in a time intervall
+  // - 1 = potentially coalescing in a time interval or
+  // - 2 = potentially recombining in a time interval
   size_t state_1; // State of active_node_1
   size_t state_2; // -"-      active_node_2
 
@@ -330,7 +335,9 @@ void Forest::sampleCoalescences(Node *start_node) {
   // of the local root
   if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
 
-  for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node); event.good(); ++event) {
+  for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node, pruning); 
+       event.good(); ++event) {
+    
     dout << "* * Time interval: " << (*event).start_height() << " - "
         << (*event).end_height() << std::endl;
 
@@ -724,9 +731,7 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
  * node. This single node trees are created when all other nodes on the tree are
  * pruned.
  * 2) in-between nodes: nodes that artificially split a single branch into two
- * parts. Can be created if the former other child of the node is pruned or can
- * be insert into the tree to mark a partial update of the branch during
- * coalescence.
+ * parts. Are created if the former other child of the node is pruned.
  * 3) old nodes: If specified, non-local nodes that have not been updated for a
  * while can be pruned to keep the tree from exploding in size.
  * 
@@ -737,26 +742,30 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
  * \param return TRUE iff the node can be pruned
  */
 bool Forest::isPrunable(Node const* node) const {
-  // Never remove samples, the local root, or ones with 2 children
-  if ( node->in_sample() ) return false;
+  if ( model().exact_window_length() == 0 ) return false;
   if ( node == local_root() ) return false;
-  if ( node->numberOfChildren() == 2 ) return false;
 
-  // remove orphaned roots
-  if ( node->is_root() && node->numberOfChildren() == 0 && !node->local() ) return true;  
+  switch ( node->numberOfChildren()) {
+    case 2: return false;
 
-  // remove unneeded nodes inside branches (= 1 child, 1 parent (=not root),
-  // updated at same time)
-  if ( (!node->is_root()) && node->numberOfChildren() == 1 &&
-        node->last_update() == node->first_child()->last_update() ) return true;
+    case 1:
+      // in-between branches (= 1 child, 1 parent (=not root), updated at same time)
+      if ( (!node->is_root()) &&
+            node->last_update() == node->first_child()->last_update() ) return true;
+      return false;
 
-  // remove old external nodes
-  if ( (!node->local()) &&
-       model().exact_window_length() != 0 &&
-       node->numberOfChildren() == 0 && 
-       this->current_base() - node->last_update() > model().exact_window_length() ) 
-    return true;
+    case 0:
+      // remove orphaned roots
+      if ( node->is_root() ) return true;  
 
+      // remove old external nodes
+      if ( (!node->local()) && 
+          this->current_base() - node->last_update() > model().exact_window_length() ) { 
+        return true;
+      }
+      return false;
+  }
+  assert(0);
   return false; 
 }
 
@@ -773,6 +782,9 @@ bool Forest::isPrunable(Node const* node) const {
  */
 void Forest::prune(Node *node) {
   assert( isPrunable(node) );
+  assert( ! (node->is_root() && node->local()) );
+  assert( !node->in_sample() );
+
   dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
   dout << "* * * PRUNING: Parent: " << node->parent() << "; " 
        << "l_child: " << node->first_child() << "; "
@@ -788,13 +800,9 @@ void Forest::prune(Node *node) {
   // In-between node
   if ( node->numberOfChildren() == 1 ) {
     dout << "* * * PRUNING: Reason: Unneeded Node" << std::endl;
-    Node* child;
-    if ( node->first_child() == NULL ) child = node->second_child();
-    else child = node->first_child();
-  
+    Node* child = node->first_child();
     child->set_parent( node->parent() );
     node->parent()->change_child(node, child); 
-    //if ( node->local() ) updateAbove(node->parent());
   } 
 
   // External branch 

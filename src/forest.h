@@ -115,7 +115,7 @@ class Forest
                    bool local_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node);
+  void sampleCoalescences(Node *start_node, bool pruning);
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
@@ -151,6 +151,8 @@ class Forest
   size_t current_base_;     // The current position of the sequence we are simulating
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
   double expo_sample_;      // Placeholder for exp(1) sampled values
+  size_t prune_countdown_;  // We will prune once this countdown reaches 0
+  bool pruning_;
 
   Model* model_;
   RandomGenerator* random_generator_;

@@ -39,12 +39,6 @@ void Node::change_child(Node* from, Node* to) {
   else throw std::invalid_argument("Can't find child node to replace");
 }
 
-int Node::numberOfChildren() const { 
-  if (first_child() == NULL) return 0;
-  else if (second_child() == NULL) return 1;
-  else return 2;
-}
-
 void Node::remove_child(Node* child) {
   if ( this->first_child() == child ) {
     this->set_first_child(this->second_child());

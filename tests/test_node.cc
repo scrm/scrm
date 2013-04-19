@@ -15,6 +15,7 @@ class TestNode : public CppUnit::TestCase {
   CPPUNIT_TEST( testInSample );
   CPPUNIT_TEST( testSamplesBelow );
   CPPUNIT_TEST( testLengthBelow );
+  CPPUNIT_TEST( testNumberOfChildren );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -107,6 +108,17 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->nodes()->get(8)->length_below() == 24 );
   }
 
+  void testNumberOfChildren(){
+    CPPUNIT_ASSERT( forest->nodes()->get(0)->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(1)->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(2)->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(3)->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(4)->numberOfChildren() == 2 );
+    CPPUNIT_ASSERT( forest->nodes()->get(5)->numberOfChildren() == 2 );
+    CPPUNIT_ASSERT( forest->nodes()->get(6)->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( forest->nodes()->get(7)->numberOfChildren() == 1 );
+    CPPUNIT_ASSERT( forest->nodes()->get(8)->numberOfChildren() == 2 );
+  }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestNode );

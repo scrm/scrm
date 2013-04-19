@@ -28,6 +28,7 @@ class Model
    double recombination_rate() const { return this->recombination_rate_; }
    bool is_smc_model() const { return this->smc_model_; }
    size_t exact_window_length() const { return exact_window_length_; }
+   size_t prune_interval() const { return prune_interval_; }
   
    // Setters 
    void set_sample_size(const int &sample_size) { this->sample_size_ = sample_size; }
@@ -46,6 +47,10 @@ class Model
 
    void set_exact_window_length(const size_t &exact_window_length) {
      this->exact_window_length_ = exact_window_length; }
+   
+   void set_prune_interval(const size_t &prune_interval) {
+     this->prune_interval_ = prune_interval;
+   }
 
   private:
    int sample_size_;
@@ -54,6 +59,8 @@ class Model
    double recombination_rate_;
 
    size_t exact_window_length_;
+   size_t prune_interval_;
+
    bool smc_model_;
 };
 

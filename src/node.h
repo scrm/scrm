@@ -73,7 +73,12 @@ class Node
   void set_length_below(double length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
-  int  numberOfChildren() const;
+  int  numberOfChildren() const { 
+    if (first_child() == NULL) return 0;
+    else if (second_child() == NULL) return 1;
+    else return 2;
+  }
+
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
