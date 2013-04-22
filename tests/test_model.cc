@@ -10,27 +10,50 @@ class TestModel : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestModel );
 
-  CPPUNIT_TEST( testGettersAndSetters );
+  CPPUNIT_TEST( testAddTimeFrame );
+  CPPUNIT_TEST( testSetTime );
+  CPPUNIT_TEST( testDebugConstructor );
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  void testGettersAndSetters() {
+  void testAddTimeFrame() {
     Model model = Model();
+    TimeFramePars tfp = {10, 100, 1, 1};
+    model.addTimeFrame(0, tfp);
+    CPPUNIT_ASSERT( model.time_frames_.size() == 1 );  
+    CPPUNIT_ASSERT_NO_THROW( model.time_frames_[0] );
+    CPPUNIT_ASSERT( model.time_frames_[0].sample_size == 10 );
 
-    model.set_sample_size(5);
-    CPPUNIT_ASSERT( model.sample_size() == 5 );
+    TimeFramePars tfp2 = {15, 100, 1, 1};
+    model.addTimeFrame(5.7, tfp2);
+    CPPUNIT_ASSERT( model.time_frames_.size() == 2 );  
+    CPPUNIT_ASSERT( model.time_frames_[0].sample_size == 10 );
+    CPPUNIT_ASSERT( model.time_frames_[5.7].sample_size == 15 );
+  }
 
-    model.set_population_size(5000);
-    CPPUNIT_ASSERT( model.population_size() == 5000 );
+  void testSetTime() {
+    Model model = Model();
+    TimeFramePars tfp = {10, 100, 1, 1};
+    model.addTimeFrame(0, tfp);
+    model.setTime(0);
+    CPPUNIT_ASSERT( model.current_pars_ == &(model.time_frames_[0]) );
+    CPPUNIT_ASSERT( model.current_pars_->sample_size == 10 );
+    TimeFramePars tfp2 = {15, 100, 1, 1};
+    model.addTimeFrame(5.7, tfp2);
+    model.setTime(5.7);
+    CPPUNIT_ASSERT( model.current_pars_ == &(model.time_frames_[5.7]) );
+    CPPUNIT_ASSERT( model.current_pars_->sample_size == 15 );
+  }
 
-    model.set_mutation_rate(10.7);
-    CPPUNIT_ASSERT( model.mutation_rate() == 10.7 );
+  void testDebugConstructor() {
+    Model model = Model(7);
+    CPPUNIT_ASSERT( model.sample_size() == 7 );
+  }
 
-    model.set_recombination_rate(20.1);
-    CPPUNIT_ASSERT( model.recombination_rate() == 20.1 );
-
-    model.set_exact_window_length(100);
-    CPPUNIT_ASSERT( model.exact_window_length() == 100 );
+  void testGettersAndSetters() {
+    //model.set_exact_window_length(100);
+    // CPPUNIT_ASSERT( model.exact_window_length() == 100 );
   }
 };
 

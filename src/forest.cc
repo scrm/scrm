@@ -179,7 +179,7 @@ void Forest::buildInitialTree() {
   this->set_primary_root(first_node);
   dout << "done." << std::endl;
 
-  for (int i=1; i < this->model().sample_size(); i++) {
+  for (size_t i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero

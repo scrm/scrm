@@ -5,63 +5,63 @@
  * model parameters.
  *
  */
-#include"param.h"
 
 #ifndef scrm_src_model
 #define scrm_src_model
 
 #include <cstddef>
+#include <map>
+#include <vector>
+
+#include "param.h"
+
+struct TimeFramePars {
+  size_t sample_size;
+  size_t population_size;
+  double mutation_rate;
+  double recombination_rate;
+};
 
 class Model
 {
   public:
+
+#ifdef UNITTEST
+  friend class TestModel;
+#endif
+
    Model();
-   Model(int sample_size);
+   Model(size_t sample_size);
    Model(param user_input);
    
    ~Model();
                          
    // Getters
-   int sample_size() const { return this->sample_size_; }
-   int population_size() const { return this->population_size_; }
-   double mutation_rate() const { return this->mutation_rate_; }
-   double recombination_rate() const { return this->recombination_rate_; }
-   bool is_smc_model() const { return this->smc_model_; }
+   size_t sample_size() const { return current_pars_->sample_size; }
+   size_t population_size() const { return current_pars_->population_size; }
+   double mutation_rate() const { return current_pars_->mutation_rate; }
+   double recombination_rate() const { return current_pars_->recombination_rate; }
+
+   bool   is_smc_model() const { return this->smc_model_; }
    size_t exact_window_length() const { return exact_window_length_; }
    size_t prune_interval() const { return prune_interval_; }
   
-   // Setters 
-   void set_sample_size(const int &sample_size) { this->sample_size_ = sample_size; }
-
-   void set_population_size(const int &population_size) { 
-     this->population_size_ = population_size; }
-
-   void set_mutation_rate(const double &mutation_rate) { 
-     this->mutation_rate_ = mutation_rate; }
-
-   void set_recombination_rate(const double &recombination_rate) {
-     this->recombination_rate_ = recombination_rate; }
-
-   void set_smc_model(const bool &smc_model) {
-     this->smc_model_ = smc_model; }
-
-   void set_exact_window_length(const size_t &exact_window_length) {
-     this->exact_window_length_ = exact_window_length; }
-   
-   void set_prune_interval(const size_t &prune_interval) {
-     this->prune_interval_ = prune_interval;
-   }
+   void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
+   void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
+   // 
+   void setTime(const double &time);
+   const std::vector<double> &change_times() { return time_frame_changes_; }; 
 
   private:
-   int sample_size_;
-   int population_size_;
-   double mutation_rate_;
-   double recombination_rate_;
+   std::map<double, TimeFramePars> time_frames_;
+   std::vector<double> time_frame_changes_;
+   TimeFramePars const *current_pars_;
 
    size_t exact_window_length_;
    size_t prune_interval_;
-
    bool smc_model_;
+
+   void addTimeFrame(const double &time, const TimeFramePars &tfp); 
 };
 
 #endif

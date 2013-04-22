@@ -184,4 +184,4 @@ class TestForest : public CppUnit::TestCase {
 };
 
 //Uncomment this to activate the test
-CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
+//CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
