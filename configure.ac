@@ -24,7 +24,7 @@ AC_HEADER_STDC
 AC_LANG(C++) 
 #AC_CHECK_HEADERS([cassert cstddef cfloat stdexcept iostream vector map iomanip fstream ctime cmath boost/assign/std/vector.hpp boost/random.hpp])
 #AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],AC_MSG_WARN([User define 'boost' location. e.g. CXXFLAGS=-I/opt/local/include]))
-AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I../)
+#AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I../opt/local/include)
 
 #
 # Platform specific setup
@@ -35,10 +35,12 @@ AC_CANONICAL_HOST
 # specifically based on the host
 case $host_os in
   darwin* )
-    AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I/opt/local/include)
+    export CXXFLAGS=-I/opt/local/include
+    AC_CHECK_HEADERS([/opt/local/include/boost/random.hpp /opt/local/include/boost/assign/std/vector.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
-AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp])        ;;
+    AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
+    ;;
    *BSD*)
         # Do something specific for BSD
         ;;
