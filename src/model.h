@@ -6,6 +6,7 @@
  *
  */
 #include"param.h"
+using namespace scrm; 
 
 #ifndef scrm_src_model
 #define scrm_src_model

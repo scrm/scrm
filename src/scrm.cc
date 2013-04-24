@@ -5,11 +5,17 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
+using namespace scrm; 
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
 	//param user_para;
 	//check_and_remove("scrm.log");
+	if (argc==1 ){
+		//scrm_help help;
+		//help.print_help();
+		print_help();
+	}	//else, proceed
 
     try {
       time_t start_time = time(0);

@@ -3,6 +3,7 @@
  */
  
 #include"param.h"
+using namespace scrm; 
  
 param::param(){
 	nsites=25;
@@ -19,14 +20,11 @@ param::param(){
 
 param::param(int argc, char *argv[]){
 	
-	if (argc==1 ){
-		print_help();
-	}
-	//else, proceed
+
 	
 	int argc_i=0;
-	read_input_to_int(argv[argc_i+1],nsam);
-	argc_i++;
+	//read_input_to_int(argv[argc_i+1],nsam);
+	//argc_i++;
 
 	random_seed=time(0); //int
 	nsites=25; //int
@@ -35,12 +33,24 @@ param::param(int argc, char *argv[]){
 	theta=0.00001;	//double
 	rho=0.00002;	//double
 	ith_change=25; //size_t
-  exact_window_length=0; //size_t
+	exact_window_length=0; //size_t
 	log_bool=false;
 	log_NAME="scrm.log";
 	
 	while( argc_i < argc ){
+		
 		std::string argv_i(argv[argc_i]);
+		
+		if (argv_i=="-nsam"){ // if scrm is not called, use this option read in the number of samples
+			read_input_to_int(argv[argc_i+1],nsam);
+			argc_i++;
+		}
+		
+		if (argv_i=="scrm" || argv_i=="./scrm"){ // if scrm is directly called
+			read_input_to_int(argv[argc_i+1],nsam);
+			argc_i++;
+		}
+		
 		if (argv_i=="-seed"){
 			read_input_to_int(argv[argc_i+1],random_seed);
 			argc_i++;
@@ -130,7 +140,7 @@ void param::log_param(){
 	std::ofstream log_file;
 	remove(log_NAME.c_str());
 	log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-	log_file<<"Simulation parameters: \n";
+	log_file<<"scrm parameters: \n";
 	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
 	log_file<<std::setw(10)<<"nsam ="<<std::setw(10)<<nsam<< "\n";
 	log_file<<std::setw(10)<<"npop ="<<std::setw(10)<<npop<< "\n";
@@ -142,8 +152,8 @@ void param::log_param(){
 }		
 
 
-
-void print_help(){
+void scrm::print_help(){
+//void scrm_help::print_help(){
 	std::cout<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<"*****************************************************************"<<std::endl;
@@ -154,6 +164,13 @@ void print_help(){
 	std::cout<<"Too few command line arguments"<<std::endl;
 	std::cout<<"usage: ms nsam howmany"<<std::endl;
 	std::cout<<"	Options:"<<std::endl;
+	print_option();
+	print_example();
+	exit(1);
+}
+
+void scrm::print_option(){
+//void scrm_help::print_option(){
 	//std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
 	std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO."<<std::endl;
 	std::cout<<std::setw(20)<<"-t THETA"<<"  --  "<<"User define the mutation rate THETA."<<std::endl;
@@ -161,16 +178,18 @@ void print_help(){
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
 	std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
-      <<"User define the length of the exact window."<<std::endl;
+      <<"User define the length of the exact window."<<std::endl;	
+}
+
+void scrm::print_example(){	
+//void scrm_help::print_example(){	
 	std::cout<<"Example:"<<std::endl;
 	std::cout<<"./scrm 3"<<std::endl;
 	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
 	std::cout<<"./scrm 5 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314"<<std::endl;
 	std::cout<<"./scrm 6 -t 0.002 -log -r 0.00004 "<<std::endl;
 	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
-	exit(1);
 }
-
 
 void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
 	std::ofstream log_file;
