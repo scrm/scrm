@@ -9,6 +9,9 @@
 #include<iostream>
 #include<stdlib.h>  
 #include<stdio.h>
+#include<stdexcept>
+
+
 
 #ifndef SCRM_PARAM_INCLUDED
 #define SCRM_PARAM_INCLUDED
@@ -40,8 +43,9 @@ namespace scrm{
 		bool log_bool;
 		std::string log_NAME;
 		
-		private:
 		void log_param();
+		//private:
+		
 	};
 }
 
@@ -58,5 +62,17 @@ void read_input_to_double(char inchar[], double &input);
 void read_input_to_int(char inchar[], int &input);
 void read_input_to_size_t(char inchar[], size_t &input);
 void appending_log_file(std::string log_file_input /*! Information added*/);
+
+template<class T>
+void read_input_to_param(char inchar[], T &input)
+{
+	if (isdigit(inchar[0])){
+		std::istringstream para_istrm(inchar);
+		para_istrm >> input;
+	}
+	else{
+		std::cout<<"Error"<<std::endl; //Error message
+	}	
+}
 
 #endif //SCRM_PARAM_INCLUDED

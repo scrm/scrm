@@ -46,7 +46,7 @@ param::param(int argc, char *argv[]){
 			argc_i++;
 		}
 		
-		if (argv_i=="scrm" || argv_i=="./scrm"){ // if scrm is directly called
+		if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
 			read_input_to_int(argv[argc_i+1],nsam);
 			argc_i++;
 		}
@@ -89,6 +89,7 @@ param::param(int argc, char *argv[]){
 	}
 	
 	if (log_bool){
+		remove(log_NAME.c_str());
 		log_param();
 	}
 	
@@ -102,7 +103,8 @@ void read_input_to_double(char inchar[], double &input){
 		para_istrm >> input;
 	}
 	else{
-		std::cout<<"Error"<<std::endl;//Error message
+		throw std::invalid_argument("Invalid argument type. double");
+//		std::cout<<"Error"<<std::endl;//Error message
 	}	
 }
 
@@ -112,7 +114,8 @@ void read_input_to_int(char inchar[], int &input){
 		para_istrm >> input;
 	}
 	else{
-		std::cout<<"Error"<<std::endl;//Error message
+		throw std::invalid_argument("Invalid argument type. int");
+		//std::cout<<"Error "<<std::endl;//Error message
 	}	
 }
 
@@ -122,9 +125,12 @@ void read_input_to_size_t(char inchar[], size_t &input){
 		para_istrm >> input;
 	}
 	else{
-		std::cout<<"Error"<<std::endl; //Error message
+		throw std::invalid_argument("Invalid argument type. size_t");
+//		std::cout<<"Error"<<std::endl; //Error message
 	}	
 }
+
+
 	
 	
 void param::print_param(){
@@ -138,7 +144,6 @@ void param::print_param(){
 
 void param::log_param(){
 	std::ofstream log_file;
-	remove(log_NAME.c_str());
 	log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file<<"scrm parameters: \n";
 	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
