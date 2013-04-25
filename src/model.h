@@ -11,7 +11,7 @@
 
 #include <cstddef>
 #include <map>
-#include <vector>
+#include <set>
 
 #include "param.h"
 
@@ -50,11 +50,10 @@ class Model
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
    // 
    void setTime(const double &time);
-   const std::vector<double> &change_times() { return time_frame_changes_; }; 
-
+   std::set<double>::iterator change_times() { return time_frame_changes_.begin(); }
   private:
    std::map<double, TimeFramePars> time_frames_;
-   std::vector<double> time_frame_changes_;
+   std::set<double> time_frame_changes_;
    TimeFramePars const *current_pars_;
 
    size_t exact_window_length_;

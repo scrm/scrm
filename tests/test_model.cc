@@ -19,17 +19,33 @@ class TestModel : public CppUnit::TestCase {
  public:
   void testAddTimeFrame() {
     Model model = Model();
+    std::set<double>::iterator times;
     TimeFramePars tfp = {10, 100, 1, 1};
     model.addTimeFrame(0, tfp);
     CPPUNIT_ASSERT( model.time_frames_.size() == 1 );  
     CPPUNIT_ASSERT_NO_THROW( model.time_frames_[0] );
     CPPUNIT_ASSERT( model.time_frames_[0].sample_size == 10 );
+    times = model.change_times(); 
+    CPPUNIT_ASSERT( *times == 0 );
 
     TimeFramePars tfp2 = {15, 100, 1, 1};
     model.addTimeFrame(5.7, tfp2);
     CPPUNIT_ASSERT( model.time_frames_.size() == 2 );  
     CPPUNIT_ASSERT( model.time_frames_[0].sample_size == 10 );
     CPPUNIT_ASSERT( model.time_frames_[5.7].sample_size == 15 );
+    times = model.change_times(); 
+    CPPUNIT_ASSERT( *(++times) ==  5.7 );
+
+    TimeFramePars tfp3 = {29, 100, 1, 1};
+    model.addTimeFrame(1.2, tfp3);
+    CPPUNIT_ASSERT( model.time_frames_.size() == 3 );  
+    CPPUNIT_ASSERT( model.time_frames_[0].sample_size == 10 );
+    CPPUNIT_ASSERT( model.time_frames_[5.7].sample_size == 15 );
+    CPPUNIT_ASSERT( model.time_frames_[1.2].sample_size == 29 );
+    times = model.change_times();
+    CPPUNIT_ASSERT( *times ==  0 );
+    CPPUNIT_ASSERT( *(++times) ==  1.2 );
+    CPPUNIT_ASSERT( *(++times) ==  5.7 );
   }
 
   void testSetTime() {

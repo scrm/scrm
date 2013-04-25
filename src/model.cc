@@ -14,20 +14,24 @@ Model::Model(size_t sample_size) {
   this->set_prune_interval(10);
 }
 
+
 Model::Model(param user_input) {
-/*  this->set_sample_size(user_input.nsam);
-  this->set_population_size(user_input.npop);
-  this->set_mutation_rate(user_input.theta);
-  this->set_recombination_rate(user_input.rho);
+  TimeFramePars tfp = {user_input.nsam, user_input.npop, user_input.theta, user_input.rho};
+  addTimeFrame(0, tfp);
+  setTime(0);
+
   this->set_exact_window_length(user_input.exact_window_length);
-  this->set_smc_model(false);
-  this->set_prune_interval(10); */
+  //this->set_smc_model(false);
+  this->set_prune_interval(10);
 }
+
 
 Model::~Model() { };
   
+
 void Model::addTimeFrame(const double &time, const TimeFramePars &tfp) {
   time_frames_.insert( std::pair<double, TimeFramePars>(time, tfp) );
+  time_frame_changes_.insert(time);
 }
 
 
