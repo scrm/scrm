@@ -42,39 +42,47 @@ param::param(int argc, char *argv[]){
 		std::string argv_i(argv[argc_i]);
 		
 		if (argv_i=="-nsam"){ // if scrm is not called, use this option read in the number of samples
-			read_input_to_int(argv[argc_i+1],nsam);
+			//read_input_to_int(argv[argc_i+1],nsam);
+			read_input_to_param<int>(argv[argc_i+1],nsam);
 			argc_i++;
 		}
 		
 		if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
-			read_input_to_int(argv[argc_i+1],nsam);
+			//read_input_to_int(argv[argc_i+1],nsam);
+			read_input_to_param<int>(argv[argc_i+1],nsam);
 			argc_i++;
 		}
 		
 		if (argv_i=="-seed"){
-			read_input_to_int(argv[argc_i+1],random_seed);
+			//read_input_to_int(argv[argc_i+1],random_seed);
+			read_input_to_param<int>(argv[argc_i+1],random_seed);
 			argc_i++;
 		}
-		//if (argv_i=="-nsam"){
-			//read_input_to_int(argv[argc_i+1],nsam);
-			//argc_i++;
-		//}	
+
 		if (argv_i=="-npop"){
-			read_input_to_int(argv[argc_i+1],npop);
+			//read_input_to_int(argv[argc_i+1],npop);
+			read_input_to_param<int>(argv[argc_i+1],npop);
 			argc_i++;
 		}	
+
 		if (argv_i=="-t"){
-			read_input_to_double(argv[argc_i+1],theta);
+			//read_input_to_double(argv[argc_i+1],theta);
+			read_input_to_param<double>(argv[argc_i+1],theta);
 			argc_i++;
 		}
+		
 		if (argv_i=="-r"){
-			read_input_to_double(argv[argc_i+1],rho);
+			//read_input_to_double(argv[argc_i+1],rho);
+			read_input_to_param<double>(argv[argc_i+1],rho);
 			argc_i++;
 		}
+		
 		if (argv_i=="-l"){
-			read_input_to_size_t(argv[argc_i+1],exact_window_length);
+			//read_input_to_size_t(argv[argc_i+1],exact_window_length);
+			read_input_to_param<size_t>(argv[argc_i+1],exact_window_length);
 			argc_i++;
 		}
+		
 		if (argv_i=="-log"){
 			log_bool=true;
 			argc_i++;
@@ -96,39 +104,6 @@ param::param(int argc, char *argv[]){
 }
 
 
-
-void read_input_to_double(char inchar[], double &input){
-	if (isdigit(inchar[0])){
-		std::istringstream para_istrm(inchar);
-		para_istrm >> input;
-	}
-	else{
-		throw std::invalid_argument("Invalid argument type. double");
-//		std::cout<<"Error"<<std::endl;//Error message
-	}	
-}
-
-void read_input_to_int(char inchar[], int &input){
-	if (isdigit(inchar[0])){
-		std::istringstream para_istrm(inchar);
-		para_istrm >> input;
-	}
-	else{
-		throw std::invalid_argument("Invalid argument type. int");
-		//std::cout<<"Error "<<std::endl;//Error message
-	}	
-}
-
-void read_input_to_size_t(char inchar[], size_t &input){
-	if (isdigit(inchar[0])){
-		std::istringstream para_istrm(inchar);
-		para_istrm >> input;
-	}
-	else{
-		throw std::invalid_argument("Invalid argument type. size_t");
-//		std::cout<<"Error"<<std::endl; //Error message
-	}	
-}
 
 
 	
@@ -175,11 +150,9 @@ void scrm::print_help(){
 }
 
 void scrm::print_option(){
-//void scrm_help::print_option(){
 	//std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
 	std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO."<<std::endl;
 	std::cout<<std::setw(20)<<"-t THETA"<<"  --  "<<"User define the mutation rate THETA."<<std::endl;
-	//std::cout<<std::setw(20)<<"-nsam NSAM"<<"  --  "<<"User define the sample size NSAM."<<std::endl;
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
 	std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
@@ -187,7 +160,6 @@ void scrm::print_option(){
 }
 
 void scrm::print_example(){	
-//void scrm_help::print_example(){	
 	std::cout<<"Example:"<<std::endl;
 	std::cout<<"./scrm 3"<<std::endl;
 	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
@@ -202,5 +174,38 @@ void appending_log_file(std::string log_file_NAME,std::string log_file_input /*!
 	log_file << log_file_input << "\n";
 	log_file.close();
 }
+// The rest of the code can be removed ...
 
+void read_input_to_double(char inchar[], double &input){
+	if (isdigit(inchar[0])){
+		std::istringstream para_istrm(inchar);
+		para_istrm >> input;
+	}
+	else{
+		throw std::invalid_argument("Invalid argument type. double");
+//		std::cout<<"Error"<<std::endl;//Error message
+	}	
+}
+
+void read_input_to_int(char inchar[], int &input){
+	if (isdigit(inchar[0])){
+		std::istringstream para_istrm(inchar);
+		para_istrm >> input;
+	}
+	else{
+		throw std::invalid_argument("Invalid argument type. int");
+		//std::cout<<"Error "<<std::endl;//Error message
+	}	
+}
+
+void read_input_to_size_t(char inchar[], size_t &input){
+	if (isdigit(inchar[0])){
+		std::istringstream para_istrm(inchar);
+		para_istrm >> input;
+	}
+	else{
+		throw std::invalid_argument("Invalid argument type. size_t");
+//		std::cout<<"Error"<<std::endl; //Error message
+	}	
+}
 
