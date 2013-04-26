@@ -69,7 +69,8 @@ void read_input_to_param(char inchar[], T &input)
 		para_istrm >> input;
 	}
 	else{
-		std::cout<<"Invalid argument. "<<std::endl; //Error message
+            throw std::invalid_argument("Invalid argument type. ");
+		//std::cout<<"Invalid argument. "<<std::endl; //Error message
 	}	
 }
 

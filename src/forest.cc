@@ -31,7 +31,7 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  delete nodes_;
+  //delete nodes_;
 }
 
 
