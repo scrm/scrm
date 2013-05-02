@@ -15,6 +15,8 @@
 
 #include "param.h"
 
+using namespace scrm; 
+
 struct TimeFramePars {
   size_t sample_size;
   size_t population_size;
@@ -35,7 +37,7 @@ class Model
    Model(param user_input);
    
    ~Model();
-                         
+   
    // Getters
    size_t sample_size() const { return current_pars_->sample_size; }
    size_t population_size() const { return current_pars_->population_size; }
@@ -51,6 +53,7 @@ class Model
    // 
    void setTime(const double &time);
    std::set<double>::iterator change_times() { return time_frame_changes_.begin(); }
+
   private:
    std::map<double, TimeFramePars> time_frames_;
    std::set<double> time_frame_changes_;
