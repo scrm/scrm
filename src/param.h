@@ -59,7 +59,7 @@ namespace scrm{
 }
 
 
-void appending_log_file(std::string log_file_input /*! Information added*/);
+//void appending_log_file(std::string log_file_input /*! Information added*/);
 
 template<class T>
 void read_input_to_param(char inchar[], T &input)
