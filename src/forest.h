@@ -75,8 +75,8 @@ class Forest
 
   size_t sample_size() const { return this->sample_size_; }
 
-  size_t current_base() const { return current_base_; }
-  void set_current_base(size_t base) { current_base_ = base; }
+  double current_base() const { return current_base_; }
+  void set_current_base(double base) { current_base_ = base; }
 
   double local_tree_length() const { return this->local_root()->length_below(); }
   RandomGenerator* random_generator() const { return this->random_generator_; }
@@ -148,7 +148,7 @@ class Forest
   Node* local_root_;
   Node* primary_root_;
 
-  size_t current_base_;     // The current position of the sequence we are simulating
+  double current_base_;     // The current position of the sequence we are simulating
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
   double expo_sample_;      // Placeholder for exp(1) sampled values
   size_t prune_countdown_;  // We will prune once this countdown reaches 0
