@@ -62,6 +62,7 @@ class Forest
   Forest(Model *model, RandomGenerator *random_generator);
   ~Forest();
 
+	
   //Getters & Setters
   const Model model() const { return *model_; }
   Model* writable_model() { return this->model_; };
@@ -74,11 +75,15 @@ class Forest
   void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
 
   size_t sample_size() const { return this->sample_size_; }
-
+  void set_sample_size(const size_t &size ) { sample_size_ = size; }
+  
   double current_base() const { return current_base_; }
   void set_current_base(double base) { current_base_ = base; }
 
   double local_tree_length() const { return this->local_root()->length_below(); }
+  
+    void set_random_generator(RandomGenerator *rg) {
+    this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
   NodeContainer const *getNodes() const { return nodes_; };
 
@@ -163,10 +168,8 @@ class Forest
 
   NodeContainer *nodes() { return this->nodes_; }
 
-  void set_random_generator(RandomGenerator *rg) {
-    this->random_generator_ = rg; }
 
-  void set_sample_size(const size_t &size ) { sample_size_ = size; }
+
 
   void createSampleNodes();
 

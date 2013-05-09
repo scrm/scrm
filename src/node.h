@@ -23,7 +23,8 @@ class Node
 #ifdef UNITTEST
   friend class TestNode;
 #endif
-
+  size_t index; // this is the index of the node in the node container...
+  
   Node();
   Node(double height);
   Node(double height, bool local);
