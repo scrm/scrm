@@ -28,6 +28,8 @@ class NodeContainer {
 
   Node* at(size_t nr) const; 
   Node const* get(size_t nr) const { return at(nr); }; 
+  Node * get_copy(size_t nr)  { return at(nr); }; 
+
   
   Node* first() const { return first_node_; };
   Node* last() const { return last_node_; };
