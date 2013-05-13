@@ -26,7 +26,7 @@ class Model
    int sample_size() const { return this->sample_size_; }
    int population_size() const { return this->population_size_; }
    double mutation_rate() const { return this->mutation_rate_; }
-   double recombination_rate() const { return this->recombination_rate_; }
+   double recombination_rate() const { return this->recombination_rate_; } // recombination is in unit of per gerneration per site (per individual??)
    bool is_smc_model() const { return this->smc_model_; }
    size_t exact_window_length() const { return exact_window_length_; }
    size_t prune_interval() const { return prune_interval_; }

@@ -10,7 +10,7 @@ param::param(){
 	nsam=5;
 	npop=10000;
 	theta=0.00001;
-	rho=0.00002;	
+	rho=0.00000002;	
 	ith_change=25;
   exact_window_length=0;
 	log_bool=false;
@@ -31,7 +31,7 @@ param::param(int argc, char *argv[]){
 	//nsam=5; //int
 	npop=10000; //int
 	theta=0.00001;	//double
-	rho=0.00002;	//double
+	rho=0.00000002;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
 	ith_change=25; //size_t
 	exact_window_length=0; //size_t
 	log_bool=false;
@@ -56,6 +56,12 @@ param::param(int argc, char *argv[]){
 		if (argv_i=="-seed"){
 			//read_input_to_int(argv[argc_i+1],random_seed);
 			read_input_to_param<int>(argv[argc_i+1],random_seed);
+			argc_i++;
+		}
+		
+		if (argv_i=="-nsites"){
+			//read_input_to_int(argv[argc_i+1],random_seed);
+			read_input_to_param<int>(argv[argc_i+1],nsites);
 			argc_i++;
 		}
 
@@ -89,9 +95,11 @@ param::param(int argc, char *argv[]){
 			if (argc_i < argc){
 				if (argv[argc_i][0]!='-'){
 					log_NAME=argv[argc_i];
-					argc_i++;
+					//argc_i++;
 				}
+				else{argc_i--;}
 			}
+			
 		}
 		argc_i++;
 	}
@@ -151,7 +159,8 @@ void scrm::print_help(){
 
 void scrm::print_option(){
 	//std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
-	std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO."<<std::endl;
+	std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO, per gerneration per site."<<std::endl;
+	std::cout<<std::setw(20)<<"-nsites NSITES"<<"  --  "<<"User define the sequence length NSITES."<<std::endl;
 	std::cout<<std::setw(20)<<"-t THETA"<<"  --  "<<"User define the mutation rate THETA."<<std::endl;
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
