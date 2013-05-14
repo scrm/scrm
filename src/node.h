@@ -23,7 +23,8 @@ class Node
 #ifdef UNITTEST
   friend class TestNode;
 #endif
-
+  size_t index; // this is the index of the node in the node container...
+  
   Node();
   Node(double height);
   Node(double height, bool local);
@@ -53,8 +54,10 @@ class Node
     this->set_local(false);
   }
 
-  Node *parent() const; 
-  void set_parent(Node *parent) { this->parent_ = parent; }; 
+	Node *parent() const; 
+   void set_parent(Node *parent) { this->parent_ = parent; }
+  //void set_parent_copy(Node *parent) { parent_ = parent; }
+
 
   Node *second_child() const { return this->second_child_; }
   void set_second_child(Node *second_child) { this->second_child_ = second_child; }

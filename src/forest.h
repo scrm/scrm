@@ -60,8 +60,10 @@ class Forest
 
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
+  //Forest(Forest current_forest);
   ~Forest();
 
+	
   //Getters & Setters
   const Model model() const { return *model_; }
   Model* writable_model() { return this->model_; };
@@ -74,13 +76,27 @@ class Forest
   void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
 
   size_t sample_size() const { return this->sample_size_; }
-
-  size_t current_base() const { return current_base_; }
-  void set_current_base(size_t base) { current_base_ = base; }
+  void set_sample_size(const size_t &size ) { sample_size_ = size; }
+  
+  double current_base() const { return current_base_; }
+  void set_current_base(double base) { current_base_ = base; }
 
   double local_tree_length() const { return this->local_root()->length_below(); }
+  
+  void set_random_generator(RandomGenerator *rg) {
+    this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
+  
   NodeContainer const *getNodes() const { return nodes_; };
+  
+  double expo_sample() const {return expo_sample_;}
+  void set_expo_sample(double expo_sample){expo_sample_=expo_sample;}      // Placeholder for exp(1) sampled values
+  
+  size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
+  void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
+  
+  bool pruning() const{return pruning_;}
+  void set_pruning(bool pruning){pruning_=pruning;}
 
   // Central functions
   void buildInitialTree();
@@ -106,6 +122,8 @@ class Forest
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
+
+NodeContainer *nodes() { return this->nodes_; }
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
@@ -148,7 +166,7 @@ class Forest
   Node* local_root_;
   Node* primary_root_;
 
-  size_t current_base_;     // The current position of the sequence we are simulating
+  double current_base_;     // The current position of the sequence we are simulating
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
   double expo_sample_;      // Placeholder for exp(1) sampled values
   size_t prune_countdown_;  // We will prune once this countdown reaches 0
@@ -161,12 +179,10 @@ class Forest
   void initialize(Model *model = new Model(),
                   RandomGenerator *rg = NULL);
 
-  NodeContainer *nodes() { return this->nodes_; }
+  
 
-  void set_random_generator(RandomGenerator *rg) {
-    this->random_generator_ = rg; }
 
-  void set_sample_size(const size_t &size ) { sample_size_ = size; }
+
 
   void createSampleNodes();
 

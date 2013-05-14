@@ -35,7 +35,7 @@ int main(int argc, char *argv[]){
 
       for (size_t i=2; i <= user_para.ith_change; ++i) {
         if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
-        forest.set_current_base(i);    
+        forest.set_current_base(forest.current_base() +forest.random_generator()->sampleExpo(forest.local_tree_length()) * forest.writable_model()->recombination_rate() / 4.0 / forest.writable_model()->population_size());    
         forest.sampleNextGenealogy();
       }
 

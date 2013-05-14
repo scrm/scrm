@@ -17,7 +17,7 @@ AC_PROG_RANLIB
 #Checks for libraries
 #AC_CHECK_LIB(cppunit,TestCase,[],AC_MSG_WARN([cppunit is not installed]))
 #AC_CHECK_LIB(cppunit,TestCase,[],AC_MSG_WARN([User define 'cppunit' location. e.g. LDFLAGS=-L/opt/local/lib]))
-AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L../libcppunit)
+AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L/opt/local/lib)
 
 # Checks for header files for scrm.
 AC_HEADER_STDC

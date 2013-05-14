@@ -195,6 +195,11 @@ void Forest::buildInitialTree() {
     assert(this->printNodes());
     assert(this->checkTree());
   }
+  
+    //set the index for all forest nodes....
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	this->nodes()->get_copy(i)->index = i;  
+  }
 }
 
 
@@ -295,9 +300,17 @@ void Forest::sampleNextGenealogy() {
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
+  //set the index for all forest nodes....
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	this->nodes()->get_copy(i)->index = i;  
+  }
   assert(this->printTree());
   assert(this->printNodes());
   assert(this->checkTree());
+  
+  
+
+  
 }
 
 

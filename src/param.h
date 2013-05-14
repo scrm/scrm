@@ -59,7 +59,7 @@ namespace scrm{
 }
 
 
-void appending_log_file(std::string log_file_input /*! Information added*/);
+//void appending_log_file(std::string log_file_input /*! Information added*/);
 
 template<class T>
 void read_input_to_param(char inchar[], T &input)
@@ -69,7 +69,8 @@ void read_input_to_param(char inchar[], T &input)
 		para_istrm >> input;
 	}
 	else{
-		std::cout<<"Invalid argument. "<<std::endl; //Error message
+            throw std::invalid_argument("Invalid argument type. ");
+		//std::cout<<"Invalid argument. "<<std::endl; //Error message
 	}	
 }
 
