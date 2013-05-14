@@ -161,10 +161,16 @@ size_t NodeContainer::size() const {
 };
 
 
+// Removes all nodes;
+// The loop deletes the node from the previous iteration because we still need
+// the current node for calling ++it.
 void NodeContainer::clear() {
+  Node* tmp = NULL;
   for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
-    delete *it;
+    if (tmp != NULL) delete tmp;
+    tmp = *it;
   }
+  if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
 }
