@@ -121,6 +121,7 @@ class Forest
   bool printTree();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
+  
 
 
 NodeContainer *nodes() { return this->nodes_; }

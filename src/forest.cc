@@ -31,7 +31,7 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  delete nodes_;
+  //delete nodes_;
 }
 
 
@@ -177,6 +177,7 @@ void Forest::buildInitialTree() {
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
+  first_node->set_label(1);
   dout << "done." << std::endl;
 
   for (int i=1; i < this->model().sample_size(); i++) {
@@ -184,6 +185,8 @@ void Forest::buildInitialTree() {
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(0, true, 0, 1);
+    new_leaf->set_label(i+1);
+    //cout<<new_leaf->label()<<endl;
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
     dout << "* staring coalesces" << std::endl;
@@ -195,6 +198,8 @@ void Forest::buildInitialTree() {
     assert(this->printNodes());
     assert(this->checkTree());
   }
+  writeTree(this->local_root());
+  //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
   for(size_t i = 0; i < this->getNodes()->size(); ++i) {
@@ -308,9 +313,7 @@ void Forest::sampleNextGenealogy() {
   assert(this->printNodes());
   assert(this->checkTree());
   
-  
-
-  
+  writeTree(this->local_root());
 }
 
 

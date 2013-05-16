@@ -15,6 +15,7 @@ param::param(){
   exact_window_length=0;
 	log_bool=false;
 	log_NAME="scrm.log";
+	treefile="TREEFILE";
 
 }
 
@@ -27,17 +28,17 @@ param::param(int argc, char *argv[]){
 	//argc_i++;
 
 	random_seed=time(0); //int
-	nsites=25; //int
+	nsites=10000; //int
 	nreps=1;
 	//nsam=5; //int
 	npop=10000; //int
 	theta=0.00001;	//double
-	rho=0.00000002;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
+	rho=0.0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
 	ith_change=25; //size_t
 	exact_window_length=0; //size_t
 	log_bool=false;
 	log_NAME="scrm.log";
-	
+	treefile="TREEFILE";
 	while( argc_i < argc ){
 		
 		std::string argv_i(argv[argc_i]);
@@ -97,6 +98,11 @@ param::param(int argc, char *argv[]){
 			argc_i++;
 		}
 		
+		if (argv_i=="-T"){
+			treefile=argv[argc_i+1];
+			argc_i++;			
+		}
+		
 		if (argv_i=="-log"){
 			log_bool=true;
 			argc_i++;
@@ -112,6 +118,7 @@ param::param(int argc, char *argv[]){
 		argc_i++;
 	}
 	
+	remove(treefile.c_str());
 	if (log_bool){
 		remove(log_NAME.c_str());
 		log_param();
@@ -175,7 +182,9 @@ void scrm::print_option(){
 	std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
 	std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
 	std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
-      <<"User define the length of the exact window."<<std::endl;	
+      <<"User define the length of the exact window."<<std::endl;
+    std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
+    std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
 }
 
 void scrm::print_example(){	
@@ -183,8 +192,10 @@ void scrm::print_example(){
 	std::cout<<"./scrm 3 1"<<std::endl;
 	std::cout<<"./scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
 	std::cout<<"./scrm 5 3 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314 -log"<<std::endl;
-	std::cout<<"./scrm 6 1 -t 0.002 -log -r 0.00004 -log"<<std::endl;
+	std::cout<<"./scrm 6 1 -t 0.002 -r 0.00004 -nsites 2000 -log"<<std::endl;
 	std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE -T mytree"<<std::endl;
+
 }
 
 void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){

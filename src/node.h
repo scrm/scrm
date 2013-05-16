@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-
+#include <string>
 
 class Node
 {
@@ -81,7 +81,9 @@ class Node
     else if (second_child() == NULL) return 1;
     else return 2;
   }
-
+  
+  void set_label(int label){label_=label;}
+  int label() const{return label_;}
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
@@ -103,13 +105,18 @@ class Node
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
 
+  
+  std::string tree_topo_bl;
+
+
  private:
   void init(double heigh=-1, 
             bool local=true, 
             size_t last_update = 0, 
             size_t samples_below=0, 
-            double length_below=0);
-
+            double length_below=0,
+            int label=0);
+  int label_;
   double height_;        // The total height of the node
   bool   local_;        // Indicates if the branch above is local,
   // i.e. on the local tree
@@ -128,5 +135,6 @@ class Node
   Node *first_child_;
   Node *second_child_;
 };
+std::string writeTree(Node * node);
 
 #endif

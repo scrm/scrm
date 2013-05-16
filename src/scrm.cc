@@ -30,19 +30,30 @@ int main(int argc, char *argv[]){
       //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       // NORMAL RUN
+      std::ofstream tree_file;
+      
+      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       for (size_t rep_i=0;rep_i<user_para.nreps;rep_i++){
 	      Forest * forest = new Forest(model, rg);
 	      forest->buildInitialTree();
-	
-	      for (size_t i=2; i <= user_para.ith_change; ++i) {
-	        if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
-	        forest->set_current_base(forest->current_base() +forest->random_generator()->sampleExpo(forest->local_tree_length()) * forest->writable_model()->recombination_rate() / 4.0 / forest->writable_model()->population_size());    
-	        forest->sampleNextGenealogy();
-	      }
-	
+	      tree_file << forest->local_root()->tree_topo_bl <<"\n";
+			if (user_para.rho > 0){
+		      //for (size_t i=2; i <= user_para.ith_change; ++i) {
+		        //if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
+				  double nextbase=0;
+			  while (nextbase < user_para.nsites ) {
+
+		        nextbase=forest->current_base() +forest->random_generator()->sampleExpo(forest->local_tree_length() * forest->writable_model()->recombination_rate() / 4.0 / forest->writable_model()->population_size());
+		        forest->set_current_base(nextbase);    
+		        forest->sampleNextGenealogy();
+		        tree_file << "["<<floor(nextbase) <<"] "<< forest->local_root()->tree_topo_bl <<"\n";
+		      }
+		      tree_file  <<"//\n";
+			}
 			//std::cout << forest->getNodes()->size() << std::endl;
 			delete forest;
 		}
+		tree_file.close();
       time_t end_time = time(0);
       
       std::cout << "Simulation took about " << end_time - start_time 
@@ -52,6 +63,7 @@ int main(int argc, char *argv[]){
 				std::ofstream log_file;
 				log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 				log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
+				log_file << "Trees are saved in: "<<user_para.treefile<<"\n";
 				log_file.close();
 				string system_cmd="cat "+user_para.log_NAME;
 				system(system_cmd.c_str());
