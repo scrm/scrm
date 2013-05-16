@@ -11,6 +11,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestModel );
 
   CPPUNIT_TEST( testAddChangeTime );
+  CPPUNIT_TEST( testAddSampleSizes );
+  CPPUNIT_TEST( testAddPopulationSizes );
   CPPUNIT_TEST( testDebugConstructor );
 
   CPPUNIT_TEST_SUITE_END();
@@ -67,9 +69,38 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( model.population_sizes_list_.size() == 4 );
   }
 
+  void testAddSampleSizes() {
+    Model model = Model();
+    std::vector<size_t>* sample_sizes = new std::vector<size_t>();
+    sample_sizes->push_back(5);
+    model.addSampleSizes(1, sample_sizes);
+    CPPUNIT_ASSERT( model.sample_sizes_list_.at(0)->at(0) == 5 );
+    std::vector<size_t>* sample_sizes2 = new std::vector<size_t>();
+    sample_sizes2->push_back(7);
+    sample_sizes2->push_back(5);
+    model.addSampleSizes(0, sample_sizes2);
+    CPPUNIT_ASSERT( model.sample_sizes_list_.at(0)->at(0) == 7 );
+    CPPUNIT_ASSERT( model.sample_sizes_list_.at(0)->at(1) == 5 );
+  }
+
+  void testAddPopulationSizes() {
+    Model model = Model();
+    std::vector<size_t>* pop_sizes = new std::vector<size_t>();
+    pop_sizes->push_back(5);
+    model.addPopulationSizes(1, pop_sizes);
+    CPPUNIT_ASSERT( model.population_sizes_list_.at(0)->at(0) == 5 );
+    std::vector<size_t>* pop_sizes2 = new std::vector<size_t>();
+    pop_sizes2->push_back(7);
+    pop_sizes2->push_back(4);
+    model.addPopulationSizes(0, pop_sizes2);
+    CPPUNIT_ASSERT( model.population_sizes_list_.at(0)->at(0) == 7 );
+    CPPUNIT_ASSERT( model.population_sizes_list_.at(0)->at(1) == 4 );
+  }
+
   void testDebugConstructor() {
     Model model = Model(7);
-    //CPPUNIT_ASSERT( model.sample_size() == 7 );
+    CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size() );
   }
 
   void testGettersAndSetters() {

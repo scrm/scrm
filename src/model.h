@@ -64,6 +64,8 @@ class Model
 
   private:
    size_t addChangeTime(double time);
+   void addSampleSizes(double time, std::vector<size_t>* samples_sizes);
+   void addPopulationSizes(double time, std::vector<size_t>* population_sizes);
 
    std::vector<double> change_times_;
    size_t current_time_idx_;

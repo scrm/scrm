@@ -7,7 +7,11 @@ Model::Model() {
 
 
 Model::Model(size_t sample_size) {
-  //TimeFramePars tfp = {sample_size, 10000, 0.00001, 0.00001};
+  std::vector<size_t>* sample_sizes = new std::vector<size_t>(1, sample_size);
+  this->addSampleSizes(0, sample_sizes);
+  std::vector<size_t>* pop_sizes = new std::vector<size_t>(1, 10000);
+  this->addPopulationSizes(0, pop_sizes);
+  this->resetTime();
 
   this->set_exact_window_length(0);
   this->set_prune_interval(10);
@@ -57,4 +61,16 @@ size_t Model::addChangeTime(double time) {
   sample_sizes_list_.insert(sample_sizes_list_.begin() + position, NULL);
   population_sizes_list_.insert(population_sizes_list_.begin() + position, NULL);
   return position;
+}
+
+
+void Model::addSampleSizes(double time, std::vector<size_t>* samples_sizes) {
+  size_t position = addChangeTime(time);
+  sample_sizes_list_[position] = samples_sizes;  
+}
+
+
+void Model::addPopulationSizes(double time, std::vector<size_t>* population_sizes) {
+  size_t position = addChangeTime(time);
+  population_sizes_list_[position] = population_sizes;  
 }
