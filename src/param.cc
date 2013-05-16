@@ -28,6 +28,7 @@ param::param(int argc, char *argv[]){
 
 	random_seed=time(0); //int
 	nsites=25; //int
+	nreps=1;
 	//nsam=5; //int
 	npop=10000; //int
 	theta=0.00001;	//double
@@ -46,10 +47,17 @@ param::param(int argc, char *argv[]){
 			read_input_to_param<int>(argv[argc_i+1],nsam);
 			argc_i++;
 		}
+		if (argv_i=="-nreps"){ // if scrm is not called, use this option read in the number of replicats
+			//read_input_to_int(argv[argc_i+1],nsam);
+			read_input_to_param<int>(argv[argc_i+1],nreps);
+			argc_i++;
+		}
 		
 		if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
 			//read_input_to_int(argv[argc_i+1],nsam);
 			read_input_to_param<int>(argv[argc_i+1],nsam);
+			argc_i++;
+			read_input_to_param<int>(argv[argc_i+1],nreps);
 			argc_i++;
 		}
 		
@@ -118,6 +126,7 @@ param::param(int argc, char *argv[]){
 	
 void param::print_param(){
 	std::cout<<std::setw(6)<<"nsites"<<std::setw(10)<<nsites<<std::endl;
+	std::cout<<std::setw(6)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
 	std::cout<<std::setw(6)<<"nsam"<<std::setw(10)<<nsam<<std::endl;
 	std::cout<<std::setw(6)<<"npop"<<std::setw(10)<<npop<<std::endl;
 	std::cout<<std::setw(6)<<"theta"<<std::setw(10)<<theta<<std::endl;
@@ -130,6 +139,7 @@ void param::log_param(){
 	log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file<<"scrm parameters: \n";
 	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
+	log_file<<std::setw(10)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
 	log_file<<std::setw(10)<<"nsam ="<<std::setw(10)<<nsam<< "\n";
 	log_file<<std::setw(10)<<"npop ="<<std::setw(10)<<npop<< "\n";
 	log_file<<std::setw(10)<<"theta ="<<std::setw(10)<<theta<< "\n";
@@ -170,11 +180,11 @@ void scrm::print_option(){
 
 void scrm::print_example(){	
 	std::cout<<"Example:"<<std::endl;
-	std::cout<<"./scrm 3"<<std::endl;
-	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
-	std::cout<<"./scrm 5 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314"<<std::endl;
-	std::cout<<"./scrm 6 -t 0.002 -log -r 0.00004 "<<std::endl;
-	std::cout<<"./scrm 6 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
+	std::cout<<"./scrm 3 1"<<std::endl;
+	std::cout<<"./scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
+	std::cout<<"./scrm 5 3 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314 -log"<<std::endl;
+	std::cout<<"./scrm 6 1 -t 0.002 -log -r 0.00004 -log"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
 }
 
 void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){

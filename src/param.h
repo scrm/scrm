@@ -21,7 +21,7 @@ namespace scrm{
 		public:
 		
 		int random_seed;
-		
+		int nreps; // number of replicates
 		int nsites; //number of sites
 		
 		int npop; // population size Ne
