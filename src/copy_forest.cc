@@ -1,7 +1,7 @@
 //copy_forest.cc
 #include"copy_forest.h"
 
-Forest duplicate_forest(Forest  current_forest){
+Forest duplicate_forest(Forest  current_forest, bool entire_ARG){ // if entire_ARG is false, only copy the local tree (McVean2005)
 	Forest new_forest;
 	
 	//dout<<"start adding nodes"<<std::endl;
@@ -63,7 +63,7 @@ Forest duplicate_forest(Forest  current_forest){
 
 	dout<<"  #################### check copied forest ###############"<<std::endl;
 	assert(new_forest.printTree());
-  assert(new_forest.printNodes());
+  //assert(new_forest.printNodes());
   assert(new_forest.checkTree());
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 	return new_forest;

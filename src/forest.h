@@ -124,7 +124,7 @@ class Forest
   
 
 
-NodeContainer *nodes() { return this->nodes_; }
+  NodeContainer *nodes() { return this->nodes_; }
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
