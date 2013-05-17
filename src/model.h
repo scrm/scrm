@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <vector>
 #include <cfloat>
+#include <algorithm>
 
 #include "param.h"
 
@@ -64,14 +65,25 @@ class Model
 
   private:
    size_t addChangeTime(double time);
-   void addSampleSizes(double time, std::vector<size_t>* samples_sizes);
-   void addPopulationSizes(double time, std::vector<size_t>* population_sizes);
+   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
+   void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
+   void addGrowthRates(double time, const std::vector<double> &growth_rates);
+   
+   template <typename T>
+   void deleteParList(std::vector<T*> &parList) {
+    typename std::vector<T*>::iterator it;
+    for (it = parList.begin(); it != parList.end(); ++it) {
+      if (*it != NULL) delete *it;
+    }
+    parList.clear();
+   }
 
    std::vector<double> change_times_;
    size_t current_time_idx_;
 
    std::vector<std::vector<size_t>*> population_sizes_list_;
    std::vector<std::vector<size_t>*> sample_sizes_list_;
+   std::vector<std::vector<double>*> growth_rates_list_;
 
    double mutation_rate_;
    double recombination_rate_;
