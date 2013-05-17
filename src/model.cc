@@ -90,3 +90,29 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
   size_t position = addChangeTime(time);
   growth_rates_list_[position] = growth_rates_heap; 
 }
+
+
+void Model::print(std::ostream &os) const {
+  os << "---- Model: ------------------------" << std::endl;
+  os << "Mutation rate: " << this->mutation_rate() << std::endl;  
+  os << "Recombination rate: " << this->recombination_rate() << std::endl;  
+  for (size_t idx = 0; idx < change_times_.size(); ++idx) { 
+    os << std::endl << "At time " << change_times_.at(idx) << ":" << std::endl;  
+    if (sample_sizes_list_.at(idx) != NULL) {
+      os << " Sample sizes: "; 
+      printVector(*(sample_sizes_list_.at(idx)), os);
+      os << std::endl;
+    }
+    if (population_sizes_list_.at(idx) != NULL) {
+      os << " Population sizes: "; 
+      printVector(*(population_sizes_list_.at(idx)), os);
+      os << std::endl;
+    }
+    if (growth_rates_list_.at(idx) != NULL) {
+      os << " Growth Rate: "; 
+      printVector(*(growth_rates_list_.at(idx)), os);
+      os << std::endl;
+    }
+  }
+  os << "------------------------------------" << std::endl;
+}

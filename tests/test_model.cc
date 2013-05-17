@@ -22,9 +22,9 @@ class TestModel : public CppUnit::TestCase {
  public:
   void testAddChangeTime() {
     Model model = Model();
-    std::vector<size_t> *v1 = new std::vector<size_t>(), 
-                        *v2 = new std::vector<size_t>(), 
-                        *v3 = new std::vector<size_t>(); 
+    std::vector<size_t> *v1 = new std::vector<size_t>(1, 1), 
+                        *v2 = new std::vector<size_t>(1, 2), 
+                        *v3 = new std::vector<size_t>(1, 3); 
 
     // Check basic adding first time;
     CPPUNIT_ASSERT( model.addChangeTime(1) == 0 );
@@ -127,6 +127,7 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size() );
   }
+
 
   void testGettersAndSetters() {
     //model.set_exact_window_length(100);

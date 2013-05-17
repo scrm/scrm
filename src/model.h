@@ -13,6 +13,7 @@
 #include <vector>
 #include <cfloat>
 #include <algorithm>
+#include <iostream>
 
 #include "param.h"
 
@@ -59,8 +60,17 @@ class Model
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
 
    void resetTime() { current_time_idx_ = 0; };
-   void increaseTime() { ++current_time_idx_; };
+   void increaseTime() { 
+     ++current_time_idx_; };
   
+   void print(std::ostream &os) const;
+
+   template <typename T>
+   void printVector(const std::vector<T> vec, std::ostream &os) const {
+     typename std::vector<T>::const_iterator it;
+     for (it = vec.begin(); it != vec.end(); ++it) os << *it << " "; 
+   }
+
    //const std::vector<double> &change_times() const { return model_change_times_; }
 
   private:
