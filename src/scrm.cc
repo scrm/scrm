@@ -51,7 +51,7 @@ int main(int argc, char *argv[]){
 		      tree_file  <<"//\n";
 			}
 			//std::cout << forest->getNodes()->size() << std::endl;
-			delete forest;
+			//delete forest;
 		}
 		tree_file.close();
       time_t end_time = time(0);

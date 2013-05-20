@@ -5,18 +5,23 @@
 #include"param.h"
 using namespace scrm; 
  
-param::param(){
-	nsites=25;
-	nsam=5;
-	npop=10000;
-	theta=0.00001;
-	rho=0.00000002;	
-	ith_change=25;
-  exact_window_length=0;
-	log_bool=false;
-	log_NAME="scrm.log";
-	treefile="TREEFILE";
+void param::init(){
+	this->random_seed=time(0); //int
+	this->nreps=1;
+	this->nsites=25;
+	this->nsam=5;
+	this->npop=10000;
+	this->theta=0.00001;
+	this->rho=0.00000002;	
+	this->ith_change=25;
+	this->exact_window_length=0;
+	this->log_bool=false;
+	this->log_NAME="scrm.log";
+	this->treefile="TREEFILE";
+}
 
+param::param(){
+	init();
 }
 
 param::param(int argc, char *argv[]){
@@ -24,21 +29,22 @@ param::param(int argc, char *argv[]){
 
 	
 	int argc_i=0;
+	init();
 	//read_input_to_int(argv[argc_i+1],nsam);
 	//argc_i++;
 
-	random_seed=time(0); //int
-	nsites=10000; //int
-	nreps=1;
-	//nsam=5; //int
-	npop=10000; //int
-	theta=0.00001;	//double
-	rho=0.0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
-	ith_change=25; //size_t
-	exact_window_length=0; //size_t
-	log_bool=false;
-	log_NAME="scrm.log";
-	treefile="TREEFILE";
+	
+	//nsites=10000; //int
+	//nreps=1;
+	////nsam=5; //int
+	//npop=10000; //int
+	//theta=0.00001;	//double
+	//rho=0.0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
+	//ith_change=25; //size_t
+	//exact_window_length=0; //size_t
+	//log_bool=false;
+	//log_NAME="scrm.log";
+	//treefile="TREEFILE";
 	while( argc_i < argc ){
 		
 		std::string argv_i(argv[argc_i]);
@@ -142,8 +148,9 @@ void param::print_param(){
 	}	
 
 void param::log_param(){
-	std::ofstream log_file;
-	log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+	//std::ofstream log_file;
+	//log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+	std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file<<"scrm parameters: \n";
 	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
 	log_file<<std::setw(10)<<"nreps"<<std::setw(10)<<nreps<<std::endl;

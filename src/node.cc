@@ -15,7 +15,10 @@ Node::Node(double height, bool local, size_t last_update, size_t samples_below)
   { init(height, local, last_update, samples_below); };
 Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below)
   { init(height, local, last_update, samples_below, length_below); };
-Node::~Node() {};
+Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label)
+  { init(height, local, last_update, samples_below, length_below, label); };
+  
+Node::~Node() {delete[] marginal_likelihood;};
 
 void Node::init(double height, bool local, size_t last_update,
                 size_t samples_below, double length_below,int label) {

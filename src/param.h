@@ -36,6 +36,7 @@ namespace scrm{
 		std::string treefile;
 	  size_t exact_window_length;
 		
+		void init();
 		param();
 		param(int argc, char *argv[]);
 		
@@ -45,7 +46,10 @@ namespace scrm{
 		std::string log_NAME;
 		
 		void log_param();
+		
+		
 		//private:
+		
 		
 	};
 }

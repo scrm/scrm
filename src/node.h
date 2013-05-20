@@ -31,6 +31,8 @@ class Node
   Node(double height, bool local, size_t last_update);
   Node(double height, bool local, size_t last_update, size_t samples_below);
   Node(double height, bool local, size_t last_update, size_t samples_below, double length_below);
+  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label);
+
   ~Node();
 
   //Getters & Setters
