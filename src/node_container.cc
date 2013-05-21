@@ -118,7 +118,11 @@ void NodeContainer::remove(Node *node, const bool &del) {
 
   node->previous()->set_next(node->next());
   node->next()->set_previous(node->previous());
-  if (del) delete node;
+  std::cout<<"hea"<<std::endl;
+  std::cout<<node<<" "<<&node <<" "<<(node==NULL)<<std::endl;
+  std::cout<<node->height()<<std::endl;
+  if (del){ delete node;}
+  std::cout<<"hea"<<std::endl;
   assert( this->sorted() );
 }
 

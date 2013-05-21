@@ -202,9 +202,22 @@ void Forest::buildInitialTree() {
   //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
-  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-	this->nodes()->get_copy(i)->index = i;  
+  //for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	//this->nodes()->get_copy(i)->index = i;  
+  //}
+  //size_t i = 0;
+  //for (ConstNodeIterator it = this->nodes()->iterator(); it.good(); ++it) {this->nodes()->get_copy(it)->index = i; i++;};
+  Node * current_node=this->getNodes()->first();
+  size_t i = 0;
+  cout<<this->getNodes()->size()<<endl;
+  while (i!= this->getNodes()->size()-1){
+	   current_node->index=i;
+	  current_node = current_node->next();
+	i++;
   }
+  	current_node->index=i;
+	
+  
 }
 
 
@@ -305,10 +318,23 @@ void Forest::sampleNextGenealogy() {
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-  //set the index for all forest nodes....
-  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-	this->nodes()->get_copy(i)->index = i;  
+
+
+  ////set the index for all forest nodes....
+  //for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	//this->nodes()->get_copy(i)->index = i;  
+  //}
+Node * current_node=this->getNodes()->first();
+  size_t i = 0;
+  cout<<this->getNodes()->size()<<endl;
+  while (i!= this->getNodes()->size()-1){
+	   current_node->index=i;
+	  current_node = current_node->next();
+	i++;
   }
+  	current_node->index=i;
+  	
+
   assert(this->printTree());
   assert(this->printNodes());
   assert(this->checkTree());

@@ -57,11 +57,12 @@ class Forest
 
   friend class TimeInterval;
   friend class TimeIntervalIterator;
-
+  //friend class NodeContainer;	
+	
+	
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(Forest * current_forest, bool entire_ARG=true);
-  //Forest(Forest current_forest);
   ~Forest();
 
 	
