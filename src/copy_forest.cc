@@ -1,9 +1,10 @@
 //copy_forest.cc
 #include "forest.h"
 Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is false, only copy the local tree (McVean2005)
-	initialize(current_forest->writable_model() ,current_forest->random_generator());
-	current_forest->printTree();
+	//this->initialize(current_forest->writable_model() ,current_forest->random_generator());
+	//current_forest->printTree();
 	//dout<<"There are "<<current_forest->getNodes()->size()<<" nodes"<<endl;
+	this->nodes_ = new NodeContainer();
 	dout<<"start adding nodes"<<std::endl;
 	
 	for(size_t i = 0; i < current_forest->getNodes()->size(); i++) {
