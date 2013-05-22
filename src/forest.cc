@@ -186,7 +186,6 @@ void Forest::buildInitialTree() {
     //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(0, true, 0, 1);
     new_leaf->set_label(i+1);
-    //cout<<new_leaf->label()<<endl;
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
     dout << "* staring coalesces" << std::endl;
@@ -202,20 +201,19 @@ void Forest::buildInitialTree() {
   //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
-  //for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-	//this->nodes()->get_copy(i)->index = i;  
-  //}
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	this->nodes()->get_copy(i)->index = i;  
+  }
   //size_t i = 0;
   //for (ConstNodeIterator it = this->nodes()->iterator(); it.good(); ++it) {this->nodes()->get_copy(it)->index = i; i++;};
-  Node * current_node=this->getNodes()->first();
-  size_t i = 0;
-  cout<<this->getNodes()->size()<<endl;
-  while (i!= this->getNodes()->size()-1){
-	   current_node->index=i;
-	  current_node = current_node->next();
-	i++;
-  }
-  	current_node->index=i;
+  //Node * current_node=this->getNodes()->first();
+  //size_t i = 0;
+  //while (i!= this->getNodes()->size()-1){
+	   //current_node->index=i;
+	  //current_node = current_node->next();
+	//i++;
+  //}
+  	//current_node->index=i;
 	
   
 }
@@ -321,18 +319,17 @@ void Forest::sampleNextGenealogy() {
 
 
   ////set the index for all forest nodes....
-  //for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-	//this->nodes()->get_copy(i)->index = i;  
-  //}
-Node * current_node=this->getNodes()->first();
-  size_t i = 0;
-  cout<<this->getNodes()->size()<<endl;
-  while (i!= this->getNodes()->size()-1){
-	   current_node->index=i;
-	  current_node = current_node->next();
-	i++;
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	this->nodes()->get_copy(i)->index = i;  
   }
-  	current_node->index=i;
+//Node * current_node=this->getNodes()->first();
+  //size_t i = 0;
+  //while (i!= this->getNodes()->size()-1){
+	   //current_node->index=i;
+	  //current_node = current_node->next();
+	//i++;
+  //}
+  	//current_node->index=i;
   	
 
   assert(this->printTree());
