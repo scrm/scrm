@@ -11,3 +11,9 @@ You are not allowed not use scrm to create derived software (as defined in the G
 revied journal without our explicit agreement. Please contact me in this case.
 
 This restriction will be removed once we published a paper about scrm ourselfs.
+
+## Installation
+On Debian/Ubuntu based systems:
+apt-get install build-essential libboost-all-dev autoconf doxygen libcppunit-dev
+./bootstrap
+make
