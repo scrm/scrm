@@ -14,6 +14,8 @@ This restriction will be removed once we published a paper about scrm ourselfs.
 
 ## Installation
 On Debian/Ubuntu based systems:
+```bash
 apt-get install build-essential libboost-all-dev autoconf doxygen libcppunit-dev
 ./bootstrap
 make
+```
