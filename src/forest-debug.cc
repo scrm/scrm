@@ -6,7 +6,9 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
+  this->model_ = new Model(4);
   this->nodes()->clear();
+
   Node* leaf1 = new Node(0, true, 0, 1);
   Node* leaf2 = new Node(0, true, 0, 1);
   Node* leaf3 = new Node(0, true, 0, 1);
@@ -15,7 +17,6 @@ void Forest::createExampleTree() {
   this->nodes()->add(leaf2);
   this->nodes()->add(leaf3);
   this->nodes()->add(leaf4);
-
 
   Node* node12 = new Node(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);

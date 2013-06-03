@@ -159,6 +159,8 @@ class TestModel : public CppUnit::TestCase {
 
   void testGetNextTime() {
     Model model = Model(7);
+    CPPUNIT_ASSERT( model.getNextTime() == FLT_MAX );
+
     model.addGrowthRates(1.0, std::vector<double>(1, 1.5));
     model.addGrowthRates(2.0, std::vector<double>(1, 1));
 
@@ -168,7 +170,6 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
     CPPUNIT_ASSERT( model.getNextTime() == FLT_MAX );
   }
-
 
   void testGetters() {
     Model model = Model(7);

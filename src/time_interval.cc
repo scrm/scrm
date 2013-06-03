@@ -65,21 +65,23 @@ TimeIntervalIterator::TimeIntervalIterator() {
   this->node_iterator_ = forest_->nodes()->iterator();
   this->good_ = true;
   this->inside_node_ = NULL;
+  this->model_changed_ = false;
 };
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
                                            Node const* start_node, 
                                            bool pruning) {
-  //std::cout << "New Iterator" << std::endl;
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator();
   this->contemporaries_ = std::vector<Node*>(0);
   this->pruning_ = pruning;
+  this->current_time_ = start_node->height();
+  this->model_changed_ = false;
   
-  //Skipt intervals below start_height
+  // Skipt intervals below start_height
   for( ; *node_iterator_ != start_node; node_iterator_++ ) {
     if ( ! node_iterator_.good() )
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
@@ -93,8 +95,12 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
       this->addToContemporaries(*node_iterator_);
   }
   
+  // Skip through model changes
+  while ( forest_->model().getNextTime() <= start_node->height() ) { 
+    forest_->writable_model()->increaseTime();
+  }
+
   next();
-  //std::cout << "New Iterator Created" << std::endl;
 }
 
 
@@ -117,37 +123,64 @@ void TimeIntervalIterator::next() {
     return;
   }
 
-  if (!node_iterator_.good()) {
+  if (current_time_ == FLT_MAX) {
     good_ = false;
     return;
   }
 
-  double start_height = (*node_iterator_)->height();
+  double start_height = this->current_time_;
 
-  //Update contemporaries
-  if ( (*node_iterator_)->first_child() != NULL ) 
-    this->removeFromContemporaries((*node_iterator_)->first_child());
-  if ( (*node_iterator_)->second_child() != NULL ) 
-    this->removeFromContemporaries((*node_iterator_)->second_child());
+  // Ensure that both iterators point into the future to determine the end of the
+  // interval 
+  if ( start_height >= forest_->model().getNextTime() ) { 
+    forest_->writable_model()->increaseTime();
+  } 
   
-  if ( !(*node_iterator_)->is_root() ) 
-    this->addToContemporaries(*node_iterator_);
+  if ( start_height >= (*node_iterator_)->height() ) {
+    //Update contemporaries
+    if ( (*node_iterator_)->first_child() != NULL ) 
+      this->removeFromContemporaries((*node_iterator_)->first_child());
+    if ( (*node_iterator_)->second_child() != NULL ) 
+      this->removeFromContemporaries((*node_iterator_)->second_child());
+    
+    if ( !(*node_iterator_)->is_root() ) 
+      this->addToContemporaries(*node_iterator_);
 
-  ++node_iterator_;
-  
-  // Pruning
-  while ( pruning_ && node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
-    forest_->prune(node_iterator_++);
+    // Move node iterator forwards
+    ++node_iterator_;
+
+    // Pruning
+    while ( pruning_ && node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
+      forest_->prune(node_iterator_++);
+    }
   }
 
-  double end_height;
-  if (node_iterator_.good()) end_height = (*node_iterator_)->height();
-  else end_height = FLT_MAX;
+  double next_model_change_ = forest_->model().getNextTime();
+
+  assert( current_time_ <= next_model_change_ );
+  assert( current_time_ <= node_iterator_.height() );
+ 
+
+  // Now determine the end of the interval
+  if ( node_iterator_.height() <= next_model_change_ ) {
+    current_time_ = node_iterator_.height();
+    model_changed_ = false;
+  } else  {
+    current_time_ = next_model_change_;
+    model_changed_ = true;
+  }
+  //std::cout << " Next Node: " << node_iterator_.height()
+  //          << " Next MC: " << next_model_change_ 
+  //          << " CT " << current_time_ << std::endl;
 
   //Don't return TimeIntervals of length zero, as nothing can happen there...
-  if (start_height == end_height) return next();
+  if (start_height == current_time_) return next();
   
-  this->current_interval_ = TimeInterval(this->forest_, start_height, end_height, &contemporaries_);
+  this->current_interval_ = TimeInterval(this->forest_, 
+                                         start_height, 
+                                         current_time_, 
+                                         &contemporaries_);
+
   assert( this->current_interval_.checkContemporaries() );  
 }
 

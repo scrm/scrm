@@ -65,9 +65,9 @@ class Forest
 
 	
   //Getters & Setters
-  const Model model() const { return *model_; }
-  Model* writable_model() { return this->model_; };
+  const Model &model() const { return *model_; }
   void set_model(Model* model) { this->model_ = model; }
+  Model* writable_model() { return this->model_; };
 
   Node* local_root() const { return local_root_; }
   void set_local_root(Node* local_root) { local_root_ = local_root; };
@@ -125,6 +125,7 @@ class Forest
 
 NodeContainer *nodes() { return this->nodes_; }
  private:
+
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
   void updateAbove(Node* node, 

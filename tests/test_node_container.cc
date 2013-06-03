@@ -14,6 +14,7 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testGet );
   CPPUNIT_TEST( testAdd );
   CPPUNIT_TEST( testNodeIterator );
+  CPPUNIT_TEST( testNodeIteratorHeight );
   CPPUNIT_TEST( testReverseIterator );
   CPPUNIT_TEST( testSize );
   CPPUNIT_TEST( testRemove );
@@ -206,6 +207,13 @@ class TestNodeContainer : public CppUnit::TestCase {
   }
   
 
+  void testNodeIteratorHeight() {
+    NodeIterator it = nc.iterator();
+    CPPUNIT_ASSERT( it.height() == 1 );
+    ++it; CPPUNIT_ASSERT( it.height() == 2 );
+    ++it; CPPUNIT_ASSERT( it.height() == 3 );
+    ++it; CPPUNIT_ASSERT( it.height() == FLT_MAX );
+  }
 };
 
 //Uncomment this to make_local the test

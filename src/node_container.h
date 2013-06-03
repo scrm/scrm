@@ -103,6 +103,11 @@ class NodeIterator {
   bool good() const { 
     return current_node_ != NULL;
   }
+
+  double height() const {
+    if ( good() ) return current_node_->height();
+    else return FLT_MAX;
+  }
   
 #ifdef UNITTEST
   friend class TestNodeContainer;

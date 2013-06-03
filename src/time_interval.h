@@ -73,10 +73,13 @@ class TimeIntervalIterator {
  private:
   Forest* forest_;
   TimeInterval current_interval_;
+  double current_time_;
   std::vector<Node*> contemporaries_;
   NodeIterator node_iterator_;
+
   bool good_;
   bool pruning_;
+  bool model_changed_;
 
   Node* inside_node_;
 };

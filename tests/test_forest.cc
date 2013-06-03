@@ -28,7 +28,7 @@ class TestForest : public CppUnit::TestCase {
  public:
   void setUp() {
     rg = new ConstantGenerator;
-    forest = new Forest(new Model(0), rg);
+    forest = new Forest(new Model(5), rg);
     forest->createExampleTree();
   }
 
@@ -45,7 +45,7 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testGettersAndSetters() {
-    CPPUNIT_ASSERT( forest->model().sample_size() == 0 );
+    CPPUNIT_ASSERT( forest->model().sample_size() == 4 );
   }
 
   void testGetFirstNode() {

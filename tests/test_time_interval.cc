@@ -13,9 +13,11 @@ class TestTimeInterval : public CppUnit::TestCase {
 
   CPPUNIT_TEST( testIteratorCreation );
   CPPUNIT_TEST( testIteratorNext );
+  CPPUNIT_TEST( testIteratorCreationWithTimeFrames );
+  CPPUNIT_TEST( testIteratorNextWithTimeFrames );
   CPPUNIT_TEST( testSplitIntervall );
   CPPUNIT_TEST( testSampleContemporary );
-  CPPUNIT_TEST( testRecalculateTI );
+//  CPPUNIT_TEST( testRecalculateTI );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -113,6 +115,49 @@ class TestTimeInterval : public CppUnit::TestCase {
       //std::cout << (*events).start_height() << " - " << (*events).end_height() << std::endl; 
     }
     CPPUNIT_ASSERT( i == 6 );
+  }
+
+  void testIteratorCreationWithTimeFrames() {
+    forest->writable_model()->addGrowthRates(0.0, std::vector<double>(1, 1.5));
+    forest->writable_model()->addGrowthRates(0.5, std::vector<double>(1, 1.5));
+    forest->writable_model()->addGrowthRates(1.5, std::vector<double>(1, 1.5));
+
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    CPPUNIT_ASSERT( (*it).start_height() == 0 );
+    CPPUNIT_ASSERT( (*it).end_height() == 0.5 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
+
+    it = TimeIntervalIterator(forest, forest->getNodes()->get(4));
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1.5 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
+  }
+
+  void testIteratorNextWithTimeFrames() {
+    forest->writable_model()->addGrowthRates(0.0, std::vector<double>(1, 1.5));
+    forest->writable_model()->addGrowthRates(0.5, std::vector<double>(1, 1.5));
+    forest->writable_model()->addGrowthRates(1, std::vector<double>(1, 1.5));
+    forest->writable_model()->addGrowthRates(1.5, std::vector<double>(1, 1.5));
+
+    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    CPPUNIT_ASSERT( (*it).start_height() == 0 );
+    CPPUNIT_ASSERT( (*it).end_height() == 0.5 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
+
+    CPPUNIT_ASSERT_NO_THROW( it.next() );
+    CPPUNIT_ASSERT( (*it).start_height() == 0.5 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
+
+    CPPUNIT_ASSERT_NO_THROW( it.next() );
+    CPPUNIT_ASSERT( (*it).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it).end_height() == 1.5 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
+    
+    CPPUNIT_ASSERT_NO_THROW( it.next() );
+    CPPUNIT_ASSERT( (*it).start_height() == 1.5 );
+    CPPUNIT_ASSERT( (*it).end_height() == 3 );
+    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
   }
 
   void testSplitIntervall() {
