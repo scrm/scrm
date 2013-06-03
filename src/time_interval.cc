@@ -65,7 +65,6 @@ TimeIntervalIterator::TimeIntervalIterator() {
   this->node_iterator_ = forest_->nodes()->iterator();
   this->good_ = true;
   this->inside_node_ = NULL;
-  this->model_changed_ = false;
 };
 
 
@@ -79,7 +78,6 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->contemporaries_ = std::vector<Node*>(0);
   this->pruning_ = pruning;
   this->current_time_ = start_node->height();
-  this->model_changed_ = false;
   
   // Skipt intervals below start_height
   for( ; *node_iterator_ != start_node; node_iterator_++ ) {
@@ -164,10 +162,8 @@ void TimeIntervalIterator::next() {
   // Now determine the end of the interval
   if ( node_iterator_.height() <= next_model_change_ ) {
     current_time_ = node_iterator_.height();
-    model_changed_ = false;
   } else  {
     current_time_ = next_model_change_;
-    model_changed_ = true;
   }
   //std::cout << " Next Node: " << node_iterator_.height()
   //          << " Next MC: " << next_model_change_ 
