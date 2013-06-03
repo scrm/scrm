@@ -14,6 +14,8 @@
 #include <cfloat>
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
+#include <cassert>
 
 #include "param.h"
 
@@ -39,15 +41,22 @@ class Model
    double recombination_rate() const { return recombination_rate_; }
 
    size_t sample_size(size_t pop = 0) const { 
+     if (sample_sizes_list_.at(current_time_idx_) == NULL) return 0; 
      return sample_sizes_list_.at(current_time_idx_)->at(pop);
+   }
+
+   double growth_rate(size_t pop = 0) const {
+     if (current_growth_rates_ == NULL) return 0;
+     return current_growth_rates_->at(pop);
    }
    
    size_t population_size(size_t pop = 0) const { 
-     return population_sizes_list_.at(current_time_idx_)->at(pop);
+     return current_pop_sizes_->at(pop);
    }
 
    size_t exact_window_length() const { return exact_window_length_; }
    size_t prune_interval() const { return prune_interval_; }
+   size_t population_number() const { return pop_number_; }
   
    
    double getCurrentTime() const { return change_times_.at(current_time_idx_); }
@@ -58,10 +67,25 @@ class Model
 
    void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
+   void set_population_number(const size_t &pop_number) { pop_number_ = pop_number; }
 
-   void resetTime() { current_time_idx_ = 0; };
+   void resetTime() { 
+     current_pop_sizes_ = pop_sizes_list_.at(0);
+     assert( current_pop_sizes_ != NULL );
+     current_growth_rates_ = growth_rates_list_.at(0);
+     assert( current_growth_rates_ != NULL );
+     current_time_idx_ = 0;
+   };
+
    void increaseTime() { 
-     ++current_time_idx_; };
+     if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
+     ++current_time_idx_;
+
+     if ( pop_sizes_list_.at(current_time_idx_) != NULL ) 
+       current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
+     if ( growth_rates_list_.at(current_time_idx_) != NULL ) 
+       current_growth_rates_ = growth_rates_list_.at(current_time_idx_); 
+   };
   
    void print(std::ostream &os) const;
 
@@ -89,14 +113,19 @@ class Model
    }
 
    std::vector<double> change_times_;
-   size_t current_time_idx_;
+   std::vector<double> sample_times_;
 
-   std::vector<std::vector<size_t>*> population_sizes_list_;
+   std::vector<std::vector<size_t>*> pop_sizes_list_;
    std::vector<std::vector<size_t>*> sample_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
 
+   std::vector<size_t>* current_pop_sizes_;
+   std::vector<double>* current_growth_rates_;
+   size_t current_time_idx_;
+
    double mutation_rate_;
    double recombination_rate_;
+   size_t pop_number_;
 
    size_t exact_window_length_;
    size_t prune_interval_;
