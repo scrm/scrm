@@ -3,20 +3,29 @@
  */
  
 #include"param.h"
+#include"mtrand.h"
+
 using namespace scrm; 
+
+void param::init(){
+	this->random_seed=time(0);
+	this->nsites=25;
+	this->nsam=5;
+	this->npop=10000;
+	this->theta=0.00001;
+	this->rho=0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
+	//this->rho=0.00000002;	
+	this->ith_change=25;
+	this->exact_window_length=0;
+	this->log_bool=false;
+	this->log_NAME="scrm.log";
+	this->treefile="TREEFILE";
+	this->seg_bool=true;
+	this->total_mut=0;
+	}
  
 param::param(){
-	nsites=25;
-	nsam=5;
-	npop=10000;
-	theta=0.00001;
-	rho=0.00000002;	
-	ith_change=25;
-  exact_window_length=0;
-	log_bool=false;
-	log_NAME="scrm.log";
-	treefile="TREEFILE";
-
+	this->init();
 }
 
 param::param(int argc, char *argv[]){
@@ -27,18 +36,19 @@ param::param(int argc, char *argv[]){
 	//read_input_to_int(argv[argc_i+1],nsam);
 	//argc_i++;
 
-	random_seed=time(0); //int
-	nsites=10000; //int
-	nreps=1;
-	//nsam=5; //int
-	npop=10000; //int
-	theta=0.00001;	//double
-	rho=0.0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
-	ith_change=25; //size_t
-	exact_window_length=0; //size_t
-	log_bool=false;
-	log_NAME="scrm.log";
-	treefile="TREEFILE";
+	//random_seed=time(0); //int
+	//nsites=10000; //int
+	//nreps=1;
+	////nsam=5; //int
+	//npop=10000; //int
+	//theta=0.00001;	//double
+	//rho=0.0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
+	//ith_change=25; //size_t
+	//exact_window_length=0; //size_t
+	//log_bool=false;
+	//log_NAME="scrm.log";
+	//treefile="TREEFILE";
+	this->init();
 	while( argc_i < argc ){
 		
 		std::string argv_i(argv[argc_i]);
@@ -98,8 +108,14 @@ param::param(int argc, char *argv[]){
 			argc_i++;
 		}
 		
+		if (argv_i=="-s"){
+			read_input_to_param<int>(argv[argc_i+1],total_mut);
+			argc_i++;
+		}
+		
 		if (argv_i=="-T"){
 			treefile=argv[argc_i+1];
+			seg_bool=false;
 			argc_i++;			
 		}
 		
@@ -118,12 +134,17 @@ param::param(int argc, char *argv[]){
 		argc_i++;
 	}
 	
+	//if (rho>0){
+		
+	//}
+	
 	remove(treefile.c_str());
 	if (log_bool){
 		remove(log_NAME.c_str());
 		log_param();
 	}
-	
+	MTRand_closed mt;
+	mt.seed(random_seed);		// initialize mt seed
 }
 
 

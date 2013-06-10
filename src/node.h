@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cassert>
 #include <string>
-
+#include <valarray>
 class Node
 {
  public:                       
@@ -107,9 +107,13 @@ class Node
 
   
   std::string tree_topo_bl;
-
+  
+  std::valarray <int> descndnt;
+  double mut_num() const { return this->mut_num_; }
+  void set_mut_num(const double &mut_num) { this->mut_num_ = mut_num; }
 
  private:
+ 
   void init(double heigh=-1, 
             bool local=true, 
             size_t last_update = 0, 
@@ -134,7 +138,9 @@ class Node
   Node *parent_;
   Node *first_child_;
   Node *second_child_;
+  
+  double mut_num_;
 };
-std::string writeTree(Node * node);
+std::string writeTree(Node * node,int npop);
 
 #endif
