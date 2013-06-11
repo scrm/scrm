@@ -86,6 +86,7 @@ param::param(int argc, char *argv[]){
 		if (argv_i=="-r"){
 			//read_input_to_double(argv[argc_i+1],rho);
 			read_input_to_param<double>(argv[argc_i+1],rho);
+			seg_bool=false;
 			argc_i++;
 		}
 		
