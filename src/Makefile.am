@@ -12,6 +12,8 @@ node.cc node.h \
 node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
+seg.cc seg.h \
+mtrand.cc mtrand.h \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \
@@ -26,6 +28,8 @@ node.cc node.h \
 node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
+seg.cc seg.h \
+mtrand.cc mtrand.h \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \
@@ -40,11 +44,13 @@ node.cc node.h \
 node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
+seg.cc seg.h \
+mtrand.cc mtrand.h \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \
 random/mersenne_twister.cc   random/random_generator.h \
 random/fastfunc.cc           random/fastfunc.h
 
-include_HEADERS = forest.h model.h node.h node_container.h time_interval.h tree_point.h \
+include_HEADERS = seg.h mtrand.h forest.h model.h node.h node_container.h time_interval.h tree_point.h \
 	          random/constant_generator.h random/mersenne_twister.h random/random_generator.h

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <ctime>
-
 #include "forest.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
@@ -12,8 +11,6 @@ int main(int argc, char *argv[]){
 	//param user_para;
 	//check_and_remove("scrm.log");
 	if (argc==1 ){
-		//scrm_help help;
-		//help.print_help();
 		print_help();
 	}	//else, proceed
 
@@ -31,13 +28,21 @@ int main(int argc, char *argv[]){
 
       // NORMAL RUN
       std::ofstream tree_file;
-      
-      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       for (size_t rep_i=0;rep_i<user_para.nreps;rep_i++){
 	      Forest * forest = new Forest(model, rg);
 	      forest->buildInitialTree();
-	      tree_file << forest->local_root()->tree_topo_bl <<"\n";
-			if (user_para.rho > 0){
+	      if (user_para.total_mut==0){	
+		    tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+			tree_file << forest->local_root()->tree_topo_bl <<"\n";  
+			tree_file.close();	
+		  }
+
+	      if (user_para.seg_bool){
+			forest->seg_data(user_para.treefile, user_para.total_mut);
+		  }
+			if (user_para.rho > 0.0){
+				std::ofstream tree_file;
+				tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 		      //for (size_t i=2; i <= user_para.ith_change; ++i) {
 		        //if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
 				  double nextbase=0;
@@ -48,12 +53,17 @@ int main(int argc, char *argv[]){
 		        forest->sampleNextGenealogy();
 		        tree_file << "["<<floor(nextbase) <<"] "<< forest->local_root()->tree_topo_bl <<"\n";
 		      }
-		      tree_file  <<"//\n";
+		      //tree_file  <<"//\n";
+			  tree_file.close();	
 			}
+			
+		    tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+			tree_file  <<"//\n";
+			tree_file.close();	
 			//std::cout << forest->getNodes()->size() << std::endl;
 			//delete forest;
 		}
-		tree_file.close();
+		
       time_t end_time = time(0);
       
       std::cout << "Simulation took about " << end_time - start_time 

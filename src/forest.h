@@ -123,11 +123,17 @@ class Forest
   bool printTree();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
-  
-
 
   NodeContainer *nodes() { return this->nodes_; }
+
+  //segegrating sites
+  void seg_data(string treefile, int total_mut);
+  
  private:
+  //segegrating sites  
+  void find_descndnt();
+  void exp_mut_num(int total_mut);
+
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
   void updateAbove(Node* node, 

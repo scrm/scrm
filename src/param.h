@@ -19,12 +19,13 @@
 namespace scrm{
 	class param{
 		public:
-		
+		bool seg_bool;
+		int total_mut;
 		int random_seed;
 		int nreps; // number of replicates
 		int nsites; //number of sites
 		
-		int npop; // population size Ne
+		int npop; // population size Ne, diploid samples
 		int nsam; // number of samples
 		/*! \todo Check for the definition of rho */ 
 		double rho; // recombination rate per site r, recombination rate per generation rho is 4*N*r, where N is the number of population size per generation 

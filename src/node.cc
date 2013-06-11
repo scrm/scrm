@@ -37,6 +37,7 @@ void Node::init(double height, bool local, size_t last_update,
   this->mutation_state=false;
   this->marginal_likelihood[0]=0;
   this->marginal_likelihood[1]=0;
+  this->set_mut_num(0);
 }
 
 Node* Node::parent() const {
@@ -82,7 +83,7 @@ bool Node::in_sample() const {
  * Extract the string to represent the subtree that is descendant from node.
 
 */
-std::string writeTree(Node * node){
+std::string writeTree(Node * node, int npop){
 	
 	//if (node->tree_topo_bl.size()>0){
 		//return node->tree_topo_bl;
@@ -92,20 +93,20 @@ std::string writeTree(Node * node){
 			std::ostringstream label_strm;
 			label_strm<<node->label();
 			std::ostringstream bl_strm;
-			bl_strm<< (node->parent_height() - node->height());
+			bl_strm<< (node->parent_height() - node->height())/4/npop;
 			node->tree_topo_bl = label_strm.str()+":"+bl_strm.str();
 			return node->tree_topo_bl;
 		}
 		else{	
 			//if (node->is_root()){
 			if (!node->local()){
-				node->tree_topo_bl="("+ writeTree(node->first_child()) +","+ writeTree(node->second_child())+");";
+				node->tree_topo_bl="("+ writeTree(node->first_child(),npop) +","+ writeTree(node->second_child(),npop)+");";
 				return node->tree_topo_bl;
 				}
 			else{
 				std::ostringstream bl_strm;
-				bl_strm<< (node->parent_height() - node->height());
-				node->tree_topo_bl="("+ writeTree(node->first_child()) +","+ writeTree(node->second_child())+"):"+bl_strm.str();;
+				bl_strm<< (node->parent_height() - node->height())/4/npop;
+				node->tree_topo_bl="("+ writeTree(node->first_child(),npop) +","+ writeTree(node->second_child(),npop)+"):"+bl_strm.str();;
 				return node->tree_topo_bl;
 			}
 		}	

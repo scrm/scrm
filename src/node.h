@@ -15,7 +15,7 @@
 #include <iostream>
 #include <cassert>
 #include <string>
-
+#include <vector>
 class Node
 {
  public:                       
@@ -111,9 +111,14 @@ class Node
   std::string tree_topo_bl;
   bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
   double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
-//marginal_likelihood[1] is the marginal probability of P(X = 1), 
+								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
+
+  std::vector <int> descndnt;
+  double mut_num() const { return this->mut_num_; }
+  void set_mut_num(const double &mut_num) { this->mut_num_ = mut_num; }
 
  private:
+ 
   void init(double heigh=-1, 
             bool local=true, 
             size_t last_update = 0, 
@@ -139,7 +144,8 @@ class Node
   Node *first_child_;
   Node *second_child_;
   
+  double mut_num_;
 };
-std::string writeTree(Node * node);
+std::string writeTree(Node * node,int npop);
 
 #endif
