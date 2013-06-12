@@ -48,7 +48,7 @@ int main(int argc, char *argv[]){
 				  double nextbase=0;
 			  while (nextbase < user_para.nsites ) {
 
-		        nextbase=forest->current_base() +forest->random_generator()->sampleExpo(forest->local_tree_length() * forest->writable_model()->recombination_rate() / 4.0 / forest->writable_model()->population_size());
+		        nextbase=forest->current_base() +forest->random_generator()->sampleExpo(forest->local_tree_length() * forest->writable_model()->recombination_rate() ); // The waiting time is T*r
 		        forest->set_current_base(nextbase);    
 		        forest->sampleNextGenealogy();
 		        tree_file << "["<<floor(nextbase) <<"] "<< forest->local_root()->tree_topo_bl <<"\n";
