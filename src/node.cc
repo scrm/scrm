@@ -89,7 +89,8 @@ std::string writeTree(Node * node, int npop){
 		//return node->tree_topo_bl;
 	//}
 	//else{
-		if(node->first_child() == NULL){
+		if(node->first_child() == NULL && ((node->label())>0)){
+		//if(node->label()>0){
 			std::ostringstream label_strm;
 			label_strm<<node->label();
 			std::ostringstream bl_strm;
