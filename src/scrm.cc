@@ -27,36 +27,56 @@ int main(int argc, char *argv[]){
       //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
       // NORMAL RUN
-      std::ofstream tree_file;
+      
       for (size_t rep_i=0;rep_i<user_para.nreps;rep_i++){
 	      Forest * forest = new Forest(model, rg);
 	      forest->buildInitialTree();
 	      if (user_para.total_mut==0){	
+			std::ofstream tree_file;
 		    tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 			tree_file << forest->local_root()->tree_topo_bl <<"\n";  
 			tree_file.close();	
 		  }
-
+		
+		  if (user_para.tmrca_bool){
+			std::ofstream tmrca_file;
+		    tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+			tmrca_file << forest->local_root()->height() <<"\n";  
+			tmrca_file.close();	
+		  }
 	      if (user_para.seg_bool){
 			forest->seg_data(user_para.treefile, user_para.total_mut);
 		  }
 			if (user_para.rho > 0.0){
 				std::ofstream tree_file;
 				tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-		      //for (size_t i=2; i <= user_para.ith_change; ++i) {
-		        //if ( i % 100 == 0 ) std::cout << "active recs done " << i << std::endl;
-				  double nextbase=0;
-			  while (nextbase < user_para.nsites ) {
-
-		        nextbase=forest->current_base() +forest->random_generator()->sampleExpo(forest->local_tree_length() * forest->writable_model()->recombination_rate() ); // The waiting time is T*r
-		        forest->set_current_base(nextbase);    
+			  string previous_genealogy=forest->local_root()->tree_topo_bl;
+			  
+			  int previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+		      //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
+			 
+			  while (forest->next_base() < user_para.nsites ) {
 		        forest->sampleNextGenealogy();
-		        tree_file << "["<<floor(nextbase) <<"] "<< forest->local_root()->tree_topo_bl <<"\n";
+		        //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
+		      
+		        if (forest->local_root()->tree_topo_bl == previous_genealogy){
+					previous_last_for=previous_last_for+ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+				}
+				else{
+				    tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
+				    previous_genealogy=forest->local_root()->tree_topo_bl;
+				    previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+				}
+		      
 		      }
+		      //previous_last_for=previous_last_for-ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+		      //previous_last_for=user_para.nsites
+		      tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<"\n";
+		      
 		      //tree_file  <<"//\n";
 			  tree_file.close();	
 			}
-			
+			std::ofstream tree_file;
 		    tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 			tree_file  <<"//\n";
 			tree_file.close();	
@@ -70,14 +90,14 @@ int main(int argc, char *argv[]){
                 << " second(s)" << std::endl;
                 
       if (user_para.log_bool){          
-				std::ofstream log_file;
-				log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-				log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
-				log_file << "Trees are saved in: "<<user_para.treefile<<"\n";
-				log_file.close();
-				string system_cmd="cat "+user_para.log_NAME;
-				system(system_cmd.c_str());
-			}
+			std::ofstream log_file;
+			log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+			log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
+			log_file << "Trees are saved in: "<<user_para.treefile<<"\n";
+			log_file.close();
+			string system_cmd="cat "+user_para.log_NAME;
+			system(system_cmd.c_str());
+		}
     }
     catch (const exception &e)
     {

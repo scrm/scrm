@@ -146,6 +146,6 @@ class Node
   
   double mut_num_;
 };
-std::string writeTree(Node * node,int npop);
+std::string writeTree(Node * node,int npop,double bl_above);
 
 #endif

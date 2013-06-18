@@ -24,7 +24,7 @@ Model::Model(param user_input) {
   this->set_sample_size(user_input.nsam);
   this->set_population_size(user_input.npop);
   this->set_mutation_rate(user_input.theta);
-  this->set_recombination_rate(user_input.rho);
+  this->set_recombination_rate(user_input.recomb_rate_persite);
   this->set_exact_window_length(user_input.exact_window_length);
   this->set_smc_model(false);
   this->set_prune_interval(10);
