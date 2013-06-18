@@ -9,19 +9,22 @@ using namespace scrm;
 
 void param::init(){
 	this->random_seed=time(0);
-	this->nsites=25;
+	this->nsites=1000000;
 	this->nsam=5;
 	this->npop=10000;
 	this->theta=0.00001;
-	this->rho=0;	//double per genration per site, in ms, RHO = 4 * npop * rho * (nsites-1), 
+	this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
+	this->recomb_rate_persite=0;
 	//this->rho=0.00000002;	
 	this->ith_change=25;
 	this->exact_window_length=0;
 	this->log_bool=false;
 	this->log_NAME="scrm.log";
 	this->treefile="TREEFILE";
-	this->seg_bool=true;
+	this->seg_bool=false;
 	this->total_mut=0;
+	this->tmrca_bool=false;
+	this->tmrca_NAME="tmrcaFILE";
 	}
 
 param::param(){
@@ -67,7 +70,7 @@ param::param(int argc, char *argv[]){
 		
 		if (argv_i=="-nsites"){
 			//read_input_to_int(argv[argc_i+1],random_seed);
-			read_input_to_param<int>(argv[argc_i+1],nsites);
+			read_input_to_param<double>(argv[argc_i+1],nsites);
 			argc_i++;
 		}
 
@@ -86,8 +89,15 @@ param::param(int argc, char *argv[]){
 		if (argv_i=="-r"){
 			//read_input_to_double(argv[argc_i+1],rho);
 			read_input_to_param<double>(argv[argc_i+1],rho);
-			seg_bool=false;
+			seg_bool=false; // this needs to be changed
 			argc_i++;
+			if (argc_i+1 < argc){
+				if (argv[argc_i+1][0]!='-'){
+					read_input_to_param<double>(argv[argc_i+1],nsites);
+					argc_i++;
+				}
+				//else{argc_i--;}
+			}
 		}
 		
 		if (argv_i=="-l"){
@@ -107,6 +117,18 @@ param::param(int argc, char *argv[]){
 			argc_i++;			
 		}
 		
+		if (argv_i=="-tmrca"){
+			tmrca_bool=true;
+			argc_i++;
+			if (argc_i < argc){
+				if (argv[argc_i][0]!='-'){
+					tmrca_NAME=argv[argc_i];
+					//argc_i++;
+				}
+				else{argc_i--;}
+			}
+		}
+		
 		if (argv_i=="-log"){
 			log_bool=true;
 			argc_i++;
@@ -116,8 +138,7 @@ param::param(int argc, char *argv[]){
 					//argc_i++;
 				}
 				else{argc_i--;}
-			}
-			
+			}			
 		}
 		argc_i++;
 	}
@@ -125,12 +146,13 @@ param::param(int argc, char *argv[]){
 	//if (rho>0){
 		
 	//}
-	
+	recomb_rate_persite=rho/4 / npop / (nsites-1);
 	remove(treefile.c_str());
 	if (log_bool){
 		remove(log_NAME.c_str());
 		log_param();
 	}
+	if (tmrca_bool){remove(tmrca_NAME.c_str());}
 	MTRand_closed mt;
 	mt.seed(random_seed);		// initialize mt seed
 }

@@ -197,7 +197,8 @@ void Forest::buildInitialTree() {
     assert(this->printNodes());
     assert(this->checkTree());
   }
-  writeTree(this->local_root(),this->model_->population_size());
+  this->set_next_base();
+  writeTree(this->local_root(),this->model_->population_size(), 0.0);
   //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
@@ -287,6 +288,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * subtree below away and starts a coalescence from it's root.
  */
 void Forest::sampleNextGenealogy() {
+  this->set_current_base(next_base_);
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
 
@@ -335,8 +337,8 @@ void Forest::sampleNextGenealogy() {
   assert(this->printTree());
   assert(this->printNodes());
   assert(this->checkTree());
-  
-  writeTree(this->local_root(),this->model_->population_size());
+  this->set_next_base();
+  writeTree(this->local_root(),this->model_->population_size(),0);
 }
 
 
