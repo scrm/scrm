@@ -85,7 +85,7 @@ Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is fa
 	this->set_expo_sample(current_forest->expo_sample());
 	this->set_prune_countdown(current_forest->prune_countdown());
 	this->set_pruning(current_forest->pruning());
-
+	this->set_next_base();
 
 	dout<<"  #################### check copied forest ###############"<<std::endl;
 	assert(this->printTree());
