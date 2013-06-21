@@ -71,9 +71,7 @@ class Model
 
    void resetTime() { 
      current_pop_sizes_ = pop_sizes_list_.at(0);
-     assert( current_pop_sizes_ != NULL );
      current_growth_rates_ = growth_rates_list_.at(0);
-     assert( current_growth_rates_ != NULL );
      current_time_idx_ = 0;
    };
 

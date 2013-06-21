@@ -139,6 +139,7 @@ class TestModel : public CppUnit::TestCase {
     Model model = Model(7);
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size() );
+    CPPUNIT_ASSERT( model.growth_rate(0) == 0 );
   }
 
   void testIncreaseTime() {
