@@ -31,7 +31,10 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  delete nodes_;
+  dout<<"Forest destructor is called"<<endl;
+  //delete[] nodes_;
+  nodes()->clear();
+  dout<<"Forest is deleted"<<endl;
 }
 
 
@@ -177,6 +180,7 @@ void Forest::buildInitialTree() {
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
+  first_node->set_label(1);
   dout << "done." << std::endl;
 
   for (size_t i=1; i < this->model().sample_size(); i++) {
@@ -184,6 +188,7 @@ void Forest::buildInitialTree() {
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(0, true, 0, 1);
+    new_leaf->set_label(i+1);
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
     dout << "* staring coalesces" << std::endl;
@@ -195,11 +200,26 @@ void Forest::buildInitialTree() {
     assert(this->printNodes());
     assert(this->checkTree());
   }
+  this->set_next_base();
+  writeTree(this->local_root(),this->model_->population_size(), 0.0);
+  //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
   for(size_t i = 0; i < this->getNodes()->size(); ++i) {
 	this->nodes()->get_copy(i)->index = i;  
   }
+  //size_t i = 0;
+  //for (ConstNodeIterator it = this->nodes()->iterator(); it.good(); ++it) {this->nodes()->get_copy(it)->index = i; i++;};
+  //Node * current_node=this->getNodes()->first();
+  //size_t i = 0;
+  //while (i!= this->getNodes()->size()-1){
+	   //current_node->index=i;
+	  //current_node = current_node->next();
+	//i++;
+  //}
+  	//current_node->index=i;
+	
+  
 }
 
 
@@ -271,6 +291,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * subtree below away and starts a coalescence from it's root.
  */
 void Forest::sampleNextGenealogy() {
+  this->set_current_base(next_base_);
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
 
@@ -300,17 +321,27 @@ void Forest::sampleNextGenealogy() {
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-  //set the index for all forest nodes....
+
+
+  ////set the index for all forest nodes....
   for(size_t i = 0; i < this->getNodes()->size(); ++i) {
 	this->nodes()->get_copy(i)->index = i;  
   }
+//Node * current_node=this->getNodes()->first();
+  //size_t i = 0;
+  //while (i!= this->getNodes()->size()-1){
+	   //current_node->index=i;
+	  //current_node = current_node->next();
+	//i++;
+  //}
+  	//current_node->index=i;
+  	
+
   assert(this->printTree());
   assert(this->printNodes());
   assert(this->checkTree());
-  
-  
-
-  
+  this->set_next_base();
+  writeTree(this->local_root(),this->model_->population_size(),0);
 }
 
 

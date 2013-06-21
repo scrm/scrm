@@ -14,8 +14,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-
-
+#include <string>
+#include <vector>
 class Node
 {
  public:                       
@@ -31,6 +31,8 @@ class Node
   Node(double height, bool local, size_t last_update);
   Node(double height, bool local, size_t last_update, size_t samples_below);
   Node(double height, bool local, size_t last_update, size_t samples_below, double length_below);
+  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label);
+
   ~Node();
 
   //Getters & Setters
@@ -81,7 +83,9 @@ class Node
     else if (second_child() == NULL) return 1;
     else return 2;
   }
-
+  
+  void set_label(int label){label_=label;}
+  int label() const{return label_;}
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
@@ -103,13 +107,25 @@ class Node
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
 
+  
+  std::string tree_topo_bl;
+  bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
+  double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
+								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
+
+  std::vector <int> descndnt;
+  double mut_num() const { return this->mut_num_; }
+  void set_mut_num(const double &mut_num) { this->mut_num_ = mut_num; }
+
  private:
+ 
   void init(double heigh=-1, 
             bool local=true, 
             size_t last_update = 0, 
             size_t samples_below=0, 
-            double length_below=0);
-
+            double length_below=0,
+            int label=0);
+  int label_;
   double height_;        // The total height of the node
   bool   local_;        // Indicates if the branch above is local,
   // i.e. on the local tree
@@ -127,6 +143,9 @@ class Node
   Node *parent_;
   Node *first_child_;
   Node *second_child_;
+  
+  double mut_num_;
 };
+std::string writeTree(Node * node,int npop,double bl_above);
 
 #endif

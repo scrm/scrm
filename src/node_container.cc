@@ -118,7 +118,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
 
   node->previous()->set_next(node->next());
   node->next()->set_previous(node->previous());
-  if (del) delete node;
+  if (del){ delete node;}
   assert( this->sorted() );
 }
 
@@ -165,16 +165,34 @@ size_t NodeContainer::size() const {
 // The loop deletes the node from the previous iteration because we still need
 // the current node for calling ++it.
 void NodeContainer::clear() {
+  dout<<"NodeContainer::clear() is called"<<std::endl;
+  Node* tmp = NULL;
+  for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
+    if (tmp != NULL) delete tmp;
+    tmp = *it;
+  }
+  dout<<"all node deleted"<<std::endl;
+  if (tmp != NULL) delete tmp;
+  set_first(NULL);
+  set_last(NULL);
+  dout<<"NodeContainer is deleted"<<std::endl;
+}
+
+NodeContainer::~NodeContainer() {
+  dout<<"first node is "<<this->get(1)<<std::endl;
+  dout<<"NodeContainer destructor is called"<<std::endl;
   Node* tmp = NULL;
   for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
     if (tmp != NULL) delete tmp;
     tmp = *it;
   }
   if (tmp != NULL) delete tmp;
+  dout<<"all node deleted"<<std::endl;
+
   set_first(NULL);
   set_last(NULL);
+  dout<<"NodeContainer is deleted"<<std::endl;
 }
-
 
 void NodeContainer::add_before(Node* add, Node* next_node){
   //std::cout << "Adding: " << add << " after " << after << std::endl;

@@ -1,13 +1,30 @@
-\documentclass{article}
-\usepackage{hyperref}
-
-\usepackage{natbib}
+\documentclass[12pt]{article}
+% \usepackage{fullpage}
+\usepackage{graphics,graphicx,subfig}
+\usepackage{amsmath,multicol,lscape,framed,amssymb}
+\usepackage{graphicx,epic,subfig,graphicx,tikz,pifont}
+%\usepackage{multirow,epic}
+% \usepackage{algorithmic,algorithm}
+\usepackage{hyperref,hypcap}
+\usepackage{natbib}%
+\usepackage{longtable}
+\usepackage{textcomp}%to use \textquotesingle
+% \captionsetup{type=figure}
+\hypersetup{
+colorlinks,%
+citecolor=blue,%
+filecolor=black,%
+linkcolor=blue,%
+urlcolor=blue,
+}
+\usepackage{setspace}
+%\bibliographystyle{plain}
 
 \newcommand{\cm}[1]{\begin{center}{\tt #1}\end{center}}
 
 \title{{\tt scrm} manual}
-\author{Paul R. Staab}
-
+\author{Paul R. Staab, Sha Zhu}
+\date{}
 \begin{document}
 \maketitle
 
@@ -23,7 +40,42 @@ $./bootstrap
 $make
 \end{verbatim}
 
-\section{Blah Blah examples or something}
+\section{Basic command}
+\cm{scrm nsam }
+
+
+\cm{scrm nsam nreps -T [FILENAME]}
+
+
+\section{Simulation for segregating sites???????}
+\cm{scrm nsam nreps -t $\theta$}
+
+
+
+\section{Recombination}
+
+
+\cm{scrm nsam nreps -t $\theta$ -r $\rho$ [-nsitis NSITES] [-npop NPOP] }
+
+\cm{scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 }
+
+
+
+\section{Options}
+\begin{longtable}{lp{9cm}}
+{\tt -T [FILENAME]} & Save output trees to file specified by {\tt FILENAME}. If {\tt FILENAME} is not given, trees are saved in file {\tt TREEFILE}.\\
+ {\tt  -r} $\rho$ &  User define the recombination rate $\rho$, per gerneration per site.\\
+ {\tt  -nsites} NSITES &  User define the sequence length NSITES. \\
+  {\tt -t} $\theta$  &  User define the mutation rate THETA. \\
+{\tt -npop} NPOP &  User define the population size NPOP. \\
+ {\tt -seed} SEED  &  User define the random SEED. \\
+{\tt -l} exact\_window\_length &  User define the length of the exact window. \\
+
+ {\tt -log [LOGFILE]} & Save the log of the simulation to file specified by {\tt LOGFILE}. If {\tt LOGFILE} is not given, it is save at {\tt scrm.log} by default.  
+\end{longtable}
+
+
+
 \nocite{mcvean_approximating_2005}
 
 \bibliographystyle{plain}

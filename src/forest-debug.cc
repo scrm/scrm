@@ -289,6 +289,10 @@ bool Forest::printTree() {
 }
 
 
+
+
+
+
 /**
  *  For printing the tree, each node gets assigned its own column in the printed area, 
  *  referred to as its positions. This function determines the position for all
