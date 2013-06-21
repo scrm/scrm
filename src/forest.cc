@@ -31,7 +31,10 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  delete[] nodes_;
+  dout<<"Forest destructor is called"<<endl;
+  //delete[] nodes_;
+  nodes()->clear();
+  dout<<"Forest is deleted"<<endl;
 }
 
 

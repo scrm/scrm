@@ -5,9 +5,15 @@
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
+#include <iostream>
 
 #include "node.h"
-
+#ifndef NDEBUG
+#define dout std::cout
+#else
+#pragma GCC diagnostic ignored "-Wunused-value"
+#define dout 0 && std::cout
+#endif
 class NodeIterator;
 class ConstNodeIterator;
 class ReverseConstNodeIterator;
@@ -15,8 +21,9 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-  ~NodeContainer() { clear(); }
-  
+  //~NodeContainer(){ clear(); }
+    ~NodeContainer();
+    
   NodeIterator iterator();
   ConstNodeIterator iterator() const;
   ReverseConstNodeIterator reverse_iterator() const;
