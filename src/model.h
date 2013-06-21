@@ -19,6 +19,7 @@
 
 #include "param.h"
 
+namespace scrm {};
 using namespace scrm; 
 
 class Model
@@ -32,7 +33,7 @@ class Model
 
    Model();
    Model(size_t sample_size);
-   Model(param user_input);
+   //Model(param user_input);
    
    ~Model();
    

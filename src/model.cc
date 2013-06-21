@@ -18,15 +18,6 @@ Model::Model(size_t sample_size) {
 }
 
 
-Model::Model(param user_input) {
-  //TimeFramePars tfp = {user_input.nsam, user_input.npop, user_input.theta, user_input.rho};
-
-  this->set_exact_window_length(user_input.exact_window_length);
-  //this->set_smc_model(false);
-  this->set_prune_interval(10);
-}
-
-
 Model::~Model() { 
   deleteParList(sample_sizes_list_);
   deleteParList(pop_sizes_list_);

@@ -1,22 +1,21 @@
-/* param.h 
- * */
-
-#include<iostream>
-#include<iomanip>      
-#include<string>
-#include<sstream>
-#include<fstream>
-#include<iostream>
-#include<stdlib.h>  
-#include<stdio.h>
-#include<stdexcept>
-
-
-
 #ifndef SCRM_PARAM_INCLUDED
 #define SCRM_PARAM_INCLUDED
 
+#include <iostream>
+#include <iomanip>      
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+#include <stdlib.h>  
+#include <stdio.h>
+#include <stdexcept>
+#include "mtrand.h"
+#include "model.h"
+
 namespace scrm{
+  class model;
+
 	class param{
 		public:
 		bool seg_bool;
@@ -42,7 +41,7 @@ namespace scrm{
 		
 		void init();
 		param();
-		param(int argc, char *argv[]);
+		param(Model *model, int argc, char *argv[]);
 		
 		void print_param();
 		
@@ -79,7 +78,6 @@ void read_input_to_param(char inchar[], T &input)
 	}
 	else{
             throw std::invalid_argument("Invalid argument type. ");
-		//std::cout<<"Invalid argument. "<<std::endl; //Error message
 	}	
 }
 
