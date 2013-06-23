@@ -201,7 +201,7 @@ void Forest::buildInitialTree() {
     assert(this->checkTree());
   }
   this->set_next_base();
-  writeTree(this->local_root(),this->model_->population_size(), 0.0);
+  //writeTree(this->local_root(),this->model_->population_size(), 0.0);
   //cout<<this->local_root()->tree_topo_bl<<endl;
   
     //set the index for all forest nodes....
@@ -341,7 +341,7 @@ void Forest::sampleNextGenealogy() {
   assert(this->printNodes());
   assert(this->checkTree());
   this->set_next_base();
-  writeTree(this->local_root(),this->model_->population_size(),0);
+  //writeTree(this->local_root(),this->model_->population_size(),0);
 }
 
 

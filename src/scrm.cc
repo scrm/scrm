@@ -34,7 +34,8 @@ int main(int argc, char *argv[]){
       if (user_para.total_mut==0){	
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        tree_file << forest->local_root()->tree_topo_bl <<"\n";  
+        //tree_file << forest->local_root()->tree_topo_bl <<"\n";  
+        tree_file<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<"\n";
         tree_file.close();	
       }
 
@@ -50,21 +51,24 @@ int main(int argc, char *argv[]){
       if (user_para.rho > 0.0){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        string previous_genealogy=forest->local_root()->tree_topo_bl;
-
+        //string previous_genealogy=forest->local_root()->tree_topo_bl;
+string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
         int previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
         //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
 
         while (forest->next_base() < user_para.nsites ) {
           forest->sampleNextGenealogy();
           //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
+string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
 
-          if (forest->local_root()->tree_topo_bl == previous_genealogy){
+          if (current_genealogy == previous_genealogy){
             previous_last_for=previous_last_for+ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
           }
           else{
             tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
-            previous_genealogy=forest->local_root()->tree_topo_bl;
+            //previous_genealogy=forest->local_root()->tree_topo_bl;
+			previous_genealogy=current_genealogy;
+
             previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
           }
 

@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-#include <string>
+//#include <string>
 #include <vector>
 class Node
 {
@@ -108,7 +108,7 @@ class Node
   void set_previous(Node* previous) { previous_ = previous; }
 
   
-  std::string tree_topo_bl;
+  //std::string tree_topo_bl;
   bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
   double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
 								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
