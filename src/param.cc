@@ -3,7 +3,6 @@
  */
  
 #include"param.h"
-#include"mtrand.h"
 
 using namespace scrm; 
 
@@ -153,8 +152,8 @@ param::param(int argc, char *argv[]){
 		log_param();
 	}
 	if (tmrca_bool){remove(tmrca_NAME.c_str());}
-	MTRand_closed mt;
-	mt.seed(random_seed);		// initialize mt seed
+	//MTRand_closed mt;
+	//mt.seed(random_seed);		// initialize mt seed
 }
 
 

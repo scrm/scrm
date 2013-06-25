@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
     //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
     // NORMAL RUN
-
+    //
     for (size_t rep_i=0; rep_i<user_para.nreps; ++rep_i){
       Forest * forest = new Forest(model, rg);
       forest->buildInitialTree();
@@ -52,14 +52,14 @@ int main(int argc, char *argv[]){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         //string previous_genealogy=forest->local_root()->tree_topo_bl;
-string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+        string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
         int previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
         //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
 
         while (forest->next_base() < user_para.nsites ) {
           forest->sampleNextGenealogy();
           //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
-string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+          string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
 
           if (current_genealogy == previous_genealogy){
             previous_last_for=previous_last_for+ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
@@ -67,7 +67,7 @@ string current_genealogy=writeTree(forest->local_root(),forest->writable_model()
           else{
             tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
             //previous_genealogy=forest->local_root()->tree_topo_bl;
-			previous_genealogy=current_genealogy;
+            previous_genealogy=current_genealogy;
 
             previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
           }
