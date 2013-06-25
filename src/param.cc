@@ -213,38 +213,3 @@ void appending_log_file(std::string log_file_NAME,std::string log_file_input /*!
   log_file << log_file_input << "\n";
   log_file.close();
 }
-// The rest of the code can be removed ...
-
-void read_input_to_double(char inchar[], double &input){
-  if (isdigit(inchar[0])){
-    std::istringstream para_istrm(inchar);
-    para_istrm >> input;
-  }
-  else{
-    throw std::invalid_argument("Invalid argument type. double");
-    //		std::cout<<"Error"<<std::endl;//Error message
-  }	
-}
-
-void read_input_to_int(char inchar[], int &input){
-  if (isdigit(inchar[0])){
-    std::istringstream para_istrm(inchar);
-    para_istrm >> input;
-  }
-  else{
-    throw std::invalid_argument("Invalid argument type. int");
-    //std::cout<<"Error "<<std::endl;//Error message
-  }	
-}
-
-void read_input_to_size_t(char inchar[], size_t &input){
-  if (isdigit(inchar[0])){
-    std::istringstream para_istrm(inchar);
-    para_istrm >> input;
-  }
-  else{
-    throw std::invalid_argument("Invalid argument type. size_t");
-    //		std::cout<<"Error"<<std::endl; //Error message
-  }	
-}
-

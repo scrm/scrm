@@ -3,6 +3,8 @@
 
 #include <cassert>
 #include <cmath>
+#include <boost/math/distributions/poisson.hpp>
+
 #include "fastfunc.h"
 
 
@@ -26,6 +28,11 @@ class RandomGenerator
    double sampleExpo(double lambda);
    double sampleExpoLimit(double lambda, double limit);
    double sampleExpoExpoLimit(double b, double c, double limit);
+
+   int samplePoisson(double lambda) {
+     boost::math::poisson poisson(lambda);
+     return quantile(poisson, sample());
+   }
 
 #ifdef UNITTEST
    friend class TestRandomGenerator;

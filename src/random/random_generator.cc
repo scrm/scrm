@@ -1,5 +1,4 @@
 #include "random_generator.h"
-
 #include <iostream>
 
 

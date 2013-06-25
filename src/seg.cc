@@ -1,38 +1,4 @@
 #include "forest.h"
-#include "node.h"
-#include "mtrand.h"
-
-
-/*! \fn double unifRand()
- * \brief Simulate random variable between 0 and 1.
- */
-double unifRand(){
-	MTRand_closed return_value;
-	return return_value();
-    //return rand()/(double(RAND_MAX)+1);
-    //return rand() / double(RAND_MAX); //generates a psuedo-random float between 0.0 and 0.999...
-} 
-
-
-
-
-/*! \fn int poisson_rand_var(double lambda)
- * \brief Simulating Poisson random variable from given lambda
- */
-int poisson_rand_var(double lambda){
-	double L=exp(-lambda);
-	int k=0;
-	double p=1;
-	while (p>L){
-         k =k + 1;
-         p=p*unifRand();
-	}
-	//Generate uniform random number u in [0,1] and let pp × u.
-    k=k-1;	
-	return k;
-}
-
-
 
 void Forest::find_descndnt(){
 	int nsam = this->writable_model()->sample_size();
@@ -78,7 +44,7 @@ void Forest::exp_mut_num(int total_mut){
 
 	for (int mut_i=0;mut_i<total_mut;mut_i++){
 		unsigned int brch_index=0;
-		double u=unifRand()*total_brchlen;
+		double u=random_generator_->sample()*total_brchlen;
 		while (u>cum_bl[brch_index]){
 			 brch_index =brch_index + 1;	
 		}
@@ -95,7 +61,7 @@ void Forest::seg_data(string treefile, int in_total_mut){
 		//give the probability ...
 		}
 	else{
-		total_mut=poisson_rand_var(total_bl * this->writable_model()->mutation_rate());
+		total_mut=random_generator_->samplePoisson(total_bl * this->writable_model()->mutation_rate());
 	}
 	
 	
