@@ -1,12 +1,10 @@
-/* param.cc
- * 
+/* 
+ * param.cc
  */
 
 #include "param.h"
 
-using namespace scrm; 
-
-void param::init(){
+void Param::init(){
   this->random_seed=time(0);
   this->nsites=1000000;
   this->nsam=5;
@@ -26,38 +24,36 @@ void param::init(){
   this->tmrca_NAME="tmrcaFILE";
 }
 
-param::param(){
-  this->init();
-}
-
-param::param(Model* model, int argc, char *argv[]){
+Model Param::parse() {
   int argc_i=0;
   this->init();
 
-  while( argc_i < argc ){
-    std::string argv_i(argv[argc_i]);
+  while( argc_i < argc_ ){
+    std::cout << argv_[++argc_i] << std::endl;
+    /*
+    std::string argv_i(argv_[argc_i]);
     
     if (argc_i == 0) {
-      read_input_to_param<int>(argv[++argc_i],nsam);
-      read_input_to_param<int>(argv[++argc_i],nreps);
+      read_input_to_param<int>(argv_[++argc_i],nsam);
+      read_input_to_param<int>(argv_[++argc_i],nreps);
     }	
-
+  
     else if (argv_i=="-seed"){
       //read_input_to_int(argv[argc_i+1],random_seed);
-      read_input_to_param<int>(argv[argc_i+1],random_seed);
+      read_input_to_param<int>(argv_[argc_i+1],random_seed);
       argc_i++;
     }
 
     if (argv_i=="-nsites"){
       //read_input_to_int(argv[argc_i+1],random_seed);
-      read_input_to_param<double>(argv[argc_i+1],nsites);
+      read_input_to_param<double>(argv_[argc_i+1],nsites);
       argc_i++;
     }
 
     if (argv_i=="-npop"){
       //read_input_to_int(argv[argc_i+1],npop);
       read_input_to_param<int>(argv[argc_i+1],npop);
-      argc_i++;
+      argc_i_++;
     }	
 
     if (argv_i=="-t"){
@@ -121,6 +117,7 @@ param::param(Model* model, int argc, char *argv[]){
       }			
     }
     argc_i++;
+  */
   }
 
   //if (rho>0){
@@ -142,7 +139,7 @@ param::param(Model* model, int argc, char *argv[]){
 
 
 
-void param::print_param(){
+void Param::print_param(){
   std::cout<<std::setw(6)<<"nsites"<<std::setw(10)<<nsites<<std::endl;
   std::cout<<std::setw(6)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
   std::cout<<std::setw(6)<<"nsam"<<std::setw(10)<<nsam<<std::endl;
@@ -152,7 +149,7 @@ void param::print_param(){
   std::cout<<std::setw(6)<<"l"<<std::setw(10)<<exact_window_length<<std::endl;
 }	
 
-void param::log_param(){
+void Param::log_param(){
   //std::ofstream log_file;
   //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
   std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
@@ -169,7 +166,7 @@ void param::log_param(){
 }		
 
 
-void scrm::print_help(){
+void print_help(){
   //void scrm_help::print_help(){
   std::cout<<std::endl;
   std::cout<<std::endl;
@@ -186,7 +183,7 @@ void scrm::print_help(){
   exit(1);
 }
 
-void scrm::print_option(){
+void print_option(){
   //std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
   std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO, per gerneration per site."<<std::endl;
   std::cout<<std::setw(20)<<"-nsites NSITES"<<"  --  "<<"User define the sequence length NSITES."<<std::endl;
@@ -199,7 +196,7 @@ void scrm::print_option(){
   std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
 }
 
-void scrm::print_example(){	
+void print_example(){	
   std::cout<<"Example:"<<std::endl;
   std::cout<<"./scrm 3 1"<<std::endl;
   std::cout<<"./scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
