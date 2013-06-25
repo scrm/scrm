@@ -97,8 +97,8 @@ int main(int argc, char *argv[]){
       log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
       log_file << "Trees are saved in: "<<user_para.treefile<<"\n";
       log_file.close();
-      string system_cmd="cat "+user_para.log_NAME;
-      system(system_cmd.c_str());
+      //string system_cmd="cat "+user_para.log_NAME;
+      //system(system_cmd.c_str()); //VERY UGLY -Paul
     }
   }
   catch (const exception &e)

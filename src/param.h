@@ -10,6 +10,7 @@
 #include <stdlib.h>  
 #include <stdio.h>
 #include <stdexcept>
+#include <boost/lexical_cast.hpp> 
 
 //#include "mtrand.h"
 #include "model.h"
@@ -61,15 +62,9 @@ void print_example();
 void print_option();	
 
 template<class T>
-void read_input_to_param(char inchar[], T &input)
+T readInput(char input[])
 {
-	if (isdigit(inchar[0])){
-		std::istringstream para_istrm(inchar);
-		para_istrm >> input;
-	}
-	else{
-            throw std::invalid_argument("Invalid argument type. ");
-	}	
+  return boost::lexical_cast<T>(input);
 }
 
 #endif

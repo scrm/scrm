@@ -17,6 +17,8 @@
 #include <stdexcept>
 #include <cassert>
 
+class Param;
+
 class Model
 {
   public:
@@ -25,6 +27,8 @@ class Model
   friend class TestModel;
   friend class TestTimeInterval;
 #endif
+  
+  friend class Param;
 
    Model();
    Model(size_t sample_size);
@@ -34,6 +38,11 @@ class Model
    // Getters
    double mutation_rate() const { return mutation_rate_; }
    double recombination_rate() const { return recombination_rate_; }
+   size_t loci_length() const { return loci_length_; }
+
+   void set_mutation_rate(double rate) { mutation_rate_ = rate; }
+   void set_recombination_rate(double rate) { recombination_rate_ = rate; }
+   void set_loci_length(size_t length) { loci_length_ = length; }
 
    size_t sample_size(size_t pop = 0) const { 
      if (sample_sizes_list_.at(current_time_idx_) == NULL) return 0; 
@@ -88,6 +97,15 @@ class Model
      for (it = vec.begin(); it != vec.end(); ++it) os << *it << " "; 
    }
 
+   size_t total_sample_size() { return total_sample_size_; };
+   void set_total_sample_size(size_t total_sample_size) { total_sample_size_ = total_sample_size; };
+       
+   size_t loci_number() { return loci_number_; };
+   void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
+   
+   
+
+
    //const std::vector<double> &change_times() const { return model_change_times_; }
 
   private:
@@ -119,6 +137,10 @@ class Model
    double mutation_rate_;
    double recombination_rate_;
    size_t pop_number_;
+
+   size_t total_sample_size_; 
+   size_t loci_number_;
+   size_t loci_length_;
 
    size_t exact_window_length_;
    size_t prune_interval_;

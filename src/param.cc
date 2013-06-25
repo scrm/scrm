@@ -25,19 +25,42 @@ void Param::init(){
 }
 
 Model Param::parse() {
+  Model model = Model();
+  if ( argc_ == 0 ) return model;
+
   int argc_i=0;
   this->init();
 
   while( argc_i < argc_ ){
-    std::cout << argv_[++argc_i] << std::endl;
-    /*
-    std::string argv_i(argv_[argc_i]);
-    
+    std::cout << argv_[argc_i] << std::endl;
+    std::string argv_i = argv_[argc_i];
+
     if (argc_i == 0) {
-      read_input_to_param<int>(argv_[++argc_i],nsam);
-      read_input_to_param<int>(argv_[++argc_i],nreps);
+      model.set_total_sample_size(readInput<int>(argv_[++argc_i]));
+      model.set_loci_number(readInput<int>(argv_[++argc_i]));
     }	
-  
+
+    else if (argv_i == "-t") {
+      model.set_mutation_rate(readInput<double>(argv_[++argc_i]));
+    }
+
+    else if (argv_i == "-r") {
+      model.set_recombination_rate(readInput<double>(argv_[++argc_i]));
+      model.set_loci_length(readInput<size_t>(argv_[++argc_i]));
+      seg_bool=false; // this needs to be changed
+    }
+
+    else if (argv_i == "-I") {
+      model.set_population_number(readInput<size_t>(argv_[++argc_i]));
+      std::vector<size_t> pop_size;
+      for (size_t i = 0; i < model.population_number(); ++i) {
+        pop_size.push_back(readInput<size_t>(argv_[++argc_i]));
+      }
+      model.addSampleSizes(0.0, pop_size);
+    }
+
+      ++argc_i; 
+    /* 
     else if (argv_i=="-seed"){
       //read_input_to_int(argv[argc_i+1],random_seed);
       read_input_to_param<int>(argv_[argc_i+1],random_seed);
@@ -56,25 +79,7 @@ Model Param::parse() {
       argc_i_++;
     }	
 
-    if (argv_i=="-t"){
-      //read_input_to_double(argv[argc_i+1],theta);
-      read_input_to_param<double>(argv[argc_i+1],theta);
-      argc_i++;
-    }
 
-    if (argv_i=="-r"){
-      //read_input_to_double(argv[argc_i+1],rho);
-      read_input_to_param<double>(argv[argc_i+1],rho);
-      seg_bool=false; // this needs to be changed
-      argc_i++;
-      if (argc_i+1 < argc){
-        if (argv[argc_i+1][0]!='-'){
-          read_input_to_param<double>(argv[argc_i+1],nsites);
-          argc_i++;
-        }
-        //else{argc_i--;}
-      }
-    }
 
     if (argv_i=="-l"){
       //read_input_to_size_t(argv[argc_i+1],exact_window_length);
@@ -123,6 +128,7 @@ Model Param::parse() {
   //if (rho>0){
 
   //}
+  model.resetTime();
   recomb_rate_persite=rho/4 / npop / (nsites-1);
   remove(treefile.c_str());
   if (log_bool){
@@ -164,7 +170,6 @@ void Param::log_param(){
   log_file<<std::setw(10)<<"l ="<<std::setw(10)<<exact_window_length<<std::endl;
   log_file.close();
 }		
-
 
 void print_help(){
   //void scrm_help::print_help(){
