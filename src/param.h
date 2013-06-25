@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdexcept>
 
-#include "mtrand.h"
+//#include "mtrand.h"
 #include "model.h"
 
 class Param {

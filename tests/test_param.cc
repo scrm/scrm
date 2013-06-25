@@ -15,7 +15,8 @@ class TestParam : public CppUnit::TestCase {
  public:
   void testParse() {
     char *argv[] = { "A", "BCD", "EFG" };
-    Param pars = Param(3, argv);
+    Param pars = Param();
+    pars.init();
   }
 };
 
