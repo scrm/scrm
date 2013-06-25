@@ -4,7 +4,6 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
-using namespace scrm; 
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
@@ -16,7 +15,7 @@ int main(int argc, char *argv[]){
 
   try {
     time_t start_time = time(0);
-    param user_para(argc, argv);
+    Param user_para(argc, argv);
 
     Model model = Model(5);
 
@@ -28,7 +27,7 @@ int main(int argc, char *argv[]){
     // NORMAL RUN
 
     for (size_t rep_i=0; rep_i<user_para.nreps; ++rep_i){
-      Forest * forest = new Forest(model, rg);
+      Forest * forest = new Forest(&model, rg);
       forest->buildInitialTree();
       if (user_para.total_mut==0){	
         std::ofstream tree_file;

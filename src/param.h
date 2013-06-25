@@ -56,15 +56,9 @@ class Param {
   char * const* argv_;
 };
 
-	//class scrm_help{
-	//public:
-		void print_help();
-		void print_example();
-		void print_option();	
-	//};
-
-
-//void appending_log_file(std::string log_file_input /*! Information added*/);
+void print_help();
+void print_example();
+void print_option();	
 
 template<class T>
 void read_input_to_param(char inchar[], T &input)
@@ -77,9 +71,5 @@ void read_input_to_param(char inchar[], T &input)
             throw std::invalid_argument("Invalid argument type. ");
 	}	
 }
-
-//void read_input_to_double(char inchar[], double &input);
-//void read_input_to_int(char inchar[], int &input);
-//void read_input_to_size_t(char inchar[], size_t &input);
 
 #endif

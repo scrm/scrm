@@ -17,11 +17,6 @@
 #include <stdexcept>
 #include <cassert>
 
-#include "param.h"
-
-namespace scrm {};
-using namespace scrm; 
-
 class Model
 {
   public:
@@ -33,7 +28,6 @@ class Model
 
    Model();
    Model(size_t sample_size);
-   //Model(param user_input);
    
    ~Model();
    

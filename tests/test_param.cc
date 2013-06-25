@@ -3,18 +3,19 @@
 
 #include "../src/param.h"
 
-
-
 class TestParam : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestParam );
 
-  CPPUNIT_TEST( testSettingParameters );
+  CPPUNIT_TEST( testParse );
+  
   CPPUNIT_TEST_SUITE_END();
 
- public:
-  void testSettingParameters() {
 
+ public:
+  void testParse() {
+    char *argv[] = { "A", "BCD", "EFG" };
+    Param pars = Param(3, argv);
   }
 };
 
