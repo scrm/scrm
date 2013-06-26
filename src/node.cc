@@ -15,14 +15,14 @@ Node::Node(double height, bool local, size_t last_update, size_t samples_below)
   { init(height, local, last_update, samples_below); };
 Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below)
   { init(height, local, last_update, samples_below, length_below); };
-Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label)
+Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, size_t label)
   { init(height, local, last_update, samples_below, length_below, label); };
   
 //Node::~Node() {delete[] marginal_likelihood;}
 Node::~Node() {};
 
 void Node::init(double height, bool local, size_t last_update,
-                size_t samples_below, double length_below,int label) {
+                size_t samples_below, double length_below, size_t label) {
   this->set_height(height);
   this->set_local(local);
   this->set_parent(NULL);
@@ -70,8 +70,7 @@ void Node::remove_child(Node* child) {
 }
 
 bool Node::in_sample() const {
-  if ( this->height() == 0 ) return true;
-  return false;
+  return ( this->label() != 0 ); 
 }
 
 

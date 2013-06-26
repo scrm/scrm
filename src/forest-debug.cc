@@ -9,10 +9,10 @@ void Forest::createExampleTree() {
   this->model_ = new Model(4);
   this->nodes()->clear();
 
-  Node* leaf1 = new Node(0, true, 0, 1);
-  Node* leaf2 = new Node(0, true, 0, 1);
-  Node* leaf3 = new Node(0, true, 0, 1);
-  Node* leaf4 = new Node(0, true, 0, 1);
+  Node* leaf1 = new Node(0, true, 0, 1, 0, 1);
+  Node* leaf2 = new Node(0, true, 0, 1, 0, 2);
+  Node* leaf3 = new Node(0, true, 0, 1, 0, 3);
+  Node* leaf4 = new Node(0, true, 0, 1, 0, 4);
   this->nodes()->add(leaf1);
   this->nodes()->add(leaf2);
   this->nodes()->add(leaf3);
@@ -387,6 +387,7 @@ std::vector<Node const*> Forest::determinePositions() const {
   bool Forest::printNodes() const {
     dout << std::setw(10) << std::right << "Node";
     dout << std::setw(10) << std::right << "Height";
+    dout << std::setw(6) << std::right << "label";
     dout << std::setw(10) << std::right << "Parent";
     dout << std::setw(10) << std::right << "h_child";
     dout << std::setw(10) << std::right << "l_child";
@@ -402,6 +403,7 @@ std::vector<Node const*> Forest::determinePositions() const {
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
       dout << std::setw(10) << std::right << this->getNodes()->get(i);
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();

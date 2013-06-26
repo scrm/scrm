@@ -21,17 +21,31 @@ class TestParam : public CppUnit::TestCase {
   void testParse() {
     CPPUNIT_ASSERT_NO_THROW( Param().parse() );
 
-    char *argv[] = { "scrm", "15", "10", "-t", "3.74", "-r", "1.24", "1024", "-I", "3", "7", "8", "5" };
-    Model model = Param(13, argv).parse();
-    CPPUNIT_ASSERT_EQUAL( (size_t)15, model.total_sample_size() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)10, model.loci_number() );
+    char *argv[] = { "scrm", "4", "7", "-t", "3.74", "-r", "1.24", "1024"};
+    Model model = Param(8, argv).parse();
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)7, model.loci_number() );
     CPPUNIT_ASSERT_EQUAL( (double)3.74, model.mutation_rate() );
     CPPUNIT_ASSERT_EQUAL( (double)1.24, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1024, model.loci_length() );
+
+    char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
+    CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
+    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(10, argv3).parse() ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)8, model.sample_size(1) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)5, model.sample_size(2) );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(10), (size_t)1 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(4), (double)0.0 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(17), (double)0.0 );
+
+    char *argv4[] = { "scrm", "23", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eI", "12.3", "2", "0", "1" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv4).parse() ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(20), (size_t)0 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(22), (size_t)2 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(20), (double)12.3 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(22), (double)12.3 );
   }
 
   void testReadInput() {

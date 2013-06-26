@@ -32,9 +32,16 @@ class Model
 
    Model();
    Model(size_t sample_size);
+
+   void init();
    
    ~Model();
    
+   // Default values;
+   const static size_t default_pop_size = 10000;
+   const static double default_growth_rate = 0.0;
+   const static double default_mig_rate = 0.0;
+
    // Getters
    double mutation_rate() const { return mutation_rate_; }
    double recombination_rate() const { return recombination_rate_; }
@@ -44,19 +51,19 @@ class Model
    void set_recombination_rate(double rate) { recombination_rate_ = rate; }
    void set_loci_length(size_t length) { loci_length_ = length; }
 
-   size_t sample_size(size_t pop = 0) const { 
-     if (sample_sizes_list_.at(current_time_idx_) == NULL) return 0; 
-     return sample_sizes_list_.at(current_time_idx_)->at(pop);
-   }
-
    double growth_rate(size_t pop = 0) const {
-     if (current_growth_rates_ == NULL) return 0;
+     if (current_growth_rates_ == NULL) return default_growth_rate;
      return current_growth_rates_->at(pop);
    }
    
    size_t population_size(size_t pop = 0) const { 
+     if (current_pop_sizes_ == NULL) return default_pop_size;
      return current_pop_sizes_->at(pop);
    }
+
+   size_t sample_size() const { return sample_times_.size(); };
+   size_t sample_population(size_t sample_id) const { return sample_populations_.at(sample_id); };
+   double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
 
    size_t exact_window_length() const { return exact_window_length_; }
    size_t prune_interval() const { return prune_interval_; }
@@ -97,9 +104,6 @@ class Model
      for (it = vec.begin(); it != vec.end(); ++it) os << *it << " "; 
    }
 
-   size_t total_sample_size() { return total_sample_size_; };
-   void set_total_sample_size(size_t total_sample_size) { total_sample_size_ = total_sample_size; };
-       
    size_t loci_number() { return loci_number_; };
    void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
    
@@ -124,11 +128,12 @@ class Model
    }
 
    std::vector<double> change_times_;
-   std::vector<double> sample_times_;
 
    std::vector<std::vector<size_t>*> pop_sizes_list_;
-   std::vector<std::vector<size_t>*> sample_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
+   
+   std::vector<size_t> sample_populations_;
+   std::vector<double> sample_times_;
 
    std::vector<size_t>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
@@ -138,7 +143,6 @@ class Model
    double recombination_rate_;
    size_t pop_number_;
 
-   size_t total_sample_size_; 
    size_t loci_number_;
    size_t loci_length_;
 

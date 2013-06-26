@@ -17,7 +17,7 @@ int main(int argc, char *argv[]){
     time_t start_time = time(0);
     Param user_para(argc, argv);
 
-    Model model = Model(5);
+    Model model = user_para.parse();
 
     //Different random generators.
     MersenneTwister *rg = new MersenneTwister(user_para.random_seed);
@@ -26,9 +26,10 @@ int main(int argc, char *argv[]){
 
     // NORMAL RUN
     //
-    for (size_t rep_i=0; rep_i<user_para.nreps; ++rep_i){
+    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
       Forest * forest = new Forest(&model, rg);
       forest->buildInitialTree();
+      
       if (user_para.total_mut==0){	
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
@@ -46,28 +47,28 @@ int main(int argc, char *argv[]){
       if (user_para.seg_bool){
         forest->seg_data(user_para.treefile, user_para.total_mut);
       }
-      if (user_para.rho > 0.0){
+      if (model.recombination_rate() > 0.0){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         //string previous_genealogy=forest->local_root()->tree_topo_bl;
         string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-        int previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+        int previous_last_for=ceil(min(forest->next_base(), (double)model.loci_length())-forest->current_base());
         //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
 
-        while (forest->next_base() < user_para.nsites ) {
+        while ( forest->next_base() < model.loci_length() ) {
           forest->sampleNextGenealogy();
           //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
           string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
 
           if (current_genealogy == previous_genealogy){
-            previous_last_for=previous_last_for+ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+            previous_last_for=previous_last_for+ceil(min(forest->next_base(), (double)model.loci_length())-forest->current_base());
           }
           else{
             tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
             //previous_genealogy=forest->local_root()->tree_topo_bl;
             previous_genealogy=current_genealogy;
 
-            previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+            previous_last_for=ceil(min(forest->next_base(), (double)model.loci_length())-forest->current_base());
           }
 
         }

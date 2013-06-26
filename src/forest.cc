@@ -176,19 +176,17 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
   dout << "* Adding first node... ";
-  Node* first_node = new Node(0, true, 0, 1);
+  Node* first_node = new Node(model().sample_time(1), true, 0, 1, 0, 1);
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
-  first_node->set_label(1);
   dout << "done." << std::endl;
 
   for (size_t i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
-    Node* new_leaf = new Node(0, true, 0, 1);
-    new_leaf->set_label(i+1);
+    Node* new_leaf = new Node(model().sample_time(i), true, 0, 1, 0, i+1);
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
     dout << "* staring coalesces" << std::endl;

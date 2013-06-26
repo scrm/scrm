@@ -31,7 +31,7 @@ class Node
   Node(double height, bool local, size_t last_update);
   Node(double height, bool local, size_t last_update, size_t samples_below);
   Node(double height, bool local, size_t last_update, size_t samples_below, double length_below);
-  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label);
+  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, size_t label);
 
   ~Node();
 
@@ -84,8 +84,8 @@ class Node
     else return 2;
   }
   
-  void set_label(int label){label_=label;}
-  int label() const{return label_;}
+  void set_label(size_t label) { label_ = label; }
+  size_t label() const { return label_; }
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
@@ -124,8 +124,9 @@ class Node
             size_t last_update = 0, 
             size_t samples_below=0, 
             double length_below=0,
-            int label=0);
-  int label_;
+            size_t label=0);
+
+  size_t label_;
   double height_;        // The total height of the node
   bool   local_;        // Indicates if the branch above is local,
   // i.e. on the local tree

@@ -6,15 +6,8 @@
 
 void Param::init(){
   this->random_seed=time(0);
-  this->nsites=1000000;
-  this->nsam=5;
-  this->npop=10000;
-  this->theta=0.00001;
-  this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
-  this->recomb_rate_persite=0;
-  //this->rho=0.00000002;	
-  this->ith_change=25;
-  this->exact_window_length=0;
+  //this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
+  //this->recomb_rate_persite=0;
   this->log_bool=false;
   this->log_NAME="scrm.log";
   this->treefile="TREEFILE";
@@ -26,6 +19,8 @@ void Param::init(){
 
 Model Param::parse() {
   Model model = Model();
+  size_t sample_size = 0;
+  double time = 0;
   if ( argc_ == 0 ) return model;
 
   int argc_i=0;
@@ -36,7 +31,7 @@ Model Param::parse() {
     std::string argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
-      model.set_total_sample_size(readInput<int>(argv_[++argc_i]));
+      sample_size = readInput<size_t>(argv_[++argc_i]);
       model.set_loci_number(readInput<int>(argv_[++argc_i]));
     }	
 
@@ -59,6 +54,15 @@ Model Param::parse() {
       model.addSampleSizes(0.0, pop_size);
     }
 
+    else if (argv_i == "-eI") {
+      time = readInput<double>(argv_[++argc_i]);
+      std::vector<size_t> pop_size;
+      for (size_t i = 0; i < model.population_number(); ++i) {
+        pop_size.push_back(readInput<size_t>(argv_[++argc_i]));
+      }
+      model.addSampleSizes(time, pop_size);
+    }
+
       ++argc_i; 
     /* 
     else if (argv_i=="-seed"){
@@ -78,8 +82,6 @@ Model Param::parse() {
       read_input_to_param<int>(argv[argc_i+1],npop);
       argc_i_++;
     }	
-
-
 
     if (argv_i=="-l"){
       //read_input_to_size_t(argv[argc_i+1],exact_window_length);
@@ -128,7 +130,18 @@ Model Param::parse() {
   //if (rho>0){
 
   //}
+  if (model.sample_size() == 0) {
+    std::cout << "adding samples" << std::endl;
+    model.addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
+  } 
+  else if (model.sample_size() != sample_size) {
+    throw std::invalid_argument("Sum of samples not equal to the total sample size");
+  }
+
+  std::cout << "resetting time" << std::endl;
   model.resetTime();
+
+  /*
   recomb_rate_persite=rho/4 / npop / (nsites-1);
   remove(treefile.c_str());
   if (log_bool){
@@ -136,6 +149,7 @@ Model Param::parse() {
     log_param();
   }
   if (tmrca_bool){remove(tmrca_NAME.c_str());}
+  */
   //MTRand_closed mt;
   //mt.seed(random_seed);		// initialize mt seed
 }
@@ -146,13 +160,6 @@ Model Param::parse() {
 
 
 void Param::print_param(){
-  std::cout<<std::setw(6)<<"nsites"<<std::setw(10)<<nsites<<std::endl;
-  std::cout<<std::setw(6)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
-  std::cout<<std::setw(6)<<"nsam"<<std::setw(10)<<nsam<<std::endl;
-  std::cout<<std::setw(6)<<"npop"<<std::setw(10)<<npop<<std::endl;
-  std::cout<<std::setw(6)<<"theta"<<std::setw(10)<<theta<<std::endl;
-  std::cout<<std::setw(6)<<"rho"<<std::setw(10)<<rho<<std::endl;
-  std::cout<<std::setw(6)<<"l"<<std::setw(10)<<exact_window_length<<std::endl;
 }	
 
 void Param::log_param(){
@@ -160,14 +167,7 @@ void Param::log_param(){
   //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
   std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
   log_file<<"scrm parameters: \n";
-  log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
-  log_file<<std::setw(10)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
-  log_file<<std::setw(10)<<"nsam ="<<std::setw(10)<<nsam<< "\n";
-  log_file<<std::setw(10)<<"npop ="<<std::setw(10)<<npop<< "\n";
-  log_file<<std::setw(10)<<"theta ="<<std::setw(10)<<theta<< "\n";
-  log_file<<std::setw(10)<<"rho ="<<std::setw(10)<<rho<< "\n";
   log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
-  log_file<<std::setw(10)<<"l ="<<std::setw(10)<<exact_window_length<<std::endl;
   log_file.close();
 }		
 

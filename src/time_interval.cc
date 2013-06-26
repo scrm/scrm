@@ -156,6 +156,7 @@ void TimeIntervalIterator::next() {
   double next_model_change_ = forest_->model().getNextTime();
 
   assert( current_time_ <= next_model_change_ );
+  //std::cout << "current_time: " << current_time_ << " ni_height: " << node_iterator_.height() << std::endl;
   assert( current_time_ <= node_iterator_.height() );
  
 
@@ -207,4 +208,5 @@ void TimeIntervalIterator::recalculateInterval() {
   // Than go to the next node
   ++node_iterator_;
   current_interval_.end_height_ = (*node_iterator_)->height();
+  current_time_ = (*node_iterator_)->height();
 }

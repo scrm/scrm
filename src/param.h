@@ -20,20 +20,7 @@ class Param {
   bool seg_bool;
   int total_mut;
   int random_seed;
-  int nreps; // number of replicates
-  double nsites; //number of sites
-  
-  int npop; // population size Ne, diploid samples
-  int nsam; // number of samples
-  /*! \todo Check for the definition of rho */ 
-  double rho; //Recombination rate: rho = 4*N*r where r is the recombination rate between the ends of the segment being simulated (not the per site rate, per site rate is normally 0.00000001) 
-  //and nsites is the number of sites between which recombination can occur.
-  double recomb_rate_persite;
-  double theta; // mutation rate: theta=4*N*mu, where mutation rate between the two end of the sequence 
-  
-  size_t ith_change; // the i_th change of the genealogy
   std::string treefile;
-  size_t exact_window_length;
   
   bool tmrca_bool;
   std::string tmrca_NAME;

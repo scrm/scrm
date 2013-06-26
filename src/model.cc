@@ -1,27 +1,33 @@
 #include "model.h"
 
 Model::Model() { 
-  this->set_exact_window_length(0);
-  this->set_prune_interval(0);
-  this->set_population_number(0);
+  this->init();
 }
-
 
 Model::Model(size_t sample_size) {
-  this->set_population_number(1);
-  this->addSampleSizes(0, std::vector<size_t>(1, sample_size));
-  this->addPopulationSizes(0, std::vector<size_t>(1, 10000));
+  this->init();
 
+  this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   this->resetTime();
-  this->set_exact_window_length(0);
-  this->set_prune_interval(10);
 }
 
-
 Model::~Model() { 
-  deleteParList(sample_sizes_list_);
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
+}
+
+void Model::init() {
+  this->addChangeTime(0.0);
+
+  this->set_population_number(1);
+  this->set_loci_number(1);
+  this->set_mutation_rate(0.0);
+  this->set_recombination_rate(0.0);
+
+  this->set_exact_window_length(0);
+  this->set_prune_interval(0);
+
+  this->resetTime();
 }
 
 
@@ -39,7 +45,6 @@ size_t Model::addChangeTime(double time) {
   size_t position = 0;
   if ( change_times_.size() == 0 ) {
     change_times_.push_back(time);
-    sample_sizes_list_.push_back(NULL);
     pop_sizes_list_.push_back(NULL);
     growth_rates_list_.push_back(NULL);
     return position;
@@ -55,7 +60,6 @@ size_t Model::addChangeTime(double time) {
   change_times_.insert(ti, time);
   
   // Add Null at the right position in all parameter vectors 
-  sample_sizes_list_.insert(sample_sizes_list_.begin() + position, NULL);
   pop_sizes_list_.insert(pop_sizes_list_.begin() + position, NULL);
   growth_rates_list_.insert(growth_rates_list_.begin() + position, NULL);
   return position;
@@ -63,9 +67,12 @@ size_t Model::addChangeTime(double time) {
 
 
 void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes) {
-  std::vector<size_t>* samples_sizes_heap = new std::vector<size_t>(samples_sizes);
-  size_t position = addChangeTime(time);
-  sample_sizes_list_[position] = samples_sizes_heap;  
+  for (size_t pop = 0; pop < samples_sizes.size(); ++pop) {
+    for (size_t i = 0; i < samples_sizes.at(pop); ++i) {
+      sample_populations_.push_back(pop);
+      sample_times_.push_back(time);
+    }
+  }
 }
 
 
@@ -93,11 +100,6 @@ void Model::print(std::ostream &os) const {
   os << "Recombination rate: " << this->recombination_rate() << std::endl;  
   for (size_t idx = 0; idx < change_times_.size(); ++idx) { 
     os << std::endl << "At time " << change_times_.at(idx) << ":" << std::endl;  
-    if (sample_sizes_list_.at(idx) != NULL) {
-      os << " Sample sizes: "; 
-      printVector(*(sample_sizes_list_.at(idx)), os);
-      os << std::endl;
-    }
     if (pop_sizes_list_.at(idx) != NULL) {
       os << " Population sizes: "; 
       printVector(*(pop_sizes_list_.at(idx)), os);
