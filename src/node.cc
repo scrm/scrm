@@ -74,8 +74,44 @@ bool Node::in_sample() const {
   return false;
 }
 
+Node * tracking_local_node(Node * node){
+	dout<<node;
+	if (node->first_child() == NULL && ((node->label())>0)){
+		dout<<" is tip node, it is local, return."<<std::endl;
+		return node;
+		}
+	else if (node->first_child()->local() && node->second_child()->local()){
+		dout<<" is an internal local node, return"<<std::endl;
+		return node;
+	}
+	else if (!node->first_child()->local() ){ //if first child is not local, then the second must be
+		dout<<" is not a local node, moving on to ";
+		return tracking_local_node(node->second_child());
+	}
+	else{
+		dout<<" is not a local node, moving on to ";
+		return tracking_local_node(node->first_child());
+	}
+}
 
-
+std::string writeTree_new(Node * node, int npop){
+	if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
+		std::ostringstream label_strm;
+		label_strm<<node->label();
+		return label_strm.str();
+	}
+	else{
+		Node *left = tracking_local_node(node->first_child());
+		double t1=node->height()- left->height();
+		std::ostringstream t1_strm;
+		t1_strm << t1/4/npop;
+		Node *right = tracking_local_node(node->second_child());
+		double t2=node->height()- right->height();
+		std::ostringstream t2_strm;
+		t2_strm << t2/4/npop;
+		return "("+writeTree_new(left,npop)+":"+t1_strm.str()+","+ writeTree_new(right,npop)+":"+t2_strm.str() +")";
+	}
+}
 
 
 
@@ -85,55 +121,31 @@ bool Node::in_sample() const {
 */
 std::string writeTree(Node * node, int npop, double bl_above_parent){
 	if (!node->local()){
-		//node->first_child()->tree_topo_bl.clear();
-		//node->second_child()->tree_topo_bl.clear();
-		//node->tree_topo_bl="("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
-		//return node->tree_topo_bl;
 		return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
 		}
-	else{
-	
+	else{	
 		if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
-		//if(node->label()>0){
 			std::ostringstream label_strm;
 			label_strm<<node->label();
 			std::ostringstream bl_strm;
 			bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
-			//node->tree_topo_bl = label_strm.str()+":"+bl_strm.str();
-			//return node->tree_topo_bl;
 			return label_strm.str()+":"+bl_strm.str();
 		}
 		else if (node->is_root()){ // check if this is the root
-				//node->first_child()->tree_topo_bl.clear();
-				//node->second_child()->tree_topo_bl.clear();
-				//node->tree_topo_bl="("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
-				//return node->tree_topo_bl;
 				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
 				}
 		else{ // this is an interior node, but need to check if it is real, i.e. any of its children is a local
 			if (node->first_child()->local() && node->second_child()->local()){ // both children are local
-		//node->first_child()->tree_topo_bl.clear();
-		//node->second_child()->tree_topo_bl.clear();
 				std::ostringstream bl_strm;
 				bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
-				//node->tree_topo_bl="("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+"):"+bl_strm.str();;
-				//return node->tree_topo_bl;	
 				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+"):"+bl_strm.str();;
 			}
 			else if(node->first_child()->local() && !node->second_child()->local()) { // first child is local, 
-		//node->first_child()->tree_topo_bl.clear();
-		//node->second_child()->tree_topo_bl.clear();
 				double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
-				//node->tree_topo_bl=writeTree(node->first_child(),npop, local_bl_above_parent);
-				//return node->tree_topo_bl;	
 				return writeTree(node->first_child(),npop, local_bl_above_parent);
 			}
 			else {// !node->first_child()->local() && node->second_child()->local() // second child is local, 
-			//node->first_child()->tree_topo_bl.clear();
-		//node->second_child()->tree_topo_bl.clear();
 				double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
-				//node->tree_topo_bl=writeTree(node->second_child(),npop, local_bl_above_parent);
-				//return node->tree_topo_bl;
 				return writeTree(node->second_child(),npop, local_bl_above_parent);
 			}
 			

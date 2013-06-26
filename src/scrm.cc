@@ -34,15 +34,17 @@ int main(int argc, char *argv[]){
       if (user_para.total_mut==0){	
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        //tree_file << forest->local_root()->tree_topo_bl <<"\n";  
         tree_file<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<"\n";
+        forest->printTree();
+        //std::cout<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<std::endl;
+        //std::cout<<writeTree_new(forest->local_root(),forest->writable_model()->population_size())<<std::endl;
         tree_file.close();	
       }
 
       if (user_para.tmrca_bool){
         std::ofstream tmrca_file;
         tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        tmrca_file << forest->local_root()->height() <<"\n";  
+        tmrca_file << forest->local_root()->height() <<";\n";  
         tmrca_file.close();	
       }
       if (user_para.seg_bool){
@@ -51,31 +53,28 @@ int main(int argc, char *argv[]){
       if (user_para.rho > 0.0){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        //string previous_genealogy=forest->local_root()->tree_topo_bl;
-        string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-        int previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
-        //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
+        //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+         string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+        int previous_last_for=1+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
 
-        while (forest->next_base() < user_para.nsites ) {
+        while (forest->next_base()< user_para.nsites ) {
           forest->sampleNextGenealogy();
-          //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
-          string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+          //string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+          string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+        //std::cout<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<std::endl;
+        //std::cout<<writeTree_new(forest->local_root(),forest->writable_model()->population_size())<<std::endl;
 
           if (current_genealogy == previous_genealogy){
-            previous_last_for=previous_last_for+ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+            previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
           }
           else{
-            tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
-            //previous_genealogy=forest->local_root()->tree_topo_bl;
+            tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
             previous_genealogy=current_genealogy;
-
-            previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
+            previous_last_for=min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
+            //previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
           }
-
         }
-        //previous_last_for=previous_last_for-ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
-        //previous_last_for=user_para.nsites
-        tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<"\n";
+        tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
 
         //tree_file  <<"//\n";
         tree_file.close();	

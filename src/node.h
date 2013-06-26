@@ -16,6 +16,14 @@
 #include <cassert>
 //#include <string>
 #include <vector>
+
+#ifndef NDEBUG
+#define dout std::cout
+#else
+#pragma GCC diagnostic ignored "-Wunused-value"
+#define dout 0 && std::cout
+#endif
+
 class Node
 {
  public:                       
@@ -147,5 +155,6 @@ class Node
   double mut_num_;
 };
 std::string writeTree(Node * node,int npop,double bl_above);
-
+Node * tracking_local_node(Node * node);
+std::string writeTree_new(Node * node, int npop);
 #endif
