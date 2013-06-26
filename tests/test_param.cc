@@ -21,16 +21,22 @@ class TestParam : public CppUnit::TestCase {
   void testParse() {
     CPPUNIT_ASSERT_NO_THROW( Param().parse() );
 
-    char *argv[] = { "scrm", "4", "7", "-t", "3.74", "-r", "1.24", "1024"};
-    Model model = Param(8, argv).parse();
+    char *argv[] = { "scrm", "4", "7", "-t", "3.74", "-r", "1.24", "1024", "-l", "1000", "-seed", "123"};
+    Param pars = Param(12, argv);
+    Model model = pars.parse();
     CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.loci_number() );
     CPPUNIT_ASSERT_EQUAL( (double)3.74, model.mutation_rate() );
     CPPUNIT_ASSERT_EQUAL( (double)1.24, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1024, model.loci_length() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
+    CPPUNIT_ASSERT_EQUAL( (int)123, pars.random_seed );
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
+    argv2[3] = "-tv";
+    CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
+
     char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(10, argv3).parse() ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
@@ -46,6 +52,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.sample_population(22), (size_t)2 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(20), (double)12.3 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(22), (double)12.3 );
+    
   }
 
   void testReadInput() {

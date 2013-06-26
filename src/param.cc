@@ -47,29 +47,36 @@ Model Param::parse() {
 
     else if (argv_i == "-I") {
       model.set_population_number(readInput<size_t>(argv_[++argc_i]));
-      std::vector<size_t> pop_size;
+      std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        pop_size.push_back(readInput<size_t>(argv_[++argc_i]));
+        sample_size.push_back(readInput<size_t>(argv_[++argc_i]));
       }
-      model.addSampleSizes(0.0, pop_size);
+      model.addSampleSizes(0.0, sample_size);
     }
 
     else if (argv_i == "-eI") {
       time = readInput<double>(argv_[++argc_i]);
-      std::vector<size_t> pop_size;
+      std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        pop_size.push_back(readInput<size_t>(argv_[++argc_i]));
+        sample_size.push_back(readInput<size_t>(argv_[++argc_i]));
       }
-      model.addSampleSizes(time, pop_size);
+      model.addSampleSizes(time, sample_size);
     }
 
-      ++argc_i; 
-    /* 
-    else if (argv_i=="-seed"){
-      //read_input_to_int(argv[argc_i+1],random_seed);
-      read_input_to_param<int>(argv_[argc_i+1],random_seed);
-      argc_i++;
+    else if (argv_i == "-l"){
+      model.set_exact_window_length(readInput<size_t>(argv_[++argc_i]));
     }
+
+    else if (argv_i == "-seed"){
+      random_seed = readInput<int>(argv_[++argc_i]);
+    }
+
+    else {
+      throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
+    }
+
+    ++argc_i; 
+    /* 
 
     if (argv_i=="-nsites"){
       //read_input_to_int(argv[argc_i+1],random_seed);
@@ -83,11 +90,6 @@ Model Param::parse() {
       argc_i_++;
     }	
 
-    if (argv_i=="-l"){
-      //read_input_to_size_t(argv[argc_i+1],exact_window_length);
-      read_input_to_param<size_t>(argv[argc_i+1],exact_window_length);
-      argc_i++;
-    }
 
     if (argv_i=="-s"){
       read_input_to_param<int>(argv[argc_i+1],total_mut);
@@ -153,9 +155,6 @@ Model Param::parse() {
   //MTRand_closed mt;
   //mt.seed(random_seed);		// initialize mt seed
 }
-
-
-
 
 
 
