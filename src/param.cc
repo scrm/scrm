@@ -9,9 +9,12 @@ using namespace scrm;
 void param::init(){
 	this->random_seed=time(0);
 	this->nsites=1000000;
+	this->nsite_defalut_bool=true;
 	this->nsam=5;
 	this->npop=10000;
+	this->npop_defalut_bool=true;
 	this->theta=0.00001;
+	this->theta_defalut_bool=true;
 	this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
 	this->recomb_rate_persite=0;
 	//this->rho=0.00000002;	
@@ -70,18 +73,21 @@ param::param(int argc, char *argv[]){
 		if (argv_i=="-nsites"){
 			//read_input_to_int(argv[argc_i+1],random_seed);
 			read_input_to_param<double>(argv[argc_i+1],nsites);
+			nsite_defalut_bool=false;
 			argc_i++;
 		}
 
 		if (argv_i=="-npop"){
 			//read_input_to_int(argv[argc_i+1],npop);
 			read_input_to_param<int>(argv[argc_i+1],npop);
+			npop_defalut_bool=false;
 			argc_i++;
 		}	
 
 		if (argv_i=="-t"){
 			//read_input_to_double(argv[argc_i+1],theta);
 			read_input_to_param<double>(argv[argc_i+1],theta);
+			theta_defalut_bool=false;
 			argc_i++;
 		}
 		
@@ -93,6 +99,7 @@ param::param(int argc, char *argv[]){
 			if (argc_i+1 < argc){
 				if (argv[argc_i+1][0]!='-'){
 					read_input_to_param<double>(argv[argc_i+1],nsites);
+					nsite_defalut_bool=false;
 					argc_i++;
 				}
 				//else{argc_i--;}
@@ -176,14 +183,14 @@ void param::log_param(){
 	//log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
 	log_file<<"scrm parameters: \n";
-	log_file<<std::setw(10)<<"nsites ="<<std::setw(10)<<nsites<< "\n";
-	log_file<<std::setw(10)<<"nreps"<<std::setw(10)<<nreps<<std::endl;
-	log_file<<std::setw(10)<<"nsam ="<<std::setw(10)<<nsam<< "\n";
-	log_file<<std::setw(10)<<"npop ="<<std::setw(10)<<npop<< "\n";
-	log_file<<std::setw(10)<<"theta ="<<std::setw(10)<<theta<< "\n";
-	log_file<<std::setw(10)<<"rho ="<<std::setw(10)<<rho<< "\n";
-	log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
-	log_file<<std::setw(10)<<"l ="<<std::setw(10)<<exact_window_length<<std::endl;
+	log_file<<std::setw(15)<<"nreps ="<<std::setw(10)<<nreps<<std::endl;
+	log_file<<std::setw(15)<<"Sample size ="<<std::setw(10)<<nsam<< "\n";
+	log_file<<std::setw(15)<<"Pop size ="<<std::setw(10)<<npop; if (npop_defalut_bool){log_file<<" (by default)";}log_file<< "\n";
+	log_file<<std::setw(15)<<"theta ="<<std::setw(10)<<theta; if (theta_defalut_bool){log_file<<" (by default)";}log_file<< "\n";
+	log_file<<std::setw(15)<<"rho ="<<std::setw(10)<<rho<< "\n";
+	log_file<<std::setw(15)<<"Seq length ="<<std::setw(10)<<nsites; if (nsite_defalut_bool){log_file<<" (by default)";}log_file<< "\n";
+	log_file<<std::setw(15)<<"seed :"<<" "<<std::setw(10)<<random_seed<< "\n";
+	log_file<<std::setw(15)<<"l ="<<std::setw(10)<<exact_window_length<<std::endl;
 	log_file.close();
 }		
 
@@ -221,11 +228,11 @@ void scrm::print_option(){
 void scrm::print_example(){	
 	std::cout<<"Example:"<<std::endl;
 	std::cout<<"./scrm 3 1"<<std::endl;
-	std::cout<<"./scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
-	std::cout<<"./scrm 5 3 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314 -log"<<std::endl;
-	std::cout<<"./scrm 6 1 -t 0.002 -r 0.00004 -nsites 2000 -log"<<std::endl;
-	std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
-	std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE -T mytree"<<std::endl;
+	std::cout<<"./scrm 6 3 -t 0.002 -r 40 -npop 20000 "<<std::endl;
+	std::cout<<"./scrm 5 3 -t 0.0002 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
+	std::cout<<"./scrm 6 1 -t 0.002 -r 40 10000 -nsites 2000 -log"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 0.002 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 0.002 -r 40 -log LOGFILE -T mytree"<<std::endl;
 
 }
 

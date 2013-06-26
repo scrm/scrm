@@ -51,6 +51,10 @@ namespace scrm{
 		
 		void log_param();
 		
+		bool nsite_defalut_bool;
+		bool npop_defalut_bool;
+		bool theta_defalut_bool;
+		
 		
 		//private:
 		

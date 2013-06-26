@@ -118,7 +118,7 @@ class Node
   
   //std::string tree_topo_bl;
   bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
-  double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
+  //double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
 								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
 
   std::vector <int> descndnt;
