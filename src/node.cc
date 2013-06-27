@@ -35,8 +35,8 @@ void Node::init(double height, bool local, size_t last_update,
   this->set_next(NULL);
   this->set_label(label);
   this->mutation_state=false;
-  this->marginal_likelihood[0]=0;
-  this->marginal_likelihood[1]=0;
+  //this->marginal_likelihood[0]=0;
+  //this->marginal_likelihood[1]=0;
   this->set_mut_num(0);
 }
 
