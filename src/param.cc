@@ -17,8 +17,8 @@ void Param::init(){
   this->tmrca_NAME="tmrcaFILE";
 }
 
-Model Param::parse() {
-  Model model = Model();
+Model* Param::parse() {
+  Model* model = new Model();
   size_t sample_size = 0;
   double time = 0;
   if ( argc_ == 0 ) return model;
@@ -32,39 +32,47 @@ Model Param::parse() {
 
     if (argc_i == 0) {
       sample_size = readInput<size_t>(argv_[++argc_i]);
-      model.set_loci_number(readInput<int>(argv_[++argc_i]));
+      model->set_loci_number(readInput<int>(argv_[++argc_i]));
     }	
 
     else if (argv_i == "-t") {
-      model.set_mutation_rate(readInput<double>(argv_[++argc_i]));
+      model->set_mutation_rate(readInput<double>(argv_[++argc_i]));
     }
 
     else if (argv_i == "-r") {
-      model.set_recombination_rate(readInput<double>(argv_[++argc_i]));
-      model.set_loci_length(readInput<size_t>(argv_[++argc_i]));
+      model->set_recombination_rate(readInput<double>(argv_[++argc_i]));
+      model->set_loci_length(readInput<size_t>(argv_[++argc_i]));
       seg_bool=false; // this needs to be changed
     }
 
     else if (argv_i == "-I") {
-      model.set_population_number(readInput<size_t>(argv_[++argc_i]));
+      model->set_population_number(readInput<size_t>(argv_[++argc_i]));
       std::vector<size_t> sample_size;
-      for (size_t i = 0; i < model.population_number(); ++i) {
+      for (size_t i = 0; i < model->population_number(); ++i) {
         sample_size.push_back(readInput<size_t>(argv_[++argc_i]));
       }
-      model.addSampleSizes(0.0, sample_size);
+      model->addSampleSizes(0.0, sample_size);
     }
 
     else if (argv_i == "-eI") {
       time = readInput<double>(argv_[++argc_i]);
       std::vector<size_t> sample_size;
-      for (size_t i = 0; i < model.population_number(); ++i) {
+      for (size_t i = 0; i < model->population_number(); ++i) {
         sample_size.push_back(readInput<size_t>(argv_[++argc_i]));
       }
-      model.addSampleSizes(time, sample_size);
+      model->addSampleSizes(time, sample_size);
+    }
+
+    else if (argv_i == "-eN") {
+      time = readInput<double>(argv_[++argc_i]);
+      std::vector<double> pop_sizes(model->population_number(),
+                                    readInput<double>(argv_[++argc_i]));
+      model->addRelativePopulationSizes(time, pop_sizes); 
+      std::cout << model << std::endl;
     }
 
     else if (argv_i == "-l"){
-      model.set_exact_window_length(readInput<size_t>(argv_[++argc_i]));
+      model->set_exact_window_length(readInput<size_t>(argv_[++argc_i]));
     }
 
     else if (argv_i == "-seed"){
@@ -132,16 +140,16 @@ Model Param::parse() {
   //if (rho>0){
 
   //}
-  if (model.sample_size() == 0) {
+  if (model->sample_size() == 0) {
     std::cout << "adding samples" << std::endl;
-    model.addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
+    model->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   } 
-  else if (model.sample_size() != sample_size) {
+  else if (model->sample_size() != sample_size) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
   std::cout << "resetting time" << std::endl;
-  model.resetTime();
+  model->resetTime();
 
   /*
   recomb_rate_persite=rho/4 / npop / (nsites-1);
@@ -154,6 +162,7 @@ Model Param::parse() {
   */
   //MTRand_closed mt;
   //mt.seed(random_seed);		// initialize mt seed
+  return model;
 }
 
 

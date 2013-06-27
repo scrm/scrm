@@ -16,21 +16,21 @@ class TestParam : public CppUnit::TestCase {
   
   CPPUNIT_TEST_SUITE_END();
 
-
  public:
   void testParse() {
     CPPUNIT_ASSERT_NO_THROW( Param().parse() );
 
     char *argv[] = { "scrm", "4", "7", "-t", "3.74", "-r", "1.24", "1024", "-l", "1000", "-seed", "123"};
     Param pars = Param(12, argv);
-    Model model = pars.parse();
-    CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)7, model.loci_number() );
-    CPPUNIT_ASSERT_EQUAL( (double)3.74, model.mutation_rate() );
-    CPPUNIT_ASSERT_EQUAL( (double)1.24, model.recombination_rate() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)1024, model.loci_length() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
+    Model* model = pars.parse();
+    //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)7, model->loci_number() );
+    CPPUNIT_ASSERT_EQUAL( (double)3.74, model->mutation_rate() );
+    CPPUNIT_ASSERT_EQUAL( (double)1.24, model->recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1024, model->loci_length() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model->exact_window_length() );
     CPPUNIT_ASSERT_EQUAL( (int)123, pars.random_seed );
+    delete model;
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
@@ -38,21 +38,32 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
 
     char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(10, argv3).parse() ); 
-    CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(10), (size_t)1 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(4), (double)0.0 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(17), (double)0.0 );
+    model = Param(10, argv3).parse(); 
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, model->population_number() );
+    CPPUNIT_ASSERT_EQUAL( model->sample_population(4), (size_t)0 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_population(10), (size_t)1 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_population(17), (size_t)2 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_time(4), (double)0.0 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_time(17), (double)0.0 );
+    delete model;
 
     char *argv4[] = { "scrm", "23", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eI", "12.3", "2", "0", "1" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv4).parse() ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(20), (size_t)0 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(22), (size_t)2 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(20), (double)12.3 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(22), (double)12.3 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_population(20), (size_t)0 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_population(22), (size_t)2 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_time(20), (double)12.3 );
+    CPPUNIT_ASSERT_EQUAL( model->sample_time(22), (double)12.3 );
+    delete model;
     
+    char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eN", "8.2", "0.75" };
+    model = Param(13, argv5).parse(); 
+    model->resetTime();
+    model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( model->population_size(0), (size_t)(0.75*model->default_pop_size) );
+    CPPUNIT_ASSERT_EQUAL( model->population_size(1), (size_t)(0.75*model->default_pop_size) );
+    CPPUNIT_ASSERT_EQUAL( model->population_size(2), (size_t)(0.75*model->default_pop_size) );
+    std::cout << *model << std::endl;
+    delete model;
   }
 
   void testReadInput() {

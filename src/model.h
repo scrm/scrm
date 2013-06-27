@@ -29,6 +29,7 @@ class Model
 #endif
   
   friend class Param;
+  friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
    Model(size_t sample_size);
@@ -98,11 +99,6 @@ class Model
   
    void print(std::ostream &os) const;
 
-   template <typename T>
-   void printVector(const std::vector<T> vec, std::ostream &os) const {
-     typename std::vector<T>::const_iterator it;
-     for (it = vec.begin(); it != vec.end(); ++it) os << *it << " "; 
-   }
 
    size_t loci_number() { return loci_number_; };
    void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
@@ -113,9 +109,13 @@ class Model
    //const std::vector<double> &change_times() const { return model_change_times_; }
 
   private:
+   Model(const Model&);
+   Model& operator=(const Model&);
+
    size_t addChangeTime(double time);
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
    void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
+   void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
    void addGrowthRates(double time, const std::vector<double> &growth_rates);
    
    template <typename T>
@@ -149,5 +149,14 @@ class Model
    size_t exact_window_length_;
    size_t prune_interval_;
 };
+
+std::ostream& operator<<(std::ostream& os, const Model& model); 
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
+  typename std::vector<T>::const_iterator it;
+  for (it = vec.begin(); it != vec.end(); ++it) os << *it << " ";
+  return os;
+}
 
 #endif

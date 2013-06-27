@@ -15,6 +15,7 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testAddChangeTime );
   CPPUNIT_TEST( testAddSampleSizes );
   CPPUNIT_TEST( testAddPopulationSizes );
+  CPPUNIT_TEST( testAddRelativePopulationSizes );
   CPPUNIT_TEST( testAddGrowthRates );
   CPPUNIT_TEST( testDebugConstructor );
   CPPUNIT_TEST( testIncreaseTime );
@@ -85,30 +86,30 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.sample_population(2), (size_t)0 ); 
     CPPUNIT_ASSERT_EQUAL( model.sample_time(1), (double)0.0 ); 
 
-    model = Model();
+    Model model2 = Model();
     std::vector<size_t> sample_sizes;
     sample_sizes.push_back(5);
     sample_sizes.push_back(2);
-    model.addSampleSizes(0.0, sample_sizes);
-    CPPUNIT_ASSERT_EQUAL( model.sample_size(), (size_t)7 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(0), (size_t)0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(5), (size_t)1 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(6), (size_t)1 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(0), (double)0.0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(4), (double)0.0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(6), (double)0.0 ); 
+    model2.addSampleSizes(0.0, sample_sizes);
+    CPPUNIT_ASSERT_EQUAL( model2.sample_size(), (size_t)7 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(0), (size_t)0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(4), (size_t)0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(5), (size_t)1 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(6), (size_t)1 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(0), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(4), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(6), (double)0.0 ); 
     sample_sizes.clear();
     sample_sizes.push_back(2);
     sample_sizes.push_back(1);
-    model.addSampleSizes(7.4, sample_sizes);
-    CPPUNIT_ASSERT_EQUAL( model.sample_size(), (size_t)10 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(7), (size_t)0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(8), (size_t)0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_population(9), (size_t)1 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(0), (double)0.0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(6), (double)0.0 ); 
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(8), (double)7.4 ); 
+    model2.addSampleSizes(7.4, sample_sizes);
+    CPPUNIT_ASSERT_EQUAL( model2.sample_size(), (size_t)10 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(7), (size_t)0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(8), (size_t)0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_population(9), (size_t)1 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(0), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(6), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model2.sample_time(8), (double)7.4 ); 
   }
 
   void testAddPopulationSizes() {
@@ -123,9 +124,16 @@ class TestModel : public CppUnit::TestCase {
     model.addPopulationSizes(0, pop_sizes2);
     CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(0) == 7 );
     CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(1) == 4 );
-
+    
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<size_t>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<size_t>(3, 5)), std::logic_error );
+  }
+  
+  void testAddRelativePopulationSizes() {
+    Model model = Model();
+    model.set_population_number(2);
+    model.addRelativePopulationSizes(1, std::vector<double>(2, .5));
+    CPPUNIT_ASSERT_EQUAL( model.pop_sizes_list_.at(1)->at(0), (size_t)(0.5 * model.default_pop_size) );
   }
 
   void testAddGrowthRates() {

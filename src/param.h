@@ -30,7 +30,7 @@ class Param {
   Param() : argc_(0), argv_(NULL) { };
   Param(int argc, char *argv[]) : argc_(argc), argv_(argv) { }
 
-  Model parse();
+  Model* parse();
   
   void print_param();
   

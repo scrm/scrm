@@ -12,6 +12,7 @@ Model::Model(size_t sample_size) {
 }
 
 Model::~Model() { 
+  std::cout << "Called ~Model" << std::endl;
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
 }
@@ -85,6 +86,16 @@ void Model::addPopulationSizes(double time, const std::vector<size_t> &pop_sizes
 }
 
 
+void Model::addRelativePopulationSizes(double time, const std::vector<double> &population_sizes) {
+  std::vector<size_t> abs_pop_sizes;
+  std::vector<double>::const_iterator it;
+  for (it = population_sizes.begin(); it != population_sizes.end(); ++it) {
+    abs_pop_sizes.push_back( *it * this->default_pop_size ); 
+  }
+  this->addPopulationSizes(time, abs_pop_sizes);
+}
+
+
 void Model::addGrowthRates(double time, const std::vector<double> &growth_rates) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
@@ -94,22 +105,21 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
 }
 
 
-void Model::print(std::ostream &os) const {
+std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
-  os << "Mutation rate: " << this->mutation_rate() << std::endl;  
-  os << "Recombination rate: " << this->recombination_rate() << std::endl;  
-  for (size_t idx = 0; idx < change_times_.size(); ++idx) { 
-    os << std::endl << "At time " << change_times_.at(idx) << ":" << std::endl;  
-    if (pop_sizes_list_.at(idx) != NULL) {
-      os << " Population sizes: "; 
-      printVector(*(pop_sizes_list_.at(idx)), os);
-      os << std::endl;
+  os << "Mutation rate: " << model.mutation_rate() << std::endl;  
+  os << "Recombination rate: " << model.recombination_rate() << std::endl;  
+  os << model.pop_sizes_list_ << std::endl << model.growth_rates_list_ << std::endl;
+  
+  for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
+    os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
+    if (model.pop_sizes_list_.at(idx) != NULL) {
+      os << " Population sizes: " << *(model.pop_sizes_list_.at(idx)) << std::endl;
     }
-    if (growth_rates_list_.at(idx) != NULL) {
-      os << " Growth Rate: "; 
-      printVector(*(growth_rates_list_.at(idx)), os);
-      os << std::endl;
+    if (model.growth_rates_list_.at(idx) != NULL) {
+      os << " Growth Rate: " << *(model.growth_rates_list_.at(idx)) << std::endl;
     }
   }
   os << "------------------------------------" << std::endl;
+  return(os);
 }
