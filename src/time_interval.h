@@ -38,7 +38,7 @@ class TimeInterval {
 };
 
 
-
+/* WARNING: DON'T USE MULTIPLE OF THESE AT THE SAME TIME */
 class TimeIntervalIterator {
  public:
   TimeIntervalIterator();

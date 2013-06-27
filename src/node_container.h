@@ -37,7 +37,6 @@ class NodeContainer {
   Node const* get(size_t nr) const { return at(nr); }; 
   Node * get_copy(size_t nr)  { return at(nr); }; 
 
-  
   Node* first() const { return first_node_; };
   Node* last() const { return last_node_; };
   
@@ -146,7 +145,16 @@ class ConstNodeIterator {
 
     return current_node_;
   }
-     
+  
+  Node* operator--() {
+    if (current_node_ == NULL) 
+      throw std::out_of_range("Node iterator out of range");
+
+    if ( current_node_->is_first() ) current_node_ = NULL;
+    else current_node_ = current_node_->previous();
+    return current_node_;
+  }
+  
   Node const* operator++(int) { 
     if (current_node_ == NULL) 
       throw std::out_of_range("Node iterator out of range");
@@ -159,6 +167,11 @@ class ConstNodeIterator {
  
   bool good() const { 
     return current_node_ != NULL;
+  }
+
+  double height() const {
+    if ( good() ) return current_node_->height();
+    else return FLT_MAX;
   }
 
  private:

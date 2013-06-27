@@ -230,13 +230,19 @@ bool Forest::printTree() {
   //this->printPositions(positions);
   std::vector<Node const*>::iterator position;
   int h_line;
+  double start_height = 0, 
+         end_height = getNodes()->get(0)->height();
 
-  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0), false); 
-       tii.good(); ++tii) {
+  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); 1) {
     h_line = 0;
+    start_height = end_height;
+    while ( ni.height() <= end_height ) ++ni;
+    end_height = ni.height(); 
+    //std::cout << start_height << " - " << end_height << std::endl;
+
     for (position = positions.begin(); position != positions.end(); ++position) {
       assert( *position != NULL );
-      if ( (*position)->height() == (*tii).start_height() ) {
+      if ( (*position)->height() == start_height ) {
         if ( (*position)->local() || *position == local_root() ) dout << "╦";
         else dout << "┬";
         if ( (*position)->numberOfChildren() == 2 ) {
@@ -247,13 +253,13 @@ bool Forest::printTree() {
           h_line = 0;
         }
       } 
-      else if ( (*position)->height() < (*tii).start_height() &&
-                (*position)->parent_height() >= (*tii).end_height() ) {
+      else if ( (*position)->height() < start_height &&
+                (*position)->parent_height() >= end_height ) {
         if ( (*position)->local() ) dout << "║";
         else dout << "│";
 
       } 
-      else if ( (*position)->parent_height() == (*tii).start_height() ) {
+      else if ( (*position)->parent_height() == start_height ) {
         if ( *position == (*position)->parent()->first_child() ) {
           if ( (*position)->local() ) { 
             dout << "╚";
@@ -276,10 +282,10 @@ bool Forest::printTree() {
         else dout << "─";
       }
     }
-    dout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height() << " - "; 
+    dout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
-      if ( (*position)->height() == (*tii).start_height() ) {
+      if ( (*position)->height() == start_height ) {
         dout << *position << " ";
       }
     }

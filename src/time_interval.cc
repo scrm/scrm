@@ -78,6 +78,7 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->contemporaries_ = std::vector<Node*>(0);
   this->pruning_ = pruning;
   this->current_time_ = start_node->height();
+  forest->writable_model()->resetTime();
   
   // Skipt intervals below start_height
   for( ; *node_iterator_ != start_node; node_iterator_++ ) {
@@ -134,7 +135,7 @@ void TimeIntervalIterator::next() {
     forest_->writable_model()->increaseTime();
   } 
   
-  if ( start_height >= (*node_iterator_)->height() ) {
+  if ( start_height >= node_iterator_.height() ) {
     //Update contemporaries
     if ( (*node_iterator_)->first_child() != NULL ) 
       this->removeFromContemporaries((*node_iterator_)->first_child());
