@@ -32,7 +32,7 @@ namespace scrm{
 		//and nsites is the number of sites between which recombination can occur.
 		double recomb_rate_persite;
 		double theta; // mutation rate: theta=4*N*mu, where mutation rate between the two end of the sequence 
-		
+		double mutation_rate_persite;
 		size_t ith_change; // the i_th change of the genealogy
 		std::string treefile;
 		size_t exact_window_length;

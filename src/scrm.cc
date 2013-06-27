@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include "forest.h"
+#include "seg.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
@@ -47,23 +48,21 @@ int main(int argc, char *argv[]){
         tmrca_file << forest->local_root()->height() <<";\n";  
         tmrca_file.close();	
       }
-      if (user_para.seg_bool){
-        forest->seg_data(user_para.treefile, user_para.total_mut);
-      }
+      //vector <seg_data*> seg_data_array;
+      seg_data_container * seg_data_array = new seg_data_container(user_para);
+      
+      int previous_last_for = 1 + min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
       if (user_para.rho > 0.0){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
          string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-        int previous_last_for=1+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
-
+        
         while (forest->next_base()< user_para.nsites ) {
           forest->sampleNextGenealogy();
-          //string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-          string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-        //std::cout<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<std::endl;
-        //std::cout<<writeTree_new(forest->local_root(),forest->writable_model()->population_size())<<std::endl;
+		  seg_data_array->append_new_seg_data(forest);
 
+          string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
           if (current_genealogy == previous_genealogy){
             previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
           }
@@ -71,20 +70,23 @@ int main(int argc, char *argv[]){
             tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
             previous_genealogy=current_genealogy;
             previous_last_for=min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
-            //previous_last_for=ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
           }
         }
+		//simulate seg sites ....
         tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
-
         //tree_file  <<"//\n";
         tree_file.close();	
       }
+		seg_data_array->append_new_seg_data(forest);
+		seg_data_array->print_to_file();
+		delete seg_data_array;
+
       std::ofstream tree_file;
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       tree_file  <<"//\n";
       tree_file.close();	
       std::cout << forest->getNodes()->size() << std::endl;
-      //delete forest;
+      delete forest;
     }
 
     time_t end_time = time(0);

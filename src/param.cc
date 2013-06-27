@@ -13,18 +13,19 @@ void param::init(){
 	this->nsam=5;
 	this->npop=10000;
 	this->npop_defalut_bool=true;
-	this->theta=0.00001;
+	this->theta=10;
 	this->theta_defalut_bool=true;
 	this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
 	this->recomb_rate_persite=0;
+	this->mutation_rate_persite=0;
 	//this->rho=0.00000002;	
 	this->ith_change=25;
 	this->exact_window_length=0;
 	this->log_bool=false;
 	this->log_NAME="scrm.log";
 	this->treefile="TREEFILE";
-	this->seg_bool=false;
-	this->total_mut=0;
+	this->seg_bool=true;
+	this->total_mut=-1;
 	this->tmrca_bool=false;
 	this->tmrca_NAME="tmrcaFILE";
 	}
@@ -94,7 +95,7 @@ param::param(int argc, char *argv[]){
 		if (argv_i=="-r"){
 			//read_input_to_double(argv[argc_i+1],rho);
 			read_input_to_param<double>(argv[argc_i+1],rho);
-			seg_bool=false; // this needs to be changed
+			//seg_bool=false; // this needs to be changed
 			argc_i++;
 			if (argc_i+1 < argc){
 				if (argv[argc_i+1][0]!='-'){
@@ -119,7 +120,7 @@ param::param(int argc, char *argv[]){
 		
 		if (argv_i=="-T"){
 			treefile=argv[argc_i+1];
-			seg_bool=false;
+			//seg_bool=false;
 			argc_i++;			
 		}
 		
@@ -149,10 +150,10 @@ param::param(int argc, char *argv[]){
 		argc_i++;
 	}
 	
-	//if (rho>0){
-		
-	//}
-	recomb_rate_persite=rho/4 / npop / (nsites-1);
+
+	recomb_rate_persite = rho / 4 / npop / (nsites-1);
+	mutation_rate_persite = theta /4 / npop / (nsites);
+
 	remove(treefile.c_str());
 	if (log_bool){
 		remove(log_NAME.c_str());
@@ -228,11 +229,11 @@ void scrm::print_option(){
 void scrm::print_example(){	
 	std::cout<<"Example:"<<std::endl;
 	std::cout<<"./scrm 3 1"<<std::endl;
-	std::cout<<"./scrm 6 3 -t 0.002 -r 40 -npop 20000 "<<std::endl;
-	std::cout<<"./scrm 5 3 -t 0.0002 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
-	std::cout<<"./scrm 6 1 -t 0.002 -r 40 10000 -nsites 2000 -log"<<std::endl;
-	std::cout<<"./scrm 6 2 -t 0.002 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
-	std::cout<<"./scrm 6 2 -t 0.002 -r 40 -log LOGFILE -T mytree"<<std::endl;
+	std::cout<<"./scrm 6 3 -t 10 -r 40 -npop 20000 "<<std::endl;
+	std::cout<<"./scrm 5 3 -t 20 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
+	std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
 
 }
 
