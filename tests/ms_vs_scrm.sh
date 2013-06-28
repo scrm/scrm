@@ -1,4 +1,32 @@
 #!/bin/bash
+msNsample=(2 3 4 7 10 20)
+
+rep=100
+
+## compare TMRCA
+compareTMRCA=compareTMRCA
+
+for nsam in "${msNsample[@]}"
+	do
+	prefix=${nsam}sample
+	out=${prefix}out
+	tmrca=${prefix}tmrca
+	Trees=${prefix}Trees
+	ms ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > ms${out}
+	cat ms${out} | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+	hybrid-Lambda -gt ms${Trees} -tmrca ms${tmrca}
+
+
+	scrm ${nsam} ${rep} -npop ${npop} -tmrca scrm${tmrca} 
+#	echo "rm(list=ls());cat(paste(${nsam},,),file=\"${compareTMRCA}\",append=TRUE);cat(\"\n\",file=\"${compareTMRCA}\",append=TRUE);" > dummy.r
+#	R CMD BATCH dummy.r
+#	rm ms${out} ms${Trees} ms${tmrca} scrm${tmrca} 
+	done
+
+
+###########################
+
 mst=(10 20 50 100)
 msr=(10 20 10 50)
 msNsample=(2 3 7 10)
@@ -6,30 +34,17 @@ msNsample=(2 3 7 10)
 npop=20000
 seqlen=100000
 
-rep=100
 
-## compare TMRCA
-for t in "${mst[@]}"
-	do 
-	for r in "${msr[@]}"
-		do 
-		for nsam in "${msNsample[@]}"
-			do
-			prefix=${nsam}sample${t}mutation${r}recomb
-			out=${prefix}out
-#tmrca=${prefix}tmrca
-#Trees=${prefix}Trees
-			ms ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > ms${out}
-			cat ms${out} | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
-
-			hybrid-Lambda -gt ${msTrees} -tmrca ${tmrca}
-
-
-			scrm ${nsam} ${rep} -npop ${npop} -T ${scrmout}
-			done
-		done
-	done
 	
+## compare number of segregating sites
+
+
+
+
+## compare times of genealogy changes
+
+
+
 	
 	
 ##cat ${msout} | grep ";" > ${msTrees}
