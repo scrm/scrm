@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       tree_file  <<"//\n";
       tree_file.close();	
-      std::cout << forest->getNodes()->size() << std::endl;
+      //std::cout << forest->getNodes()->size() << std::endl;
       delete forest;
     }
 

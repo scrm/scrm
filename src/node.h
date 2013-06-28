@@ -14,8 +14,6 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-//#include <string>
-#include <vector>
 
 #ifndef NDEBUG
 #define dout std::cout
@@ -121,7 +119,7 @@ class Node
   //double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
 								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
 
-  std::vector <int> descndnt;
+  //std::vector <int> descndnt;
   double mut_num() const { return this->mut_num_; }
   void set_mut_num(const double &mut_num) { this->mut_num_ = mut_num; }
 

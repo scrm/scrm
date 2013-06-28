@@ -124,6 +124,8 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree();
+  bool printTree_cout();
+
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -131,6 +133,8 @@ class Forest
 
   //segegrating sites
   void seg_data(string treefile, int total_mut);
+  
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   
  private:
   //segegrating sites  
@@ -146,7 +150,8 @@ class Forest
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
+  //making samplePoint public
+  //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
