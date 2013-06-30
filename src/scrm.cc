@@ -35,11 +35,11 @@ int main(int argc, char *argv[]){
       forest->buildInitialTree();
 	  std::ofstream tree_file;
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-    
+	    tree_file  <<"//\n";
       if (user_para.tmrca_bool){
         std::ofstream tmrca_file;
         tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        tmrca_file << forest->local_root()->height() <<";\n";  
+        tmrca_file << forest->local_root()->height() <<"\n";  
         tmrca_file.close();	
       }
       
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]){
 
       //std::ofstream tree_file;
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      tree_file  <<"//\n";
+      
       tree_file.close();	
       //std::cout << forest->getNodes()->size() << std::endl;
       delete forest;
