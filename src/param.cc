@@ -131,7 +131,11 @@ Model* Param::parse() {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
-  //std::cout << "resetting time" << std::endl;
+  // Scale recombination rate
+  model->set_recombination_rate(model->recombination_rate() * 0.25
+                                     / model->population_number()  
+                                     / (model->loci_length() - 1));
+
   model->resetTime();
 
   /*
