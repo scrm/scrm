@@ -25,23 +25,36 @@ int main(int argc, char *argv[]){
     //ConstantGenerator *rg = new ConstantGenerator();
     //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
-    // NORMAL RUN
-    //
-    //
+    // Organize output
+    std::ostream *output = &std::cout;
+    if (user_para.log_bool) {
+      std::ofstream log_file;
+      log_file.open(user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+      output = &log_file; 
+    }
+
+    //if (user_para.tree_bool) { 
+    std::ostringstream tree_buffer;
+    //}
+
+    *output << user_para << std::endl;
+    *output << user_para.random_seed << std::endl;
+
+    /*
+       std::ofstream tree_file;
+       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+       tree_file  <<"//\n";
+       tree_file.close();	
+       */
+
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
-      Forest * forest = new Forest(model, rg);
+      *output << std::endl << "//" << std::endl;
+
+      Forest *forest = new Forest(model, rg);
       forest->buildInitialTree();
-      std::ofstream tree_file;
 
-      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      tree_file  <<"//\n";
-
-      if (user_para.total_mut==0){	
-        std::ofstream tree_file;
-        tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        //tree_file << forest->local_root()->tree_topo_bl <<"\n";  
-        tree_file<<writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0)<<"\n";
-        tree_file.close();	
+      if (forest->model().mutation_exact_number() == 0){	
+        tree_buffer << writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0) << ";\n";
       }
 
       if (user_para.tmrca_bool()){
@@ -55,8 +68,6 @@ int main(int argc, char *argv[]){
 
       int previous_last_for = 1 + min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
       if (model->recombination_rate() > 0.0){
-        //std::ofstream tree_file;
-        //tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
         string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
 
@@ -69,24 +80,23 @@ int main(int argc, char *argv[]){
           //previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
           //}
           //else{
-          tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
+          tree_buffer << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
           //previous_genealogy=current_genealogy;
           previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
           //}
         }		
-        tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
+        tree_buffer << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
 
       }
       seg_data_array->append_new_seg_data(forest);
-      tree_file << seg_data_array ;
+
+      if (user_para.tree_bool) {
+        *output << tree_buffer.str();
+      }
+
+      *output << *seg_data_array;
+
       delete seg_data_array;
-      tree_file.close();	
-
-      //std::ofstream tree_file;
-      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-
-      tree_file.close();	
-      //std::cout << forest->getNodes()->size() << std::endl;
       delete forest;
     }
     //tree_file.close();	

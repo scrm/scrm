@@ -17,7 +17,14 @@
 
 class Param {
  public:
-  int total_mut;
+  friend std::ostream& operator<< (std::ostream& stream, const Param& param) {
+    stream << "scrm ";
+    for (size_t i = 1; i < param.argc_; ++i) {
+      stream << param.argv_[i] << " ";
+    }
+    return stream;
+  };
+
   int random_seed;
   std::string treefile;
   
@@ -38,6 +45,7 @@ class Param {
   
   void print_param();
   
+  bool tree_bool;
   bool log_bool;
   std::string log_NAME;
   

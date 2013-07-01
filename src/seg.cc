@@ -5,8 +5,8 @@
 SegDataContainer::SegDataContainer(Param const* user_para, Forest const* forest){
   this->user_para_ = user_para;
   this->forest_ = forest;
-  this->remaining_max_num_mut = user_para_->total_mut;
-  this->numseg = 0 ;
+  this->remaining_max_num_mut = forest->model().mutation_exact_number();
+  this->numseg = 0;
 }
 
 

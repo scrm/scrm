@@ -47,10 +47,12 @@ class Model
    double mutation_rate() const { return mutation_rate_; }
    double recombination_rate() const { return recombination_rate_; }
    size_t loci_length() const { return loci_length_; }
+   size_t mutation_exact_number() const { return mutation_exact_number_; };
 
    void set_mutation_rate(double rate) { mutation_rate_ = rate; }
    void set_recombination_rate(double rate) { recombination_rate_ = rate; }
    void set_loci_length(size_t length) { loci_length_ = length; }
+   void set_mutation_exact_number(size_t number) { mutation_exact_number_ = number; }
 
    double growth_rate(size_t pop = 0) const {
      if (current_growth_rates_ == NULL) return default_growth_rate;
@@ -140,6 +142,7 @@ class Model
    size_t current_time_idx_;
 
    double mutation_rate_;
+   size_t mutation_exact_number_;
    double recombination_rate_;
    size_t pop_number_;
 

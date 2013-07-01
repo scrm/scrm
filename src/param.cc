@@ -9,10 +9,10 @@ void Param::init(){
   //this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
   //this->recomb_rate_persite=0;
   this->log_bool=false;
+  this->tree_bool=false;
   this->log_NAME="scrm.log";
   this->treefile="TREEFILE";
   this->set_seg_bool(true);
-  this->total_mut=0;
   this->set_tmrca_bool(false);
   this->tmrca_NAME="tmrcaFILE";
 }
@@ -79,7 +79,12 @@ Model* Param::parse() {
     }
 
     else if (argv_i == "-T"){
-      treefile = argv_[++argc_i];
+      //treefile = argv_[++argc_i];
+      tree_bool = true;
+    }
+
+    else if (argv_i == "-s"){
+      model->set_mutation_exact_number(readInput<size_t>(argv_[++argc_i]));
     }
 
     else {
@@ -90,10 +95,6 @@ Model* Param::parse() {
     /* 
 
 
-    if (argv_i=="-s"){
-      read_input_to_param<int>(argv[argc_i+1],total_mut);
-      argc_i++;
-    }
 
     if (argv_i=="-tmrca"){
       tmrca_bool=true;

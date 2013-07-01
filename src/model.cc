@@ -27,6 +27,7 @@ void Model::init() {
 
   this->set_exact_window_length(0);
   this->set_prune_interval(0);
+  this->set_mutation_exact_number(0);
 
   this->resetTime();
 }
