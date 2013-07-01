@@ -27,59 +27,6 @@ urlcolor=blue,
 \date{}
 \begin{document}
 \maketitle
-
-\section{Blah Blah Introduction or something}
-
-\section{Download and installation}
-{\tt scrm} can be downloaded from \url{https://...}. Extract the source code by executing the following command:
-\cm{tar -xf scrm-VERSION.tar.gz.}
-
-It is fairly standard to compile {\tt scrm} on UNIX-like systems. In the directory of {\tt scrm-VERSION}, execute the following command:
-\begin{verbatim}
-$./bootstrap
-$make
-\end{verbatim}
-
-\section{Basic command}
-\cm{scrm nsam }
-
-
-\cm{scrm nsam nreps -T [FILENAME]}
-
-
-\section{Simulation for segregating sites???????}
-\cm{scrm nsam nreps -t $\theta$}
-
-
-
-\section{Recombination}
-
-
-\cm{scrm nsam nreps -t $\theta$ -r $\rho$ [-nsitis NSITES] [-npop NPOP] }
-
-\cm{scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 }
-
-
-
-\section{Options}
-\begin{longtable}{lp{9cm}}
-{\tt -T [FILENAME]} & Save output trees to file specified by {\tt FILENAME}. If {\tt FILENAME} is not given, trees are saved in file {\tt TREEFILE}.\\
- {\tt  -r} $\rho$ &  User define the recombination rate $\rho$, per gerneration per site.\\
- {\tt  -nsites} NSITES &  User define the sequence length NSITES. \\
-  {\tt -t} $\theta$  &  User define the mutation rate THETA. \\
-{\tt -npop} NPOP &  User define the population size NPOP. \\
- {\tt -seed} SEED  &  User define the random SEED. \\
-{\tt -l} exact\_window\_length &  User define the length of the exact window. \\
-
- {\tt -log [LOGFILE]} & Save the log of the simulation to file specified by {\tt LOGFILE}. If {\tt LOGFILE} is not given, it is save at {\tt scrm.log} by default.  
-\end{longtable}
-
-
-
-\nocite{mcvean_approximating_2005}
-
-\bibliographystyle{plain}
-\bibliography{manual}
-
+\input{manualcontent.tex}
 
 \end{document}

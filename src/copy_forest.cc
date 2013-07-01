@@ -23,7 +23,6 @@ Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is fa
 	  size_t samples_below = current_forest->getNodes()->get(i-1)->samples_below();
 	  double length_below = current_forest->getNodes()->get(i-1)->length_below();
 	  int label = current_forest->getNodes()->get(i-1)->label();
-	  //Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label);
 	  Node * new_node=new Node(height,local,last_update, samples_below, length_below, label);
 	  new_node->index = current_forest->getNodes()->get(i-1)->index;
 	  this->nodes()->add(new_node);
@@ -36,7 +35,6 @@ Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is fa
 	  size_t samples_below = current_forest->getNodes()->get(i)->samples_below();
 	  double length_below = current_forest->getNodes()->get(i)->length_below();
 	  int label = current_forest->getNodes()->get(i)->label();
-	  //Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, int label);
 	  Node * new_node=new Node(height,local,last_update, samples_below, length_below, label);
 	  new_node->index = current_forest->getNodes()->get(i)->index;
 	  this->nodes()->add(new_node);	  
@@ -67,17 +65,6 @@ Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is fa
 	}
 	this->set_local_root(this->nodes()->get_copy(current_forest->local_root()->index));
 	this->set_primary_root(this->nodes()->get_copy(current_forest->primary_root()->index));
-	//assert(current_forest->printNodes());
-	//assert(this->printNodes());
-	//dout<<"finished adding nodes "<< this->getNodes()->size()<<std::endl;
-	//dout<<"i  old index    new index"<<endl;
-	//for(size_t i = 0; i < current_forest->getNodes()->size(); i++) {
-		//dout<<i<<"  "<<current_forest->nodes()->get_copy(i)->index<<" "<<current_forest->nodes()->get_copy(i)->parent_height();
-		//dout<<"   "<<this->nodes()->get_copy(i)->index<<"  "<<this->nodes()->get_copy(i)->parent_height();
-		//dout<<endl;
-	//}
-	//dout<<"finished linking nodes"<<std::endl;
-
 	this->set_model(current_forest->writable_model());
 	this->set_sample_size(current_forest->sample_size());
 	this->set_current_base(current_forest->current_base());
@@ -89,7 +76,6 @@ Forest::Forest(Forest * current_forest, bool entire_ARG){ // if entire_ARG is fa
 
 	dout<<"  #################### check copied forest ###############"<<std::endl;
 	assert(this->printTree());
-	//assert(this->printNodes());
 	assert(this->checkTree());
 	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }

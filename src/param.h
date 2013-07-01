@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <boost/lexical_cast.hpp> 
-
-//#include "mtrand.h"
 #include "model.h"
 
 class Param {
