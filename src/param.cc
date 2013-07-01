@@ -27,7 +27,7 @@ Model* Param::parse() {
   this->init();
 
   while( argc_i < argc_ ){
-    std::cout << argv_[argc_i] << std::endl;
+    //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
@@ -68,7 +68,7 @@ Model* Param::parse() {
       std::vector<double> pop_sizes(model->population_number(),
                                     readInput<double>(argv_[++argc_i]));
       model->addRelativePopulationSizes(time, pop_sizes); 
-      std::cout << model << std::endl;
+      //std::cout << model << std::endl;
     }
 
     else if (argv_i == "-l"){
@@ -125,14 +125,14 @@ Model* Param::parse() {
   }
 
   if (model->sample_size() == 0) {
-    std::cout << "adding samples" << std::endl;
+    //std::cout << "adding samples" << std::endl;
     model->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   } 
   else if (model->sample_size() != sample_size) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
-  std::cout << "resetting time" << std::endl;
+  //std::cout << "resetting time" << std::endl;
   model->resetTime();
 
   /*

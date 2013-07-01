@@ -62,7 +62,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model->population_size(0), (size_t)(0.75*model->default_pop_size) );
     CPPUNIT_ASSERT_EQUAL( model->population_size(1), (size_t)(0.75*model->default_pop_size) );
     CPPUNIT_ASSERT_EQUAL( model->population_size(2), (size_t)(0.75*model->default_pop_size) );
-    std::cout << *model << std::endl;
     delete model;
   }
 

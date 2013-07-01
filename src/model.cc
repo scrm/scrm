@@ -12,7 +12,7 @@ Model::Model(size_t sample_size) {
 }
 
 Model::~Model() { 
-  std::cout << "Called ~Model" << std::endl;
+  //std::cout << "Called ~Model" << std::endl;
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
 }
