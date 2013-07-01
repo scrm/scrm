@@ -160,7 +160,6 @@ void Param::log_param(){
 }		
 
 void print_help(){
-  //void scrm_help::print_help(){
   std::cout<<std::endl;
   std::cout<<std::endl;
   std::cout<<"*****************************************************************"<<std::endl;
@@ -198,7 +197,6 @@ void print_example(){
 	std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
 	std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
 	std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
-
 }
 
 void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
