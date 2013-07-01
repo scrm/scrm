@@ -131,7 +131,7 @@ class Forest
   NodeContainer *nodes() { return this->nodes_; }
 
   //segegrating sites
-  void seg_data(string treefile, int total_mut);
+  std::ostream &generateSegData(std::ostream &output, int total_mut);
   
  private:
   //segegrating sites  

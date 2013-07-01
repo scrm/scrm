@@ -52,40 +52,29 @@ void Forest::exp_mut_num(int total_mut){
 	}
 }
 
-void Forest::seg_data(string treefile, int in_total_mut){
-	int total_mut;
-	double total_bl= this->local_root()->length_below();
 
-	if (in_total_mut!=0){
-		total_mut = in_total_mut;
-		//give the probability ...
-		}
-	else{
-		total_mut=random_generator_->samplePoisson(total_bl * this->writable_model()->mutation_rate());
+std::ostream& Forest::generateSegData(std::ostream &output, int total_mut) {
+	double total_bl = this->local_root()->length_below();
+
+	if (total_mut == 0) {
+		total_mut = random_generator_->samplePoisson(total_bl * this->model().mutation_rate());
 	}
-	
 	
 	this->find_descndnt();
 	this->exp_mut_num(total_mut);
-	std::ofstream tree_file;
-	tree_file.open (treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-	tree_file<<"segsites: "<<total_mut<<"\n";
-	int nsam = this->writable_model()->sample_size();
+	output << "segsites: " << total_mut << std::endl;
+	int nsam = this->model().sample_size();
 
-	for (unsigned int tip_i=0;tip_i<nsam;tip_i++){
-		//tree_file<<mt_tree.tip_name[tip_i]<<" ";
-		//cout<<mt_tree.tip_name[tip_i]<<" ";
-		for (unsigned int node_i=0;node_i<this->getNodes()->size();node_i++){
-			if (this->getNodes()->get(node_i)->mut_num()>0){
-				for (int num_repeat=0;num_repeat<this->getNodes()->get(node_i)->mut_num();num_repeat++ ){				
-					//site_data_file<<mt_tree.descndnt2[node_i][tip_i] <<" ";
-					tree_file<<this->getNodes()->get(node_i)->descndnt[tip_i] ;
+	for (size_t tip_i=0; tip_i<nsam; tip_i++){
+		for (size_t node_i=0; node_i < this->getNodes()->size(); ++node_i){
+			if (this->getNodes()->get(node_i)->mut_num() > 0){
+				for (int num_repeat=0; num_repeat < this->getNodes()->get(node_i)->mut_num(); num_repeat++){				
+					output << this->getNodes()->get(node_i)->descndnt[tip_i] ;
 				}
 			}
 		}
-		tree_file<<"\n";
+		output << std::endl;
 	}
-
-	tree_file.close();	
+  return output;
 }
 			

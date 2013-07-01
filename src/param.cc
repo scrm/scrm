@@ -79,6 +79,11 @@ Model* Param::parse() {
       random_seed = readInput<int>(argv_[++argc_i]);
     }
 
+    else if (argv_i == "-T"){
+      treefile = argv_[++argc_i];
+      seg_bool=false;
+    }
+
     else {
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
@@ -86,28 +91,10 @@ Model* Param::parse() {
     ++argc_i; 
     /* 
 
-    if (argv_i=="-nsites"){
-      //read_input_to_int(argv[argc_i+1],random_seed);
-      read_input_to_param<double>(argv_[argc_i+1],nsites);
-      argc_i++;
-    }
-
-    if (argv_i=="-npop"){
-      //read_input_to_int(argv[argc_i+1],npop);
-      read_input_to_param<int>(argv[argc_i+1],npop);
-      argc_i_++;
-    }	
-
 
     if (argv_i=="-s"){
       read_input_to_param<int>(argv[argc_i+1],total_mut);
       argc_i++;
-    }
-
-    if (argv_i=="-T"){
-      treefile=argv[argc_i+1];
-      seg_bool=false;
-      argc_i++;			
     }
 
     if (argv_i=="-tmrca"){
@@ -137,9 +124,6 @@ Model* Param::parse() {
   */
   }
 
-  //if (rho>0){
-
-  //}
   if (model->sample_size() == 0) {
     std::cout << "adding samples" << std::endl;
     model->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
@@ -160,8 +144,6 @@ Model* Param::parse() {
   }
   if (tmrca_bool){remove(tmrca_NAME.c_str());}
   */
-  //MTRand_closed mt;
-  //mt.seed(random_seed);		// initialize mt seed
   return model;
 }
 

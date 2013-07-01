@@ -44,9 +44,9 @@ int main(int argc, char *argv[]){
         tmrca_file << forest->local_root()->height() <<"\n";  
         tmrca_file.close();	
       }
-      if (user_para.seg_bool){
-        forest->seg_data(user_para.treefile, user_para.total_mut);
-      }
+
+      forest->generateSegData(std::cout, user_para.total_mut);
+
       if (model->recombination_rate() > 0.0){
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
