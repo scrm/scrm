@@ -31,11 +31,11 @@ int main(int argc, char *argv[]){
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
       Forest * forest = new Forest(model, rg);
       forest->buildInitialTree();
-	    std::ofstream tree_file;
+      std::ofstream tree_file;
 
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-	    tree_file  <<"//\n";
-      
+      tree_file  <<"//\n";
+
       if (user_para.total_mut==0){	
         std::ofstream tree_file;
         tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
@@ -44,52 +44,52 @@ int main(int argc, char *argv[]){
         tree_file.close();	
       }
 
-      if (user_para.tmrca_bool){
+      if (user_para.tmrca_bool()){
         std::ofstream tmrca_file;
         tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         tmrca_file << forest->local_root()->height() <<"\n";  
         tmrca_file.close();	
       }
 
-      seg_data_container * seg_data_array = new seg_data_container(user_para, forest);
-      
+      SegDataContainer *seg_data_array = new SegDataContainer(&user_para, forest);
+
       int previous_last_for = 1 + min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
       if (model->recombination_rate() > 0.0){
         //std::ofstream tree_file;
         //tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
         //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-         string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-        
+        string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+
         while ( forest->next_base() < model->loci_length() ) {
           forest->sampleNextGenealogy();
-		  seg_data_array->append_new_seg_data(forest);
+          seg_data_array->append_new_seg_data(forest);
 
           //string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
           //if (current_genealogy == previous_genealogy){
-            //previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
+          //previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
           //}
           //else{
-            tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
-            //previous_genealogy=current_genealogy;
-            previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
+          tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
+          //previous_genealogy=current_genealogy;
+          previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
           //}
         }		
         tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
-        
+
       }
+      seg_data_array->append_new_seg_data(forest);
+      tree_file << seg_data_array ;
+      delete seg_data_array;
       tree_file.close();	
-		seg_data_array->append_new_seg_data(forest);
-		seg_data_array->print_to_file();
-		delete seg_data_array;
 
       //std::ofstream tree_file;
       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      
+
       tree_file.close();	
       //std::cout << forest->getNodes()->size() << std::endl;
       delete forest;
     }
-//tree_file.close();	
+    //tree_file.close();	
     time_t end_time = time(0);
 
     std::cout << "Simulation took about " << end_time - start_time 

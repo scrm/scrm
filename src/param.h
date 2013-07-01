@@ -17,15 +17,19 @@
 
 class Param {
  public:
-  bool seg_bool;
   int total_mut;
   int random_seed;
   std::string treefile;
   
-  bool tmrca_bool;
   std::string tmrca_NAME;
   
   void init();
+
+  bool seg_bool() const { return seg_bool_; }
+  bool tmrca_bool() const { return tmrca_bool_; }
+
+  void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
+  void set_tmrca_bool(const bool &tmrca_bool) { tmrca_bool_ = tmrca_bool; } 
 
   Param() : argc_(0), argv_(NULL) { };
   Param(int argc, char *argv[]) : argc_(argc), argv_(argv) { }
@@ -42,6 +46,9 @@ class Param {
  private:
   const int argc_;
   char * const* argv_;
+
+  bool tmrca_bool_;
+  bool seg_bool_; 
 };
 
 void print_help();

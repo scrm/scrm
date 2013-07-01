@@ -11,9 +11,9 @@ void Param::init(){
   this->log_bool=false;
   this->log_NAME="scrm.log";
   this->treefile="TREEFILE";
-  this->seg_bool=false;
+  this->set_seg_bool(true);
   this->total_mut=0;
-  this->tmrca_bool=false;
+  this->set_tmrca_bool(false);
   this->tmrca_NAME="tmrcaFILE";
 }
 
@@ -42,7 +42,6 @@ Model* Param::parse() {
     else if (argv_i == "-r") {
       model->set_recombination_rate(readInput<double>(argv_[++argc_i]));
       model->set_loci_length(readInput<size_t>(argv_[++argc_i]));
-      seg_bool=false; // this needs to be changed
     }
 
     else if (argv_i == "-I") {
@@ -81,7 +80,6 @@ Model* Param::parse() {
 
     else if (argv_i == "-T"){
       treefile = argv_[++argc_i];
-      seg_bool=false;
     }
 
     else {
