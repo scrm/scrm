@@ -66,7 +66,6 @@ size_t Model::addChangeTime(double time) {
   return position;
 }
 
-
 void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes) {
   for (size_t pop = 0; pop < samples_sizes.size(); ++pop) {
     for (size_t i = 0; i < samples_sizes.at(pop); ++i) {

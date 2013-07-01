@@ -294,6 +294,72 @@ bool Forest::printTree() {
   return true;
 }
 
+/******************************************************************
+ * Tree Printing
+ *****************************************************************/
+bool Forest::printTree_cout() {
+  //this->printNodes();
+  std::vector<Node const*> positions = this->determinePositions();
+  //this->printPositions(positions);
+  std::vector<Node const*>::iterator position;
+  int h_line;
+
+  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0), false); 
+       tii.good(); ++tii) {
+    h_line = 0;
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      assert( *position != NULL );
+      if ( (*position)->height() == (*tii).start_height() ) {
+        if ( (*position)->local() || *position == local_root() ) cout << "╦";
+        else cout << "┬";
+        if ( (*position)->numberOfChildren() == 2 ) {
+          h_line = 1 + !((*position)->local());
+          if ( *position == local_root() ) h_line = 1;
+        }
+        if ( (*position)->numberOfChildren() == 1 ) {
+          h_line = 0;
+        }
+      } 
+      else if ( (*position)->height() < (*tii).start_height() &&
+                (*position)->parent_height() >= (*tii).end_height() ) {
+        if ( (*position)->local() ) cout << "║";
+        else cout << "│";
+
+      } 
+      else if ( (*position)->parent_height() == (*tii).start_height() ) {
+        if ( *position == (*position)->parent()->first_child() ) {
+          if ( (*position)->local() ) { 
+            cout << "╚";
+            h_line = 1;
+          }
+          else {
+            cout << "└";
+            h_line = 2;
+          }
+        }
+        else {
+          if ( (*position)->local() ) cout << "╝";
+          else cout << "┘";
+          h_line = 0;
+        }
+      }
+      else {
+        if ( h_line == 0 ) cout << " ";
+        else if ( h_line == 1 ) cout << "═";
+        else cout << "─";
+      }
+    }
+    cout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height() << " - "; 
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      if (*position == NULL) continue;
+      if ( (*position)->height() == (*tii).start_height() ) {
+        cout << *position << " ";
+      }
+    }
+    cout << std::endl;
+  }
+  return true;
+}
 
 
 

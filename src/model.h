@@ -100,7 +100,7 @@ class Model
    void print(std::ostream &os) const;
 
 
-   size_t loci_number() { return loci_number_; };
+   size_t loci_number() const { return loci_number_; };
    void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
    
    

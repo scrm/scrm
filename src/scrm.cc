@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ctime>
 #include "forest.h"
+#include "seg.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
@@ -26,9 +27,14 @@ int main(int argc, char *argv[]){
 
     // NORMAL RUN
     //
+    //
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
       Forest * forest = new Forest(model, rg);
       forest->buildInitialTree();
+	    std::ofstream tree_file;
+
+      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+	    tree_file  <<"//\n";
       
       if (user_para.total_mut==0){	
         std::ofstream tree_file;
@@ -45,48 +51,45 @@ int main(int argc, char *argv[]){
         tmrca_file.close();	
       }
 
-      forest->generateSegData(std::cout, user_para.total_mut);
-
+      seg_data_container * seg_data_array = new seg_data_container(user_para, forest);
+      
+      int previous_last_for = 1 + min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
       if (model->recombination_rate() > 0.0){
-        std::ofstream tree_file;
-        tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        //string previous_genealogy=forest->local_root()->tree_topo_bl;
-        string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-        int previous_last_for=ceil(min(forest->next_base(), (double)model->loci_length())-forest->current_base());
-        //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
-
+        //std::ofstream tree_file;
+        //tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+        //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+         string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+        
         while ( forest->next_base() < model->loci_length() ) {
           forest->sampleNextGenealogy();
-          //cout<<"["<<min(forest->next_base(),user_para.nsites)-forest->current_base() <<"]"<<forest->local_root()->tree_topo_bl<<endl;
-          string current_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
+		  seg_data_array->append_new_seg_data(forest);
 
-          if (current_genealogy == previous_genealogy){
-            previous_last_for=previous_last_for+ceil(min(forest->next_base(), (double)model->loci_length())-forest->current_base());
-          }
-          else{
-            tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<"\n";
-            //previous_genealogy=forest->local_root()->tree_topo_bl;
-            previous_genealogy=current_genealogy;
-
-            previous_last_for=ceil(min(forest->next_base(), (double)model->loci_length())-forest->current_base());
-          }
-
-        }
-        //previous_last_for=previous_last_for-ceil(min(forest->next_base(),user_para.nsites)-forest->current_base());
-        //previous_last_for=user_para.nsites
-        tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<"\n";
-
-        //tree_file  <<"//\n";
-        tree_file.close();	
+          //string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+          //if (current_genealogy == previous_genealogy){
+            //previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
+          //}
+          //else{
+            tree_file << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
+            //previous_genealogy=current_genealogy;
+            previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
+          //}
+        }		
+        tree_file << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
+        
       }
-      std::ofstream tree_file;
-      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      tree_file  <<"//\n";
       tree_file.close();	
-      std::cout << forest->getNodes()->size() << std::endl;
-      //delete forest;
-    }
+		seg_data_array->append_new_seg_data(forest);
+		seg_data_array->print_to_file();
+		delete seg_data_array;
 
+      //std::ofstream tree_file;
+      tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+      
+      tree_file.close();	
+      //std::cout << forest->getNodes()->size() << std::endl;
+      delete forest;
+    }
+//tree_file.close();	
     time_t end_time = time(0);
 
     std::cout << "Simulation took about " << end_time - start_time 

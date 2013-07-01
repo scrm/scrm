@@ -191,14 +191,15 @@ void print_option(){
   std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
 }
 
+
 void print_example(){	
-  std::cout<<"Example:"<<std::endl;
-  std::cout<<"./scrm 3 1"<<std::endl;
-  std::cout<<"./scrm 6 3 -t 0.002 -r 0.00004 -npop 20000 "<<std::endl;
-  std::cout<<"./scrm 5 3 -t 0.0002 -r 0.00003 -npop 10000 -seed 1314 -log"<<std::endl;
-  std::cout<<"./scrm 6 1 -t 0.002 -r 0.00004 -nsites 2000 -log"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 0.002 -r 0.00004 -log LOGFILE -T mytree"<<std::endl;
+	std::cout<<"Example:"<<std::endl;
+	std::cout<<"./scrm 3 1"<<std::endl;
+	std::cout<<"./scrm 6 3 -t 10 -r 40 -npop 20000 "<<std::endl;
+	std::cout<<"./scrm 5 3 -t 20 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
+	std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
+	std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
 
 }
 
