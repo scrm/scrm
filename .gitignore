@@ -56,6 +56,10 @@ doc/html
 *.pdf
 *.out
 
+html/
+latex/
+reference/
+
 # Compiled Object files
 *.slo
 *.lo
