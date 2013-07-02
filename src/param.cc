@@ -1,3 +1,25 @@
+/*
+ * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
+ * 
+ * Copyright (C) 2013 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * 
+ * This file is part of scrm.
+ * 
+ * scrm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 /* 
  * param.cc
  */
@@ -133,11 +155,14 @@ Model* Param::parse() {
 
   // Scale recombination rate
   model->set_recombination_rate(model->recombination_rate() * 0.25
-                                     / model->population_number()  
+                                     / model->default_pop_size  
                                      / (model->loci_length() - 1));
 
-  model->resetTime();
+  model->set_mutation_rate(model->mutation_rate() * 0.25
+                                     / model->default_pop_size 
+                                     / (model->loci_length()));
 
+  model->resetTime();
   /*
   recomb_rate_persite=rho/4 / npop / (nsites-1);
   remove(treefile.c_str());
@@ -183,14 +208,14 @@ void print_help(){
 void print_option(){
   //std::cout<<std::setw(20)<<"-h or -help"<<"  --  "<<"Help. List the following content."<<std::endl;
   std::cout<<std::setw(20)<<"-r RHO"<<"  --  "<<"User define the recombination rate RHO, per gerneration per site."<<std::endl;
-  std::cout<<std::setw(20)<<"-nsites NSITES"<<"  --  "<<"User define the sequence length NSITES."<<std::endl;
+  //std::cout<<std::setw(20)<<"-nsites NSITES"<<"  --  "<<"User define the sequence length NSITES."<<std::endl;
   std::cout<<std::setw(20)<<"-t THETA"<<"  --  "<<"User define the mutation rate THETA."<<std::endl;
-  std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
+  //std::cout<<std::setw(20)<<"-npop NPOP"<<"  --  "<<"User define the population size NPOP."<<std::endl;
   std::cout<<std::setw(20)<<"-seed SEED"<<"  --  "<<"User define the random SEED."<<std::endl;
   std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
       <<"User define the length of the exact window."<<std::endl;
-  std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
-  std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
+  //std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
+  //std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
 }
 
 

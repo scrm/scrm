@@ -1,3 +1,25 @@
+/*
+ * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
+ * 
+ * Copyright (C) 2013 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * 
+ * This file is part of scrm.
+ * 
+ * scrm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include "node.h"
 //#include<iostream>
 #include<sstream>
@@ -120,7 +142,7 @@ std::string writeTree_new(Node * node, int npop){
 */
 std::string writeTree(Node * node, int npop, double bl_above_parent){
 	if (!node->local()){
-		return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
+		return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
 		}
 	else{	
 		if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
@@ -131,7 +153,7 @@ std::string writeTree(Node * node, int npop, double bl_above_parent){
 			return label_strm.str()+":"+bl_strm.str();
 		}
 		else if (node->is_root()){ // check if this is the root
-				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+");";
+				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
 				}
 		else{ // this is an interior node, but need to check if it is real, i.e. any of its children is a local
 			if (node->first_child()->local() && node->second_child()->local()){ // both children are local

@@ -1,3 +1,25 @@
+/*
+ * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
+ * 
+ * Copyright (C) 2013 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * 
+ * This file is part of scrm.
+ * 
+ * scrm is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include <iostream>
 #include <ctime>
 #include "forest.h"
@@ -8,8 +30,6 @@
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
-  //param user_para;
-  //check_and_remove("scrm.log");
   if (argc==1 ){
     print_help();
   }	//else, proceed
@@ -34,7 +54,7 @@ int main(int argc, char *argv[]){
     }
 
     //if (user_para.tree_bool) { 
-    std::ostringstream tree_buffer;
+   
     //}
 
     *output << user_para << std::endl;
@@ -49,12 +69,13 @@ int main(int argc, char *argv[]){
        */
 
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
+	  std::ostringstream tree_buffer;
       *output << std::endl << "//" << std::endl;
 
       Forest *forest = new Forest(model, rg);
       forest->buildInitialTree();
 
-      if (forest->model().mutation_exact_number() == 0){	
+      if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
         tree_buffer << writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0) << ";\n";
       }
 
@@ -110,7 +131,7 @@ int main(int argc, char *argv[]){
       std::ofstream log_file;
       log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
-      log_file << "Trees are saved in: "<<user_para.treefile<<"\n";
+      log_file << "Trees are saved in: " << user_para.treefile << "\n";
       log_file.close();
       //string system_cmd="cat "+user_para.log_NAME;
       //system(system_cmd.c_str()); //VERY UGLY -Paul
