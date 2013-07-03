@@ -175,7 +175,6 @@ class Node
   
   double mut_num_;
 };
-std::string writeTree(Node * node,int npop,double bl_above);
 Node * tracking_local_node(Node * node);
 std::string writeTree_new(Node * node, int npop);
 #endif

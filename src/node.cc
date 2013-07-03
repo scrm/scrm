@@ -97,7 +97,7 @@ bool Node::in_sample() const {
 
 Node * tracking_local_node(Node * node){
 	dout<<node;
-	if (node->first_child() == NULL && ((node->label())>0)){
+	if (node->in_sample()){
 		dout<<" is tip node, it is local, return."<<std::endl;
 		return node;
 		}
