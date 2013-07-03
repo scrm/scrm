@@ -20,9 +20,10 @@ class TestFastFunc : public CppUnit::TestCase {
       double d = 1.0;
       double maxdiff = 0.0;
 
+      double logd, truelogd;
       for (int i=0; i<10000000; i++) {
-        double logd = ff.fastlog( d );
-        double truelogd = log( d );
+        logd = ff.fastlog( d );
+        truelogd = log( d );
         maxdiff = std::max( maxdiff, std::abs( logd-truelogd ) );
         d += 1e-7;
       }
@@ -34,11 +35,13 @@ class TestFastFunc : public CppUnit::TestCase {
       class FastFunc ff;
       int i;
 
-      for (i=0; i<10000000; i++) {
-        double x = (rg.sample()-0.5) * 1400.0;
-        double true_exp = exp(x);
-        double lower_bound = ff.fastexp_lo(x);
-        double upper_bound = ff.fastexp_up(x);
+      double x, true_exp, lower_bound, upper_bound;
+
+      for (i=0; i<10000; ++i) {
+        x = (rg.sample()-0.5) * 1400.0;
+        true_exp = exp(x);
+        lower_bound = ff.fastexp_lo(x);
+        upper_bound = ff.fastexp_up(x);
         //std::cout << x << " " << true_exp << " " << lower_bound << " " << upper_bound << std::endl;
         CPPUNIT_ASSERT(lower_bound <= true_exp);
         CPPUNIT_ASSERT(lower_bound > true_exp * (1.0 - 0.05792));
@@ -49,4 +52,4 @@ class TestFastFunc : public CppUnit::TestCase {
 };
 
 //Uncomment this to activate the test
-//CPPUNIT_TEST_SUITE_REGISTRATION( TestFastFunc );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestFastFunc );

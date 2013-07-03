@@ -42,7 +42,6 @@ void Forest::initialize(Model* model,
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_current_base(1);
-  this->expo_sample_ = -1;
   this->prune_countdown_ = model->prune_interval();
 }
 
@@ -415,7 +414,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( state_2 == 1 || active_node_2->parent_height() >= current_time );
 
     // Sample the time at which the next thing happens
-    current_time = sampleExpTime(rate_1 + rate_2, (*event).length());
+    current_time = this->random_generator()->sampleExpoLimit(rate_1 + rate_2, (*event).length());
     if (current_time >= 0) {
       current_time += (*event).start_height();
       dout << "* * Event at time " << current_time << std::endl;
@@ -727,34 +726,6 @@ double Forest::calcRate(Node* node,
 }
 
 
-/**
- * Looks whether an exponentially distributed waiting time runs off in a time
- * interval. 
- *
- * This function reuses the same sample for multiple interval as long as the
- * waiting time does not run off, which greatly improves performance and is
- * correct because of the Markov property of waiting times.
- *
- * \param rate The rate of the waiting time
- * \interval_length The length of the current time interval.
- *
- * \return The time at which the rate ran of if it did, or -1 otherwise.
- */
-double Forest::sampleExpTime(double rate, double interval_length) {
-  if (rate == 0) return -1;
-  if (this->expo_sample_ == -1) expo_sample_ = this->random_generator()->sampleExpo(1);
-
-  // Scale interval with rate to bring it on exp(1) timescale
-  interval_length *= rate;
-  if (interval_length < expo_sample_) {
-    expo_sample_ -= interval_length; // Still exp(1) distributed
-    return -1;
-  } else {
-    double time = expo_sample_;
-    expo_sample_ = -1;
-    return (time/rate);
-  }
-}
 
 
 /**
