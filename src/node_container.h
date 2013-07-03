@@ -62,7 +62,7 @@ class NodeContainer {
   Node* first() const { return first_node_; };
   Node* last() const { return last_node_; };
   
-  size_t size() const;  
+  size_t size() const { return size_; };  
   bool sorted() const; 
   void print() const;
 
@@ -85,6 +85,7 @@ class NodeContainer {
   void set_last(Node* node) { last_node_ = node; }
 
   Node* unsorted_node_;
+  size_t size_;
 };
 
 

@@ -30,6 +30,7 @@ NodeContainer::NodeContainer() {
   set_first(NULL);
   set_last(NULL);
   unsorted_node_ = NULL;
+  size_ = 0;
 };
 
 
@@ -74,6 +75,8 @@ Node* NodeContainer::at(size_t nr) const {
 // If you know that the node is higher in the tree than a other node,
 // than you can specify the latter as 'after_node' to speedup the process.
 void NodeContainer::add(Node* node, Node* after_node) {
+  ++size_;
+
   if (first() == NULL) {
     this->set_first(node);
     this->set_last(node);
@@ -120,27 +123,25 @@ void NodeContainer::add(Node* node, Node* after_node) {
 
 
 void NodeContainer::remove(Node *node, const bool &del) {
+  --size_; 
   if ( node->is_first() && node->is_last() ) {
     this->set_first(NULL);
     this->set_last(NULL);
-    return;
   }
-
-  if ( node->is_first() ) {
+  else if ( node->is_first() ) {
     this->set_first(node->next());
     node->next()->set_previous(NULL);
-    return;
   }
-
-  if ( node->is_last() ) {
+  else if ( node->is_last() ) {
     this->set_last(node->previous());
     node->previous()->set_next(NULL);
-    return;
   }
-
-  node->previous()->set_next(node->next());
-  node->next()->set_previous(node->previous());
-  if (del){ delete node;}
+  else {
+    node->previous()->set_next(node->next());
+    node->next()->set_previous(node->previous());
+  }
+  
+  if (del) delete node;
   assert( this->sorted() );
 }
 
@@ -169,17 +170,6 @@ void NodeContainer::move(Node *node, const double &new_height) {
   node->set_height(new_height);
   this->add(node, current);
   assert( this->sorted() );
-};
-
-
-// Inefficient, but currently only used for debugging...
-size_t NodeContainer::size() const {
-  Node* current = first();
-  if ( current == NULL ) return 0;
-
-  size_t i = 0;
-  for (ConstNodeIterator it = this->iterator(); it.good(); ++it) i++;
-  return(i);
 };
 
 
