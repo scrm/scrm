@@ -94,7 +94,7 @@ bool entire_ARG /*! if entire_ARG is false, only copy the local tree (McVean2005
 	this->set_sample_size(current_forest->sample_size());
 	this->set_current_base(current_forest->current_base());
 	this->set_random_generator(current_forest->random_generator());
-	this->set_expo_sample(current_forest->expo_sample());
+	//this->set_expo_sample(current_forest->expo_sample());
 	this->set_prune_countdown(current_forest->prune_countdown());
 	this->set_pruning(current_forest->pruning());
 	this->set_next_base();
