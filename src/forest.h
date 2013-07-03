@@ -82,13 +82,11 @@ class Forest
   friend class TimeIntervalIterator;
   //friend class NodeContainer;	
 	
-	
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(Forest * current_forest, bool entire_ARG=true);
   ~Forest();
 
-	
   //Getters & Setters
   const Model &model() const { return *model_; }
   void set_model(Model* model) { this->model_ = model; }
@@ -107,7 +105,9 @@ class Forest
   void set_current_base(double base) { current_base_ = base; }
   
   double next_base() const{return next_base_;}
-  void set_next_base(){next_base_ = this->current_base_ + this->random_generator_->sampleExpo(this->local_tree_length() * this->model_->recombination_rate() );} 
+  void set_next_base() {
+    next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
+  } 
 
   double local_tree_length() const { return this->local_root()->length_below(); }
   
@@ -116,9 +116,6 @@ class Forest
   RandomGenerator* random_generator() const { return this->random_generator_; }
   
   NodeContainer const *getNodes() const { return nodes_; };
-  
-  double expo_sample() const {return expo_sample_;}
-  void set_expo_sample(double expo_sample){expo_sample_=expo_sample;}      // Placeholder for exp(1) sampled values
   
   size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
   void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
@@ -179,10 +176,6 @@ class Forest
   double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
-
-
-
-  double sampleExpTime(double rate, double intervall_length);
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
@@ -209,24 +202,16 @@ class Forest
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  double expo_sample_;      // Placeholder for exp(1) sampled values
   size_t prune_countdown_;  // We will prune once this countdown reaches 0
   bool pruning_;
 
   Model* model_;
   RandomGenerator* random_generator_;
 
-  
   void initialize(Model *model = new Model(),
                   RandomGenerator *rg = NULL);
 
-  
-
-
-
-
   void createSampleNodes();
-
 };
 
 bool areSame(const double &a, const double &b, 

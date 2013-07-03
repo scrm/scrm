@@ -39,7 +39,7 @@ double MersenneTwister::sample() {
 }
 
 void MersenneTwister::set_seed(const int &seed) {
-  this->seed_ = seed;
+  RandomGenerator::set_seed(seed);
   this->rng.seed(static_cast<unsigned int>(seed));
 }
 

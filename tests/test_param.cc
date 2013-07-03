@@ -4,6 +4,7 @@
 
 #include "../src/param.h"
 #include "../src/model.h"
+#include "../src/forest.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -20,14 +21,14 @@ class TestParam : public CppUnit::TestCase {
   void testParse() {
     CPPUNIT_ASSERT_NO_THROW( Param().parse() );
 
-    char *argv[] = { "scrm", "4", "7", "-t", "3.74", "-r", "1.24", "1024", "-l", "1000", "-seed", "123"};
+    char *argv[] = { "scrm", "4", "7", "-t", "4.004", "-r", "1.24", "1001", "-l", "1000", "-seed", "123"};
     Param pars = Param(12, argv);
     Model* model = pars.parse();
     //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model->loci_number() );
-    CPPUNIT_ASSERT_EQUAL( (double)3.74, model->mutation_rate() );
-    CPPUNIT_ASSERT_EQUAL( (double)1.24, model->recombination_rate() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)1024, model->loci_length() );
+    CPPUNIT_ASSERT_EQUAL( (double)1e-07, model->mutation_rate() );
+    CPPUNIT_ASSERT_EQUAL( (double)3.1e-08, model->recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1001, model->loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model->exact_window_length() );
     CPPUNIT_ASSERT_EQUAL( (int)123, pars.random_seed );
     delete model;

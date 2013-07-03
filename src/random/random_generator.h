@@ -71,7 +71,6 @@ class RandomGenerator
    double unit_exponential_;
    // fast functions
    FastFunc ff;
-
 };
 
 #endif
