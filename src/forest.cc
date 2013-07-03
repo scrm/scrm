@@ -379,8 +379,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   // of the local root
   if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
 
-  for (TimeIntervalIterator event = TimeIntervalIterator(this, start_node, pruning); 
-       event.good(); ++event) {
+  for (TimeIntervalIterator event(this, start_node, pruning); event.good(); ++event) {
     
     dout << "* * Time interval: " << (*event).start_height() << " - "
         << (*event).end_height() << std::endl;

@@ -91,30 +91,19 @@ TimeIntervalIterator::TimeIntervalIterator() {
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
-                                           Node const* start_node, 
+                                           Node* start_node, 
                                            bool pruning) {
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
-  this->node_iterator_ = forest->nodes()->iterator();
-  this->contemporaries_ = std::vector<Node*>(0);
+  this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->pruning_ = pruning;
   this->current_time_ = start_node->height();
   forest->writable_model()->resetTime();
   
-  // Skipt intervals below start_height
-  for( ; *node_iterator_ != start_node; node_iterator_++ ) {
-    if ( ! node_iterator_.good() )
-      throw std::out_of_range("TimeIntervalIterator: start_node not found");
-
-    if ( pruning_ && forest_->isPrunable(*node_iterator_) ) {
-      forest_->prune(*node_iterator_);
-      continue;
-    }
-
-    if ( (*node_iterator_)->parent_height() > start_node->height() )
-      this->addToContemporaries(*node_iterator_);
-  }
+  this->contemporaries_ = std::vector<Node*>();
+  this->contemporaries_.reserve(forest_->sample_size());
+  this->searchContemporariesOfNode(start_node);
   
   // Skip through model changes
   while ( forest_->model().getNextTime() <= start_node->height() ) { 
@@ -219,6 +208,25 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
     }
   }
   //throw std::logic_error("Trying to delete noexisting node from contemporaries");
+}
+
+
+void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
+  if (contemporaries_.size() > 0) contemporaries_.clear();
+
+  NodeIterator node_iterator = forest_->nodes()->iterator();
+  for( ; *node_iterator != node; node_iterator++ ) {
+    if ( ! node_iterator.good() )
+      throw std::out_of_range("TimeIntervalIterator: start_node not found");
+
+    if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
+      forest_->prune(*node_iterator);
+      continue;
+    }
+
+    if ( (*node_iterator)->parent_height() > node->height() )
+      this->addToContemporaries(*node_iterator);
+  }
 }
 
 

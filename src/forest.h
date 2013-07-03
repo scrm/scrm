@@ -98,7 +98,10 @@ class Forest
   Node* primary_root() const { return primary_root_; }
   void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
 
-  size_t sample_size() const { return this->sample_size_; }
+  size_t sample_size() const { 
+    if (sample_size_ == 0) return model().sample_size(); 
+    return this->sample_size_; 
+  }
   void set_sample_size(const size_t &size ) { sample_size_ = size; }
   
   double current_base() const { return current_base_; }
@@ -187,6 +190,7 @@ class Forest
   // Pruning
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
+
 
   //Private variables
   NodeContainer* nodes_;    // The nodes of the Tree/Forest

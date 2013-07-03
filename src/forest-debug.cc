@@ -64,6 +64,7 @@ void Forest::createExampleTree() {
   updateAbove(node34);
 
   this->set_current_base(5);  
+  this->set_sample_size(4);
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
 }
@@ -325,15 +326,21 @@ bool Forest::printTree_cout() {
   //this->printPositions(positions);
   std::vector<Node const*>::iterator position;
   int h_line;
+  double start_height = 0, 
+         end_height = getNodes()->get(0)->height();
 
-  for (TimeIntervalIterator tii = TimeIntervalIterator(this, getNodes()->get(0), false); 
-       tii.good(); ++tii) {
+  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); 1) {
     h_line = 0;
+    start_height = end_height;
+    while ( ni.height() <= end_height ) ++ni;
+    end_height = ni.height(); 
+    //std::cout << start_height << " - " << end_height << std::endl;
+
     for (position = positions.begin(); position != positions.end(); ++position) {
       assert( *position != NULL );
-      if ( (*position)->height() == (*tii).start_height() ) {
-        if ( (*position)->local() || *position == local_root() ) cout << "╦";
-        else cout << "┬";
+      if ( (*position)->height() == start_height ) {
+        if ( (*position)->local() || *position == local_root() ) std::cout << "╦";
+        else std::cout << "┬";
         if ( (*position)->numberOfChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
           if ( *position == local_root() ) h_line = 1;
@@ -342,43 +349,43 @@ bool Forest::printTree_cout() {
           h_line = 0;
         }
       } 
-      else if ( (*position)->height() < (*tii).start_height() &&
-                (*position)->parent_height() >= (*tii).end_height() ) {
-        if ( (*position)->local() ) cout << "║";
-        else cout << "│";
+      else if ( (*position)->height() < start_height &&
+                (*position)->parent_height() >= end_height ) {
+        if ( (*position)->local() ) std::cout << "║";
+        else std::cout << "│";
 
       } 
-      else if ( (*position)->parent_height() == (*tii).start_height() ) {
+      else if ( (*position)->parent_height() == start_height ) {
         if ( *position == (*position)->parent()->first_child() ) {
           if ( (*position)->local() ) { 
-            cout << "╚";
+            std::cout << "╚";
             h_line = 1;
           }
           else {
-            cout << "└";
+            std::cout << "└";
             h_line = 2;
           }
         }
         else {
-          if ( (*position)->local() ) cout << "╝";
-          else cout << "┘";
+          if ( (*position)->local() ) std::cout << "╝";
+          else std::cout << "┘";
           h_line = 0;
         }
       }
       else {
-        if ( h_line == 0 ) cout << " ";
-        else if ( h_line == 1 ) cout << "═";
-        else cout << "─";
+        if ( h_line == 0 ) std::cout << " ";
+        else if ( h_line == 1 ) std::cout << "═";
+        else std::cout << "─";
       }
     }
-    cout << " - " << std::setw(7) << setprecision(7) << std::right << (*tii).start_height() << " - "; 
+    std::cout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
-      if ( (*position)->height() == (*tii).start_height() ) {
-        cout << *position << " ";
+      if ( (*position)->height() == start_height ) {
+        std::cout << *position << " ";
       }
     }
-    cout << std::endl;
+    std::cout << std::endl;
   }
   return true;
 }

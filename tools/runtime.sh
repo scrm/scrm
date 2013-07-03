@@ -9,8 +9,17 @@
 # Licence:  GPLv3 or later
 #
 
-time for i in `seq 1 30` 
+cd src/
+model="100 5 -t 5 -r 7 1001"
+
+echo "SCRM:"
+time for i in `seq 1 100` 
 do
-  ./scrm 
+  ./scrm $model -l 100 > /dev/null 
 done
 
+echo "MS:"
+time for i in `seq 1 100` 
+do
+  ms $model > /dev/null 
+done

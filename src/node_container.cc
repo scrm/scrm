@@ -35,26 +35,6 @@ NodeContainer::NodeContainer() {
 
 
 /*******************************************************
- * Iterators
- *******************************************************/
-
-NodeIterator NodeContainer::iterator() { 
-  return(NodeIterator(*this)); 
-}
-
-
-ConstNodeIterator NodeContainer::iterator() const { 
-  return(ConstNodeIterator(*this)); 
-}
-
-
-ReverseConstNodeIterator NodeContainer::reverse_iterator() const { 
-  return(ReverseConstNodeIterator(*this)); 
-}
-
-
-
-/*******************************************************
  * Management of Nodes
  *******************************************************/
 
