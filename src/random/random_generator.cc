@@ -33,7 +33,7 @@ double RandomGenerator::sampleUnitExponential(void) {
 // Sets new seed, and initializes unit_exponential
 void RandomGenerator::set_seed(const int &seed){
   this->seed_ = seed;
-  unit_exponential_ = sampleUnitExponential();
+  this->unit_exponential_ = sampleUnitExponential();
 }
 
 
@@ -47,6 +47,7 @@ double RandomGenerator::sampleExpo(double lambda){
 // Samples from an exponential distribution; return -1 if beyond limit
 // If a limit is known, this version is faster than the standard one
 double RandomGenerator::sampleExpoLimit(double lambda, double limit){
+  assert( unit_exponential_ != 0 );
   if (unit_exponential_ >= limit * lambda) {
     unit_exponential_ -= limit * lambda;
     return -1;
