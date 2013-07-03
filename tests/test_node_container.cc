@@ -16,7 +16,6 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testNodeIterator );
   CPPUNIT_TEST( testNodeIteratorHeight );
   CPPUNIT_TEST( testReverseIterator );
-  CPPUNIT_TEST( testSize );
   CPPUNIT_TEST( testRemove );
   CPPUNIT_TEST( testMove );
 
@@ -54,32 +53,28 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( nc.get(2) == node3 );
     CPPUNIT_ASSERT( nc.first() == node1 );
     CPPUNIT_ASSERT( nc.last() == node3 );
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, nc.size() );
 
     // Add new first node
     Node* node = new Node(0);
     nc.add(node);
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, nc.size() );
     CPPUNIT_ASSERT( nc.get(0) == node );
     CPPUNIT_ASSERT( nc.first() == node );
 
     // Add new last node
     node = new Node(10);
     nc.add(node);
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, nc.size() );
     CPPUNIT_ASSERT( nc.get(4) == node );
     CPPUNIT_ASSERT( nc.last() == node );
 
     // Add something in between 
     node = new Node(3);
     nc.add(node);
+    CPPUNIT_ASSERT_EQUAL( (size_t)6, nc.size() );
     CPPUNIT_ASSERT( nc.get(4) == node );
   }
-
-
-  void testSize() {
-    CPPUNIT_ASSERT( nc.size() == 3 );
-    NodeContainer nc2 = NodeContainer();
-    CPPUNIT_ASSERT( nc2.size() == 0 );
-  }
-
 
   void testRemove() {
     Node *node = new Node(2.5);

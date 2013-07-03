@@ -30,6 +30,11 @@ bool entire_ARG /*! if entire_ARG is false, only copy the local tree (McVean2005
 	this->nodes_ = new NodeContainer();
 	//this->set_local_root(NULL);
 	//this->set_primary_root(NULL);
+  
+  for(size_t i = 0; i < this->getNodes()->size(); ++i) {
+	  this->nodes()->get_copy(i)->index = i;  
+  }
+
 	dout<<"start adding nodes"<<std::endl;
 	dout<<current_forest->getNodes()->size()<<endl;
 	size_t reverse_i=0;

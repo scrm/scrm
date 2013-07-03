@@ -9,3 +9,8 @@
 
 # Now 3000 recombination events in active material
 2013-02-13      2m8.500s    0m0.388s   # ~83k nodes
+
+# New measurements
+2013-07-03      0m2.480s    0m0.184s
+                0m0.788s    0m0.128s   # Removed iterator through nodes for updating index
+

@@ -64,7 +64,7 @@ class TimeInterval {
 class TimeIntervalIterator {
  public:
   TimeIntervalIterator();
-  TimeIntervalIterator(Forest *forest, Node const* start_node, bool pruning = true);
+  TimeIntervalIterator(Forest *forest, Node *start_node, bool pruning = true);
   ~TimeIntervalIterator();
 
   void next();
@@ -87,12 +87,16 @@ class TimeIntervalIterator {
   void recalculateInterval();
   void removeFromContemporaries(Node* node);
   void addToContemporaries(Node* node) { contemporaries_.push_back(node); };
+  void searchContemporariesOfNode(Node *node);
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
 #endif
 
  private:
+  TimeIntervalIterator( TimeIntervalIterator const &other );
+  TimeIntervalIterator& operator= ( TimeIntervalIterator const &other ); 
+
   Forest* forest_;
   TimeInterval current_interval_;
   double current_time_;

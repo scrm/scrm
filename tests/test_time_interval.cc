@@ -37,39 +37,39 @@ class TestTimeInterval : public CppUnit::TestCase {
   }
 
   void testIteratorCreation() {
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
     
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(4));
-    CPPUNIT_ASSERT( (*it).start_height() == 1 );
-    CPPUNIT_ASSERT( (*it).end_height() == 3 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
+    TimeIntervalIterator it2(forest, forest->nodes()->at(4));
+    CPPUNIT_ASSERT( (*it2).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it2).end_height() == 3 );
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, (*it2).numberOfContemporaries() );
     
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(5));
-    CPPUNIT_ASSERT( (*it).start_height() == 3 );
-    CPPUNIT_ASSERT( (*it).end_height() == 4 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
+    TimeIntervalIterator it3(forest, forest->nodes()->at(5));
+    CPPUNIT_ASSERT( (*it3).start_height() == 3 );
+    CPPUNIT_ASSERT( (*it3).end_height() == 4 );
+    CPPUNIT_ASSERT( (*it3).numberOfContemporaries() == 2 );
  
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(6));
-    CPPUNIT_ASSERT( (*it).start_height() == 4 );
-    CPPUNIT_ASSERT( (*it).end_height() == 6 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
+    TimeIntervalIterator it4(forest, forest->nodes()->at(6));
+    CPPUNIT_ASSERT( (*it4).start_height() == 4 );
+    CPPUNIT_ASSERT( (*it4).end_height() == 6 );
+    CPPUNIT_ASSERT( (*it4).numberOfContemporaries() == 3 );
  
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(7));
-    CPPUNIT_ASSERT( (*it).start_height() == 6 );
-    CPPUNIT_ASSERT( (*it).end_height() == 10 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 2 );
+    TimeIntervalIterator it5(forest, forest->nodes()->at(7));
+    CPPUNIT_ASSERT( (*it5).start_height() == 6 );
+    CPPUNIT_ASSERT( (*it5).end_height() == 10 );
+    CPPUNIT_ASSERT( (*it5).numberOfContemporaries() == 2 );
     
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(8));
-    CPPUNIT_ASSERT( (*it).start_height() == 10 );
-    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 0 );
+    TimeIntervalIterator it6(forest, forest->nodes()->at(8));
+    CPPUNIT_ASSERT( (*it6).start_height() == 10 );
+    CPPUNIT_ASSERT( (*it6).end_height() == FLT_MAX );
+    CPPUNIT_ASSERT( (*it6).numberOfContemporaries() == 0 );
   }
 
   void testIteratorNext() {
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4);
@@ -109,10 +109,9 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !it.good() );
 
     int i = 0;
-    for (TimeIntervalIterator events = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    for (TimeIntervalIterator events(forest, forest->nodes()->at(0));
          events.good(); ++events) { 
       ++i;
-      //std::cout << (*events).start_height() << " - " << (*events).end_height() << std::endl; 
     }
     CPPUNIT_ASSERT( i == 6 );
   }
@@ -122,15 +121,15 @@ class TestTimeInterval : public CppUnit::TestCase {
     forest->writable_model()->addGrowthRates(0.5, std::vector<double>(1, 1.5));
     forest->writable_model()->addGrowthRates(1.5, std::vector<double>(1, 1.5));
 
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 0.5 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
 
-    it = TimeIntervalIterator(forest, forest->getNodes()->get(4));
-    CPPUNIT_ASSERT( (*it).start_height() == 1 );
-    CPPUNIT_ASSERT( (*it).end_height() == 1.5 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3 );
+    TimeIntervalIterator it2(forest, forest->nodes()->at(4));
+    CPPUNIT_ASSERT( (*it2).start_height() == 1 );
+    CPPUNIT_ASSERT( (*it2).end_height() == 1.5 );
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, (*it2).numberOfContemporaries() );
   }
 
   void testIteratorNextWithTimeFrames() {
@@ -139,7 +138,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     forest->writable_model()->addGrowthRates(1, std::vector<double>(1, 1.5));
     forest->writable_model()->addGrowthRates(1.5, std::vector<double>(1, 1.5));
 
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 0.5 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
@@ -161,7 +160,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   }
 
   void testSplitIntervall() {
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     Node* split_node = new Node(0.5);
     it.splitCurrentInterval(split_node);
     ++it;
@@ -181,7 +180,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   }
 
   void testSampleContemporary() {
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(7));
+    TimeIntervalIterator it(forest, forest->nodes()->at(7));
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
@@ -198,7 +197,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   }
 
   void testRecalculateTI() {
-    TimeIntervalIterator it = TimeIntervalIterator(forest, forest->getNodes()->get(0));
+    TimeIntervalIterator it(forest, forest->nodes()->at(0));
     ++it;
 
     // Check that is does not change anything if the underlying tree is

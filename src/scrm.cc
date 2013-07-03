@@ -53,10 +53,6 @@ int main(int argc, char *argv[]){
       output = &log_file; 
     }
 
-    //if (user_para.tree_bool) { 
-   
-    //}
-
     *output << user_para << std::endl;
     *output << user_para.random_seed << std::endl;
     //*output << *model;
@@ -68,15 +64,17 @@ int main(int argc, char *argv[]){
        tree_file.close();	
        */
 
+    string previous_genealogy;
+
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
-	  std::ostringstream tree_buffer;
+      std::ostringstream tree_buffer;
       *output << std::endl << "//" << std::endl;
 
       Forest *forest = new Forest(model, rg);
       forest->buildInitialTree();
 
-      if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
-        tree_buffer << writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0) << ";\n";
+      if (user_para.tree_bool && forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
+        tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
       }
 
       if (user_para.tmrca_bool()){
@@ -90,24 +88,20 @@ int main(int argc, char *argv[]){
 
       int previous_last_for = 1 + min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
       if (model->recombination_rate() > 0.0){
-        //string previous_genealogy=writeTree(forest->local_root(),forest->writable_model()->population_size(), 0.0);
-        string previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+        if (user_para.tree_bool) { 
+          previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+        }
 
         while ( forest->next_base() < model->loci_length() ) {
           forest->sampleNextGenealogy();
           seg_data_array->append_new_seg_data(forest);
 
-          //string current_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-          //if (current_genealogy == previous_genealogy){
-          //previous_last_for=previous_last_for+min(ceil(forest->next_base()),user_para.nsites)-ceil(forest->current_base());
-          //}
-          //else{
-          tree_buffer << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
-          //previous_genealogy=current_genealogy;
-          previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
-          //}
+          if (user_para.tree_bool) {
+            tree_buffer << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
+            previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
+          }
         }		
-        tree_buffer << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
+        if (user_para.tree_bool) tree_buffer << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
 
       }
       seg_data_array->append_new_seg_data(forest);
