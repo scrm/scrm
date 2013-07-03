@@ -16,6 +16,6 @@ This restriction will be removed once we published a paper about scrm ourselfs.
 On Debian/Ubuntu based systems:
 ```bash
 apt-get install build-essential libboost-all-dev autoconf doxygen libcppunit-dev
-./bootstrap
+CXXFLAGS="-O3" ./bootstrap
 make
 ```
