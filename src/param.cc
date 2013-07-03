@@ -52,7 +52,8 @@ Model* Param::parse() {
     //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
 
-    if (argc_i == 0) {
+if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
+    //if (argc_i == 0) {
       sample_size = readInput<size_t>(argv_[++argc_i]);
       model->set_loci_number(readInput<int>(argv_[++argc_i]));
     }	
@@ -110,7 +111,7 @@ Model* Param::parse() {
     }
 
     else {
-      throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
+      //throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
 
     ++argc_i; 

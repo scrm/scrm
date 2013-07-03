@@ -131,13 +131,13 @@ class Model
 
 
    //const std::vector<double> &change_times() const { return model_change_times_; }
+   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
 
   private:
    Model(const Model&);
    Model& operator=(const Model&);
 
    size_t addChangeTime(double time);
-   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
    void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
    void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
    void addGrowthRates(double time, const std::vector<double> &growth_rates);
