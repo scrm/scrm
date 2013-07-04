@@ -39,7 +39,7 @@ class Param {
  public:
   friend std::ostream& operator<< (std::ostream& stream, const Param& param) {
     stream << "scrm ";
-    for (size_t i = 1; i < param.argc_; ++i) {
+    for (int i = 1; i < param.argc_; ++i) {
       stream << param.argv_[i] << " ";
     }
     return stream;
