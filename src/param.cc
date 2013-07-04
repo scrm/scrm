@@ -156,11 +156,11 @@ if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scr
 
   // Scale recombination rate
   model->set_recombination_rate(model->recombination_rate() * 0.25
-                                     / model->default_pop_size  
+                                     / model->population_size()  
                                      / (model->loci_length() - 1));
 
   model->set_mutation_rate(model->mutation_rate() * 0.25
-                                     / model->default_pop_size 
+                                     / model->population_size() 
                                      / (model->loci_length()));
 
   model->resetTime();
