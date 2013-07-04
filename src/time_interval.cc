@@ -147,14 +147,7 @@ void TimeIntervalIterator::next() {
   } 
   
   if ( start_height >= node_iterator_.height() ) {
-    //Update contemporaries
-    if ( (*node_iterator_)->first_child() != NULL ) 
-      this->removeFromContemporaries((*node_iterator_)->first_child());
-    if ( (*node_iterator_)->second_child() != NULL ) 
-      this->removeFromContemporaries((*node_iterator_)->second_child());
-    
-    if ( !(*node_iterator_)->is_root() ) 
-      this->addToContemporaries(*node_iterator_);
+    updateContemporaries(*node_iterator_);
 
     // Move node iterator forwards
     ++node_iterator_;
@@ -193,6 +186,17 @@ void TimeIntervalIterator::next() {
   assert( this->current_interval_.checkContemporaries() );  
 }
 
+
+void TimeIntervalIterator::updateContemporaries(Node* current_node) {
+  if ( current_node->first_child() != NULL ) { 
+    this->removeFromContemporaries(current_node->first_child());
+    if ( current_node->second_child() != NULL ) 
+      this->removeFromContemporaries(current_node->second_child());
+  }
+
+  if ( ! current_node->is_root() ) 
+    this->addToContemporaries(current_node);
+}
 
 // Removes a Node from the contemporaries if it is there.
 // Currently there are situations where we try to do this also for nodes not in

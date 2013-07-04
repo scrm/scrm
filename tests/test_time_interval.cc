@@ -40,7 +40,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
-    CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 4 );
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, (*it).numberOfContemporaries() );
     
     TimeIntervalIterator it2(forest, forest->nodes()->at(4));
     CPPUNIT_ASSERT( (*it2).start_height() == 1 );
