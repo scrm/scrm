@@ -88,6 +88,8 @@ class TimeIntervalIterator {
   void removeFromContemporaries(Node* node);
   void addToContemporaries(Node* node) { contemporaries_.push_back(node); };
   void searchContemporariesOfNode(Node *node);
+  void searchContemporariesOfNodeTopDown(Node *node, Node *current_node = NULL);
+  void updateContemporaries(Node *current_node); 
 
 #ifdef UNITTEST
   friend class TestTimeInterval;

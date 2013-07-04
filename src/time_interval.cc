@@ -147,14 +147,7 @@ void TimeIntervalIterator::next() {
   } 
   
   if ( start_height >= node_iterator_.height() ) {
-    //Update contemporaries
-    if ( (*node_iterator_)->first_child() != NULL ) 
-      this->removeFromContemporaries((*node_iterator_)->first_child());
-    if ( (*node_iterator_)->second_child() != NULL ) 
-      this->removeFromContemporaries((*node_iterator_)->second_child());
-    
-    if ( !(*node_iterator_)->is_root() ) 
-      this->addToContemporaries(*node_iterator_);
+    updateContemporaries(*node_iterator_);
 
     // Move node iterator forwards
     ++node_iterator_;
@@ -194,6 +187,17 @@ void TimeIntervalIterator::next() {
 }
 
 
+void TimeIntervalIterator::updateContemporaries(Node* current_node) {
+  if ( current_node->first_child() != NULL ) { 
+    this->removeFromContemporaries(current_node->first_child());
+    if ( current_node->second_child() != NULL ) 
+      this->removeFromContemporaries(current_node->second_child());
+  }
+
+  if ( ! current_node->is_root() ) 
+    this->addToContemporaries(current_node);
+}
+
 // Removes a Node from the contemporaries if it is there.
 // Currently there are situations where we try to do this also for nodes not in
 // contemporaries. Maybe we could optimize this, but this may not be easy.
@@ -210,7 +214,14 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
   //throw std::logic_error("Trying to delete noexisting node from contemporaries");
 }
 
-
+/** 
+ * Findes all nodes which code for branches at the height of a given node in the
+ * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
+ * member.
+ * 
+ * @param node Node for which we are searching contemporaries
+ * @return Nothing. Nodes are saved in contemporaries_.
+ */
 void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
   if (contemporaries_.size() > 0) contemporaries_.clear();
 
@@ -226,6 +237,42 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
 
     if ( (*node_iterator)->parent_height() > node->height() )
       this->addToContemporaries(*node_iterator);
+  }
+}
+
+
+/** 
+ * Does the same as searchContemporariesOfNode, but works its way recursively
+ * down the tree.
+ *
+ * @param node Node for which we are searching contemporaries
+ * @return Nothing. Nodes are saved in contemporaries_.
+ */
+void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *current_node) {
+  // Does not work at the moment, because we do not track the roots of the other
+  // trees in the forest.
+  std::cout << node << " " << current_node << std::endl;
+  if (current_node == NULL) {
+    if (contemporaries_.size() > 0) contemporaries_.clear();
+    current_node == this->forest_->primary_root();
+    assert( current_node != NULL);
+    std::cout << "P.root: " << current_node << std::endl;
+  }
+  
+  /*
+    if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
+      forest_->prune(*node_iterator);
+      continue;
+    }
+    */
+
+  if (current_node->height() > node->height() ) {
+    if (node->first_child() != NULL) searchContemporariesOfNodeTopDown(node, node->first_child());
+    if (node->second_child() != NULL) searchContemporariesOfNodeTopDown(node, node->second_child());
+  } 
+  else {
+    if (node == current_node) return;
+    this->addToContemporaries(current_node);
   }
 }
 
