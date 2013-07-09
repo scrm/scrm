@@ -23,9 +23,15 @@ for t in "${mst[@]}"
 		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | grep -v "//" > scrm${out}
 		cat scrm${out} | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
 		
-		echo "rm(list=ls());msdata=read.table(\"ms${nseg}\")\$V1;scrmdata=read.table(\"scrm${nseg}\")\$V1;cat(paste(${nsam},${t},mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
+		echo "rm(list=ls());
+		source(\"fun_src.r\");
+		msdata=read.table(\"ms${nseg}\")\$V1;
+		scrmdata=read.table(\"scrm${nseg}\")\$V1;
+		ee=ee_seg(${nsam},${t});
+		sdv=sd_seg_norecomb(${nsam},${t});
+		cat(paste(${nsam},${t},ee,sdv,mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
 		R CMD BATCH dummy.r
-		rm ms${out} ms${nseg} scrm${out} scrm${nseg}
+		#rm ms${out} ms${nseg} scrm${out} scrm${nseg}
 		done
 	done
 

@@ -2,13 +2,15 @@
 
 ## compare times of genealogy changes
 msr=(10 20 10 50)
+mst=(10 20 50 100)
+
 rep=100
 seqlen=100000
 msNsample=(2 3 7 10)
-compareRECOMB=compareRECOMB
+compareRECOMB=compareSEG-RECOMB
 rm ${compareRECOMB}
-#for t in "${mst[@]}"
-#	do
+for t in "${mst[@]}"
+	do
 	for r in "${msr[@]}"
 		do
 		for nsam in "${msNsample[@]}"
@@ -40,13 +42,13 @@ rm ${compareRECOMB}
 			msdata=read.table(\"ms${recomb}\")\$V1;
 			scrmdata=read.table(\"scrm${recomb}\")\$V1;
 			ee=ee_seg(${nsam},${r});
-			sdv=sd_recomb(${r},${nsam});
-			cat(paste(${nsam},${r},ee,sdv,mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareRECOMB}\",append=TRUE);cat(\"\n\",file=\"${compareRECOMB}\",append=TRUE);" > dummy.r
+			sdv=sd_seg_recomb(${nsam},${t},${r});
+			cat(paste(${nsam},${t},${r},ee,sdv,mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareRECOMB}\",append=TRUE);cat(\"\n\",file=\"${compareRECOMB}\",append=TRUE);" > dummy.r
 			R CMD BATCH dummy.r
 		#	rm ms${out} ms${Trees} ms${tmrca} scrm${tmrca} 
 			done
 		done
-	#done
+	done
 
 	
 	

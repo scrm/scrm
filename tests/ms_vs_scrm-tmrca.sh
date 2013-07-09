@@ -23,8 +23,14 @@ for nsam in "${msNsample[@]}"
 	scrm ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > scrm${out}
 	cat scrm${out} | grep ";" | sed -e 's/\[.*\]//g' > scrm${Trees}
 	hybrid-Lambda -gt scrm${Trees} -tmrca scrm${tmrca}
-	echo "rm(list=ls());msdata=read.table(\"ms${tmrca}\")\$V1;scrmdata=read.table(\"scrm${tmrca}\")\$V1;cat(paste(${nsam},mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareTMRCA}\",append=TRUE);cat(\"\n\",file=\"${compareTMRCA}\",append=TRUE);" > dummy.r
+	echo "rm(list=ls());
+	source(\"fun_src.r\");
+	msdata=read.table(\"ms${tmrca}\")\$V1;
+	scrmdata=read.table(\"scrm${tmrca}\")\$V1;
+	ee=ee_tmrca(${nsam});
+	sdv=sd_tmrca(${nsam});
+	cat(paste(${nsam},ee,sdv,mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareTMRCA}\",append=TRUE);cat(\"\n\",file=\"${compareTMRCA}\",append=TRUE);" > dummy.r
 	R CMD BATCH dummy.r
-	rm ms${out} ms${Trees} ms${tmrca} scrm${out} scrm${Trees} scrm${tmrca} 
+	#rm ms${out} ms${Trees} ms${tmrca} scrm${out} scrm${Trees} scrm${tmrca} 
 	done
 
