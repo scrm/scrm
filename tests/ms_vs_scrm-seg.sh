@@ -4,12 +4,13 @@
 
 mst=(10 20 50 100)
 msNsample=(2 3 7 10)
-rep=100
+rep=1000
 #npop=20000
 
 ## compare number of segregating sites
 compareSEG=compareSEG
-rm ${compareSEG}
+echo -e "compare number of mutations for ${rep} replicates \n\t\t|\t\t\t|\t\t ms \t\t|\t\t scrm\nNsam\ttheta\t|\tmean\tstdv\t|\tmean\tstdv\tstd err\t|\tmean\tstdv \tstd err" >${compareSEG}
+
 for t in "${mst[@]}"
 	do
 	for nsam in "${msNsample[@]}"
@@ -29,7 +30,10 @@ for t in "${mst[@]}"
 		scrmdata=read.table(\"scrm${nseg}\")\$V1;
 		ee=ee_seg(${nsam},${t});
 		sdv=sd_seg_norecomb(${nsam},${t});
-		cat(paste(${nsam},${t},ee,sdv,mean(msdata),sd(msdata),sd(msdata)/sqrt(length(msdata)),mean(scrmdata),sd(scrmdata),sd(scrmdata)/sqrt(length(scrmdata)),sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
+		cat(paste(${nsam},${t},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
+format(mean(msdata),digits=4),format(sd(msdata),digits=4),format(sd(msdata)/sqrt(length(msdata)),digits=4),\"|\",
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),format(sd(scrmdata)/sqrt(length(scrmdata)),digits=4),
+sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
 		R CMD BATCH dummy.r
 		#rm ms${out} ms${nseg} scrm${out} scrm${nseg}
 		done

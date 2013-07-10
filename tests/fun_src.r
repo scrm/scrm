@@ -23,30 +23,39 @@ f2x=function(x){
 	return ( (x+18)/(x^2+13*x+18) );
 }
 
-seg_integrand=function(x,rho){
+fnx=function(x,n){
+#	return (n/(2*x*(n-1)));
+	i=seq(1,n-1,1);
+	return(f2x(x)*sum(1/i^2));
+}
+
+
+f2x_integrand=function(x,rho){
 	return ( (rho-x)*f2x(x));
 }
 
-sd_seg_recomb=function(n, theta, rho){
-	return ( sqrt( theta + theta^2 * 2 /rho^2 *quad(seg_integrand, xa=0, xb=rho, rho=rho) ) );
-
-}
-
-fnx=function(x,n){
-	return (n/2/x/(n-1));
-#	i=seq(1,n-1,1);
-#	return(f2x(x)*sum(1/i^2));
-}
-
-recomb_integrand=function(x,rho,n){
+fnx_integrand=function(x,rho,n){
 	return ( (rho-x)*fnx(x,n=n));
 }
 
+sd_seg_recomb=function(n, theta, rho){
+#	if (n==2){
+		return ( sqrt( ee_seg(n, theta) + theta^2 * 2 /rho^2 *quad(f2x_integrand, xa=0, xb=rho, rho=rho) ) ); # Hein 2005 5.25
+#	#	return ( sqrt( theta + theta^2 * 2 /rho^2 *quad(seg_integrand, xa=0, xb=rho, rho=rho) ) ); #Wakeley 2008 7.20, maybe wrong
+#	}
+#	else{
+#		return ( sqrt( ee_seg(n, theta) + theta^2 * 2 /rho^2 *quad(fnx_integrand, xa=0, xb=rho, rho=rho, n=n) ) );
+#	}
+}
+
+
+
+
 sd_recomb=function(rho,n){
-	if (n==2){
-		return( sqrt(ee_seg(n, rho) + 2 * quad(seg_integrand, 0, rho, rho=rho) ) );
-	}
-	else{
-		return( sqrt( ee_seg(n, rho) + 2 * quad(recomb_integrand, 0, rho, rho=rho, n=n) ) );
-	}
+#	if (n==2){
+		return( sqrt(ee_seg(n, rho) + 2 * quad(f2x_integrand, xa=0, xb=rho, rho=rho) ) );
+#	}
+#	else{
+#		return( sqrt( ee_seg(n, rho) + 2 * quad(fnx_integrand, xa=0, xb=rho, rho=rho, n=n) ) );
+#	}
 }
