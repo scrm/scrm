@@ -36,6 +36,6 @@ format(mean(msdata),digits=4),format(sd(msdata),digits=4),format(sd(msdata)/sqrt
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),format(sd(scrmdata)/sqrt(length(scrmdata)),digits=4),
 sep=\"\t\"),file=\"${compareTMRCA}\",append=TRUE);cat(\"\n\",file=\"${compareTMRCA}\",append=TRUE);" > dummy.r
 	R CMD BATCH dummy.r
-	#rm ms${out} ms${Trees} ms${tmrca} scrm${out} scrm${Trees} scrm${tmrca} 
+	rm ms${out} ms${Trees} ms${tmrca} scrm${out} scrm${Trees} scrm${tmrca} 
 	done
 

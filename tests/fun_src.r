@@ -59,3 +59,9 @@ sd_recomb=function(rho,n){
 #		return( sqrt( ee_seg(n, rho) + 2 * quad(fnx_integrand, xa=0, xb=rho, rho=rho, n=n) ) );
 #	}
 }
+
+
+PSk=function(n, k, theta){
+	i=seq(2,n,1);
+	return ( sum( (-1)^i * choose(n-1, i-1) * (i-1) * theta^k * (theta+i-1)^(-k-1) ));
+}

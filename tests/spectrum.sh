@@ -2,9 +2,9 @@
 
 ###########################
 
-mst=(10 20 50 100)
-msNsample=(2 3 7 10)
-rep=1000
+mst=(10 20)
+msNsample=(3 7 10)
+rep=10
 #npop=20000
 
 ## compare number of segregating sites
@@ -17,12 +17,17 @@ for t in "${mst[@]}"
 		do
 		prefix=${nsam}sample${t}mut
 		out=${prefix}out
-		nseg=${prefix}NumOfSeg
-		ms ${nsam} ${rep} -t ${t} -T | tail -n +4 | grep -v "//" > ms${out}
-		cat ms${out} | grep "segsites" | sed -e "s/segsites: //" > ms${nseg}
+		nseg=${prefix}Seg
+		ms ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | awk '/^\/\//{f="xx"++d} f{print > f} '
+		for file in $(seq 1 1 ${rep})
+				do 
+				cat xx${file} | grep ";" | wc -l >> ms${recomb}
+				done
+		 #ms${out}
+		#cat ms${out} | grep "segsites" | sed -e "s/segsites: //" > ms${nseg}
 	
 		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | grep -v "//" > scrm${out}
-		cat scrm${out} | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
+		#cat scrm${out} | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
 		
 		echo "rm(list=ls());
 		source(\"fun_src.r\");
@@ -34,8 +39,8 @@ for t in "${mst[@]}"
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),format(sd(msdata)/sqrt(length(msdata)),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),format(sd(scrmdata)/sqrt(length(scrmdata)),digits=4),
 sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
-		R CMD BATCH dummy.r
-		rm ms${out} ms${nseg} scrm${out} scrm${nseg}
+		#R CMD BATCH dummy.r
+		#rm ms${out} ms${nseg} scrm${out} scrm${nseg}
 		done
 	done
 
