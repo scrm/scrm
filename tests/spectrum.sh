@@ -1,15 +1,22 @@
 #!/bin/bash
+## compare the Spectrum of the segregating sites, frequencies of observing a k mutation...
 
 ###########################
+#!!!!! need to check is there a formula for the theoretical probability????
+
+
 
 mst=(10 20)
+
 msNsample=(3 7 10)
-rep=10
+
+rep=100
 #npop=20000
 
-## compare number of segregating sites
-compareSEG=compareSEG
-echo -e "compare number of mutations for ${rep} replicates \n\t\t|\t\t\t|\t\t ms \t\t|\t\t scrm\nNsam\ttheta\t|\tmean\tstdv\t|\tmean\tstdv\tstd err\t|\tmean\tstdv \tstd err" >${compareSEG}
+compareSPEC=compareSPEC
+
+rm ${compareSPEC}
+#echo -e "compare number of mutations for ${rep} replicates \n\t\t|\t\t\t|\t\t ms \t\t|\t\t scrm\nNsam\ttheta\t|\tmean\tstdv\t|\tmean\tstdv\tstd err\t|\tmean\tstdv \tstd err" >${compareSEG}
 
 for t in "${mst[@]}"
 	do
@@ -18,29 +25,89 @@ for t in "${mst[@]}"
 		prefix=${nsam}sample${t}mut
 		out=${prefix}out
 		nseg=${prefix}Seg
-		ms ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | awk '/^\/\//{f="xx"++d} f{print > f} '
+		rm mscolsum*  xx*
+		
+		ms ${nsam} ${rep} -t ${t} > msout
+		cat msout | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		
 		for file in $(seq 1 1 ${rep})
 				do 
-				cat xx${file} | grep ";" | wc -l >> ms${recomb}
+				sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '
+{ for(i=1;i<=NF;++i) t[i]+=$i
+  if(n<NF)n=NF
+} 
+END {
+  printf t[1]
+  for(i=2;i<=n;++i) printf ","t[i]
+  printf "\n"
+}
+' >> mscolsumsOld
 				done
-		 #ms${out}
-		#cat ms${out} | grep "segsites" | sed -e "s/segsites: //" > ms${nseg}
+		cat mscolsumsOld | tr '\n' ',' > mscolsums
 	
-		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | grep -v "//" > scrm${out}
-		#cat scrm${out} | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
+		rm scrmcolsum*  xx*
+	
+		scrm ${nsam} ${rep} -t ${t} | tail -n +4 > scrmout
+		cat scrmout | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		for file in $(seq 1 1 ${rep})
+				do 
+				sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '
+{ for(i=1;i<=NF;++i) t[i]+=$i
+  if(n<NF)n=NF
+} 
+END {
+  printf t[1]
+  for(i=2;i<=n;++i) printf ","t[i]
+  printf "\n"
+}
+' >> scrmcolsumsOld
+				done
+		cat scrmcolsumsOld | tr '\n' ',' > scrmcolsums
+
+
+echo  -e "Sample size = ${nsam}, theta = ${t}" >> ${compareSPEC}
+
 		
 		echo "rm(list=ls());
 		source(\"fun_src.r\");
-		msdata=read.table(\"ms${nseg}\")\$V1;
-		scrmdata=read.table(\"scrm${nseg}\")\$V1;
-		ee=ee_seg(${nsam},${t});
-		sdv=sd_seg_norecomb(${nsam},${t});
-		cat(paste(${nsam},${t},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
-format(mean(msdata),digits=4),format(sd(msdata),digits=4),format(sd(msdata)/sqrt(length(msdata)),digits=4),\"|\",
-format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),format(sd(scrmdata)/sqrt(length(scrmdata)),digits=4),
-sep=\"\t\"),file=\"${compareSEG}\",append=TRUE);cat(\"\n\",file=\"${compareSEG}\",append=TRUE);" > dummy.r
-		#R CMD BATCH dummy.r
+		msdata=as.numeric(read.table(\"mscolsums\",sep=\",\"));
+		msnum=length(msdata)-1
+		mstable=table(msdata)
+		
+		a=as.numeric(read.table(\"scrmcolsums\",sep=\",\"));
+		scrmdata=a[!is.na(a)]
+		scrmdata=a[a>0]
+		scrmnum=length(scrmdata)-1
+		scrmtable=table(scrmdata)
+		
+		for (i in (1:(${nsam}-1))){
+		cat(paste( paste(\"P(S=\",i,\")  \",sep=\"\") , \"|\", format(mstable[i]/msnum,scientific = TRUE), \"|\", format(scrmtable[i]/scrmnum,scientific = TRUE),
+sep=\"\t\"),file=\"${compareSPEC}\",append=TRUE);
+cat(\"\n\",file=\"${compareSPEC}\",append=TRUE);						
+		}
+		" > dummy.r
+		R CMD BATCH dummy.r
 		#rm ms${out} ms${nseg} scrm${out} scrm${nseg}
 		done
 	done
 
+
+
+
+# make the transpose?
+#awk '
+#{ 
+    #for (i=1; i<=NF; i++)  {
+        #a[NR,i] = $i
+    #}
+#}
+#NF>p { p = NF }
+#END {    
+    #for(j=1; j<=p; j++) {
+        #str=a[1,j]
+        #for(i=2; i<=NR; i++){
+            #str=str" "a[i,j];
+        #}
+        #print str
+    #}
+#}' > xx${file}transpose
