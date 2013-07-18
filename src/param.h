@@ -39,7 +39,7 @@ class Param {
  public:
   // Constructors
   Param() : argc_(0), argv_(NULL) { };
-  Param(int argc, char *argv[]) : argc_(argc), argv_(argv) { }
+  Param(int argc, char *argv[], bool directly_called=true) : argc_(argc), argv_(argv) , directly_called_(directly_called) { }
 
   // Getters and setters
   bool seg_bool() const { return seg_bool_; }
@@ -70,6 +70,7 @@ class Param {
   char * const* argv_;
   bool tmrca_bool_;
   bool seg_bool_;
+  bool directly_called_;
 };
 
 void print_help();

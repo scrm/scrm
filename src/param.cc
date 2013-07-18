@@ -63,14 +63,19 @@ Model* Param::parse() {
   double time = 0;
 
   if ( argc_ == 0 ) return model;
-
-  argc_i=0;
+  if (directly_called_){
+	argc_i=0;
+  }
+  else{
+	  argc_i=1;
+	  std::cout<<"Indirectely called"<<std::endl;
+  }
+  
   this->init();
 
   while( argc_i < argc_ ){
     //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
-
     /*! \bug Comparing the program name with a fixed value fails when a user starts the program e.g. as "src/scrm", as I did.  Why is this necessary?  I'm removing it... */
 
     //if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
@@ -146,7 +151,7 @@ Model* Param::parse() {
       model->set_mutation_exact_number(readInput<size_t>(argv_[argc_i]));
     }
 
-    else {
+    else if (directly_called_){
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
 

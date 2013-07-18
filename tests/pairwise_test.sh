@@ -12,7 +12,7 @@ t=10
 
 echo "rm(list=ls());
 pdf(\"pairwise_diff.pdf\");
-plot(c(0,50),c(0,0.2),type=\"n\")
+plot(c(0,50),c(0,0.1),type=\"n\")
 for (r in c(0,10,100)){
 	ms=read.table(paste(\"ms${nsam}sample\",r,\"rho${t}thetasegRecomb\",sep=\"\"));
 	scrm=read.table(paste(\"scrm${nsam}sample\",r,\"rho${t}thetasegRecomb\",sep=\"\"));
