@@ -25,11 +25,38 @@
 
 float* FastFunc::build_fastlog_table() {
   float * table = (float*) malloc( 1025*sizeof(float) );
+  double prevx = 1.0;
+  double prevy = 0.0;
   for (int index=0; index<1025; index++) {
+    /* 
+     * Previous algorithm.  This has good maximum deviation from the
+     * true logarithm, but results in log(1.0) being just slightly >0,
+     * causing a problem in the sampling algorithms.
+     *
     double dlog1 = log( 1.0 + (index) / 1024. );
     double dlog2 = log( 1.0 + (index+1.0) / 1024. );
     double middiff1 = log( 1.0 + (index+0.5)/1024. ) - (dlog1 + (dlog2-dlog1)*0.5);
     table[index] = (float)(dlog1 + middiff1/2);
+     *
+     */
+
+    // calculate x coordinate at which linear approximation is exactly equal
+    // to the true logarithm
+    double curx = 1.0 + (index+5.0/6.0) / 1024;
+    if (index == 1023)
+      curx = 1.0 + (index+1.0) / 1024;
+
+    // calculate true logarithm at the point
+    double cury = log( curx );
+
+    // calculate the linear approximation at the next join point
+    double targetx = 1.0 + (index+1.0)/1024;
+    double targety = prevy + (targetx-prevx)*(cury-prevy)/(curx-prevx);
+
+    // store previous linear approximation in table, and update prevx/y
+    table[index] = (float)(prevy);
+    prevx = targetx;
+    prevy = targety;
   }
   return table;
 }

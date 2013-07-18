@@ -63,6 +63,30 @@ double speedtest(int oper, double rate, double growth, double limit) {
 }
 
 
+void testlog() {
+
+  const int CASES=4;
+  const double epsilon=1e-7;
+  const double x[CASES] = {0.0, 1.0, 2.0, 3.0};
+  class FastFunc ff;
+  int i;
+  printf("x\t\tlog\t\tfastlog\n");
+  for (i=0; i<CASES; i++) {
+    printf("%1.9f\t%1.9f\t%1.9f\n", x[i], log(x[i]), ff.fastlog(x[i]));
+  }
+  double maxdiff = 0.0;
+  for (i=0; i<(int)(2+1.0/epsilon); i++) {
+    double y = 0.5 + epsilon*i;
+    double z1 = log(y);
+    double z2 = ff.fastlog(y);
+    double diff = fabs(z1-z2);
+    if (diff > maxdiff) {
+      maxdiff = diff;
+    }
+  }
+  std::cout << "max absolute difference across [0.5-1.5] = " << maxdiff << std::endl;
+}
+
 
 int main(int argc, char** argv) {
   
@@ -74,6 +98,8 @@ int main(int argc, char** argv) {
   const double limit[CASES] =  {INFINITY, 1.0, 0.1, INFINITY, 1.0, 0.1, 0.1,  INFINITY, 1.0,  0.1};
 
   class MersenneTwister rg;
+
+  testlog();
 
   printf("Test\t\tRate\tGrowth\tLimit\tTime\n");
   for (int i=0; i<LLTEST + CASES; i++) {

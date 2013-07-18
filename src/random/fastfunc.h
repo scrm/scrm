@@ -23,6 +23,8 @@
 #ifndef scrm_src_random_fastfunc
 #define scrm_src_random_fastfunc
 
+#include <stdio.h>
+
 #include <stdint.h>
 #include <math.h>
 //#include <malloc.h>
