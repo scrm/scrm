@@ -37,46 +37,39 @@
 
 class Param {
  public:
-  friend std::ostream& operator<< (std::ostream& stream, const Param& param) {
-    stream << "scrm ";
-    for (int i = 1; i < param.argc_; ++i) {
-      stream << param.argv_[i] << " ";
-    }
-    return stream;
-  };
-
-  int random_seed;
-  std::string treefile;
-  
-  std::string tmrca_NAME;
-  
-  void init();
-
-  bool seg_bool() const { return seg_bool_; }
-  bool tmrca_bool() const { return tmrca_bool_; }
-
-  void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
-  void set_tmrca_bool(const bool &tmrca_bool) { tmrca_bool_ = tmrca_bool; } 
-
+  // Constructors
   Param() : argc_(0), argv_(NULL) { };
   Param(int argc, char *argv[]) : argc_(argc), argv_(argv) { }
 
+  // Getters and setters
+  bool seg_bool() const { return seg_bool_; }
+  bool tmrca_bool() const { return tmrca_bool_; }
+  void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
+  void set_tmrca_bool(const bool &tmrca_bool) { tmrca_bool_ = tmrca_bool; } 
+
+  // Other methods
+  void init();
+  void log_param();
+  friend std::ostream& operator<< (std::ostream& stream, const Param& param);
   Model* parse();
-  
+  void nextArg(std::string option);
   void print_param();
-  
+
+  // Member variables
+  int random_seed;
   bool tree_bool;
   bool log_bool;
+
+  std::string tree_NAME;
+  std::string tmrca_NAME;
   std::string log_NAME;
-  
-  void log_param();
    
  private:
   const int argc_;
+  int argc_i;
   char * const* argv_;
-
   bool tmrca_bool_;
-  bool seg_bool_; 
+  bool seg_bool_;
 };
 
 void print_help();

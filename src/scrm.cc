@@ -30,11 +30,13 @@
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
-  if (argc==1 ){
+  if (argc < 3 ){
+    std::cout << "Too few command line arguments" << std::endl;
     print_help();
-  }	//else, proceed
+    exit(1);
+  }
 
-  try {
+  //try {
     time_t start_time = time(0);
     Param user_para(argc, argv);
 
@@ -125,16 +127,18 @@ int main(int argc, char *argv[]){
       std::ofstream log_file;
       log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
       log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
-      log_file << "Trees are saved in: " << user_para.treefile << "\n";
+      log_file << "Trees are saved in: " << user_para.tree_NAME << "\n";
       log_file.close();
       //string system_cmd="cat "+user_para.log_NAME;
       //system(system_cmd.c_str()); //VERY UGLY -Paul
     }
-  }
+  //}
+  /*
   catch (const exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
   }
+  */
 }
 #endif
