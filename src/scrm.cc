@@ -57,6 +57,7 @@ int main(int argc, char *argv[]){
 
     *output << user_para << std::endl;
     *output << user_para.random_seed << std::endl;
+
     //*output << *model;
 
     /*
@@ -66,19 +67,23 @@ int main(int argc, char *argv[]){
        tree_file.close();	
        */
 
-    string previous_genealogy;
-
+    // Loop over the independent samples
     for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
-      std::ostringstream tree_buffer;
+
+      // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
 
+      // Set up a buffer to hold the tree representations
+      std::ostringstream tree_buffer;
+
+      // Now set up the ARG, and sample the initial tree
       Forest *forest = new Forest(model, rg);
       forest->buildInitialTree();
 
-      if (user_para.tree_bool && forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
-        tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
-      }
+      // Set up a buffer to hold the data for segregating sites
+      SegDataContainer *seg_data_array = new SegDataContainer(&user_para, forest);
 
+      // Optionally output the TMRCA of the initial coalescent tree in a file
       if (user_para.tmrca_bool()){
         std::ofstream tmrca_file;
         tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
@@ -86,27 +91,46 @@ int main(int argc, char *argv[]){
         tmrca_file.close();	
       }
 
-      SegDataContainer *seg_data_array = new SegDataContainer(&user_para, forest);
+      // Just output a single tree if the recombination rate is 0
+      if (user_para.tree_bool && forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
+        tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
+      }
 
-      int previous_last_for = 1 + min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
+      // Start main loop, if the recombination rate is nonzero
       if (model->recombination_rate() > 0.0){
-        if (user_para.tree_bool) { 
-          previous_genealogy=writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-        }
 
-        while ( forest->next_base() < model->loci_length() ) {
+	size_t previous_recombination_event;
+	size_t next_recombination_event;
+	size_t next_event;
+	size_t distance_between_events;
+
+	do {
+
+	  previous_recombination_event = ceil(forest->current_base());
+	  next_recombination_event = ceil(forest->next_base());
+	  next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
+	  distance_between_events = next_event - previous_recombination_event;
+	  
+	  // Obtain string representation of current tree
+	  string previous_genealogy;
+	  if (user_para.tree_bool) { 
+	    previous_genealogy = writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+	  }
+
+	  // Sample next genealogy
           forest->sampleNextGenealogy();
+	  
+	  // Sample and store segregating sites data
           seg_data_array->append_new_seg_data(forest);
 
+	  // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool) {
-            tree_buffer << "["<< previous_last_for <<"] "<< previous_genealogy <<";\n";
-            previous_last_for=min((size_t)ceil(forest->next_base()), forest->model().loci_length())-ceil(forest->current_base());
+            tree_buffer << "[" << distance_between_events << "] "<< previous_genealogy << ";\n";
           }
-        }		
-        if (user_para.tree_bool) tree_buffer << "["<< (previous_last_for)  <<"] "<< previous_genealogy <<";\n";
+
+	} while ( next_recombination_event == next_event ); // stop if the next recombination event is outside the locus
 
       }
-      seg_data_array->append_new_seg_data(forest);
 
       if (user_para.tree_bool) {
         *output << tree_buffer.str();
@@ -117,6 +141,7 @@ int main(int argc, char *argv[]){
       delete seg_data_array;
       delete forest;
     }
+
     //tree_file.close();	
     time_t end_time = time(0);
 
