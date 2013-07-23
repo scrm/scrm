@@ -101,6 +101,12 @@ Node * tracking_local_node(Node * node){
 		dout<<" is tip node, it is local, return."<<std::endl;
 		return node;
 		}
+	else if (node->first_child() == NULL && node->second_child()){
+		return tracking_local_node(node->second_child());
+	}
+	else if (node->second_child() == NULL && node->first_child()){
+		return tracking_local_node(node->first_child());
+	}
 	else if (node->first_child()->local() && node->second_child()->local()){
 		dout<<" is an internal local node, return"<<std::endl;
 		return node;
