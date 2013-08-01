@@ -153,6 +153,9 @@ void TimeIntervalIterator::next() {
     ++node_iterator_;
 
     // Pruning
+    // Maybe we could prune were allways, as we are encountering this part of
+    // the tree anyway. Warning: just removing pruning_ below will not have this
+    // effect.
     while ( pruning_ && node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
       forest_->prune(node_iterator_++);
     }
