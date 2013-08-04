@@ -378,9 +378,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   // If the start_node is above the local tree, then we start with coalescence
   // of the local root
   if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
-
+  
   for (TimeIntervalIterator event(this, start_node, pruning); event.good(); ++event) {
-    
+    this->record_coalevent(&(*event)); 
     dout << "* * Time interval: " << (*event).start_height() << " - "
         << (*event).end_height() << std::endl;
 
