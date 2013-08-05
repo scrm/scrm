@@ -380,7 +380,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
   
   for (TimeIntervalIterator event(this, start_node, pruning); event.good(); ++event) {
-    this->record_coalevent(&(*event)); 
+     
     dout << "* * Time interval: " << (*event).start_height() << " - "
         << (*event).end_height() << std::endl;
 
@@ -410,7 +410,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
       current_time += (*event).start_height();
       dout << "* * Event at time " << current_time << std::endl;
     }
-
+this->record_coalevent((*event), current_time);    
+    
     // Go on if nothing happens in this time interval
     if ( current_time == -1 ) {
       if (state_1 == 2) {

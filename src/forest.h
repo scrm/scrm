@@ -161,7 +161,7 @@ class Forest
   
 //derived class from Forest
   //virtual void init_coalevent() const { std::cout<<" virtual init_coalevent() is called" <<std::endl;};
-  virtual void record_coalevent(TimeInterval * current_event) const {
+  virtual void record_coalevent(const TimeInterval &event,double current_time) {
 	  //std::cout<<" virtual record_coalevent() is called" <<std::endl;
 	  };
   
