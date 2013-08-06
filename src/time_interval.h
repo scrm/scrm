@@ -26,6 +26,7 @@
 #include "forest.h"
 
 class Forest;
+class TimeIntervalIterator;
 
 class TimeInterval {
  public:
@@ -36,27 +37,24 @@ class TimeInterval {
 #endif
 
   TimeInterval();
-  TimeInterval(Forest* forest, 
-        double start_height, 
-        double end_height, 
-        std::vector<Node*> *contemporaries);
+  TimeInterval(TimeIntervalIterator const* tii, double start_height, double end_height);
   ~TimeInterval() { };
 
   double start_height() const { return this->start_height_; };
   double end_height()   const { return this->end_height_; };
   double length()       const { return (end_height() - start_height()); };
+  const Forest &forest() const;
 
-  size_t numberOfContemporaries() const { return contemporaries_->size(); }
+  size_t numberOfContemporaries(size_t pop = 0) const;
   Node* getRandomContemporary() const;
 
  private:
   bool checkContemporaries() const;
-  const std::vector<Node*> contemporaries() const { return *contemporaries_; };
+  const std::vector<Node*> contemporaries() const;
   
-  Forest* forest_;
   double start_height_;
   double end_height_; 
-  std::vector<Node*> *contemporaries_;
+  TimeIntervalIterator const* tii_;
 };
 
 
@@ -86,10 +84,17 @@ class TimeIntervalIterator {
 
   void recalculateInterval();
   void removeFromContemporaries(Node* node);
-  void addToContemporaries(Node* node) { contemporaries_.push_back(node); };
+  void addToContemporaries(Node* node) { 
+    contemporaries_.push_back(node);
+    pop_counts_.at(node->population()) += 1; 
+  };
   void searchContemporariesOfNode(Node *node);
   void searchContemporariesOfNodeTopDown(Node *node, Node *current_node = NULL);
   void updateContemporaries(Node *current_node); 
+
+  const std::vector<Node*> &contemporaries() const { return contemporaries_; };
+  const Forest &forest() const { return *forest_; };
+  size_t numberOfContemporaries(size_t pop = 0) const { return pop_counts_.at(pop); };
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
@@ -103,6 +108,7 @@ class TimeIntervalIterator {
   TimeInterval current_interval_;
   double current_time_;
   std::vector<Node*> contemporaries_;
+  std::vector<size_t> pop_counts_;
   NodeIterator node_iterator_;
 
   bool good_;
@@ -112,4 +118,5 @@ class TimeIntervalIterator {
   Node* inside_node_;
 };
 
+inline const Forest &TimeInterval::forest() const { return tii_->forest(); };
 #endif

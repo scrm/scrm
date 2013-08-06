@@ -696,22 +696,22 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
  * \param node The node for which we calculation the rate.
  * \param state The state of 'node'
  * \param other_state The state of the other active node
- * \param event The current time interval
+ * \param ti The current time interval
  *
  * \returns The rate.
  */
 double Forest::calcRate(Node* node, 
                         const int &state, 
                         const int &other_state, 
-                        const TimeInterval &event) const {
+                        const TimeInterval &ti) const {
   // Node is off
   if (state == 0) return 0;
 
   // Coalescence
   if (state == 1 && other_state != 1)
-    return ( event.numberOfContemporaries() / ( 2.0 * this->model().population_size() ) );
+    return ( ti.numberOfContemporaries() / ( 2.0 * this->model().population_size() ) );
   if (state == 1 && other_state == 1)
-    return ( 2 * event.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
+    return ( 2 * ti.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
 
   // Recombination
   if (state == 2)
