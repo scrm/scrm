@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
     exit(1);
   }
 
-  //try {
+  try {
     time_t start_time = time(0);
     Param user_para(argc, argv);
 
@@ -92,43 +92,44 @@ int main(int argc, char *argv[]){
       }
 
       // Just output a single tree if the recombination rate is 0
-      if (user_para.tree_bool && forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
+      if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
         tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
+        seg_data_array->append_new_seg_data(forest);
       }
 
       // Start main loop, if the recombination rate is nonzero
       if (model->recombination_rate() > 0.0){
 
-	size_t previous_recombination_event;
-	size_t next_recombination_event;
-	size_t next_event;
-	size_t distance_between_events;
+        size_t previous_recombination_event;
+        size_t next_recombination_event;
+        size_t next_event;
+        size_t distance_between_events;
 
-	do {
+        do {
 
-	  previous_recombination_event = ceil(forest->current_base());
-	  next_recombination_event = ceil(forest->next_base());
-	  next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
-	  distance_between_events = next_event - previous_recombination_event;
-	  
-	  // Obtain string representation of current tree
-	  string previous_genealogy;
-	  if (user_para.tree_bool) { 
-	    previous_genealogy = writeTree_new(forest->local_root(),forest->writable_model()->population_size());
-	  }
+          previous_recombination_event = ceil(forest->current_base());
+          next_recombination_event = ceil(forest->next_base());
+          next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
+          distance_between_events = next_event - previous_recombination_event;
 
-	  // Sample next genealogy
+          // Obtain string representation of current tree
+          string previous_genealogy;
+          if (user_para.tree_bool) { 
+            previous_genealogy = writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+          }
+
+          // Sample next genealogy
           forest->sampleNextGenealogy();
-	  
-	  // Sample and store segregating sites data
+
+          // Sample and store segregating sites data
           seg_data_array->append_new_seg_data(forest);
 
-	  // Store current local tree and distance between recombinations in tree buffer
+          // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool) {
             tree_buffer << "[" << distance_between_events << "] "<< previous_genealogy << ";\n";
           }
 
-	} while ( next_recombination_event == next_event ); // stop if the next recombination event is outside the locus
+        } while ( next_recombination_event == next_event ); // stop if the next recombination event is outside the locus
 
       }
 
@@ -154,16 +155,12 @@ int main(int argc, char *argv[]){
       log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
       log_file << "Trees are saved in: " << user_para.tree_NAME << "\n";
       log_file.close();
-      //string system_cmd="cat "+user_para.log_NAME;
-      //system(system_cmd.c_str()); //VERY UGLY -Paul
     }
-  //}
-  /*
+  }
   catch (const exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
   }
-  */
 }
 #endif
