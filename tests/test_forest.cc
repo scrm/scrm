@@ -203,6 +203,8 @@ class TestForest : public CppUnit::TestCase {
     std::cout << endl;
     frst.printTree_cout();
 
+    CPPUNIT_ASSERT_EQUAL(true, frst.checkTree());
+
     CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(0)->height());
     CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(1)->height());
     CPPUNIT_ASSERT_EQUAL(1.0, frst.nodes()->at(2)->height());
