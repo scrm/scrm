@@ -64,13 +64,13 @@ Model* Param::parse() {
 
   if ( argc_ == 0 ) return model;
   if (directly_called_){
-	argc_i=0;
+    argc_i=0;
   }
   else{
-	  argc_i=1;
-	  std::cout<<"Indirectely called"<<std::endl;
+    argc_i=1;
+    std::cout<<"Indirectely called"<<std::endl;
   }
-  
+
   this->init();
 
   while( argc_i < argc_ ){
@@ -103,7 +103,7 @@ Model* Param::parse() {
       model->set_population_number(readInput<size_t>(argv_[argc_i]));
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model->population_number(); ++i) {
-	nextArg(argv_i);
+        nextArg(argv_i);
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model->addSampleSizes(0.0, sample_size);
@@ -114,7 +114,7 @@ Model* Param::parse() {
       time = readInput<double>(argv_[argc_i]);
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model->population_number(); ++i) {
-	nextArg(argv_i);
+        nextArg(argv_i);
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model->addSampleSizes(time, sample_size);
@@ -156,28 +156,28 @@ Model* Param::parse() {
     }
 
     /* 
-    if (argv_i=="-tmrca"){
-      tmrca_bool=true;
-      argc_i++;
-      if (argc_i < argc){
-        if (argv[argc_i][0]!='-'){
-          tmrca_NAME=argv[argc_i];
-          //argc_i++;
-        }
-        else{argc_i--;}
-      }
+       if (argv_i=="-tmrca"){
+       tmrca_bool=true;
+       argc_i++;
+       if (argc_i < argc){
+       if (argv[argc_i][0]!='-'){
+       tmrca_NAME=argv[argc_i];
+    //argc_i++;
+    }
+    else{argc_i--;}
+    }
     }
 
     if (argv_i=="-log"){
-      log_bool=true;
-      argc_i++;
-      if (argc_i < argc){
-        if (argv[argc_i][0]!='-'){
-          log_NAME=argv[argc_i];
-          //argc_i++;
-        }
-        else{argc_i--;}
-      }			
+    log_bool=true;
+    argc_i++;
+    if (argc_i < argc){
+    if (argv[argc_i][0]!='-'){
+    log_NAME=argv[argc_i];
+    //argc_i++;
+    }
+    else{argc_i--;}
+    }			
     }
     */
 
@@ -197,81 +197,81 @@ Model* Param::parse() {
 
   // Scale recombination rate
   model->set_recombination_rate(model->recombination_rate() * 0.25
-                                     / model->population_size()  
-                                     / (model->loci_length() - 1));
+                                / model->population_size()  
+                                / (model->loci_length() - 1));
 
   model->set_mutation_rate(model->mutation_rate() * 0.25
-                                     / model->population_size() 
-                                     / (model->loci_length()));
+                           / model->population_size() 
+                           / (model->loci_length()));
 
   model->resetTime();
   /*
-  recomb_rate_persite=rho/4 / npop / (nsites-1);
-  remove(treefile.c_str());
-  if (log_bool){
-    remove(log_NAME.c_str());
-    log_param();
-  }
-  if (tmrca_bool){remove(tmrca_NAME.c_str());}
-  */
+     recomb_rate_persite=rho/4 / npop / (nsites-1);
+     remove(treefile.c_str());
+     if (log_bool){
+     remove(log_NAME.c_str());
+     log_param();
+     }
+     if (tmrca_bool){remove(tmrca_NAME.c_str());}
+     */
   return model;
-}
+  }
 
 
 
-void Param::print_param(){
-}	
+  void Param::print_param(){
+  }	
 
-void Param::log_param(){
-  //std::ofstream log_file;
-  //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  log_file<<"scrm parameters: \n";
-  log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
-  log_file.close();
-}		
-
-
-void print_options(){
-  std::cout << "  Options (ms-compatible):" << std::endl;
-  std::cout<<std::setw(20)<<"-t theta          Set theta = 4*N0*mu, mu = locus mutation rate per generation" << std::endl;
-  std::cout<<std::setw(20)<<"-r rho nsites     Set rho = 4*N0*r, r = locus recombination rate; and locus length" << std::endl;
-  std::cout<<std::setw(20)<<"-T                Output gene trees" << std::endl;
-  std::cout<<std::setw(20)<<"-s segsites       Sample a fixed number of segregating sites onto the sampled ARG" << std::endl;
-  std::cout<<std::setw(20)<<"-I n n1 .. nn     Define n populations, each of effective size N0, each having n1,..,nn samples. (Migration not yet implemented.)" << std::endl;
-  std::cout<<std::setw(20)<<"-eN t size        Modify population sizes, to become size*N0 prior to time t" << std::endl;
-  std::cout<<std::endl;
-  std::cout<<"  Further options:" << std::endl;
-  std::cout<<std::setw(20)<<"-seed SEED        Set seed for random number generator (default: use system time)"<<std::endl;
-  std::cout<<std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
-  //std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
-  //    <<"User define the length of the exact window."<<std::endl;
-  //std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
-  //std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
-  std::cout<<std::endl;
-}
+  void Param::log_param(){
+    //std::ofstream log_file;
+    //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+    std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+    log_file<<"scrm parameters: \n";
+    log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
+    log_file.close();
+  }		
 
 
-void print_help(){
-  std::cout << "usage: scrm nsam howmany" << std::endl;
-  print_options();
-  print_example();
-}
+  void print_options(){
+    std::cout << "  Options (ms-compatible):" << std::endl;
+    std::cout<<std::setw(20)<<"-t theta          Set theta = 4*N0*mu, mu = locus mutation rate per generation" << std::endl;
+    std::cout<<std::setw(20)<<"-r rho nsites     Set rho = 4*N0*r, r = locus recombination rate; and locus length" << std::endl;
+    std::cout<<std::setw(20)<<"-T                Output gene trees" << std::endl;
+    std::cout<<std::setw(20)<<"-s segsites       Sample a fixed number of segregating sites onto the sampled ARG" << std::endl;
+    std::cout<<std::setw(20)<<"-I n n1 .. nn     Define n populations, each of effective size N0, each having n1,..,nn samples. (Migration not yet implemented.)" << std::endl;
+    std::cout<<std::setw(20)<<"-eN t size        Modify population sizes, to become size*N0 prior to time t" << std::endl;
+    std::cout<<std::endl;
+    std::cout<<"  Further options:" << std::endl;
+    std::cout<<std::setw(20)<<"-seed SEED        Set seed for random number generator (default: use system time)"<<std::endl;
+    std::cout<<std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
+    //std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
+    //    <<"User define the length of the exact window."<<std::endl;
+    //std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
+    //std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
+    std::cout<<std::endl;
+  }
 
 
-void print_example(){	
-  std::cout<<"Examples:"<<std::endl;
-  std::cout<<"./scrm 3 1"<<std::endl;
-  std::cout<<"./scrm 6 3 -t 10 -r 40 -npop 20000 "<<std::endl;
-  std::cout<<"./scrm 5 3 -t 20 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
-  std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
-}
+  void print_help(){
+    std::cout << "usage: scrm nsam howmany" << std::endl;
+    print_options();
+    print_example();
+  }
 
-void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
-  std::ofstream log_file;
-  log_file.open (log_file_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  log_file << log_file_input << "\n";
-  log_file.close();
-}
+
+  void print_example(){	
+    std::cout<<"Examples:"<<std::endl;
+    std::cout<<"./scrm 3 1"<<std::endl;
+    std::cout<<"./scrm 6 3 -t 10 -r 40 -npop 20000 "<<std::endl;
+    std::cout<<"./scrm 5 3 -t 20 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
+    std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
+    std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
+    std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
+  }
+
+  void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
+    std::ofstream log_file;
+    log_file.open (log_file_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+    log_file << log_file_input << "\n";
+    log_file.close();
+  }

@@ -5,6 +5,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "../src/forest.h"
 #include "../src/random/constant_generator.h"
+#include "../src/random/mersenne_twister.h"
 
 class TestForest : public CppUnit::TestCase {
 
@@ -17,6 +18,8 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST( testIsPrunable );
   CPPUNIT_TEST( testPrune );
+  CPPUNIT_TEST( testBuildInitialTree );
+  CPPUNIT_TEST( testCoalescenceWithStructure );
   //CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
@@ -181,6 +184,56 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
   }
 
+  void testBuildInitialTree() {
+    Model* model = new Model();
+    model->set_population_number(3);
+    std::vector<size_t> sample_sizes;
+    sample_sizes.push_back(0);
+    sample_sizes.push_back(2);
+    sample_sizes.push_back(0);
+    model->addSampleSizes(0.0, sample_sizes);
+    sample_sizes.at(1) = 0;
+    sample_sizes.at(2) = 2;
+    model->addSampleSizes(1.0, sample_sizes);
+
+    MersenneTwister* rg2 = new MersenneTwister(123);
+    Forest frst = Forest(model, rg2);
+    frst.buildInitialTree();
+
+    std::cout << endl;
+    frst.printTree_cout();
+
+    CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(0)->height());
+    CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(1)->height());
+    CPPUNIT_ASSERT_EQUAL(1.0, frst.nodes()->at(2)->height());
+    CPPUNIT_ASSERT_EQUAL(1.0, frst.nodes()->at(3)->height());
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, frst.nodes()->at(0)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)1, frst.nodes()->at(1)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)2, frst.nodes()->at(2)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)2, frst.nodes()->at(3)->population());
+  }
+
+  void testCoalescenceWithStructure() {
+    Model* model = new Model();
+    model->set_population_number(3);
+    std::vector<size_t> sample_sizes;
+    sample_sizes.push_back(0);
+    sample_sizes.push_back(2);
+    sample_sizes.push_back(0);
+    model->addSampleSizes(0.0, sample_sizes);
+    sample_sizes.at(1) = 0;
+    sample_sizes.at(2) = 2;
+    model->addSampleSizes(1.0, sample_sizes);
+
+    MersenneTwister* rg2 = new MersenneTwister(123);
+    Forest frst = Forest(model, rg2);
+    frst.buildInitialTree();
+
+    for (NodeIterator ni = frst.nodes()->iterator(); ni.good(); ++ni) {
+      CPPUNIT_ASSERT( (*ni)->population() != 0 );
+    }
+  }
 };
 
 //Uncomment this to activate the test

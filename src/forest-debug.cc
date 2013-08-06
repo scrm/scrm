@@ -309,7 +309,8 @@ bool Forest::printTree() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        dout << *position << " ";
+        if ((*position)->label() != 0) dout << (*position)->label() << ":";
+        dout << *position << "(" << (*position)->population() << ") ";
       }
     }
     dout << std::endl;
@@ -317,9 +318,6 @@ bool Forest::printTree() {
   return true;
 }
 
-/******************************************************************
- * Tree Printing
- *****************************************************************/
 bool Forest::printTree_cout() {
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
@@ -382,7 +380,8 @@ bool Forest::printTree_cout() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        std::cout << *position << " ";
+        if ((*position)->label() != 0) dout << (*position)->label() << ":";
+        std::cout << *position << "(" << (*position)->population() << ") ";
       }
     }
     std::cout << std::endl;
@@ -493,6 +492,7 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::setw(10) << std::right << "h_child";
     dout << std::setw(10) << std::right << "l_child";
     dout << std::setw(6) << std::right << "local";
+    dout << std::setw(6) << std::right << "pop";
     dout << std::setw(6) << std::right << "l_upd";
     dout << std::setw(6) << std::right << "s_bel";
     dout << std::setw(10) << std::right << "l_bel";
@@ -509,11 +509,10 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
-      if ( this->getNodes()->get(i) != getNodes()->last() )
-        dout << std::setw(10) << std::right << this->getNodes()->get(i)->next();
       dout << std::endl;
     }
     dout << "Local Root:    " << this->local_root() << std::endl;

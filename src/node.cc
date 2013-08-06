@@ -47,19 +47,20 @@ void Node::init(double height, bool local, size_t last_update,
                 size_t samples_below, double length_below, size_t label) {
   this->set_height(height);
   this->set_local(local);
-  this->set_parent(NULL);
-  this->set_second_child(NULL);
-  this->set_first_child(NULL);
   this->set_last_update(last_update);
   this->set_samples_below(samples_below);
   this->set_length_below(length_below);
+  this->set_label(label);
+  this->set_parent(NULL);
+  this->set_second_child(NULL);
+  this->set_first_child(NULL);
   this->set_previous(NULL);
   this->set_next(NULL);
-  this->set_label(label);
   this->mutation_state=false;
   //this->marginal_likelihood[0]=0;
   //this->marginal_likelihood[1]=0;
   this->set_mut_num(0);
+  this->set_population(0);
 }
 
 Node* Node::parent() const {
