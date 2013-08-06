@@ -27,7 +27,7 @@ class TestFastFunc : public CppUnit::TestCase {
         maxdiff = std::max( maxdiff, std::abs( logd-truelogd ) );
         d += 1e-7;
       }
-      CPPUNIT_ASSERT( maxdiff < 1.2e-7 );
+      CPPUNIT_ASSERT( maxdiff < 1.5e-7 );
     }
 
     void testexp() {
