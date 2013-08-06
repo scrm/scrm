@@ -161,10 +161,11 @@ class Forest
   
 //derived class from Forest
   //virtual void init_coalevent() const { std::cout<<" virtual init_coalevent() is called" <<std::endl;};
-  virtual void record_coalevent(const TimeInterval &event,double current_time) {
-	  //std::cout<<" virtual record_coalevent() is called" <<std::endl;
-	  };
-  
+  virtual void initialize_recomb_coalescent(double rec_height) {};
+  virtual void initialize_coalevent(const TimeInterval &event,double current_time){};
+  virtual void record_coalevent(){};
+  virtual void record_recomb_coalescent(){};
+
  private:
   //segegrating sites  
   void find_descndnt();

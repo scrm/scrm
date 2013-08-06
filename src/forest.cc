@@ -334,6 +334,7 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.base_node()->local() );
   assert(this->printTree());
 
+  this->initialize_recomb_coalescent(rec_point.height());
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
@@ -381,7 +382,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   
   for (TimeIntervalIterator event(this, start_node, pruning); event.good(); ++event) {
      
-    dout << "* * Time interval: " << (*event).start_height() << " - "
+    dout <<std::endl<< "* * Time interval: " << (*event).start_height() << " - "
         << (*event).end_height() << std::endl;
 
     assert( current_time < 0 || current_time == (*event).start_height() );
@@ -410,7 +411,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
       current_time += (*event).start_height();
       dout << "* * Event at time " << current_time << std::endl;
     }
-this->record_coalevent((*event), current_time);    
+    
+    // Record this coalescent interval (with or without a coalescent event)
+	this->initialize_coalevent((*event), current_time);    
     
     // Go on if nothing happens in this time interval
     if ( current_time == -1 ) {
@@ -425,7 +428,7 @@ this->record_coalevent((*event), current_time);
       if (state_2 == 2) active_node_2 = possiblyMoveUpwards(active_node_2, *event);
 
       if (active_node_1 == active_node_2) {
-        dout << "* * * Active Nodes hit each other in " << active_node_1 
+        dout << std::endl << "* * * Active Nodes hit each other in " << active_node_1 
             << ". Done." << std::endl;
         updateAbove(active_node_1);
         return;
@@ -437,7 +440,7 @@ this->record_coalevent((*event), current_time);
     if (state_1 == 1 && state_2 == 1) {
       if ( (*event).numberOfContemporaries() == 0 ||
           random_generator()->sample() * (1 + 2 * (*event).numberOfContemporaries() ) <= 1 ) {
-
+		this->record_coalevent();
         implementPwCoalescence(active_node_1, active_node_2, current_time);
         return;
       }
@@ -464,6 +467,7 @@ this->record_coalevent((*event), current_time);
     assert( event_state != 0 );
     if ( event_state == 1 ) {
       // Coalescence: sample target point and implement the coalescence
+      this->record_coalevent();
       dout << "* * * Active Node " << event_nr  << ": Coalescence" << std::endl;
       dout << "* * * #Contemporaries: " << (*event).numberOfContemporaries() << std::endl;
       event_point = TreePoint((*event).getRandomContemporary(), current_time, false);
@@ -509,6 +513,7 @@ this->record_coalevent((*event), current_time);
     }
     else if (event_state == 2) {
       // Recombination: sample point of recombination and implement
+      this->record_recomb_coalescent();
       dout << "* * * Active Node " << event_nr<< ": Recombination" << std::endl;
       updateAbove(*event_node, false, false);
       event_point = TreePoint(*event_node, current_time, false);
