@@ -43,12 +43,20 @@ TimeInterval::TimeInterval(TimeIntervalIterator const* tii, double start_height,
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
-Node* TimeInterval::getRandomContemporary() const {
+Node* TimeInterval::getRandomContemporary(size_t population) const {
+  assert( population < forest().model().population_number() );
   if ( this->numberOfContemporaries() == 0) 
     throw std::out_of_range("Error: Sampling from empty contemporaries");
 
-  size_t sample = forest().random_generator()->sampleInt(this->numberOfContemporaries());
-  return contemporaries().at(sample);
+  // Sample the position of the Node we return
+  size_t sample = forest().random_generator()->sampleInt(this->numberOfContemporaries(population));
+
+  // Use fast random access if we only have one population 
+  if ( forest().model().population_number() == 1 ) {
+    return contemporaries().at(sample);
+  }
+
+  throw std::logic_error("Not yet implemented");
 }
 
 

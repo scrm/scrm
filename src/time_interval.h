@@ -46,7 +46,7 @@ class TimeInterval {
   const Forest &forest() const;
 
   size_t numberOfContemporaries(size_t pop = 0) const;
-  Node* getRandomContemporary() const;
+  Node* getRandomContemporary(size_t pop = 0) const;
 
  private:
   bool checkContemporaries() const;
