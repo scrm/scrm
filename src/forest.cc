@@ -713,7 +713,7 @@ double Forest::calcRate(Node* node,
   if (state == 1 && other_state != 1)
     return ( event.numberOfContemporaries() / ( 2.0 * this->model().population_size() ) );
   if (state == 1 && other_state == 1)
-    return ( 2 * event.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
+    return ( event.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
 
   // Recombination
   if (state == 2)
