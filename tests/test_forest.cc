@@ -16,6 +16,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testCalcRate );
   CPPUNIT_TEST( testIsPrunable );
   CPPUNIT_TEST( testPrune );
   CPPUNIT_TEST( testBuildInitialTree );
@@ -74,6 +75,26 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( tp.relative_height() > 0 );
   }
 
+  void testCalcRate() {
+    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
+    Node *node1 = forest->nodes()->at(0);
+    Node *node2 = forest->nodes()->at(4);
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->calcRate(node1, node2, 0, 0, *tii) );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->calcRate(node1, node2, 0, 1, *tii) );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->calcRate(node1, node2, 0, 2, *tii) );   
+
+    size_t pop_size = forest->model().population_size(0);
+    CPPUNIT_ASSERT_EQUAL( 2.0/pop_size, forest->calcRate(node1, node2, 1, 0, *tii) );   
+    CPPUNIT_ASSERT_EQUAL( 2.25/pop_size, forest->calcRate(node1, node2, 1, 1, *tii) );   
+    CPPUNIT_ASSERT_EQUAL( 2.0/pop_size, forest->calcRate(node1, node2, 1, 2, *tii) );   
+
+    node1->make_nonlocal(2);
+    forest->set_current_base(5);
+    double rec_rate = forest->model().recombination_rate();
+    CPPUNIT_ASSERT_EQUAL( 3.0 * rec_rate, forest->calcRate(node1, node2, 2, 0, *tii) );
+    CPPUNIT_ASSERT_EQUAL( 3.0 * rec_rate, forest->calcRate(node1, node2, 2, 1, *tii) );
+    CPPUNIT_ASSERT_EQUAL( 3.0 * rec_rate, forest->calcRate(node1, node2, 2, 2, *tii) );
+  }
   
   void testGetNodeState() { 
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(0), 5) == 0 );
@@ -230,7 +251,7 @@ class TestForest : public CppUnit::TestCase {
 
     MersenneTwister* rg2 = new MersenneTwister(123);
     Forest frst = Forest(model, rg2);
-    frst.buildInitialTree();
+    //frst.buildInitialTree();
 
     for (NodeIterator ni = frst.nodes()->iterator(); ni.good(); ++ni) {
       CPPUNIT_ASSERT( (*ni)->population() != 0 );

@@ -394,8 +394,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     state_2 = getNodeState(active_node_2, (*event).start_height());
 
     // Calc total rate of anything happening in this time interval
-    rate_1 = calcRate(active_node_1, state_1, state_2, *event);
-    rate_2 = calcRate(active_node_2, state_2, state_1, *event);
+    rate_1 = calcRate(active_node_1, active_node_2, state_1, state_2, *event);
+    rate_2 = calcRate(active_node_2, active_node_1, state_2, state_1, *event);
 
     dout << "* * * Active Node 1: " << active_node_1 << " State: " << state_1
         << " Rate: " << rate_1 << std::endl;
@@ -700,18 +700,20 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
  *
  * \returns The rate.
  */
-double Forest::calcRate(Node* node, 
+double Forest::calcRate(Node const* node, 
+                        Node const* other_node,
                         const int &state, 
                         const int &other_state, 
                         const TimeInterval &ti) const {
   // Node is off
   if (state == 0) return 0;
+  size_t pop = node->population();
 
   // Coalescence
   if (state == 1 && other_state != 1)
-    return ( ti.numberOfContemporaries() / ( 2.0 * this->model().population_size() ) );
+    return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
   if (state == 1 && other_state == 1)
-    return ( 2 * ti.numberOfContemporaries() + 0.5 ) / ( 2.0 * this->model().population_size() );
+    return ( ti.numberOfContemporaries(pop) + 0.5 ) / ( 2.0 * this->model().population_size(pop) );
 
   // Recombination
   if (state == 2)

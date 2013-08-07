@@ -182,7 +182,9 @@ class Forest
   //making samplePoint public
   //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
-  double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
+  double calcRate(Node const* node, Node const* other_node, 
+                  const int &state, const int &other_state, 
+                  const TimeInterval &event) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
