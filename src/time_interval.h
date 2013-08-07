@@ -50,7 +50,8 @@ class TimeInterval {
 
  private:
   bool checkContemporaries() const;
-  const std::vector<Node*> contemporaries() const;
+  Node* getIthContemporaryOfPop(size_t i, const size_t &pop) const;
+  const std::vector<Node*> &contemporaries() const;
   
   double start_height_;
   double end_height_; 

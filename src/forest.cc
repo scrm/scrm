@@ -76,6 +76,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 
   //The new end of the old branch after the cut
   Node* new_leaf = new Node(cut_point.height(), false, current_base(), 0, 0);
+  new_leaf->set_population(cut_point.base_node()->population());
   if ( !cut_point.base_node()->local() )
     new_leaf->set_last_update(cut_point.base_node()->last_update() );
   new_leaf->set_parent(parent);
@@ -88,6 +89,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   //The new "root" of the newly formed tree
   Node* new_root = new Node(cut_point.height(), 
                             cut_point.base_node()->local());
+  new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
   nodes()->add(new_root, new_leaf);
@@ -583,6 +585,8 @@ Node* Forest::implementCoalescence(Node* coal_node, const TreePoint &coal_point)
   // new_node =   New parent of both other nodes
 
   // Update new_node
+  assert( coal_point.base_node()->population() == coal_node->population() );
+  new_node->set_population(coal_node->population());
   new_node->change_child(NULL, coal_point.base_node());
   new_node->set_parent(coal_point.base_node()->parent());
   if (!coal_point.base_node()->local()) {
@@ -618,6 +622,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   dout << "* * Both nodes coalesced together" << std::endl;
   dout << "* * Implementing..." << std::flush;
   Node* new_root = NULL;
+  assert( root_1->population() == root_2->population() );
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
@@ -650,6 +655,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   root_2->set_parent(new_root);
   new_root->set_second_child(root_1);
   new_root->set_first_child(root_2);
+  new_root->set_population(root_1->population());
 
   updateAbove(root_1, false, false);
   updateAbove(root_2, false, false);

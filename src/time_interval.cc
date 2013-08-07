@@ -45,8 +45,7 @@ TimeInterval::TimeInterval(TimeIntervalIterator const* tii, double start_height,
 // Distribution checked.
 Node* TimeInterval::getRandomContemporary(size_t population) const {
   assert( population < forest().model().population_number() );
-  if ( this->numberOfContemporaries() == 0) 
-    throw std::out_of_range("Error: Sampling from empty contemporaries");
+  assert( this->numberOfContemporaries(population) > 0 );
 
   // Sample the position of the Node we return
   size_t sample = forest().random_generator()->sampleInt(this->numberOfContemporaries(population));
@@ -56,7 +55,7 @@ Node* TimeInterval::getRandomContemporary(size_t population) const {
     return contemporaries().at(sample);
   }
 
-  throw std::logic_error("Not yet implemented");
+  return getIthContemporaryOfPop(sample, population);
 }
 
 
@@ -66,6 +65,7 @@ bool TimeInterval::checkContemporaries() const {
   for (std::vector<Node*>::const_iterator it = contemporaries().begin(); 
        it != contemporaries().end(); ++it) {
 
+    if ( *it == NULL ) return 0;
     //std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
     if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
       std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
@@ -79,10 +79,23 @@ size_t TimeInterval::numberOfContemporaries(size_t pop) const {
   return tii_->numberOfContemporaries(pop); 
 }
 
-const std::vector<Node*> TimeInterval::contemporaries() const { 
+const std::vector<Node*> &TimeInterval::contemporaries() const { 
   return tii_->contemporaries(); 
 }
 
+Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t &pop) const {
+  assert( i < numberOfContemporaries(pop) );
+  Node* node = NULL;
+  for (size_t j = 0; j < contemporaries().size(); ++j) {
+    node = contemporaries().at(j);
+    assert( node != NULL );
+    if ( node->population() != pop ) continue;
+    if ( i == 0 ) return node;
+    --i;
+  }
+  throw std::logic_error("Could not find the contemporary node I wanted to sample :(");
+  return NULL;
+}
 
 /* --------------------------------------------------------------------
  * TimeIntervalIterator

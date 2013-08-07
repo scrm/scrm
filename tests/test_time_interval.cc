@@ -16,6 +16,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST( testIteratorCreationWithTimeFrames );
   CPPUNIT_TEST( testIteratorNextWithTimeFrames );
   CPPUNIT_TEST( testSplitIntervall );
+  CPPUNIT_TEST( testGetIthContemporary );
   CPPUNIT_TEST( testSampleContemporary );
 //  CPPUNIT_TEST( testRecalculateTI );
 
@@ -41,6 +42,10 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT_EQUAL( (size_t)4, (*it).numberOfContemporaries() );
+    CPPUNIT_ASSERT( (*it).contemporaries().at(0) != NULL );
+    CPPUNIT_ASSERT( (*it).contemporaries().at(1) != NULL );
+    CPPUNIT_ASSERT( (*it).contemporaries().at(2) != NULL );
+    CPPUNIT_ASSERT( (*it).contemporaries().at(3) != NULL );
     
     TimeIntervalIterator it2(forest, forest->nodes()->at(4));
     CPPUNIT_ASSERT( (*it2).start_height() == 1 );
@@ -178,6 +183,28 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
   }
+
+  void testGetIthContemporary() {
+    forest->writable_model()->set_population_number(2);
+    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(0) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(1) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(2) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(3) != NULL );
+    Node *node1 = new Node(1), *node2 = new Node(1), *node3 = new Node(1);
+    node1->set_population(1);
+    node2->set_population(1);
+    tii.addToContemporaries(node1);
+    tii.addToContemporaries(node2);
+    tii.addToContemporaries(node3);
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(0) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(1) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(2) != NULL );
+    CPPUNIT_ASSERT( (*tii).contemporaries().at(3) != NULL );
+    CPPUNIT_ASSERT( node1 == (*tii).getIthContemporaryOfPop(0, 1) );
+    CPPUNIT_ASSERT( node2 == (*tii).getIthContemporaryOfPop(1, 1) );
+    CPPUNIT_ASSERT( node3 == (*tii).getIthContemporaryOfPop(4, 0) );
+  } 
 
   void testSampleContemporary() {
     TimeIntervalIterator it(forest, forest->nodes()->at(7));
