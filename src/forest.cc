@@ -712,8 +712,10 @@ double Forest::calcRate(Node const* node,
   // Coalescence
   if (state == 1 && other_state != 1)
     return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
-  if (state == 1 && other_state == 1)
-    return ( ti.numberOfContemporaries(pop) + 0.5 ) / ( 2.0 * this->model().population_size(pop) );
+  if (state == 1 && other_state == 1) {
+    return ( ti.numberOfContemporaries(pop) + 0.5 * (node->population() == other_node->population()) ) 
+            / ( 2.0 * this->model().population_size(pop) );
+  }
 
   // Recombination
   if (state == 2)
