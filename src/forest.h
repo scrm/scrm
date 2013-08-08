@@ -55,6 +55,7 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "node.h"
+#include "event.h"
 #include "model.h"
 #include "param.h"
 #include "node_container.h"
@@ -182,9 +183,6 @@ class Forest
   //making samplePoint public
   //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
-  double calcRate(Node const* node, Node const* other_node, 
-                  const int &state, const int &other_state, 
-                  const TimeInterval &event) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
@@ -198,6 +196,22 @@ class Forest
   // Pruning
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
+
+  
+
+  // Calculation of Rates
+  double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
+
+  double calcPwCoalescenceRate(const size_t &pop) const {
+    return ( 1.0 / ( 2.0 * this->model().population_size(pop) ) );
+  }
+
+  double calcRecombinationRate(Node const* node) const {
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+  }
+
+  void calcRates(Node const* active_node_1, Node const* active_node_2, const TimeInterval &ti);
+  void sampleEvent(Node const* active_node_0, Node const* active_node_1, const TimeInterval &ti);
 
 
   //Private variables
@@ -224,6 +238,19 @@ class Forest
                   RandomGenerator *rg = NULL);
 
   void createSampleNodes();
+
+  // Temporarily used when doing the coalescence
+
+  // Rates: 
+  double rates_[3];
+
+  // States: Each (branch above an) active node can either be in state
+  // - 0 = off (the other coalescence has not reached it yet) or
+  // - 1 = potentially coalescing in a time interval or
+  // - 2 = potentially recombining in a time interval
+  size_t states_[2];
+
+  Node *active_node_0, *active_node_1;
 };
 
 bool areSame(const double &a, const double &b, 

@@ -87,10 +87,12 @@ class Model
    }
    
    double migration_rate(const size_t &sink, const size_t &source) const {
+     if (current_mig_rates_ == NULL) return default_mig_rate;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 
    double total_migration_rate(const size_t &sink) const {
+     if (current_total_mig_rates_ == NULL) return default_mig_rate;
      return current_total_mig_rates_->at(sink); 
    }; 
 
@@ -111,7 +113,10 @@ class Model
 
    void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
-   void set_population_number(const size_t &pop_number) { pop_number_ = pop_number; if (pop_number_<1) { throw std::out_of_range("Population number out of range"); } }
+   void set_population_number(const size_t &pop_number) { 
+    pop_number_ = pop_number; 
+    if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
+   }
 
    void resetTime() { 
      current_pop_sizes_ = pop_sizes_list_.at(0);

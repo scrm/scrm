@@ -360,19 +360,11 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
-  Node* active_node_1 = start_node;
-  Node* active_node_2 = this->local_root();
+  active_node_0 = start_node;
+  active_node_1 = this->local_root();
 
-  // States: Each (branch above a) node can either be in state
-  // - 0 = off (the other coalescence has not reached it yet) or
-  // - 1 = potentially coalescing in a time interval or
-  // - 2 = potentially recombining in a time interval
-  size_t state_1; // State of active_node_1
-  size_t state_2; // -"-      active_node_2
 
   // Placeholders for the rates at which things happen for the active nodes
-  double rate_1;
-  double rate_2;
 
   double current_time = -1;
   size_t event_nr;
@@ -382,57 +374,58 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
   // If the start_node is above the local tree, then we start with coalescence
   // of the local root
-  if ( start_node->height() > active_node_2->height() ) start_node = active_node_2;
+  if ( start_node->height() > active_node_1->height() ) start_node = active_node_1;
   
-  for (TimeIntervalIterator event(this, start_node, pruning); event.good(); ++event) {
+  for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
      
-    dout << "* * Time interval: " << (*event).start_height() << " - "
-        << (*event).end_height() << std::endl;
+    dout << "* * Time interval: " << (*ti).start_height() << " - "
+        << (*ti).end_height() << std::endl;
 
-    assert( current_time < 0 || current_time == (*event).start_height() );
+    assert( current_time < 0 || current_time == (*ti).start_height() );
 
-    // What is currently happening?
-    state_1 = getNodeState(active_node_1, (*event).start_height());
-    state_2 = getNodeState(active_node_2, (*event).start_height());
+    // Update States & Rates (see their declaration for explanation); 
+    states_[0] = getNodeState(active_node_0, (*ti).start_height());
+    states_[1] = getNodeState(active_node_1, (*ti).start_height());
+    calcRates(active_node_0, active_node_1, *ti);
+    std::cout << "Blub" << std::endl;
 
-    // Calc total rate of anything happening in this time interval
-    rate_1 = calcRate(active_node_1, active_node_2, state_1, state_2, *event);
-    rate_2 = calcRate(active_node_2, active_node_1, state_2, state_1, *event);
+    dout << "* * * Active Nodes: 0:" << active_node_0 << ":" << states_[0]
+         << " 1:" << active_node_1 << ":" << states_[1] << std::endl
+         << "* * * Total Rates: " << rates_[0] << " " 
+         << rates_[1] << " " << rates_[2] << std::endl;
 
-    dout << "* * * Active Node 1: " << active_node_1 << " State: " << state_1
-        << " Rate: " << rate_1 << std::endl;
-    dout << "* * * Active Node 2: " << active_node_2 << " State: " << state_2 
-        << " Rate: " << rate_2 << std::endl;
-
-    assert( active_node_1 != active_node_2 );
-    assert( state_1 != 0 || state_2 != 0 );
-    assert( state_1 == 1 || active_node_1->parent_height() >= current_time );
-    assert( state_2 == 1 || active_node_2->parent_height() >= current_time );
+    assert( active_node_0 != active_node_1 );
+    assert( states_[0] != 0 || states_[1] != 0 );
+    assert( states_[0] == 1 || active_node_0->parent_height() >= current_time );
+    assert( states_[1] == 1 || active_node_1->parent_height() >= current_time );
 
     // Sample the time at which the next thing happens
-    current_time = this->random_generator()->sampleExpoLimit(rate_1 + rate_2, (*event).length());
+    sampleEvent(active_node_0, active_node_1, *ti);
+
+    /*
+    current_time = this->random_generator()->sampleExpoLimit(rate_1 + rate_2, (*ti).length());
     if (current_time >= 0) {
-      current_time += (*event).start_height();
+      current_time += (*ti).start_height();
       dout << "* * Event at time " << current_time << std::endl;
     }
-this->record_coalevent((*event), current_time);    
+    this->record_coalevent((*ti), current_time);    
     
     // Go on if nothing happens in this time interval
     if ( current_time == -1 ) {
       if (state_1 == 2) {
-        active_node_1 = possiblyMoveUpwards(active_node_1, *event);
-        if (active_node_1->local()) {
+        active_node_0 = possiblyMoveUpwards(active_node_0, *ti);
+        if (active_node_0->local()) {
           dout << "* * * Active Node 1 hit a local node. Done" << std::endl;
-          updateAbove(active_node_1);
+          updateAbove(active_node_0);
           return;
         }
       }
-      if (state_2 == 2) active_node_2 = possiblyMoveUpwards(active_node_2, *event);
+      if (state_2 == 2) active_node_1 = possiblyMoveUpwards(active_node_1, *ti);
 
-      if (active_node_1 == active_node_2) {
-        dout << "* * * Active Nodes hit each other in " << active_node_1 
+      if (active_node_0 == active_node_1) {
+        dout << "* * * Active Nodes hit each other in " << active_node_0 
             << ". Done." << std::endl;
-        updateAbove(active_node_1);
+        updateAbove(active_node_0);
         return;
       }
       continue;
@@ -440,10 +433,10 @@ this->record_coalevent((*event), current_time);
 
     // First take care of pairwise coalescence
     if (state_1 == 1 && state_2 == 1) {
-      if ( (*event).numberOfContemporaries() == 0 ||
-          random_generator()->sample() * (1 + 2 * (*event).numberOfContemporaries() ) <= 1 ) {
+      if ( (*ti).numberOfContemporaries() == 0 ||
+          random_generator()->sample() * (1 + 2 * (*ti).numberOfContemporaries() ) <= 1 ) {
 
-        implementPwCoalescence(active_node_1, active_node_2, current_time);
+        implementPwCoalescence(active_node_0, active_node_1, current_time);
         return;
       }
     }
@@ -454,14 +447,14 @@ this->record_coalevent((*event), current_time);
     // don't have to duplicate the code.
     event_nr = sampleWhichRateRang(rate_1, rate_2);
     if (event_nr == 1) {
-      event_node = &active_node_1;
+      event_node = &active_node_0;
       event_state = state_1;
-      other_node = &active_node_2;
+      other_node = &active_node_1;
       other_state = state_2; 
     } else {
-      event_node = &active_node_2;
+      event_node = &active_node_1;
       event_state = state_2;
-      other_node = &active_node_1;
+      other_node = &active_node_0;
       other_state = state_1; 
     }
 
@@ -500,7 +493,7 @@ this->record_coalevent((*event), current_time);
         return;
       }
 
-      if (active_node_1 == active_node_2) {
+      if (active_node_0 == active_node_1) {
         dout << "* * * Coalescend into other Active Node. Done." << std::endl;
         updateAbove(*event_node); 
         return;
@@ -509,7 +502,7 @@ this->record_coalevent((*event), current_time);
       // If we hit an non-local branch:
       // Begin next interval at the coalescence height and remove the branch
       // below from contemporaries.
-      event.splitCurrentInterval(*event_node, event_point.base_node());
+      ti.splitCurrentInterval(*event_node, event_point.base_node());
       assert(this->printTree());
     }
     else if (event_state == 2) {
@@ -519,14 +512,70 @@ this->record_coalevent((*event), current_time);
       event_point = TreePoint(*event_node, current_time, false);
       *event_node = cut(event_point);
       updateAbove(*event_node, false, false);
-      event.recalculateInterval();
+      ti.recalculateInterval();
 
       assert(this->printTree());
       continue;
     }
+    */
   }  
 }
 
+
+void Forest::calcRates(Node const* active_node_0, Node const* active_node_1, const TimeInterval &ti) {
+  rates_[0] = 0.0;
+  rates_[1] = 0.0;
+  rates_[2] = 0.0;
+
+  // Set rate of first node
+  if (states_[0] == 1) {
+    rates_[0] += model().total_migration_rate(active_node_0->population());
+    if (model().growth_rate(active_node_0->population()) == 0.0) 
+      rates_[0] += calcCoalescenceRate(active_node_0->population(), ti); 
+    else rates_[1] += calcCoalescenceRate(active_node_0->population(), ti);
+  }
+  else if (states_[0] == 2) {
+    rates_[0] += calcRecombinationRate(active_node_0);
+  }
+
+  // The second node is a bit more complicated 
+  if (states_[1] == 1) {
+    rates_[0] += model().total_migration_rate(active_node_1->population());
+    if (model().growth_rate(active_node_1->population()) == 0.0) {
+      // No Growth => Normal time
+      rates_[0] += calcCoalescenceRate(active_node_1->population(), ti);
+      
+      if (states_[0] == 1 && active_node_0->population() == active_node_1->population()) { 
+       // Also add rates for pw coalescence
+       rates_[0] += calcPwCoalescenceRate(active_node_1->population()); 
+      }
+    }
+    else {
+      // Growth => we need a exponential time
+      if (states_[0] == 1 && active_node_0->population() == active_node_1->population()) {
+        // We can use the timeline of the first node
+        rates_[1] += calcCoalescenceRate(active_node_1->population(), ti);
+        // And must add pw coalescence again
+        rates_[1] += calcPwCoalescenceRate(active_node_1->population()); 
+      } 
+      else {
+        // We need our own timeline (We are ignoring that both populations could
+        // have equal growth rates at the moment...)
+        rates_[2] += calcCoalescenceRate(active_node_1->population(), ti);
+      }
+    }
+  }
+  else if (states_[1] == 2) {
+    rates_[0] += calcRecombinationRate(active_node_1);
+  }
+}  
+
+
+void Forest::sampleEvent(Node const* active_node_0, Node const* active_node_1, const TimeInterval &ti) {
+  double current_time;
+  if (rates_[0] != 0) current_time = this->random_generator()->sampleExpoLimit(rates_[0], ti.length());
+  std::cout << "event at " << current_time << std::endl;
+}
 
 /**
  *  Function to determine the state of (the branch above) a node for an ongoing
@@ -550,6 +599,11 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   dout << "Node root: " << node->is_root() << std::endl;
   assert( false );
   return(0);
+}
+
+
+double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+    return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
 }
 
 
@@ -691,46 +745,6 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
   }
   return node;
 }
-
-
-/** 
- * Calculates the rate of an event occurring above a node in an time interval.
- *
- * In case both nodes are coalescing, it splits the rate of pair wise
- * coalescence equally on both nodes.
- *
- * \param node The node for which we calculation the rate.
- * \param state The state of 'node'
- * \param other_state The state of the other active node
- * \param ti The current time interval
- *
- * \returns The rate.
- */
-double Forest::calcRate(Node const* node, 
-                        Node const* other_node,
-                        const int &state, 
-                        const int &other_state, 
-                        const TimeInterval &ti) const {
-  // Node is off
-  if (state == 0) return 0;
-  size_t pop = node->population();
-
-  // Coalescence
-  if (state == 1 && other_state != 1)
-    return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
-  if (state == 1 && other_state == 1) {
-    return ( ti.numberOfContemporaries(pop) + 0.5 * (node->population() == other_node->population()) ) 
-            / ( 2.0 * this->model().population_size(pop) );
-  }
-
-  // Recombination
-  if (state == 2)
-    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
-
-  throw std::logic_error("Error calculating rates");
-}
-
-
 
 
 /**
