@@ -88,6 +88,7 @@ class Model
    
    double migration_rate(const size_t &sink, const size_t &source) const {
      if (current_mig_rates_ == NULL) return default_mig_rate;
+     if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 

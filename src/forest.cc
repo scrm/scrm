@@ -622,7 +622,7 @@ Event Forest::sampleEventType(const double &time, const size_t &time_line, const
   for (size_t i = 0; i < 2; ++i) {
     // Only Nodes in state 1 or 2 on the right timeline can do something
     if ( states_[i] == 0 ) continue;
-    if ( nodes_timelines_[0] != time_line ) continue;
+    if ( nodes_timelines_[i] != time_line ) continue;
 
     // Coalescence can occur on all time lines  
     if (states_[i] == 1) {
@@ -634,27 +634,30 @@ Event Forest::sampleEventType(const double &time, const size_t &time_line, const
     if (time_line != 0) continue;
 
     // Recombination
-    if (states_[0] == 2) {
+    if (states_[i] == 2) {
       sample -= calcRecombinationRate(active_nodes_[i]);
       if (sample < 0) return event.setToRecombination(active_nodes_[i]);
       continue;
     }
 
     // Migration
-    assert( states_[0] == 1 );
-    if ( sample < model().total_migration_rate(active_nodes_[i]->population()) ) {
+    assert( states_[i] == 1 );
+    if ( sample < model().total_migration_rate(active_node(i)->population()) ) {
       for ( size_t j = 0; j < model().population_number(); ++j) {
-        sample -= model().migration_rate(active_nodes_[i]->population(), j);
-        if ( sample < 0 ) return event.setToMigration(active_nodes_[i], j);
+        sample -= model().migration_rate(active_node(i)->population(), j);
+        if ( sample < 0 ) return event.setToMigration(active_node(i), j);
       } 
       throw std::logic_error("Error Sampling Type of Event");
     }
+    sample -= model().total_migration_rate(active_node(i)->population());
   }
 
   // If we are here, than we should have sampled a pw coalescence...
   assert( states_[0] == 1 && states_[1] == 1 );
   assert( active_nodes_[0]->population() == active_nodes_[1]->population() );
-  assert( sample <= calcPwCoalescenceRate(active_nodes_[0]->population()) );
+  if( sample > calcPwCoalescenceRate(active_nodes_[0]->population()) ) {
+    throw std::logic_error("Rates wrong!");  
+  };
   return event.setToPwCoalescence();
 }
 

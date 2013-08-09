@@ -44,6 +44,7 @@ class Event {
   double time() { return time_; }
   Node* node() { return node_; }
   size_t mig_pop() { return mig_pop_; }
+  size_t type() { return type_; }
 
   bool isNoEvent() { return (type_ == 0); }
   bool isCoalescence() { return (type_ == 1); }
