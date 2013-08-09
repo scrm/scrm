@@ -33,6 +33,13 @@ class Event {
     node_ = NULL;
     mig_pop_ = -1;
   };
+
+  Event(double time) {
+    type_ = 0;
+    time_ = time;
+    node_ = NULL;
+    mig_pop_ = -1;
+  }
   
   double time() { return time_; }
   Node* node() { return node_; }
@@ -46,21 +53,25 @@ class Event {
   
   void set_time(const double &time) { time_ = time; }
 
-  void setToCoalescence(Node* node) {
+  Event setToCoalescence(Node* node) {
     type_  = 1;
     node_ = node;
+    return *this;
   }
-  void setToPwCoalescence() {
+  Event setToPwCoalescence() {
     type_  = 2;
+    return *this;
   }
-  void setToMigration(Node* node, const size_t &mig_pop) {
+  Event setToMigration(Node* node, const size_t &mig_pop) {
     type_  = 3;
     node_ = node;
     mig_pop_ = mig_pop;
+    return *this;
   }
-  void setToRecombination(Node* node) {
+  Event setToRecombination(Node* node) {
     type_  = 4;
     node_ = node;
+    return *this;
   }
 
  private:

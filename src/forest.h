@@ -210,8 +210,11 @@ class Forest
     return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   }
 
-  void calcRates(Node const* active_node_1, Node const* active_node_2, const TimeInterval &ti);
-  void sampleEvent(Node const* active_node_0, Node const* active_node_1, const TimeInterval &ti);
+  void calcRates(const TimeInterval &ti);
+  Event sampleEvent(const TimeInterval &ti);
+  void selectFirstTime(const double &new_time, const size_t &time_line, 
+                             double &current_time, size_t &current_time_line);
+  Event sampleEventType(const double &time, const size_t &time_line, const TimeInterval &ti) const;
 
 
   //Private variables
@@ -249,8 +252,12 @@ class Forest
   // - 1 = potentially coalescing in a time interval or
   // - 2 = potentially recombining in a time interval
   size_t states_[2];
+  size_t nodes_timelines_[2];
+  Node* active_nodes_[2];
+  size_t active_nodes_timelines_[2];
 
-  Node *active_node_0, *active_node_1;
+  Node* active_node(size_t nr) const { return active_nodes_[nr]; };
+  void set_active_node(size_t nr, Node* node) { active_nodes_[nr] = node; };
 };
 
 bool areSame(const double &a, const double &b, 

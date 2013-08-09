@@ -19,6 +19,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCalcRate );
   CPPUNIT_TEST( testIsPrunable );
   CPPUNIT_TEST( testPrune );
+  CPPUNIT_TEST( testSelectFirstTime );
   //CPPUNIT_TEST( testBuildInitialTree );
   //CPPUNIT_TEST( testCoalescenceWithStructure );
   //CPPUNIT_TEST( testGetNodeState );
@@ -79,21 +80,23 @@ class TestForest : public CppUnit::TestCase {
     Node *node1 = new Node(0.1);
     Node *node2 = new Node(0.2);
 
+    forest->set_active_node(0, node1);
+    forest->set_active_node(1, node2);
     forest->states_[0] = 0;
     forest->states_[1] = 0;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
 
     forest->states_[0] = 1;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
     CPPUNIT_ASSERT_EQUAL( 4.0/pop_size, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
 
     forest->states_[1] = 1;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
     CPPUNIT_ASSERT( areSame(9.0/pop_size, forest->rates_[0]) );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
@@ -103,7 +106,7 @@ class TestForest : public CppUnit::TestCase {
     node1->set_population(1);
     forest->nodes()->at(1)->set_population(1);
     TimeIntervalIterator tii2(forest, forest->nodes()->at(0));
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii2) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii2) );
     // Only node2 can coalescence
     CPPUNIT_ASSERT( areSame(4.0/pop_size, forest->rates_[0]) );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
@@ -116,13 +119,13 @@ class TestForest : public CppUnit::TestCase {
     forest->writable_model()->addGrowthRates(1, growth);
     TimeIntervalIterator tii3(forest, forest->nodes()->at(0));
 
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii3) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
     CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
     
     ++tii;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(node1, node2, *tii3) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
     CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[2] );   
@@ -138,6 +141,30 @@ class TestForest : public CppUnit::TestCase {
 
   void testPrintTree() {
     CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
+  }
+
+  void testSelectFirstTime() {
+    double current_time = -1.0;
+    size_t time_line = -1;
+
+    forest->selectFirstTime(-1, 1, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( -1.0, current_time );
+    
+    forest->selectFirstTime(5.0, 1, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(7.0, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(-1, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(4.0, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 4.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, time_line );
   }
 
   void testIsPrunable() {
