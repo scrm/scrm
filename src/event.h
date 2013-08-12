@@ -54,25 +54,21 @@ class Event {
   
   void set_time(const double &time) { time_ = time; }
 
-  Event setToCoalescence(Node* node) {
+  void setToCoalescence(Node* node) {
     type_  = 1;
     node_ = node;
-    return *this;
   }
-  Event setToPwCoalescence() {
+  void setToPwCoalescence() {
     type_  = 2;
-    return *this;
   }
-  Event setToMigration(Node* node, const size_t &mig_pop) {
+  void setToMigration(Node* node, const size_t &mig_pop) {
     type_  = 3;
     node_ = node;
     mig_pop_ = mig_pop;
-    return *this;
   }
-  Event setToRecombination(Node* node) {
+  void setToRecombination(Node* node) {
     type_  = 4;
     node_ = node;
-    return *this;
   }
 
  private:

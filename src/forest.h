@@ -211,10 +211,22 @@ class Forest
   }
 
   void calcRates(const TimeInterval &ti);
-  Event sampleEvent(const TimeInterval &ti);
+
+  void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
+                   size_t tmp_event_line, Event &return_event) const;
+
+  void sampleEventType(const double &time, const size_t &time_line, 
+                        const TimeInterval &ti, Event &return_event) const;
+
   void selectFirstTime(const double &new_time, const size_t &time_line, 
-                             double &current_time, size_t &current_time_line);
-  Event sampleEventType(const double &time, const size_t &time_line, const TimeInterval &ti) const;
+                             double &current_time, size_t &current_time_line) const;
+
+  double getTimeLineGrowth(const size_t &time_line) const {
+    if (time_line == 0) return 0.0;
+    else if (time_line == 1) return model().growth_rate(active_node(0)->population());
+    else if (time_line == 2) return model().growth_rate(active_node(1)->population());
+    else throw std::out_of_range("Trying to get growthrate of unknown time line.");
+  }
 
 
   //Private variables
@@ -252,9 +264,11 @@ class Forest
   // - 1 = potentially coalescing in a time interval or
   // - 2 = potentially recombining in a time interval
   size_t states_[2];
-  size_t nodes_timelines_[2];
   Node* active_nodes_[2];
   size_t active_nodes_timelines_[2];
+  Event  tmp_event_;
+  size_t tmp_event_line_;
+  double tmp_event_time_;
 
   Node* active_node(size_t nr) const { return active_nodes_[nr]; };
   void set_active_node(size_t nr, Node* node) { active_nodes_[nr] = node; };
