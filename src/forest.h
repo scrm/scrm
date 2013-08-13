@@ -66,6 +66,7 @@
 #include "random/mersenne_twister.h"
 
 class TimeInterval;
+class TimeIntervalIterator;
 
 class Forest
 {
@@ -190,8 +191,10 @@ class Forest
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
  
   // Implementation of the different events
-  Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);
-  void  implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  void implementCoalescence(const Event &event, const TimeInterval &ti);
+  void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  void implementRecombination(const Event &event, TimeIntervalIterator &tii);
+  void implementMigration(const Event &event, TimeIntervalIterator &tii);
 
   // Pruning
   bool isPrunable(Node const* node) const;

@@ -23,6 +23,7 @@
 #ifndef scrm_src_event
 #define scrm_src_event
 
+#include <iostream>
 #include "node.h"
 
 class Event {
@@ -30,7 +31,8 @@ class Event {
   Event() {
     type_  = 0;
     time_  = -1;
-    node_ = NULL;
+    node_  = NULL;
+    active_node_nr_ = -1;
     mig_pop_ = -1;
   };
 
@@ -39,44 +41,66 @@ class Event {
     time_ = time;
     node_ = NULL;
     mig_pop_ = -1;
+    active_node_nr_ = -1;
   }
   
-  double time() { return time_; }
-  Node* node() { return node_; }
-  size_t mig_pop() { return mig_pop_; }
-  size_t type() { return type_; }
+  friend std::ostream& operator<< (std::ostream& stream, const Event& event);
 
-  bool isNoEvent() { return (type_ == 0); }
-  bool isCoalescence() { return (type_ == 1); }
-  bool isPwCoalescence() { return (type_ == 2); }
-  bool isMigration() { return (type_ == 3); }
-  bool isRecombination() { return (type_ == 4); }
+  double time() const { return time_; }
+  Node* node() const { return node_; }
+  size_t mig_pop() const { return mig_pop_; }
+  size_t type() const { return type_; }
+  size_t active_node_nr() const { return active_node_nr_; }
+
+  bool isNoEvent() const { return (type_ == 0); }
+  bool isCoalescence() const { return (type_ == 1); }
+  bool isPwCoalescence() const { return (type_ == 2); }
+  bool isMigration() const { return (type_ == 3); }
+  bool isRecombination() const { return (type_ == 4); }
   
   void set_time(const double &time) { time_ = time; }
 
-  void setToCoalescence(Node* node) {
+  void setToCoalescence(Node *node, const size_t &active_node_nr) {
     type_  = 1;
-    node_ = node;
+    node_  = node;
+    active_node_nr_ = active_node_nr;
   }
   void setToPwCoalescence() {
     type_  = 2;
   }
-  void setToMigration(Node* node, const size_t &mig_pop) {
+  void setToMigration(Node *node, const size_t &active_node_nr, const size_t &mig_pop) {
     type_  = 3;
-    node_ = node;
+    node_  = node;
+    active_node_nr_ = active_node_nr;
     mig_pop_ = mig_pop;
   }
-  void setToRecombination(Node* node) {
+  void setToRecombination(Node *node, const size_t &active_node_nr) {
     type_  = 4;
-    node_ = node;
+    node_  = node;
+    active_node_nr_ = active_node_nr;
   }
 
  private:
   size_t type_;
+  size_t active_node_nr_;
   double time_;
-  Node* node_;
   size_t mig_pop_;
+  Node* node_;
 };
 
+inline std::ostream& operator<< (std::ostream& stream, const Event& event) {
+  if (event.isNoEvent()) {
+    stream << "No Event";
+    return stream;
+  }
+
+  stream << "Event at time " << event.time() << ": ";
+  if (event.isCoalescence()) stream << "Coalesence of Node " << event.node();
+  else if (event.isPwCoalescence()) stream << "Pair-wise coalescence";
+  else if (event.isMigration()) stream << "Migration of Node " << event.node() 
+                                        << " into pop " << event.mig_pop();
+  else if (event.isRecombination()) stream << "Recombination of Node " << event.node();
+  return stream;
+};
 
 #endif
