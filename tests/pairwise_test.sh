@@ -27,8 +27,6 @@ dev.off()
 
 for r in "${msr[@]}"
 	do
-	#for nsam in "${msNsample[@]}"
-		#do
 		prefix=${nsam}sample${r}rho${t}theta
 		out=${prefix}out
 		segrecomb=${prefix}segRecomb
