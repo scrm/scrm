@@ -120,6 +120,7 @@ class Node
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
+  bool is_migrating() const; 
 
   bool is_first() const { return( previous_ == NULL ); }
   bool is_last() const { return( next_ == NULL ); }
@@ -183,4 +184,9 @@ class Node
 
 Node * tracking_local_node(Node * node);
 std::string writeTree_new(Node * node, int npop);
+
+inline bool Node::is_migrating() const { 
+  if ( this->numberOfChildren() != 1 ) return false;
+  return ( this->population() != this->first_child()->population() );
+} 
 #endif

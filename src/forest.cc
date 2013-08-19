@@ -220,9 +220,9 @@ void Forest::buildInitialTree() {
     //Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_leaf, false);
     dout << "* * Tree:" << std::endl;
-    assert(this->printTree());
     assert(this->printNodes());
     assert(this->checkTree());
+    assert(this->printTree());
   }
   this->set_next_base();
   //writeTree(this->local_root(),this->model_->population_size(), 0.0);
@@ -306,47 +306,47 @@ else
 
 
 /** 
-* Function to modify the tree after we encountered a recombination on the
-* sequence. Also samples a place for this recombination on the tree, marks the
-* branch above as non-local (and updates invariants) if needed, cuts the
-* subtree below away and starts a coalescence from it's root.
-*/
+ * Function to modify the tree after we encountered a recombination on the
+ * sequence. Also samples a place for this recombination on the tree, marks the
+ * branch above as non-local (and updates invariants) if needed, cuts the
+ * subtree below away and starts a coalescence from it's root.
+ */
 void Forest::sampleNextGenealogy() {
-this->set_current_base(next_base_);
-dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
-dout << "Sequence position: " << this->current_base() << std::endl;
+  this->set_current_base(next_base_);
+  dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
+  dout << "Sequence position: " << this->current_base() << std::endl;
 
-// Check if we prune while building the genealogy
-pruning_ = false;
-if ( model().exact_window_length() != 0 && current_base() >= model().exact_window_length() ) {
-  if (prune_countdown_ == 0) {
-    prune_countdown_ = model().prune_interval();
-    pruning_ = true;
+  // Check if we prune while building the genealogy
+  pruning_ = false;
+  if ( model().exact_window_length() != 0 && current_base() >= model().exact_window_length() ) {
+    if (prune_countdown_ == 0) {
+      prune_countdown_ = model().prune_interval();
+      pruning_ = true;
+    }
+    --prune_countdown_;
   }
-  --prune_countdown_;
-}
-if (pruning_) dout << "We will prune the tree this time" << std::endl;
+  if (pruning_) dout << "We will prune the tree this time" << std::endl;
 
-// Sample the recombination point
-TreePoint rec_point = this->samplePoint();
+  // Sample the recombination point
+  TreePoint rec_point = this->samplePoint();
 
-dout << "* Recombination at height " << rec_point.height() << " ";
-dout << "(above " << rec_point.base_node() << ")"<< std::endl;
+  dout << "* Recombination at height " << rec_point.height() << " ";
+  dout << "(above " << rec_point.base_node() << ")"<< std::endl;
 
-dout << "* Cutting subtree below recombination " << std::endl;
-this->cut(rec_point);
+  dout << "* Cutting subtree below recombination " << std::endl;
+  this->cut(rec_point);
 
-assert( rec_point.base_node()->local() );
-assert(this->printTree());
+  assert( rec_point.base_node()->local() );
+  assert(this->printTree());
 
-dout << "* Starting coalescence" << std::endl;
-this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
+  dout << "* Starting coalescence" << std::endl;
+  this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-assert(this->printTree());
-assert(this->printNodes());
-assert(this->checkTree());
-this->set_next_base();
-//writeTree(this->local_root(),this->model_->population_size(),0);
+  assert(this->printTree());
+  assert(this->printNodes());
+  assert(this->checkTree());
+  this->set_next_base();
+  //writeTree(this->local_root(),this->model_->population_size(),0);
 }
 
 
@@ -365,11 +365,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
   // Placeholders for the rates at which things happen for the active nodes
 
-  Node **event_node, **other_node;
-  size_t event_state, other_state;
-  TreePoint event_point;
-  
   tmp_event_ = Event(-1);
+  coalescence_finished_ = false;
 
   // If the start_node is above the local tree, then we start with coalescence
   // of the local root
@@ -441,105 +438,67 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     }
 
     else if ( tmp_event_.isCoalescence() ) {
-      this->implementCoalescence(tmp_event_, *ti);
-      assert( 0 );
-
-    /*
-      // If the other node was looking for a recombination, we must ensure that
-      // the branch below the event get marked as updated.
-      if ( states_[1-tmp_event_.active_node_nr] == 2 ) {
-        // If the coalescing node coalesced into the branch directly above 
-        // the recombining node, then we are done.
-        if ( (*other_node)->parent() == *event_node ) {
-          (*other_node)->set_last_update(this->current_base());
-          dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
-          updateAbove(*other_node, false, false);
-          updateAbove((*other_node)->parent());
-          return;
-        }
-      }
-
-      // Check if are can stop.
-      if ( (*event_node)->local() ) {
-        // Only one node should be active if there are still local nodes at the
-        // current height. Hence we are done if so.
-        assert( other_state == 0 );
-
-        dout << "* * * We hit the local tree. Done." << std::endl;
-        updateAbove(*event_node); 
-        return;
-      }
-
-      if (active_node(0) == active_node(1)) {
-        dout << "* * * Coalescend into other Active Node. Done." << std::endl;
-        updateAbove(*event_node); 
-        return;
-      }
-
-      // If we hit an non-local branch:
-      // Begin next interval at the coalescence height and remove the branch
-      // below from contemporaries.
-      ti.splitCurrentInterval(*event_node, event_point.base_node());
+      this->implementCoalescence(tmp_event_, ti);
+      if (coalescence_finished_) return;
       assert(this->printTree());
-    */
     }
   }
 }  
 
 
 void Forest::calcRates(const TimeInterval &ti) {
-rates_[0] = 0.0;
-rates_[1] = 0.0;
-rates_[2] = 0.0;
-active_nodes_timelines_[0] = 0;
-active_nodes_timelines_[1] = 0;
+  rates_[0] = 0.0;
+  rates_[1] = 0.0;
+  rates_[2] = 0.0;
+  active_nodes_timelines_[0] = 0;
+  active_nodes_timelines_[1] = 0;
 
-// Set rate of first node
-if (states_[0] == 1) {
-  rates_[0] += model().total_migration_rate(active_node(0)->population());
-  if (model().growth_rate(active_node(0)->population()) == 0.0) 
-    rates_[0] += calcCoalescenceRate(active_node(0)->population(), ti); 
-  else {
-    rates_[1] += calcCoalescenceRate(active_node(0)->population(), ti);
-    active_nodes_timelines_[0] = 1;
-  }
-}
-else if (states_[0] == 2) {
-  rates_[0] += calcRecombinationRate(active_node(0));
-}
-
-// The second node is a bit more complicated 
-if (states_[1] == 1) {
-  rates_[0] += model().total_migration_rate(active_node(1)->population());
-  if (model().growth_rate(active_node(1)->population()) == 0.0) {
-    // No Growth => Normal time
-    rates_[0] += calcCoalescenceRate(active_node(1)->population(), ti);
-    
-    if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) { 
-     // Also add rates for pw coalescence
-     rates_[0] += calcPwCoalescenceRate(active_node(1)->population()); 
-    }
-  }
-  else {
-    // Growth => we need a exponential time
-    if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) {
-      // We can use the timeline of the first node
-      rates_[1] += calcCoalescenceRate(active_node(1)->population(), ti);
-      // And must add pw coalescence again
-      rates_[1] += calcPwCoalescenceRate(active_node(1)->population()); 
-      active_nodes_timelines_[1] = 1;
-    } 
+  // Set rate of first node
+  if (states_[0] == 1) {
+    rates_[0] += model().total_migration_rate(active_node(0)->population());
+    if (model().growth_rate(active_node(0)->population()) == 0.0) 
+      rates_[0] += calcCoalescenceRate(active_node(0)->population(), ti); 
     else {
-      // We need our own timeline (We are ignoring that both populations could
-      // have equal growth rates at the moment...)
-      rates_[2] += calcCoalescenceRate(active_node(1)->population(), ti);
-      active_nodes_timelines_[1] = 2;
+      rates_[1] += calcCoalescenceRate(active_node(0)->population(), ti);
+      active_nodes_timelines_[0] = 1;
     }
   }
-}
-else if (states_[1] == 2) {
-  rates_[0] += calcRecombinationRate(active_node(1));
-}
+  else if (states_[0] == 2) {
+    rates_[0] += calcRecombinationRate(active_node(0));
+  }
+
+  // The second node is a bit more complicated 
+  if (states_[1] == 1) {
+    rates_[0] += model().total_migration_rate(active_node(1)->population());
+    if (model().growth_rate(active_node(1)->population()) == 0.0) {
+      // No Growth => Normal time
+      rates_[0] += calcCoalescenceRate(active_node(1)->population(), ti);
+
+      if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) { 
+        // Also add rates for pw coalescence
+        rates_[0] += calcPwCoalescenceRate(active_node(1)->population()); 
+      }
+    }
+    else {
+      // Growth => we need a exponential time
+      if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) {
+        // We can use the timeline of the first node
+        rates_[1] += calcCoalescenceRate(active_node(1)->population(), ti);
+        // And must add pw coalescence again
+        rates_[1] += calcPwCoalescenceRate(active_node(1)->population()); 
+        active_nodes_timelines_[1] = 1;
+      } 
+      else {
+        // We need our own timeline (We are ignoring that both populations could
+        // have equal growth rates at the moment...)
+        rates_[2] += calcCoalescenceRate(active_node(1)->population(), ti);
+        active_nodes_timelines_[1] = 2;
+      }
+    }
+  }
+  else if (states_[1] == 2) {
+    rates_[0] += calcRecombinationRate(active_node(1));
+  }
 }  
 
 
@@ -558,12 +517,19 @@ void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time,
   tmp_event_time = -1;
   tmp_event_line = -1;
 
+  // Sample on which time and time line the event happens (if any)
   for (size_t i = 0; i < 3; ++i) {
     if (rates_[i] == 0.0) continue;
     selectFirstTime(random_generator()->sampleExpoExpoLimit(rates_[i], getTimeLineGrowth(i), ti.length()), 
                     i, tmp_event_time, tmp_event_line );
   }
 
+  // Correct the time from relative to the time interval to absolute 
+  if (tmp_event_time != -1) tmp_event_time += ti.start_height();
+  assert( (tmp_event_time == -1) || 
+          (ti.start_height() < tmp_event_time && tmp_event_time <= ti.end_height()) );
+
+  // Sample the event type
   sampleEventType(tmp_event_time, tmp_event_line, ti, return_event);
 }
 
@@ -695,12 +661,13 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  *
  * \return The new node at the point of coalescence.
  */
-void Forest::implementCoalescence(const Event &event, const TimeInterval &ti) {
+void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii) {
   // Coalescence: sample target point and implement the coalescence
-  Node* target = ti.getRandomContemporary();
+  Node* target = (*tii).getRandomContemporary();
   Node* coal_node = event.node();
 
   dout << "* * * Above node " << target << std::endl;
+  assert( target->height() < event.time() ); 
 
   Node* new_node;
 
@@ -715,6 +682,7 @@ void Forest::implementCoalescence(const Event &event, const TimeInterval &ti) {
     coal_node->set_parent(new_node);
     nodes()->add(new_node);
   }
+  dout << "1" << std::endl;
 
   // Now we have:
   // target = Node in the target tree under the coalescence
@@ -732,6 +700,7 @@ void Forest::implementCoalescence(const Event &event, const TimeInterval &ti) {
   } else {
     new_node->set_local(true);
   }
+  dout << "2" << std::endl;
 
   // Integrate it into the tree
   target->set_parent(new_node);
@@ -744,7 +713,54 @@ void Forest::implementCoalescence(const Event &event, const TimeInterval &ti) {
   // unimplemented recombinations above
 
   set_active_node(event.active_node_nr(), new_node);
+  dout << "3" << std::endl;
+
+  // If the other node was looking for a recombination, we must ensure that 
+  // the branch below the event gets marked as updated.
+  if ( getOtherNodesState() == 2 ) {
+    // If the coalescing node coalesced into the branch directly above 
+    // the recombining node, then we are done.
+    if ( getOtherNode()->parent() == getEventNode() ) {
+      getOtherNode()->set_last_update(this->current_base());
+      dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
+      updateAbove(getOtherNode(), false, false);
+      updateAbove(getOtherNode()->parent());
+      coalescence_finished_ = true;
+      return;
+    }
+
+    // XXX: Is there missing something here?
+  }
+  dout << "4" << std::endl;
+
+  // Check if are can stop.
+  if ( getEventNode()->local() ) {
+    // Only one node should be active if there are still local nodes at the
+    // current height. Hence we are done if so.
+    assert( getOtherNodesState() == 0 );
+
+    dout << "* * * We hit the local tree. Done." << std::endl;
+    updateAbove(getEventNode()); 
+    coalescence_finished_ = true;
+    return;
+  }
+  dout << "5" << std::endl;
+
+  if (active_node(0) == active_node(1)) {
+    dout << "* * * Coalescend into other Active Node. Done." << std::endl;
+    updateAbove(getEventNode()); 
+    coalescence_finished_ = true;
+    return;
+  }
+
+  dout << "6" << std::endl;
+  // If we hit an non-local branch:
+  // Begin next interval at the coalescence height and remove the branch
+  // below from contemporaries.
+  tii.splitCurrentInterval(getEventNode(), target);
+  dout << "7" << std::endl;
 }
+
 
 
 /** 

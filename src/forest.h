@@ -191,7 +191,7 @@ class Forest
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
  
   // Implementation of the different events
-  void implementCoalescence(const Event &event, const TimeInterval &ti);
+  void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
   void implementMigration(const Event &event, TimeIntervalIterator &tii);
@@ -268,13 +268,21 @@ class Forest
   // - 2 = potentially recombining in a time interval
   size_t states_[2];
   Node* active_nodes_[2];
-  size_t active_nodes_timelines_[2];
   Event  tmp_event_;
   size_t tmp_event_line_;
   double tmp_event_time_;
 
+  // These are pointers to the up to two active nodes during a coalescence
+  size_t active_nodes_timelines_[2];
   Node* active_node(size_t nr) const { return active_nodes_[nr]; };
   void set_active_node(size_t nr, Node* node) { active_nodes_[nr] = node; };
+
+  Node* getEventNode() const { return active_node(tmp_event_.active_node_nr()); }
+  size_t getEventNodesState() const { return states_[tmp_event_.active_node_nr()]; };
+  Node* getOtherNode() const { return active_node(1-tmp_event_.active_node_nr()); };
+  size_t getOtherNodesState() const { return states_[1-tmp_event_.active_node_nr()]; };
+
+  bool coalescence_finished_;
 };
 
 bool areSame(const double &a, const double &b, 

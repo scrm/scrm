@@ -226,6 +226,10 @@ bool Forest::checkTree(Node const* root) const {
       dout << h_child << ": is child of non-parent" << std::endl;
       return 0;
     }
+    if (h_child->height() > root->height()) {
+      dout << root << ": has child with greater height" << std::endl;
+      return 0;
+    }
     child1 = checkTree(h_child);
   }
 
@@ -236,6 +240,11 @@ bool Forest::checkTree(Node const* root) const {
       return 0;
     }
     child2 = checkTree(l_child);
+
+    if (l_child->height() > root->height()) {
+      dout << root << ": has child with greater height" << std::endl;
+      return 0;
+    }
   }
 
   return child1*child2;
