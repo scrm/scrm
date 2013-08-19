@@ -1,0 +1,71 @@
+Testing files for comparing statistics between ms output and scrm ouput
+
+WITHOUT RECOMBINATION
+	
+	##############################################
+	Compare TMRCA
+		./ms_vs_scrm-tmrca.sh
+	
+	Output file:
+		test-tmrca/compareTMRCA
+		test-tmrca/*.pdf
+		
+	##############################################
+	Compare total branch length
+		./ms_vs_scrm-bl.sh
+	
+	Output file:
+		test-bl/compareBL
+		test-bl/*.pdf
+	
+	##############################################
+	Compare number of segregating sites (mutations)
+	./ms_vs_scrm-seg.sh 
+	
+	
+	##############################################
+	Compare spectrum
+	
+
+
+
+WITH RECOMBINATION
+
+	
+	##############################################
+	Compare TMRCA
+	
+	
+	##############################################
+	Compare total branch length
+	
+	##############################################
+	Compare number of segregating sites (mutations)
+	./ms_vs_scrm-seg_wit_recomb.sh 
+	
+	##############################################
+	Compare spectrum
+	
+	
+	
+RECOMBINATION ONLY
+	
+	##############################################
+	Compare number of recombination
+	./ms_vs_scrm-recomb.sh
+	
+	
+	
+	##############################################
+	Compare LD
+	
+	##############################################
+	Pairwise differences, see Excoffier and Foll 2011, Supplementary information. 
+!!! Need to test for the two island model
+	./pairwise_test.sh
+	
+	
+	
+	
+
+
