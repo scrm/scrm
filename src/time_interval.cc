@@ -305,10 +305,16 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
 // Used after one or more nodes where created inside the interval due to events
 // occurring within.
 void TimeIntervalIterator::recalculateInterval() {
-  // Set node iterator back to the node at the current start_height
-  while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;
-  // Than go to the next node
-  ++node_iterator_;
+  if (!node_iterator_.good()) {
+    node_iterator_ = NodeIterator(forest_->nodes()->last());
+  } 
+  else {
+    // Set node iterator back to the node at the current start_height
+    while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;
+    ++node_iterator_;
+  }
+
+  // Then go to the next node
   current_interval_.end_height_ = (*node_iterator_)->height();
   current_time_ = (*node_iterator_)->height();
 }

@@ -18,7 +18,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST( testSplitIntervall );
   CPPUNIT_TEST( testGetIthContemporary );
   CPPUNIT_TEST( testSampleContemporary );
-//  CPPUNIT_TEST( testRecalculateTI );
+  CPPUNIT_TEST( testRecalculateTI );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -251,6 +251,15 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
+
+    // Test if we can change the final interval
+    while ( (*it).end_height() < 1000 ) ++it;
+    forest->nodes()->add(new Node(1000));
+    it.recalculateInterval();
+    CPPUNIT_ASSERT( (*it).end_height() == 1000 ); 
+    CPPUNIT_ASSERT_NO_THROW( ++it );
+    CPPUNIT_ASSERT( (*it).start_height() == 1000 ); 
+    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX ); 
   }
 };
 

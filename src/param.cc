@@ -120,6 +120,18 @@ Model* Param::parse() {
       model->addSampleSizes(time, sample_size);
     }
 
+    else if (argv_i == "-ma") {
+      std::vector<double> migration_rates;
+      for (size_t i = 0; i < model->population_number(); ++i) {
+        for (size_t j = 0; j < model->population_number(); ++j) {
+          nextArg(argv_i);
+          if (i==j) migration_rates.push_back(0.0);
+          else migration_rates.push_back(readInput<double>(argv_[argc_i])/model->default_pop_size);
+        }
+      }
+      model->addMigrationRates(0.0, migration_rates);
+    }
+
     else if (argv_i == "-eN") {
       nextArg(argv_i);
       time = readInput<double>(argv_[argc_i]);
@@ -128,8 +140,6 @@ Model* Param::parse() {
                                     readInput<double>(argv_[argc_i]));
       model->addRelativePopulationSizes(time, pop_sizes); 
     }
-
-    /*! \bug What does the option -l do?  ms doesn't seem to have it. */
 
     else if (argv_i == "-l"){
       nextArg(argv_i);
@@ -181,11 +191,8 @@ Model* Param::parse() {
     }
     */
 
-    argc_i++;
+    ++argc_i;
   }
-
-  //std::cout << model << std::endl;
-
 
   if (model->sample_size() == 0) {
     //std::cout << "adding samples" << std::endl;

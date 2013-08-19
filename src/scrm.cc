@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
           forest->sampleNextGenealogy();
 
           // Sample and store segregating sites data
-          seg_data_array->append_new_seg_data(forest);
+          // seg_data_array->append_new_seg_data(forest);
 
           // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool) {
@@ -137,7 +137,7 @@ int main(int argc, char *argv[]){
         *output << tree_buffer.str();
       }
 
-      *output << *seg_data_array;
+      //*output << *seg_data_array;
 
       delete seg_data_array;
       delete forest;

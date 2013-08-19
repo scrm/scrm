@@ -53,6 +53,7 @@
 #include <cfloat>
 #include <cassert>
 #include <boost/assign/std/vector.hpp>
+#include <ostream>
 
 #include "node.h"
 #include "event.h"

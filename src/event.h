@@ -95,7 +95,8 @@ inline std::ostream& operator<< (std::ostream& stream, const Event& event) {
   }
 
   stream << "Event at time " << event.time() << ": ";
-  if (event.isCoalescence()) stream << "Coalesence of Node " << event.node();
+  if (event.isCoalescence()) stream << "Coalesence of Node " << event.node()
+    << "(" << event.node()->population() << ")";
   else if (event.isPwCoalescence()) stream << "Pair-wise coalescence";
   else if (event.isMigration()) stream << "Migration of Node " << event.node() 
                                         << " into pop " << event.mig_pop();

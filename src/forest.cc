@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-
+ 
 #include "forest.h"
 
 /******************************************************************
@@ -222,6 +222,7 @@ void Forest::buildInitialTree() {
     dout << "* * Tree:" << std::endl;
     assert(this->printNodes());
     assert(this->checkTree());
+    assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
   }
   this->set_next_base();
@@ -343,6 +344,7 @@ void Forest::sampleNextGenealogy() {
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
   assert(this->printTree());
+  assert(this->checkLeafsOnLocalTree());
   assert(this->printNodes());
   assert(this->checkTree());
   this->set_next_base();
@@ -385,7 +387,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     calcRates(*ti);
 
     dout << "* * * Active Nodes: 0:" << active_node(0) << ":" << states_[0]
-        << " 1:" << active_node(1) << ":" << states_[1] << std::endl
+        << "(" << active_node(0)->population() << ")" 
+        << " 1:" << active_node(1) << ":" << states_[1] 
+        << "(" << active_node(1)->population() << ")" << std::endl
         << "* * * Total Rates: " << rates_[0] << " " 
         << rates_[1] << " " << rates_[2] << std::endl;
 
@@ -663,16 +667,18 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  */
 void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii) {
   // Coalescence: sample target point and implement the coalescence
-  Node* target = (*tii).getRandomContemporary();
   Node* coal_node = event.node();
+  Node* target = (*tii).getRandomContemporary(coal_node->population());
 
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
+  std::cout << coal_node->population() << " " << target->population() << std::endl;
+  assert( coal_node->population() == target->population() );
 
   Node* new_node;
 
   // Look if we can reuse the root that coalesced as new node
-  if ( coal_node->numberOfChildren() == 1 ){
+  if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
     new_node = coal_node;
     coal_node = coal_node->first_child();
     nodes()->move(new_node, event.time());
@@ -682,7 +688,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     coal_node->set_parent(new_node);
     nodes()->add(new_node);
   }
-  dout << "1" << std::endl;
 
   // Now we have:
   // target = Node in the target tree under the coalescence
@@ -690,7 +695,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   // new_node =   New parent of both other nodes
 
   // Update new_node
-  assert( target->population() == coal_node->population() );
   new_node->set_population(coal_node->population());
   new_node->change_child(NULL, target);
   new_node->set_parent(target->parent());
@@ -700,7 +704,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   } else {
     new_node->set_local(true);
   }
-  dout << "2" << std::endl;
 
   // Integrate it into the tree
   target->set_parent(new_node);
@@ -713,7 +716,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   // unimplemented recombinations above
 
   set_active_node(event.active_node_nr(), new_node);
-  dout << "3" << std::endl;
 
   // If the other node was looking for a recombination, we must ensure that 
   // the branch below the event gets marked as updated.
@@ -731,7 +733,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
     // XXX: Is there missing something here?
   }
-  dout << "4" << std::endl;
 
   // Check if are can stop.
   if ( getEventNode()->local() ) {
@@ -744,7 +745,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     coalescence_finished_ = true;
     return;
   }
-  dout << "5" << std::endl;
 
   if (active_node(0) == active_node(1)) {
     dout << "* * * Coalescend into other Active Node. Done." << std::endl;
@@ -753,12 +753,10 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     return;
   }
 
-  dout << "6" << std::endl;
   // If we hit an non-local branch:
   // Begin next interval at the coalescence height and remove the branch
   // below from contemporaries.
   tii.splitCurrentInterval(getEventNode(), target);
-  dout << "7" << std::endl;
 }
 
 
@@ -775,12 +773,14 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   dout << "* * Both nodes coalesced together" << std::endl;
   dout << "* * Implementing..." << std::flush;
   Node* new_root = NULL;
+  assert( root_1 != NULL );
+  assert( root_2 != NULL );
   assert( root_1->population() == root_2->population() );
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
-  if (root_1->numberOfChildren() == 1) {
-    if (root_2->numberOfChildren() == 1) {
+  if (root_1->numberOfChildren() == 1 && !root_1->is_migrating()) {
+    if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
       // both trees have a single branch => delete one
       root_2 = root_2->first_child();
       this->nodes()->remove(root_2->parent());
@@ -792,7 +792,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
     root_1 = root_1->first_child();
     assert( root_1 != NULL );
   } 
-  else if (root_2->numberOfChildren() == 1) {
+  else if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
@@ -829,7 +829,28 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
 
 
 void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
-  throw std::logic_error("NOT YET IMPLEMENTED");
+  dout << "* * Implementing migration event... " << std::flush;
+  // Create a new node the marks the migration event
+  Node* mig_node = new Node(event.time(), true);
+  mig_node->set_population(event.mig_pop());
+
+  // Integrate it into the tree
+  nodes()->add(mig_node, event.node());
+  mig_node->set_parent(event.node()->parent());
+  mig_node->set_first_child(event.node());
+
+  if (event.node()->parent() != NULL)
+    event.node()->parent()->change_child(event.node(), mig_node);
+  event.node()->set_parent(mig_node);
+
+  dout << "Marker: " << mig_node << "... " << std::flush; 
+  updateAbove(event.node(), false, false);
+  updateAbove(mig_node);
+  assert(mig_node->is_migrating());
+
+  this->set_active_node(event.active_node_nr(), mig_node);
+  ti.recalculateInterval();
+  dout << "done." << std::endl;
 }
 
 

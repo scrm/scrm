@@ -208,7 +208,6 @@ bool Forest::checkTree(Node const* root) const {
 
     assert( this->checkInvariants() );
     assert( this->checkNodeProperties() );
-    assert( this->checkLeafsOnLocalTree() );
     return good;
   }
   assert( root != NULL);
@@ -228,6 +227,14 @@ bool Forest::checkTree(Node const* root) const {
     }
     if (h_child->height() > root->height()) {
       dout << root << ": has child with greater height" << std::endl;
+      return 0;
+    }
+    if (h_child->population() != root->population()) {
+      dout << root << ": has child of other population" << std::endl;
+      return 0;
+    }
+    if (l_child->population() != root->population()) {
+      dout << root << ": has child of other population" << std::endl;
       return 0;
     }
     child1 = checkTree(h_child);
@@ -319,7 +326,9 @@ bool Forest::printTree() {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
         if ((*position)->label() != 0) dout << (*position)->label() << ":";
-        dout << *position << "(" << (*position)->population() << ") ";
+        if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
+        else dout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
       }
     }
     dout << std::endl;
