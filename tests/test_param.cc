@@ -67,6 +67,14 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model->population_size(1), (size_t)(0.75*model->default_pop_size) );
     CPPUNIT_ASSERT_EQUAL( model->population_size(2), (size_t)(0.75*model->default_pop_size) );
     delete model;
+
+    char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-ma", "x", "5", "7", "x" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv6).parse(); );
+    model->resetTime();
+    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(0, 1) );
+    delete model;
   }
 
   void testReadInput() {

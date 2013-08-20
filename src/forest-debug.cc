@@ -208,7 +208,6 @@ bool Forest::checkTree(Node const* root) const {
 
     assert( this->checkInvariants() );
     assert( this->checkNodeProperties() );
-    assert( this->checkLeafsOnLocalTree() );
     return good;
   }
   assert( root != NULL);
@@ -226,6 +225,18 @@ bool Forest::checkTree(Node const* root) const {
       dout << h_child << ": is child of non-parent" << std::endl;
       return 0;
     }
+    if (h_child->height() > root->height()) {
+      dout << root << ": has child with greater height" << std::endl;
+      return 0;
+    }
+    if (h_child->population() != root->population()) {
+      dout << root << ": has child of other population" << std::endl;
+      return 0;
+    }
+    if (l_child->population() != root->population()) {
+      dout << root << ": has child of other population" << std::endl;
+      return 0;
+    }
     child1 = checkTree(h_child);
   }
 
@@ -236,6 +247,11 @@ bool Forest::checkTree(Node const* root) const {
       return 0;
     }
     child2 = checkTree(l_child);
+
+    if (l_child->height() > root->height()) {
+      dout << root << ": has child with greater height" << std::endl;
+      return 0;
+    }
   }
 
   return child1*child2;
@@ -309,7 +325,10 @@ bool Forest::printTree() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        dout << *position << " ";
+        if ((*position)->label() != 0) dout << (*position)->label() << ":";
+        if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
+        else dout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
       }
     }
     dout << std::endl;
@@ -317,9 +336,6 @@ bool Forest::printTree() {
   return true;
 }
 
-/******************************************************************
- * Tree Printing
- *****************************************************************/
 bool Forest::printTree_cout() {
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
@@ -382,7 +398,8 @@ bool Forest::printTree_cout() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        std::cout << *position << " ";
+        if ((*position)->label() != 0) dout << (*position)->label() << ":";
+        std::cout << *position << "(" << (*position)->population() << ") ";
       }
     }
     std::cout << std::endl;
@@ -493,6 +510,7 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::setw(10) << std::right << "h_child";
     dout << std::setw(10) << std::right << "l_child";
     dout << std::setw(6) << std::right << "local";
+    dout << std::setw(6) << std::right << "pop";
     dout << std::setw(6) << std::right << "l_upd";
     dout << std::setw(6) << std::right << "s_bel";
     dout << std::setw(10) << std::right << "l_bel";
@@ -509,11 +527,10 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
-      if ( this->getNodes()->get(i) != getNodes()->last() )
-        dout << std::setw(10) << std::right << this->getNodes()->get(i)->next();
       dout << std::endl;
     }
     dout << "Local Root:    " << this->local_root() << std::endl;

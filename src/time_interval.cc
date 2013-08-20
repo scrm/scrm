@@ -27,45 +27,45 @@
  * -------------------------------------------------------------------*/
 
 TimeInterval::TimeInterval() {
-  this->forest_ = NULL;
+  this->tii_ = NULL;
   this->start_height_ = 0;
   this->end_height_ = 0;
-  this->contemporaries_ = NULL;
 }
 
 
-TimeInterval::TimeInterval(Forest* forest, 
-             double start_height, 
-             double end_height,
-             std::vector<Node*> *contemporaries) {
-
-  assert( contemporaries != NULL );
-  this->forest_ = forest;
+TimeInterval::TimeInterval(TimeIntervalIterator const* tii, double start_height, double end_height){
+  assert( tii != NULL );
+  this->tii_ = tii;
   this->start_height_ = start_height;
   this->end_height_ = end_height;
-  this->contemporaries_ = contemporaries;
 }
 
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
-Node* TimeInterval::getRandomContemporary() const {
-  if ( this->numberOfContemporaries() == 0) 
-    throw std::out_of_range("Error: Sampling from empty contemporaries");
+Node* TimeInterval::getRandomContemporary(size_t population) const {
+  assert( population < forest().model().population_number() );
+  assert( this->numberOfContemporaries(population) > 0 );
 
-  size_t sample = this->forest_->random_generator()->sampleInt(this->numberOfContemporaries());
-  return contemporaries().at(sample);
+  // Sample the position of the Node we return
+  size_t sample = forest().random_generator()->sampleInt(this->numberOfContemporaries(population));
+
+  // Use fast random access if we only have one population 
+  if ( forest().model().population_number() == 1 ) {
+    return contemporaries().at(sample);
+  }
+
+  return getIthContemporaryOfPop(sample, population);
 }
 
 
 // Checks if all nodes in contemporaries are contempoaries.
 // Does not check if their are an nodes missing.
 bool TimeInterval::checkContemporaries() const {
-  //std::cout << "Cont: " << contemporaries_ << std::endl;
-  assert( contemporaries_ != NULL );
-  for (std::vector<Node*>::const_iterator it = contemporaries_->begin(); 
-       it != contemporaries_->end(); ++it) {
+  for (std::vector<Node*>::const_iterator it = contemporaries().begin(); 
+       it != contemporaries().end(); ++it) {
 
+    if ( *it == NULL ) return 0;
     //std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
     if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
       std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
@@ -75,8 +75,27 @@ bool TimeInterval::checkContemporaries() const {
   return 1;
 }
 
+size_t TimeInterval::numberOfContemporaries(size_t pop) const { 
+  return tii_->numberOfContemporaries(pop); 
+}
 
+const std::vector<Node*> &TimeInterval::contemporaries() const { 
+  return tii_->contemporaries(); 
+}
 
+Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t &pop) const {
+  assert( i < numberOfContemporaries(pop) );
+  Node* node = NULL;
+  for (size_t j = 0; j < contemporaries().size(); ++j) {
+    node = contemporaries().at(j);
+    assert( node != NULL );
+    if ( node->population() != pop ) continue;
+    if ( i == 0 ) return node;
+    --i;
+  }
+  throw std::logic_error("Could not find the contemporary node I wanted to sample :(");
+  return NULL;
+}
 
 /* --------------------------------------------------------------------
  * TimeIntervalIterator
@@ -100,6 +119,8 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->pruning_ = pruning;
   this->current_time_ = start_node->height();
   forest->writable_model()->resetTime();
+
+  this->pop_counts_ = std::vector<size_t>(forest->model().population_number(), 0);
   
   this->contemporaries_ = std::vector<Node*>();
   this->contemporaries_.reserve(forest_->sample_size());
@@ -181,10 +202,9 @@ void TimeIntervalIterator::next() {
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == current_time_) return next();
   
-  this->current_interval_ = TimeInterval(this->forest_, 
+  this->current_interval_ = TimeInterval(this, 
                                          start_height, 
-                                         current_time_, 
-                                         &contemporaries_);
+                                         current_time_);
 
   assert( this->current_interval_.checkContemporaries() );  
 }
@@ -211,6 +231,7 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
     //std::cout << *it << " == " << node << " ?" << std::endl;
     if ( *it == node ) {
       contemporaries_.erase(it);
+      pop_counts_.at(node->population()) -= 1;
       return;
     }
   }
@@ -256,7 +277,7 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
   // trees in the forest.
   std::cout << node << " " << current_node << std::endl;
   if (current_node == NULL) {
-    if (contemporaries_.size() > 0) contemporaries_.clear();
+    if (contemporaries().size() > 0) contemporaries_.clear();
     current_node == this->forest_->primary_root();
     assert( current_node != NULL);
     std::cout << "P.root: " << current_node << std::endl;
@@ -284,10 +305,16 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
 // Used after one or more nodes where created inside the interval due to events
 // occurring within.
 void TimeIntervalIterator::recalculateInterval() {
-  // Set node iterator back to the node at the current start_height
-  while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;
-  // Than go to the next node
-  ++node_iterator_;
+  if (!node_iterator_.good()) {
+    node_iterator_ = NodeIterator(forest_->nodes()->last());
+  } 
+  else {
+    // Set node iterator back to the node at the current start_height
+    while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;
+    ++node_iterator_;
+  }
+
+  // Then go to the next node
   current_interval_.end_height_ = (*node_iterator_)->height();
   current_time_ = (*node_iterator_)->height();
 }

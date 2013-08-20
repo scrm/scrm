@@ -20,12 +20,12 @@
 
 */
 
+#ifndef scrm_seg
+#define scrm_seg
+
 #include "param.h"
 #include "forest.h"
-//#include <vector> this is included in forest.h
 #include <valarray>
-
-
 
 class SegDataBlock{
  public:
@@ -66,5 +66,6 @@ class SegDataContainer {
 };
 
 
-std::valarray <int> find_haplotypes(Node *node, int nsam);
-void traversal(Node *node, std::valarray <int> &haplotype);
+std::valarray<int> find_haplotypes(Node *node, int nsam);
+void traversal(Node *node, std::valarray <int>&haplotype);
+#endif

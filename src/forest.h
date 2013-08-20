@@ -53,8 +53,10 @@
 #include <cfloat>
 #include <cassert>
 #include <boost/assign/std/vector.hpp>
+#include <ostream>
 
 #include "node.h"
+#include "event.h"
 #include "model.h"
 #include "param.h"
 #include "node_container.h"
@@ -65,6 +67,7 @@
 #include "random/mersenne_twister.h"
 
 class TimeInterval;
+class TimeIntervalIterator;
 
 class Forest
 {
@@ -80,7 +83,6 @@ class Forest
 
   friend class TimeInterval;
   friend class TimeIntervalIterator;
-  //friend class NodeContainer;	
 	
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
@@ -159,7 +161,7 @@ class Forest
   
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   
-//derived class from Forest
+  //derived class from Forest
   //virtual void init_coalevent() const { std::cout<<" virtual init_coalevent() is called" <<std::endl;};
   virtual void initialize_recomb_coalescent(double rec_height) {};
   virtual void initialize_coalevent(const TimeInterval &event,double current_time){};
@@ -183,7 +185,6 @@ class Forest
   //making samplePoint public
   //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
-  double calcRate(Node* node, const int &state, const int &other_state, const TimeInterval &event) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
@@ -191,12 +192,45 @@ class Forest
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
  
   // Implementation of the different events
-  Node* implementCoalescence(Node *coal_node, const TreePoint &coal_point);
-  void  implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
+  void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  void implementRecombination(const Event &event, TimeIntervalIterator &tii);
+  void implementMigration(const Event &event, TimeIntervalIterator &tii);
 
   // Pruning
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
+
+  
+
+  // Calculation of Rates
+  double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
+
+  double calcPwCoalescenceRate(const size_t &pop) const {
+    return ( 1.0 / ( 2.0 * this->model().population_size(pop) ) );
+  }
+
+  double calcRecombinationRate(Node const* node) const {
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+  }
+
+  void calcRates(const TimeInterval &ti);
+
+  void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
+                   size_t tmp_event_line, Event &return_event) const;
+
+  void sampleEventType(const double &time, const size_t &time_line, 
+                        const TimeInterval &ti, Event &return_event) const;
+
+  void selectFirstTime(const double &new_time, const size_t &time_line, 
+                             double &current_time, size_t &current_time_line) const;
+
+  double getTimeLineGrowth(const size_t &time_line) const {
+    if (time_line == 0) return 0.0;
+    else if (time_line == 1) return model().growth_rate(active_node(0)->population());
+    else if (time_line == 2) return model().growth_rate(active_node(1)->population());
+    else throw std::out_of_range("Trying to get growthrate of unknown time line.");
+  }
 
 
   //Private variables
@@ -223,6 +257,33 @@ class Forest
                   RandomGenerator *rg = NULL);
 
   void createSampleNodes();
+
+  // Temporarily used when doing the coalescence
+
+  // Rates: 
+  double rates_[3];
+
+  // States: Each (branch above an) active node can either be in state
+  // - 0 = off (the other coalescence has not reached it yet) or
+  // - 1 = potentially coalescing in a time interval or
+  // - 2 = potentially recombining in a time interval
+  size_t states_[2];
+  Node* active_nodes_[2];
+  Event  tmp_event_;
+  size_t tmp_event_line_;
+  double tmp_event_time_;
+
+  // These are pointers to the up to two active nodes during a coalescence
+  size_t active_nodes_timelines_[2];
+  Node* active_node(size_t nr) const { return active_nodes_[nr]; };
+  void set_active_node(size_t nr, Node* node) { active_nodes_[nr] = node; };
+
+  Node* getEventNode() const { return active_node(tmp_event_.active_node_nr()); }
+  size_t getEventNodesState() const { return states_[tmp_event_.active_node_nr()]; };
+  Node* getOtherNode() const { return active_node(1-tmp_event_.active_node_nr()); };
+  size_t getOtherNodesState() const { return states_[1-tmp_event_.active_node_nr()]; };
+
+  bool coalescence_finished_;
 };
 
 bool areSame(const double &a, const double &b, 

@@ -74,6 +74,9 @@ class Node
 
   double height_above() const { return this->parent_height() - this->height(); }
 
+  size_t population() const { return population_; }
+  void set_population(const size_t &pop) { population_ = pop; }
+
   bool local() const { return this->local_; }
   void set_local(bool local) { this->local_ = local; }
 
@@ -117,9 +120,17 @@ class Node
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const;
+  bool is_migrating() const; 
 
   bool is_first() const { return( previous_ == NULL ); }
   bool is_last() const { return( next_ == NULL ); }
+
+  // Uminportant Nodes are nodes that sit at the top of the single 
+  // top branch of a tree after it got cut away from the primary tree. 
+  // These Nodes can be reused or removed if they are involved in an event.
+  bool is_unimportant() const {
+    return (this->numberOfChildren() == 1 && !this->is_migrating()); 
+  }
 
   void remove_child(Node* child);
 
@@ -156,11 +167,13 @@ class Node
 
   size_t label_;
   double height_;        // The total height of the node
-  bool   local_;        // Indicates if the branch above is local,
-  // i.e. on the local tree
+  bool   local_;         // Indicates if the branch above is local,
+                         // i.e. on the local tree
   size_t last_update_;   // The sequence position on which the branch above the node
-  // was last checked for recombination events. Ignored for
-  // local nodes, which are always up to date
+                         // was last checked for recombination events. Ignored for
+                         // local nodes, which are always up to date
+
+  size_t population_;    // The number of the population the node belong to. 
   
   size_t samples_below_; // the number of sampled nodes in the subtree below this node
   double length_below_;  // the total length of local branches in the subtree below this node
@@ -175,6 +188,12 @@ class Node
   
   double mut_num_;
 };
+
 Node * tracking_local_node(Node * node);
 std::string writeTree_new(Node * node, int npop);
+
+inline bool Node::is_migrating() const { 
+  if ( this->numberOfChildren() != 1 ) return false;
+  return ( this->population() != this->first_child()->population() );
+} 
 #endif

@@ -58,6 +58,11 @@ class TestNode : public CppUnit::TestCase {
     node1.make_nonlocal(1);
     node2.make_local();
     CPPUNIT_ASSERT( (!node1.local()) && node2.local() );
+
+    //population
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, node1.population() );
+    node1.set_population(1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, node1.population() );
   }
 
   void testIsRoot(){

@@ -85,6 +85,17 @@ class Model
      if (current_pop_sizes_ == NULL) return default_pop_size;
      return current_pop_sizes_->at(pop);
    }
+   
+   double migration_rate(const size_t &sink, const size_t &source) const {
+     if (current_mig_rates_ == NULL) return default_mig_rate;
+     if (sink == source) return 0.0;
+     return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
+   };
+
+   double total_migration_rate(const size_t &sink) const {
+     if (current_total_mig_rates_ == NULL) return default_mig_rate;
+     return current_total_mig_rates_->at(sink); 
+   }; 
 
    size_t sample_size() const { return sample_times_.size(); };
    size_t sample_population(size_t sample_id) const { return sample_populations_.at(sample_id); };
@@ -103,11 +114,16 @@ class Model
 
    void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
-   void set_population_number(const size_t &pop_number) { pop_number_ = pop_number; if (pop_number_<1) { throw std::out_of_range("Population number out of range"); } }
+   void set_population_number(const size_t &pop_number) { 
+    pop_number_ = pop_number; 
+    if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
+   }
 
    void resetTime() { 
      current_pop_sizes_ = pop_sizes_list_.at(0);
      current_growth_rates_ = growth_rates_list_.at(0);
+     current_mig_rates_ = mig_rates_list_.at(0);
+     current_total_mig_rates_ = total_mig_rates_list_.at(0);
      current_time_idx_ = 0;
    };
 
@@ -119,6 +135,10 @@ class Model
        current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
      if ( growth_rates_list_.at(current_time_idx_) != NULL ) 
        current_growth_rates_ = growth_rates_list_.at(current_time_idx_); 
+     if ( mig_rates_list_.at(current_time_idx_) != NULL ) 
+       current_mig_rates_ = mig_rates_list_.at(current_time_idx_); 
+     if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
+       current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
    };
   
    void print(std::ostream &os) const;
@@ -127,10 +147,12 @@ class Model
    size_t loci_number() const { return loci_number_; };
    void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
    
-   
+   void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
+   void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
+   void addGrowthRates(double time, const std::vector<double> &growth_rates);
+   void addMigrationRates(double time, const std::vector<double> &mig_rates);
+   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
 
-
-   //const std::vector<double> &change_times() const { return model_change_times_; }
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
 
   private:
@@ -138,9 +160,6 @@ class Model
    Model& operator=(const Model&);
 
    size_t addChangeTime(double time);
-   void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
-   void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
-   void addGrowthRates(double time, const std::vector<double> &growth_rates);
    
    template <typename T>
    void deleteParList(std::vector<T*> &parList) {
@@ -151,16 +170,28 @@ class Model
     parList.clear();
    }
 
+  void updateTotalMigRates(const size_t &position);
+
+  size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
+    return i * (population_number()-1) + j - ( i < j );
+  }
+
+
+
    std::vector<double> change_times_;
 
    std::vector<std::vector<size_t>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
+   std::vector<std::vector<double>*> mig_rates_list_;
+   std::vector<std::vector<double>*> total_mig_rates_list_;
    
    std::vector<size_t> sample_populations_;
    std::vector<double> sample_times_;
 
    std::vector<size_t>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
+   std::vector<double>* current_mig_rates_;
+   std::vector<double>* current_total_mig_rates_;
    size_t current_time_idx_;
 
    double mutation_rate_;

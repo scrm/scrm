@@ -5,6 +5,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "../src/forest.h"
 #include "../src/random/constant_generator.h"
+#include "../src/random/mersenne_twister.h"
+#include "../src/event.h"
 
 class TestForest : public CppUnit::TestCase {
 
@@ -15,8 +17,13 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testCalcRate );
   CPPUNIT_TEST( testIsPrunable );
   CPPUNIT_TEST( testPrune );
+  CPPUNIT_TEST( testSelectFirstTime );
+  CPPUNIT_TEST( testSampleEventType );
+  //CPPUNIT_TEST( testBuildInitialTree );
+  //CPPUNIT_TEST( testCoalescenceWithStructure );
   //CPPUNIT_TEST( testGetNodeState );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
@@ -40,8 +47,6 @@ class TestForest : public CppUnit::TestCase {
     Forest test_forest = Forest(new Model(4), rg);
     CPPUNIT_ASSERT( test_forest.model().sample_size() == 4 );
     CPPUNIT_ASSERT( test_forest.random_generator() == rg );
-    //CPPUNIT_ASSERT( test_forest.local_tree_length() == 0 );
-    //CPPUNIT_ASSERT( test_forest.total_tree_length() == 0 );
   }
 
   void testGettersAndSetters() {
@@ -71,6 +76,74 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( tp.relative_height() > 0 );
   }
 
+  void testCalcRate() {
+    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
+    size_t pop_size = 2*forest->model().population_size(0);
+    Node *node1 = new Node(0.1);
+    Node *node2 = new Node(0.2);
+
+    forest->set_active_node(0, node1);
+    forest->set_active_node(1, node2);
+    forest->states_[0] = 0;
+    forest->states_[1] = 0;
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[0] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
+
+    forest->states_[0] = 1;
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT_EQUAL( 4.0/pop_size, forest->rates_[0] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
+
+    forest->states_[1] = 1;
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT( areSame(9.0/pop_size, forest->rates_[0]) );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
+
+    // Coalescence with structure 
+    forest->writable_model()->set_population_number(2);
+    node1->set_population(1);
+    forest->nodes()->at(1)->set_population(1);
+    TimeIntervalIterator tii2(forest, forest->nodes()->at(0));
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii2) );
+    // Only node2 can coalescence
+    CPPUNIT_ASSERT( areSame(4.0/pop_size, forest->rates_[0]) );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
+
+    std::vector<double> growth(2, 0.0);
+    growth.at(1) = 1.0;
+    forest->writable_model()->addGrowthRates(0, growth);
+    growth.at(0) = 2.0;
+    forest->writable_model()->addGrowthRates(1, growth);
+    TimeIntervalIterator tii3(forest, forest->nodes()->at(0));
+
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[0] );   
+    CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, forest->active_nodes_timelines_[1] );   
+    
+    forest->writable_model()->increaseTime();
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
+    CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
+    CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[2] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, forest->active_nodes_timelines_[1] );   
+
+    node2->set_population(1);
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
+    CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[1]) );   
+    CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[1] );   
+  }
   
   void testGetNodeState() { 
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(0), 5) == 0 );
@@ -83,6 +156,163 @@ class TestForest : public CppUnit::TestCase {
   void testPrintTree() {
     CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
   }
+
+  void testSelectFirstTime() {
+    double current_time = -1.0;
+    size_t time_line = -1;
+
+    forest->selectFirstTime(-1, 1, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( -1.0, current_time );
+    
+    forest->selectFirstTime(5.0, 1, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(7.0, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(-1, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
+
+    forest->selectFirstTime(4.0, 2, current_time, time_line);
+    CPPUNIT_ASSERT_EQUAL( 4.0, current_time );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, time_line );
+  }
+
+  void testSampleEventType() {
+    Event event;
+    MersenneTwister* rg2 = new MersenneTwister(3739);
+    forest = new Forest(new Model(5), rg2);
+    forest->createExampleTree();
+    forest->writable_model()->set_population_number(2);
+    forest->nodes()->at(0)->set_population(1);
+    forest->nodes()->at(1)->set_population(1);
+    forest->writable_model()->addMigrationRates(1, std::vector<double>(4, 0.000125));
+    forest->writable_model()->addGrowthRates(0.2, std::vector<double>(2, 0.000125));
+    forest->writable_model()->addGrowthRates(1, std::vector<double>(2, 0.0));
+    forest->writable_model()->addGrowthRates(2, std::vector<double>(2, 2));
+    forest->writable_model()->resetTime();
+
+    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
+    
+    forest->set_active_node(0, forest->nodes()->at(0));
+    forest->set_active_node(1, forest->nodes()->at(2));
+    forest->states_[0] = 1;
+    forest->states_[1] = 0;
+    forest->calcRates(*tii);
+    forest->active_nodes_timelines_[0] = 0;
+    forest->active_nodes_timelines_[1] = 0;
+
+    forest->sampleEventType(-1, 0, *tii, event);
+    CPPUNIT_ASSERT( event.isNoEvent() );
+
+    forest->sampleEventType(0.5, 0, *tii, event);
+    CPPUNIT_ASSERT_EQUAL( 0.5, event.time() );
+    CPPUNIT_ASSERT( event.isCoalescence() );
+
+    for (size_t i = 0; i < 100; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() );
+      CPPUNIT_ASSERT( event.node() == forest->active_node(0) );
+    };
+
+    // Test with Coalescence
+    forest->states_[1] = 1;
+    forest->calcRates(*tii);
+    size_t count = 0, count2 = 0;
+    for (size_t i = 0; i < 1000; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() );
+      count += (event.node() == forest->active_node(0));
+    };
+    CPPUNIT_ASSERT( 450 < count && count < 550 ); // ~500
+
+    // Test with Pw Coalescence
+    forest->writable_model()->resetTime();
+    forest->set_active_node(1, forest->nodes()->at(1));
+    forest->calcRates(*tii);
+    count = 0;
+    for (size_t i = 0; i < 1000; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() );
+      count += event.isCoalescence();
+    };
+    CPPUNIT_ASSERT( 700 < count && count < 900 ); // ~800
+
+    // Test with migration
+    forest->writable_model()->increaseTime();
+    forest->writable_model()->increaseTime();
+    forest->calcRates(*tii);
+    count = 0;
+    for (size_t i = 0; i < 1000; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() || event.isMigration() );
+      count += event.isMigration();
+      count2 += event.isCoalescence();
+    };
+    CPPUNIT_ASSERT( 450 < count && count < 550 ); // ~500
+    CPPUNIT_ASSERT( 350 < count2 && count2 < 450 ); // ~400
+
+    // Test recombination 
+    forest->writable_model()->set_recombination_rate(0.00009);
+    forest->set_current_base(20);
+    forest->states_[0] = 1;
+    forest->states_[1] = 2;
+    forest->active_node(1)->make_nonlocal(10);
+    forest->writable_model()->resetTime(); // set migration to 0
+    forest->calcRates(*tii);
+    
+    count = 0;
+    for (size_t i = 0; i < 1000; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() || event.isRecombination() );
+      count += event.isRecombination();
+    };
+    CPPUNIT_ASSERT( 875 < count && count < 925 ); // ~500
+    
+    // Recombination with Rate 0
+    forest->active_node(1)->set_last_update(20);
+    forest->calcRates(*tii);
+    for (size_t i = 0; i < 100; ++i) {
+      forest->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() );
+    };
+
+    // Combinations With Growth
+    forest->writable_model()->resetTime(); 
+    forest->writable_model()->increaseTime();
+    forest->writable_model()->increaseTime();
+    forest->writable_model()->increaseTime();
+    forest->states_[0] = 1;
+    forest->states_[1] = 1;
+    forest->active_node(0)->set_population(0);
+    forest->active_node(1)->set_population(1);
+    forest->calcRates(*tii);
+
+    for (size_t i = 0; i < 100; ++i) {
+      CPPUNIT_ASSERT_NO_THROW( forest->sampleEventType(0.5, 0, *tii, event) );
+      CPPUNIT_ASSERT( event.isMigration() );
+      CPPUNIT_ASSERT_NO_THROW( forest->sampleEventType(0.5, 1, *tii, event) );
+      CPPUNIT_ASSERT( event.isCoalescence() );
+      CPPUNIT_ASSERT( event.node() == forest->active_node(0) );
+      CPPUNIT_ASSERT_NO_THROW( forest->sampleEventType(0.5, 2, *tii, event) );
+      CPPUNIT_ASSERT( event.isCoalescence() );
+      CPPUNIT_ASSERT( event.node() == forest->active_node(1) );
+    };
+
+    forest->active_node(0)->set_population(0);
+    forest->active_node(1)->set_population(0);
+    forest->calcRates(*tii);
+    for (size_t i = 0; i < 100; ++i) {
+      CPPUNIT_ASSERT_NO_THROW( forest->sampleEventType(0.5, 0, *tii, event) );
+      CPPUNIT_ASSERT( event.isMigration() );
+      CPPUNIT_ASSERT_NO_THROW( forest->sampleEventType(0.5, 1, *tii, event) );
+      CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() );
+    };
+  }
+
 
   void testIsPrunable() {
     forest->writable_model()->set_exact_window_length(5);
@@ -181,6 +411,64 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
   }
 
+  void testBuildInitialTree() {
+    Model* model = new Model();
+    model->set_population_number(3);
+    std::vector<size_t> sample_sizes;
+    sample_sizes.push_back(0);
+    sample_sizes.push_back(2);
+    sample_sizes.push_back(0);
+    model->addSampleSizes(0.0, sample_sizes);
+    sample_sizes.at(1) = 0;
+    sample_sizes.at(2) = 2;
+    model->addSampleSizes(1.0, sample_sizes);
+
+    std::vector<double> mig_rates(9, 1.0);
+    model->addMigrationRates(2.0, mig_rates);
+
+    MersenneTwister* rg2 = new MersenneTwister(123);
+    Forest frst = Forest(model, rg2);
+    frst.buildInitialTree();
+
+    std::cout << endl;
+    frst.printTree_cout();
+
+    CPPUNIT_ASSERT_EQUAL(true, frst.checkTree());
+
+    CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(0)->height());
+    CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(1)->height());
+    CPPUNIT_ASSERT_EQUAL(1.0, frst.nodes()->at(2)->height());
+    CPPUNIT_ASSERT_EQUAL(1.0, frst.nodes()->at(3)->height());
+
+    CPPUNIT_ASSERT_EQUAL((size_t)1, frst.nodes()->at(0)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)1, frst.nodes()->at(1)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)2, frst.nodes()->at(2)->population());
+    CPPUNIT_ASSERT_EQUAL((size_t)2, frst.nodes()->at(3)->population());
+  }
+
+  void testCoalescenceWithStructure() {
+    Model* model = new Model();
+    model->set_population_number(3);
+    std::vector<size_t> sample_sizes;
+    sample_sizes.push_back(0);
+    sample_sizes.push_back(2);
+    sample_sizes.push_back(0);
+    model->addSampleSizes(0.0, sample_sizes);
+    sample_sizes.at(1) = 0;
+    sample_sizes.at(2) = 2;
+    model->addSampleSizes(1.0, sample_sizes);
+
+    std::vector<double> mig_rates(9, 1.0);
+    model->addMigrationRates(2.0, mig_rates);
+
+    MersenneTwister* rg2 = new MersenneTwister(123);
+    Forest frst = Forest(model, rg2);
+    frst.buildInitialTree();
+
+    for (NodeIterator ni = frst.nodes()->iterator(); ni.good(); ++ni) {
+      CPPUNIT_ASSERT( (*ni)->population() != 0 );
+    }
+  }
 };
 
 //Uncomment this to activate the test

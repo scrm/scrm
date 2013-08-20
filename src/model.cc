@@ -37,6 +37,8 @@ Model::~Model() {
   //std::cout << "Called ~Model" << std::endl;
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
+  deleteParList(mig_rates_list_);
+  deleteParList(total_mig_rates_list_);
 }
 
 void Model::init() {
@@ -72,6 +74,8 @@ size_t Model::addChangeTime(double time) {
     change_times_.push_back(time);
     pop_sizes_list_.push_back(NULL);
     growth_rates_list_.push_back(NULL);
+    mig_rates_list_.push_back(NULL);
+    total_mig_rates_list_.push_back(NULL);
     return position;
   }
 
@@ -87,6 +91,8 @@ size_t Model::addChangeTime(double time) {
   // Add Null at the right position in all parameter vectors 
   pop_sizes_list_.insert(pop_sizes_list_.begin() + position, NULL);
   growth_rates_list_.insert(growth_rates_list_.begin() + position, NULL);
+  mig_rates_list_.insert(mig_rates_list_.begin() + position, NULL);
+  total_mig_rates_list_.insert(total_mig_rates_list_.begin() + position, NULL);
   return position;
 }
 
@@ -125,6 +131,25 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
   std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
   size_t position = addChangeTime(time);
   growth_rates_list_[position] = growth_rates_heap; 
+
+}
+
+void Model::addMigrationRates(double time, const std::vector<double> &mig_rates) {
+  double popnr = population_number();
+  if ( mig_rates.size() != population_number()*population_number() ) 
+    throw std::logic_error("Migration rates values do not meet the number of populations");
+  std::vector<double>* mig_rates_heap = new std::vector<double>();
+  mig_rates_heap->reserve(popnr*popnr-popnr);
+  for (size_t i = 0; i < popnr; ++i) {
+    for (size_t j = 0; j < popnr; ++j) {
+      if (i == j) continue;
+      mig_rates_heap->push_back(mig_rates.at(i*popnr+j)); 
+    }
+  }
+
+  size_t position = addChangeTime(time);
+  mig_rates_list_[position] = mig_rates_heap; 
+  updateTotalMigRates(position);
 }
 
 
@@ -140,9 +165,31 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
       os << " Population sizes: " << *(model.pop_sizes_list_.at(idx)) << std::endl;
     }
     if (model.growth_rates_list_.at(idx) != NULL) {
-      os << " Growth Rate: " << *(model.growth_rates_list_.at(idx)) << std::endl;
+      os << " Growth Rates: " << *(model.growth_rates_list_.at(idx)) << std::endl;
+    }
+    if (model.mig_rates_list_.at(idx) != NULL) {
+      os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
     }
   }
   os << "------------------------------------" << std::endl;
   return(os);
 }
+
+
+void Model::updateTotalMigRates(const size_t &position) {
+  std::vector<double>* mig_rates;
+  if ( total_mig_rates_list_.at(position) == NULL ) {
+    mig_rates = new std::vector<double>(population_number(), 0.0);
+    total_mig_rates_list_.at(position) = mig_rates;
+  }
+  else {
+    mig_rates = total_mig_rates_list_.at(position); 
+  }
+
+  for (size_t i = 0; i < population_number(); ++i) {
+    for (size_t j = 0; j < population_number(); ++j) {
+      if (i == j) continue;
+      mig_rates->at(j) += mig_rates_list_.at(position)->at( getMigMatrixIndex(i,j) );
+    }
+  }
+}; 
