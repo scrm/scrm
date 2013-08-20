@@ -34,7 +34,9 @@ WITH RECOMBINATION
 	
 	##############################################
 	Compare TMRCA
+		./ms_vs_scrm-tmrca-wit-recomb.sh
 	
+	Output file:
 	
 	##############################################
 	Compare total branch length
