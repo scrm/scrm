@@ -97,6 +97,11 @@ class Model
      return current_total_mig_rates_->at(sink); 
    }; 
 
+   double single_mig_pop(const size_t &sink, const size_t &source) const {
+    if (current_total_mig_rates_ == NULL) return 0.0;
+    return current_single_mig_probs_->at( getMigMatrixIndex(source, sink) ); 
+   }
+
    size_t sample_size() const { return sample_times_.size(); };
    size_t sample_population(size_t sample_id) const { return sample_populations_.at(sample_id); };
    double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
@@ -124,6 +129,7 @@ class Model
      current_growth_rates_ = growth_rates_list_.at(0);
      current_mig_rates_ = mig_rates_list_.at(0);
      current_total_mig_rates_ = total_mig_rates_list_.at(0);
+     current_single_mig_probs_ = single_mig_probs_list_.at(0);
      current_time_idx_ = 0;
    };
 
@@ -139,6 +145,11 @@ class Model
        current_mig_rates_ = mig_rates_list_.at(current_time_idx_); 
      if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
+
+     if ( single_mig_probs_list_.at(current_time_idx_) != NULL ) 
+       current_single_mig_probs_ = single_mig_probs_list_.at(current_time_idx_);
+     else
+       current_single_mig_probs_ = NULL;
    };
   
    void print(std::ostream &os) const;
@@ -150,10 +161,15 @@ class Model
    void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
    void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
    void addGrowthRates(double time, const std::vector<double> &growth_rates);
-   void addMigrationRates(double time, const std::vector<double> &mig_rates);
-   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
 
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
+
+   // functions to add Migration
+   void addMigrationRates(double time, const std::vector<double> &mig_rates);
+   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
+   void addSymmetricMigration(const double &time, const double &mig_rate); 
+   void addSingleMigrationEvent(const double &time, const size_t &source_pop, 
+                                const size_t &sink_pop, const double &fraction);
 
   private:
    Model(const Model&);
@@ -176,23 +192,22 @@ class Model
     return i * (population_number()-1) + j - ( i < j );
   }
 
-
+   std::vector<size_t> sample_populations_;
+   std::vector<double> sample_times_;
 
    std::vector<double> change_times_;
-
    std::vector<std::vector<size_t>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
+   std::vector<std::vector<double>*> single_mig_probs_list_;
    
-   std::vector<size_t> sample_populations_;
-   std::vector<double> sample_times_;
-
+   size_t current_time_idx_;
    std::vector<size_t>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
-   size_t current_time_idx_;
+   std::vector<double>* current_single_mig_probs_;
 
    double mutation_rate_;
    size_t mutation_exact_number_;

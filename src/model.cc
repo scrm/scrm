@@ -39,6 +39,7 @@ Model::~Model() {
   deleteParList(growth_rates_list_);
   deleteParList(mig_rates_list_);
   deleteParList(total_mig_rates_list_);
+  deleteParList(single_mig_probs_list_);
 }
 
 void Model::init() {
@@ -76,6 +77,7 @@ size_t Model::addChangeTime(double time) {
     growth_rates_list_.push_back(NULL);
     mig_rates_list_.push_back(NULL);
     total_mig_rates_list_.push_back(NULL);
+    single_mig_probs_list_.push_back(NULL);
     return position;
   }
 
@@ -93,6 +95,7 @@ size_t Model::addChangeTime(double time) {
   growth_rates_list_.insert(growth_rates_list_.begin() + position, NULL);
   mig_rates_list_.insert(mig_rates_list_.begin() + position, NULL);
   total_mig_rates_list_.insert(total_mig_rates_list_.begin() + position, NULL);
+  single_mig_probs_list_.insert(single_mig_probs_list_.begin() + position, NULL);
   return position;
 }
 
@@ -152,6 +155,24 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates)
   updateTotalMigRates(position);
 }
 
+void Model::addSymmetricMigration(const double &time, const double &mig_rate) {
+  std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
+  this->addMigrationRates(time, mig_rates);
+}
+
+void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop, 
+                                    const size_t &sink_pop, const double &fraction) {
+  
+  size_t position = addChangeTime(time);
+  size_t popnr = population_number();
+
+  if ( single_mig_probs_list_.at(position) == NULL ) {
+    std::vector<double> *mig_probs = new std::vector<double>(popnr*popnr-popnr, 0.0);
+    single_mig_probs_list_.at(position) = mig_probs;
+  }
+
+  single_mig_probs_list_.at(position)->at(getMigMatrixIndex(source_pop, sink_pop)) = fraction; 
+} 
 
 std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
