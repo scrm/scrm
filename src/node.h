@@ -125,6 +125,13 @@ class Node
   bool is_first() const { return( previous_ == NULL ); }
   bool is_last() const { return( next_ == NULL ); }
 
+  // Uminportant Nodes are nodes that sit at the top of the single 
+  // top branch of a tree after it got cut away from the primary tree. 
+  // These Nodes can be reused or removed if they are involved in an event.
+  bool is_unimportant() const {
+    return (this->numberOfChildren() == 1 && !this->is_migrating()); 
+  }
+
   void remove_child(Node* child);
 
   Node* next() const { 

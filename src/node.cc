@@ -97,29 +97,34 @@ bool Node::in_sample() const {
 }
 
 Node * tracking_local_node(Node * node){
-	dout<<node;
-	if (node->in_sample()){
-		dout<<" is tip node, it is local, return."<<std::endl;
-		return node;
-		}
-	else if (node->first_child() == NULL && node->second_child()){
-		return tracking_local_node(node->second_child());
-	}
-	else if (node->second_child() == NULL && node->first_child()){
-		return tracking_local_node(node->first_child());
-	}
-	else if (node->first_child()->local() && node->second_child()->local()){
-		dout<<" is an internal local node, return"<<std::endl;
-		return node;
-	}
-	else if (!node->first_child()->local() ){ //if first child is not local, then the second must be
-		dout<<" is not a local node, moving on to ";
-		return tracking_local_node(node->second_child());
-	}
-	else{
-		dout<<" is not a local node, moving on to ";
-		return tracking_local_node(node->first_child());
-	}
+  assert( node->local() );
+  dout << node << std::endl;
+  if (node->in_sample()){
+    dout<<" is tip node, it is local, return."<<std::endl;
+    return node;
+  }
+
+  assert( node->first_child() != NULL );
+  if ( node->second_child() == NULL ){
+    return tracking_local_node(node->first_child());
+  }
+
+  else if (node->first_child()->local() && node->second_child()->local()){
+    dout<< " is an internal local node, return"<<std::endl;
+    return node;
+  }
+  
+  else if (!node->first_child()->local() ){ 
+    assert( node->second_child()->local() );
+    dout<< "is internal node with one non-local branch" << std::endl;
+    return tracking_local_node(node->second_child());
+  }
+
+  else{
+    assert( node->first_child()->local() );
+    dout<< "is internal node with one non-local branch" << std::endl;
+    return tracking_local_node(node->first_child());
+  }
 }
 
 std::string writeTree_new(Node * node, int npop){

@@ -672,7 +672,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
-  std::cout << coal_node->population() << " " << target->population() << std::endl;
   assert( coal_node->population() == target->population() );
 
   Node* new_node;
@@ -830,25 +829,34 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
 
 void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   dout << "* * Implementing migration event... " << std::flush;
-  // Create a new node the marks the migration event
-  Node* mig_node = new Node(event.time(), true);
-  mig_node->set_population(event.mig_pop());
+  assert( event.node()->is_root() );
+  
+  // There is only little to do if we can reuse the event.node() 
+  if ( event.node()->is_unimportant() ) {
+    dout << "Reusing: " << event.node() << "... " << std::flush;
+    nodes()->move(event.node(), event.time());
+    event.node()->set_population(event.mig_pop());
+    updateAbove(event.node());
+    assert(event.node()->is_migrating());
+  }
+  else {
+    // Otherwise create a new node that marks the migration event
+    Node* mig_node = new Node(event.time(), true);
+    dout << "Marker: " << mig_node << "... " << std::flush; 
+    nodes()->add(mig_node, event.node());
+    mig_node->set_population(event.mig_pop());
+    
+    // Integrate it into the tree
+    event.node()->set_parent(mig_node);
+    mig_node->set_first_child(event.node());
+    updateAbove(event.node(), false, false);
+    updateAbove(mig_node);
 
-  // Integrate it into the tree
-  nodes()->add(mig_node, event.node());
-  mig_node->set_parent(event.node()->parent());
-  mig_node->set_first_child(event.node());
-
-  if (event.node()->parent() != NULL)
-    event.node()->parent()->change_child(event.node(), mig_node);
-  event.node()->set_parent(mig_node);
-
-  dout << "Marker: " << mig_node << "... " << std::flush; 
-  updateAbove(event.node(), false, false);
-  updateAbove(mig_node);
-  assert(mig_node->is_migrating());
-
-  this->set_active_node(event.active_node_nr(), mig_node);
+    // And set it active
+    this->set_active_node(event.active_node_nr(), mig_node);
+    assert(mig_node->is_migrating());
+  }
+  // And recalculate the interval
   ti.recalculateInterval();
   dout << "done." << std::endl;
 }
