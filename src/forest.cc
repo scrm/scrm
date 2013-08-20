@@ -938,6 +938,7 @@ size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) c
 bool Forest::isPrunable(Node const* node) const {
   if ( model().exact_window_length() == 0 ) return false;
   if ( node == local_root() ) return false;
+  if ( node->is_migrating() ) return false;
 
   switch ( node->numberOfChildren()) {
     case 2: return false;
