@@ -22,6 +22,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testIncreaseTime );
   CPPUNIT_TEST( testGetNextTime );
   CPPUNIT_TEST( testGetters );
+  CPPUNIT_TEST( testHasFixedTimeEvent );
+
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -242,6 +244,20 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 4.0
     CPPUNIT_ASSERT_EQUAL( 1.0, model.growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size(0) );
+  }
+
+  void testHasFixedTimeEvent() {
+    Model model = Model();
+    model.set_population_number(3);
+
+    model.addSingleMigrationEvent(10, 1, 0, .5);
+    model.resetTime();
+    CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(1) );
+    CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(10) );
+    model.increaseTime();
+    CPPUNIT_ASSERT( model.hasFixedTimeEvent(10) );
+    CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(1) );
+    CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(20) );
   }
 };
 

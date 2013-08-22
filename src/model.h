@@ -98,8 +98,15 @@ class Model
    }; 
 
    double single_mig_pop(const size_t &sink, const size_t &source) const {
-    if (current_total_mig_rates_ == NULL) return 0.0;
-    return current_single_mig_probs_->at( getMigMatrixIndex(source, sink) ); 
+    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return 0.0;
+    if (sink == source) return 0.0;
+    return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
+   }
+
+   bool hasFixedTimeEvent(const double &at_time) const {
+    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
+    if (getCurrentTime() != at_time) return false;
+    return true;
    }
 
    size_t sample_size() const { return sample_times_.size(); };
@@ -129,7 +136,6 @@ class Model
      current_growth_rates_ = growth_rates_list_.at(0);
      current_mig_rates_ = mig_rates_list_.at(0);
      current_total_mig_rates_ = total_mig_rates_list_.at(0);
-     current_single_mig_probs_ = single_mig_probs_list_.at(0);
      current_time_idx_ = 0;
    };
 
@@ -145,11 +151,6 @@ class Model
        current_mig_rates_ = mig_rates_list_.at(current_time_idx_); 
      if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
-
-     if ( single_mig_probs_list_.at(current_time_idx_) != NULL ) 
-       current_single_mig_probs_ = single_mig_probs_list_.at(current_time_idx_);
-     else
-       current_single_mig_probs_ = NULL;
    };
   
    void print(std::ostream &os) const;
@@ -189,6 +190,7 @@ class Model
   void updateTotalMigRates(const size_t &position);
 
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
+    assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
   }
 
@@ -207,7 +209,6 @@ class Model
    std::vector<double>* current_growth_rates_;
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
-   std::vector<double>* current_single_mig_probs_;
 
    double mutation_rate_;
    size_t mutation_exact_number_;

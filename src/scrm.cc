@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
     *output << user_para << std::endl;
     *output << user_para.random_seed << std::endl;
 
-    //*output << *model;
+    *output << *model;
 
     /*
        std::ofstream tree_file;

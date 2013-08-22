@@ -165,6 +165,11 @@ void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop
   
   size_t position = addChangeTime(time);
   size_t popnr = population_number();
+  
+  if ( time < 0.0 ) throw std::invalid_argument("Single migration event: Negative time");
+  if ( source_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
+  if ( sink_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
+  if ( fraction < 0.0 || fraction > 1.0 ) throw std::invalid_argument("Single migration event: Fraction out of range");
 
   if ( single_mig_probs_list_.at(position) == NULL ) {
     std::vector<double> *mig_probs = new std::vector<double>(popnr*popnr-popnr, 0.0);
@@ -190,6 +195,9 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
     }
     if (model.mig_rates_list_.at(idx) != NULL) {
       os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
+    }
+    if (model.single_mig_probs_list_.at(idx) != NULL) {
+      os << "Single Mig Fractions: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
     }
   }
   os << "------------------------------------" << std::endl;

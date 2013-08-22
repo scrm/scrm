@@ -226,22 +226,6 @@ void Forest::buildInitialTree() {
     assert(this->printTree());
   }
   this->set_next_base();
-  //writeTree(this->local_root(),this->model_->population_size(), 0.0);
-  //cout<<this->local_root()->tree_topo_bl<<endl;
-  
-    //set the index for all forest nodes....
-  //size_t i = 0;
-  //for (ConstNodeIterator it = this->nodes()->iterator(); it.good(); ++it) {this->nodes()->get_copy(it)->index = i; i++;};
-  //Node * current_node=this->getNodes()->first();
-  //size_t i = 0;
-  //while (i!= this->getNodes()->size()-1){
-	   //current_node->index=i;
-	  //current_node = current_node->next();
-//i++;
-//}
-  //current_node->index=i;
-
-
 }
 
 
@@ -382,9 +366,14 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
 
+
     // Update States & Rates (see their declaration for explanation); 
     states_[0] = getNodeState(active_node(0), (*ti).start_height());
     states_[1] = getNodeState(active_node(1), (*ti).start_height());
+
+    // Fixed time events (e.g pop splits/merges & single migration events first
+    if (model().hasFixedTimeEvent((*ti).start_height())) implementFixedTimeEvent(ti);
+
     calcRates(*ti);
 
     dout << "* * * Active Nodes: 0:" << active_node(0) << ":" << states_[0]
@@ -868,6 +857,24 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   dout << "done." << std::endl;
 }
 
+
+void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
+  dout << "* * Fixed time event" << std::endl;
+  for (size_t i = 0; i < 2; ++i) {
+    if (states_[i] != 1) continue;
+    double prob;
+    for (size_t j = 0; j < model().population_number(); ++j) {
+      prob = model().single_mig_pop(active_node(i)->population(), j);
+      std::cout << prob << std::endl;
+      if (prob == 0.0) continue;
+      if (prob == 1.0 || prob <= random_generator()->sample() ) {
+        tmp_event_ = Event((*ti).start_height());
+        tmp_event_.setToMigration(active_node(i), i, j);
+        implementMigration(tmp_event_, ti);
+      }
+    }
+  }
+}
 
 /** 
  * Helper function for doing a coalescence.
