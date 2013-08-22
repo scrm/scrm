@@ -10,8 +10,8 @@ mst=(10 20)
 
 msNsample=(3 7 10)
 
-#mst=(10)
-#msNsample=(3)
+mst=(10)
+msNsample=(3)
 
 rep=100000
 #npop=20000
@@ -31,8 +31,7 @@ for t in "${mst[@]}"
 		rm mscolsum*  
 		find . -name "xx*" -print0 | xargs -0 rm
 		
-		ms ${nsam} ${rep} -t ${t} > msout
-		cat msout | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		ms ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
 		
 		for file in $(seq 1 1 ${rep})
 				do 
@@ -52,8 +51,7 @@ END {
 		rm scrmcolsum*  
 		find . -name "xx*" -print0 | xargs -0 rm
 	
-		scrm ${nsam} ${rep} -t ${t} | tail -n +4 > scrmout
-		cat scrmout | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
 		for file in $(seq 1 1 ${rep})
 				do 
 				sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '

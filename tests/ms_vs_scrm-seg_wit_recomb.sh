@@ -1,13 +1,16 @@
 #!/bin/bash
 
 ## compare number of mutations with recombinations
+# this pairwise_test.sh is a sub test of this 
 
 mkdir test-seg-recomb
 cd test-seg-recomb
 rm *pdf
 
-msr=(10 20 10 50 100)
+msr=(11 21 10 50 100)
 mst=(10 20 50 100 10)
+msr=(100)
+mst=(25)
 
 rep=100000
 seqlen=100000
@@ -26,9 +29,9 @@ for t in "${mst[@]}"
 			do
 			prefix=${nsam}sample${r}rho${t}theta
 			nseg=${prefix}NumOfSeg
-			ms ${nsam} ${rep} -t ${t} -T | tail -n +4 | grep -v "//" | grep "segsites" | sed -e "s/segsites: //" > ms${nseg}
+			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4 | grep -v "//" | grep "segsites" | sed -e "s/segsites: //" > ms${nseg}
 	
-			scrm ${nsam} ${rep} -t ${t} | tail -n +4 | grep -v "//"  | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4 | grep -v "//"  | grep "segsites" | sed -e "s/segsites: //" > scrm${nseg}
 			
 			echo "rm(list=ls());
 		source(\"../fun_src.r\");
