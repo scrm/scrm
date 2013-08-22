@@ -7,7 +7,7 @@ cd test-tmrca-last
 
 seqlen=100000
 
-rep=10000
+rep=100000
 
 
 #echo -e "rm(list=ls());
@@ -22,9 +22,9 @@ rep=10000
 	#}" > compute_moments.r
 
 #msNsample=(2 3 4 7 10 20)
-msNsample=(2)
-msr=(10 20 10 50 100)
-mst=(10 20 50 100 10)
+msNsample=(2 4)
+msr=(10 20 50 100)
+mst=(10 20 50 100)
 
 #msNsample=(3)
 #msr=(10)
@@ -47,12 +47,12 @@ rm *pdf
 #\t\t\t|\tstats\tp-value\t\t|\tstats\tp-value\t\t|\tstats\tp-value\t\t|\tstats\tp-value\t\t" > ${compareBL}
 
 echo -e "compare TMRCA for ${rep} replicates 
-\t\t\t|Theoretical\t\t|\t ms \t\t|\t scrm\t\t|\tKS test
-Nsam\ttheta\trho\t|\tmean\tstdv\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareTMRCA}
+\t\t\t|\t ms \t\t|\t scrm\t\t|\tKS test
+Nsam\ttheta\trho\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareTMRCA}
 
 echo -e "compare BL for ${rep} replicates 
-\t\t\t|Theoretical\t\t|\t ms \t\t|\t scrm\t\t|\tKS test
-Nsam\ttheta\trho\t|\tmean\tstdv\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareBL}
+\t\t\t|\t ms \t\t|\t scrm\t\t|\tKS test
+Nsam\ttheta\trho\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareBL}
 
 
 
@@ -101,18 +101,18 @@ for t in "${mst[@]}"
 source(\"../fun_src.r\");
 msdata=read.table(\"ms${tmrca}\")\$V1;
 scrmdata=read.table(\"scrm${tmrca}\")\$V1;
-ee=ee_tmrca(${nsam});
-sdv=sd_tmrca(${nsam});
+#ee=ee_tmrca(${nsam});
+#sdv=sd_tmrca(${nsam});
 test=ks.test(msdata,scrmdata)
-pdf(paste($nsam,\"sampleTMRCA-KStest.pdf\",sep=\"\"));
+pdf(paste($nsam,\"sample${t}mut${r}TMRCA-KStest.pdf\",sep=\"\"));
 plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=paste($nsam,\"sample TMRCA KS test\",sep=\"\"))
 plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
 legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,scientific = TRUE),sep=\"\")))
 legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
 dev.off();
-cat(paste(${nsam},${t},${r},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
+cat(paste(${nsam},${t},${r},\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
-format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,scientific = TRUE), 
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",format(test\$statistic,digits=4),format(test\$p.value,scientific = TRUE), 
 sep=\"\t\"),file=\"${compareTMRCA}\",append=TRUE);cat(\"\n\",file=\"${compareTMRCA}\",append=TRUE);
 rm(list=ls());
 source(\"../fun_src.r\");
@@ -121,17 +121,18 @@ scrmdata=read.table(\"scrm${bl}\")\$V1;
 ee=ee_bl(${nsam});
 sdv=sd_bl(${nsam});
 test=ks.test(msdata,scrmdata)
-pdf(paste($nsam,\"sampleBL-KStest.pdf\",sep=\"\"));
+pdf(paste($nsam,\"sample${t}mut${r}BL-KStest.pdf\",sep=\"\"));
 plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=paste($nsam,\"sample BL KS test\",sep=\"\"))
 plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
 legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,scientific = TRUE),sep=\"\")))
 legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
 dev.off();
-cat(paste(${nsam},${t},${r},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
+cat(paste(${nsam},${t},${r},\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
-format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,scientific = TRUE), 
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",format(test\$statistic,digits=4),format(test\$p.value,scientific = TRUE), 
 sep=\"\t\"),file=\"${compareBL}\",append=TRUE);cat(\"\n\",file=\"${compareBL}\",append=TRUE);" > dummy.r
 			R CMD BATCH dummy.r
+			rm scrm${tmrca} scrm${bl} ms${tmrca} ms${bl}
 			done
 		done
 	done
