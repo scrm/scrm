@@ -162,11 +162,13 @@ class Forest
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   
   //derived class from Forest
-  //virtual void init_coalevent() const { std::cout<<" virtual init_coalevent() is called" <<std::endl;};
-  virtual void initialize_recomb_coalescent(double rec_height) {};
-  virtual void initialize_coalevent(const TimeInterval &event,double current_time){};
-  virtual void record_coalevent(){};
-  virtual void record_recomb_coalescent(){};
+
+virtual void initialize_event(const TimeInterval & current_event, double current_time);
+virtual	void initialize_recomb_coalescent(const double rec_height);
+virtual	void record_coalevent();
+virtual	void record_recombevent();
+virtual	void clear_initial_coalevent();
+			  
 
  private:
   //segegrating sites  
