@@ -31,7 +31,7 @@ double RandomGenerator::sampleUnitExponential(void) {
 }
 
 // Sets new seed, and initializes unit_exponential
-void RandomGenerator::set_seed(const int &seed){
+void RandomGenerator::set_seed(const size_t &seed){
   this->seed_ = seed;
   this->unit_exponential_ = sampleUnitExponential();
 }

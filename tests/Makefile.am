@@ -16,7 +16,7 @@ tests_SOURCES = test_forest.cc test_model.cc test_node.cc test_node_container.cc
 			   	../src/random/fastfunc.cc ../src/random/fastfunc.h  
 
 #AM_CPPFLAGS= -I/opt/local/include # include the library for boost, given that boost was installed through macports
-tests_CXXFLAGS = -DUNITTEST -DNDEBUG
+tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x
 #tests_LDADD= -lcppunit
 #tests_LDFLAGS=-L/opt/local/lib
 tests_LDADD= -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports

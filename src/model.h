@@ -62,8 +62,8 @@ class Model
    
    // Default values;
    const static size_t default_pop_size = 10000;
-   const static double default_growth_rate = 0.0;
-   const static double default_mig_rate = 0.0;
+   const double default_growth_rate = 0.0;
+   const double default_mig_rate = 0.0;
 
    // Getters
    double mutation_rate() const { return mutation_rate_; }

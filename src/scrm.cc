@@ -42,10 +42,7 @@ int main(int argc, char *argv[]){
 
     Model* model = user_para.parse();
 
-    //Different random generators.
     MersenneTwister *rg = new MersenneTwister(user_para.random_seed);
-    //ConstantGenerator *rg = new ConstantGenerator();
-    //FakeRandomGenerator *rg = new FakeRandomGenerator();
 
     // Organize output
     std::ostream *output = &std::cout;
@@ -56,7 +53,7 @@ int main(int argc, char *argv[]){
     }
 
     *output << user_para << std::endl;
-    *output << user_para.random_seed << std::endl;
+    *output << rg->seed() << std::endl;
 
     //*output << *model;
 

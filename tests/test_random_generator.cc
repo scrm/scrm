@@ -28,7 +28,7 @@ class TestRandomGenerator : public CppUnit::TestCase {
   }
 
   void testConstructor() {
-    CPPUNIT_ASSERT_EQUAL( (int)5, rg->seed() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, rg->seed() );
     CPPUNIT_ASSERT( rg->unit_exponential_ > 0 );
   }
 

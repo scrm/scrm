@@ -23,24 +23,29 @@
 #include "mersenne_twister.h"
 
 MersenneTwister::MersenneTwister() {
-  this->set_seed(std::time(0));
-  //std::cout << "Seed: " << this->seed() << std::endl;
+  this->set_seed(generateRandomSeed());
 };
 
-MersenneTwister::MersenneTwister(int seed){
-  this->set_seed(seed);
-  //std::cout << "Seed: " << this->seed() << std::endl;
+MersenneTwister::MersenneTwister(const size_t &seed){
+  if (seed == -1) set_seed(generateRandomSeed());
+  else this->set_seed(seed);
 }
 
 MersenneTwister::~MersenneTwister() { } ;
 
 double MersenneTwister::sample() {
-  return(unif(rng));
+  return(unif_(mt_));
 }
 
-void MersenneTwister::set_seed(const int &seed) {
+size_t MersenneTwister::generateRandomSeed() const {
+  std::random_device rd;
+  std::uniform_int_distribution<size_t> dist(0, std::numeric_limits<std::size_t>::max());
+  return( dist(rd) );
+}
+
+void MersenneTwister::set_seed(const size_t &seed) {
   RandomGenerator::set_seed(seed);
-  this->rng.seed(static_cast<unsigned int>(seed));
+  mt_ = std::mt19937(seed);
 }
 
 
