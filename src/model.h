@@ -38,6 +38,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cassert>
+#include <cmath>
 
 class Param;
 
@@ -84,7 +85,7 @@ class Model
      return current_growth_rates_->at(pop);
    }
    
-   size_t population_size(size_t pop = 0) const { 
+   double population_size(size_t pop = 0) const { 
      if (current_pop_sizes_ == NULL) return default_pop_size;
      return current_pop_sizes_->at(pop);
    }
@@ -171,10 +172,16 @@ class Model
 
    size_t loci_number() const { return loci_number_; };
    void set_loci_number(size_t loci_number) { loci_number_ = loci_number; }; 
-   
-   void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
-   void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
-   void addGrowthRates(double time, const std::vector<double> &growth_rates);
+  
+   // Add populations size changes
+   void addPopulationSizes(double time, const std::vector<double> &pop_sizes, bool relative = false);
+   void addPopulationSizes(const double &time, const double &pop_size, bool relative = false); 
+   void addPopulationSize(const double &time, const size_t &pop, const double &population_sizes, bool relative = false);
+
+   // Add exponential growth
+   void addGrowthRates(const double &time, const std::vector<double> &growth_rates);
+   void addGrowthRates(const double &time, const double &growth_rates);
+   void addGrowthRate(const double &time, const size_t &population, const double &growth_rates);
 
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
 
@@ -204,6 +211,8 @@ class Model
 
    void updateTotalMigRates(const size_t &position);
 
+  void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
@@ -213,14 +222,14 @@ class Model
    std::vector<double> sample_times_;
 
    std::vector<double> change_times_;
-   std::vector<std::vector<size_t>*> pop_sizes_list_;
+   std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
    std::vector<std::vector<double>*> single_mig_probs_list_;
    
    size_t current_time_idx_;
-   std::vector<size_t>* current_pop_sizes_;
+   std::vector<double>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
