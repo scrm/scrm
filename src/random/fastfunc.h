@@ -46,9 +46,9 @@ class FastFunc {
  protected:
   float* build_fastlog_table();
   
-  static const double EXP_A=1048576/M_LN2;
-  static const long long EXP_C_LO=90254;
-  static const long long EXP_C_UP=-1;
+  const double EXP_A=1048576/M_LN2;
+  const long long EXP_C_LO=90254;
+  const long long EXP_C_UP=-1;
 
   float* fastlog_table_;
 };

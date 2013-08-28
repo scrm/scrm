@@ -219,6 +219,7 @@ void Forest::buildInitialTree() {
 
     //Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_leaf, false);
+    //this->clear_initial_coalevent();
     dout << "* * Tree:" << std::endl;
     assert(this->printNodes());
     assert(this->checkTree());
@@ -390,13 +391,10 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // Sample the time at which the next thing happens
     
-    // Record this coalescent interval (with or without a coalescent event)
-	  // this->initialize_coalevent((*event), current_time);    
-    
     sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
 
-    //this->record_coalevent((*ti), current_time);    
+    
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
@@ -421,12 +419,17 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
-		  //this->record_coalevent();
-      implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
+	// Record this  interval (coalescent)
+	   this->initialize_event((*ti), tmp_event_.time());    
+	   this->record_coalevent();
+        implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
 
     else if ( tmp_event_.isRecombination() ) {
+			// Record this  interval (recombination)
+	   this->initialize_event((*ti), tmp_event_.time());    
+	   this->record_recombevent();
       this->implementRecombination(tmp_event_, ti);
       continue;
     }
@@ -437,7 +440,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     }
 
     else if ( tmp_event_.isCoalescence() ) {
-      //this->record_coalevent();
+      	// Record this  interval (coalescent)
+	   this->initialize_event((*ti), tmp_event_.time());    
+	   this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
       assert(this->printTree());
@@ -1016,3 +1021,10 @@ void Forest::prune(Node *node) {
   // And delete
   nodes()->remove(node);
 }
+
+void Forest::initialize_event(const TimeInterval & current_event, double current_time){};
+void Forest::initialize_recomb_coalescent(const double rec_height){};
+void Forest::record_coalevent(){};
+void Forest::record_recombevent(){};
+void Forest::clear_initial_coalevent(){};
+

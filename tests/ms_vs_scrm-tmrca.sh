@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Compare summary statistics of ms and scrm for TMRCA, number of mutation, and number of recombination
+#Compare summary statistics of ms and scrm for TMRCA
 
 mkdir test-tmrca
 cd test-tmrca

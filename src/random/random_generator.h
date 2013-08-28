@@ -37,12 +37,12 @@ class RandomGenerator
   virtual ~RandomGenerator() {}
  
    //Getters & Setters
-   int seed() { return this->seed_; }
+   size_t seed() const { return seed_; }
 
    //Virtual methods
    virtual void initialize() =0;
    virtual double sample() =0;
-   virtual void set_seed(const int&);
+   virtual void set_seed(const size_t&);
 
    //Base class methods
    int sampleInt(int max_value);
@@ -66,7 +66,7 @@ class RandomGenerator
 
   protected:
    // seed
-   int seed_;
+   size_t seed_;
    // cache for a unit-exponentially distributed variable
    double unit_exponential_;
    // fast functions

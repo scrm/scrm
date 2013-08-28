@@ -3,7 +3,7 @@
 ## Need to review this again... is PSk the probability of observing k number of mutations? (Hein 2005 2.30, Wakeley 2008 4.3) when there is no recombination???
 msr=(0 10 100)
 msr=(0)
-rep=50000
+rep=100000
 seqlen=100000
 nsam=2
 compareRECOMB=compareSEG-RECOMB
@@ -18,8 +18,8 @@ for (r in c(0,10,100)){
 	scrm=read.table(paste(\"scrm${nsam}sample\",r,\"rho${t}thetasegRecomb\",sep=\"\"));
 	mstable=table(ms)
 	scrmtable=table(scrm)
-	lines(as.numeric(names(mstable)), mstable/dim(ms)[1],pch=\".\",col=\"red\")
-	lines(as.numeric(names(scrmtable)), scrmtable/dim(scrm)[1],pch=\".\",col=\"blue\")
+	points(as.numeric(names(mstable)), mstable/dim(ms)[1],pch=\".\",col=\"red\")
+	points(as.numeric(names(scrmtable)), scrmtable/dim(scrm)[1],pch=\".\",col=\"blue\")
 	}
 dev.off()
 " > dummy.r
@@ -31,11 +31,9 @@ for r in "${msr[@]}"
 		out=${prefix}out
 		segrecomb=${prefix}segRecomb
 
-		ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | grep -v "//" > ms${out}
-		cat ms${out} | grep "segsites" | sed -e "s/segsites: //" > ms${segrecomb}
+		ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | grep -v "//" | grep "segsites" | sed -e "s/segsites: //" > ms${segrecomb}
 
-		scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4 | grep -v "//" > scrm${out}
-		cat scrm${out} | grep "segsites" | sed -e "s/segsites: //" > scrm${segrecomb}
+		scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4 | grep -v "//"  | grep "segsites" | sed -e "s/segsites: //" > scrm${segrecomb}
 
 	done
 	

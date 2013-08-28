@@ -23,9 +23,7 @@
 #ifndef scrm_src_random_mersenne_twister
 #define scrm_src_random_mersenne_twister
 
-#include <vector>
-#include <ctime> 
-#include <boost/random.hpp>
+#include <random>
 
 #include "random_generator.h"
 
@@ -33,17 +31,19 @@ class MersenneTwister : public RandomGenerator
 {
   public:
    MersenneTwister();
-   MersenneTwister(int seed);
+   MersenneTwister(const size_t &seed);
    virtual ~MersenneTwister();
                          
    void initialize() {};
    double sample();
-   void set_seed(const int &seed);
+   void set_seed(const size_t &seed);
 
   protected:
-   typedef boost::mt19937 rng_type;
-   boost::uniform_01<double> unif;
-   rng_type rng;
+   std::mt19937 mt_; 
+   std::uniform_real_distribution<> unif_ = std::uniform_real_distribution<>(0, 1);
+
+  private:
+   size_t generateRandomSeed() const;
 };
 
 #endif

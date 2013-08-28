@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#Compare summary statistics of ms and scrm for TMRCA, number of mutation, and number of recombination
+#Compare distribution of genealogies
 
 msNsample=(3 4 5)
 
-rep=10000
+rep=20000
 
 ## compare TMRCA
 compareTMRCA=compareTMRCA

@@ -10,7 +10,10 @@ mst=(10 20)
 
 msNsample=(3 7 10)
 
-rep=100
+mst=(10)
+msNsample=(3)
+
+rep=100000
 #npop=20000
 
 compareSPEC=compareSPEC
@@ -25,10 +28,10 @@ for t in "${mst[@]}"
 		prefix=${nsam}sample${t}mut
 		out=${prefix}out
 		nseg=${prefix}Seg
-		rm mscolsum*  xx*
+		rm mscolsum*  
+		find . -name "xx*" -print0 | xargs -0 rm
 		
-		ms ${nsam} ${rep} -t ${t} > msout
-		cat msout | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		ms ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
 		
 		for file in $(seq 1 1 ${rep})
 				do 
@@ -45,10 +48,10 @@ END {
 				done
 		cat mscolsumsOld | tr '\n' ',' > mscolsums
 	
-		rm scrmcolsum*  xx*
+		rm scrmcolsum*  
+		find . -name "xx*" -print0 | xargs -0 rm
 	
-		scrm ${nsam} ${rep} -t ${t} | tail -n +4 > scrmout
-		cat scrmout | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
 		for file in $(seq 1 1 ${rep})
 				do 
 				sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '
@@ -65,11 +68,11 @@ END {
 		cat scrmcolsumsOld | tr '\n' ',' > scrmcolsums
 
 
-echo  -e "Sample size = ${nsam}, theta = ${t}" >> ${compareSPEC}
+#echo  -e "Sample size = ${nsam}, theta = ${t}" >> ${compareSPEC}
 
 		
 		echo "rm(list=ls());
-		source(\"fun_src.r\");
+		#source(\"fun_src.r\");
 		msdata=as.numeric(read.table(\"mscolsums\",sep=\",\"));
 		msnum=length(msdata)-1
 		mstable=table(msdata)
@@ -79,7 +82,11 @@ echo  -e "Sample size = ${nsam}, theta = ${t}" >> ${compareSPEC}
 		scrmdata=a[a>0]
 		scrmnum=length(scrmdata)-1
 		scrmtable=table(scrmdata)
-		
+		test=chisq.test(cbind(mstable, scrmtable));
+		cat(paste(\"Sample size = ${nsam}, theta = ${t}, test statistics = \",
+format(test\$statistic,digits=4),\", p-value = \",format(test\$p.value,scientific = TRUE),
+sep=\"\"),file=\"${compareSPEC}\",append=TRUE);cat(\"\n\",file=\"${compareSPEC}\",append=TRUE);
+
 		for (i in (1:(${nsam}-1))){
 		cat(paste( paste(\"P(S=\",i,\")  \",sep=\"\") , \"|\", format(mstable[i]/msnum,scientific = TRUE), \"|\", format(scrmtable[i]/scrmnum,scientific = TRUE),
 sep=\"\t\"),file=\"${compareSPEC}\",append=TRUE);
