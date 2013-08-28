@@ -66,6 +66,7 @@ class Model
    const static double default_mig_rate = 0.0;
 
    // Getters
+
    double mutation_rate() const { return mutation_rate_; }
    double recombination_rate() const { return recombination_rate_; }
    size_t loci_length() const { return loci_length_; }
@@ -86,7 +87,17 @@ class Model
      return current_pop_sizes_->at(pop);
    }
    
-   double migration_rate(const size_t &sink, const size_t &source) const {
+
+   /**
+    * @brief Returns the current migration rate for a given pair of populations.
+    *
+    * @param source The population from which the migrants come (when looking
+    *               backwards in time!)
+    * @param sink The population that the migration goes to.
+    *
+    * @return The current unscaled migration rate.
+    */
+   double migration_rate(const size_t &source, const size_t &sink) const {
      if (current_mig_rates_ == NULL) return default_mig_rate;
      if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
@@ -172,6 +183,8 @@ class Model
    void addSingleMigrationEvent(const double &time, const size_t &source_pop, 
                                 const size_t &sink_pop, const double &fraction);
 
+   void finalize(); 
+
   private:
    Model(const Model&);
    Model& operator=(const Model&);
@@ -187,7 +200,7 @@ class Model
     parList.clear();
    }
 
-  void updateTotalMigRates(const size_t &position);
+   void updateTotalMigRates(const size_t &position);
 
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);

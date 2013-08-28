@@ -18,6 +18,7 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testAddRelativePopulationSizes );
   CPPUNIT_TEST( testAddGrowthRates );
   CPPUNIT_TEST( testAddMigRates );
+  CPPUNIT_TEST( testAddMigRate );
   CPPUNIT_TEST( testDebugConstructor );
   CPPUNIT_TEST( testIncreaseTime );
   CPPUNIT_TEST( testGetNextTime );
@@ -157,6 +158,7 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( model.addGrowthRates(1, std::vector<double>(3, 5)), std::logic_error );
   }
 
+
   void testAddMigRates() {
     Model model = Model();
     model.set_population_number(3);
@@ -171,15 +173,39 @@ class TestModel : public CppUnit::TestCase {
     
     model.resetTime();
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 2.0, model.migration_rate(1,0) );
-    CPPUNIT_ASSERT_EQUAL( 3.0, model.migration_rate(2,0) );
-    CPPUNIT_ASSERT_EQUAL( 4.0, model.migration_rate(0,1) );
-    CPPUNIT_ASSERT_EQUAL( 7.0, model.migration_rate(0,2) );
-    CPPUNIT_ASSERT_EQUAL( 6.0, model.migration_rate(2,1) );
+    CPPUNIT_ASSERT_EQUAL( 2.0, model.migration_rate(0,1) );
+    CPPUNIT_ASSERT_EQUAL( 3.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 4.0, model.migration_rate(1,0) );
+    CPPUNIT_ASSERT_EQUAL( 7.0, model.migration_rate(2,0) );
+    CPPUNIT_ASSERT_EQUAL( 6.0, model.migration_rate(1,2) );
+  }
 
-    CPPUNIT_ASSERT_EQUAL( 11.0, model.total_migration_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.total_migration_rate(1) );
-    CPPUNIT_ASSERT_EQUAL(  9.0, model.total_migration_rate(2) );
+  void testAddMigRate() {
+    Model model = Model();
+    model.set_population_number(3);
+
+    std::vector<double> rates;
+    for (size_t i = 1; i <= 9; ++i) {
+      rates.push_back(i);
+    }
+    model.addMigrationRates(1, rates);
+    model.addMigrationRate(1, 2, 1, 0.5);
+
+    model.resetTime();
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.migration_rate(2,1) );
+    CPPUNIT_ASSERT_EQUAL( 2.0, model.migration_rate(0,1) );
+    CPPUNIT_ASSERT_EQUAL( 3.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 4.0, model.migration_rate(1,0) );
+    CPPUNIT_ASSERT_EQUAL( 7.0, model.migration_rate(2,0) );
+
+    model.addMigrationRate(2, 2, 1, 0.4);
+    model.finalize();
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.0, model.migration_rate(0,1) );
+    CPPUNIT_ASSERT_EQUAL( 3.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 4.0, model.migration_rate(1,0) );
+    CPPUNIT_ASSERT_EQUAL( 7.0, model.migration_rate(2,0) );
   }
 
   void testDebugConstructor() {

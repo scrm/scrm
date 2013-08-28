@@ -165,7 +165,7 @@ Model* Param::parse() {
       model->addSingleMigrationEvent(time, sink_pop, source_pop, 1.0); 
       for (size_t i = 0; i < model->population_number(); ++i) {
         if (i == sink_pop) continue;
-        //model->addMigrationRate(time, i, sink_pop, 0.0);
+        model->addMigrationRate(time, i, sink_pop, 0.0);
       }
     }
 
@@ -248,6 +248,7 @@ Model* Param::parse() {
                            / model->population_size() 
                            / (model->loci_length()));
 
+  model->finalize();
   model->resetTime();
   /*
      recomb_rate_persite=rho/4 / npop / (nsites-1);

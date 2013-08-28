@@ -79,8 +79,8 @@ class TestParam : public CppUnit::TestCase {
                       "-ma", "x", "5", "7", "x" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(1, 0) );
     delete model;
 
     // -ema
@@ -90,8 +90,8 @@ class TestParam : public CppUnit::TestCase {
     model->resetTime();
     model->increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(1, 0) );
     delete model;
 
     // -M
@@ -126,16 +126,18 @@ class TestParam : public CppUnit::TestCase {
     delete model;
 
     // -ej
-    char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+    argv = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
                       "-M", "1.3", "-ej", "1.6", "1", "0" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv6).parse(); );
+    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv).parse(); );
+    model->finalize();
     model->resetTime();
     model->increaseTime();
+    std::cout << *model << std::endl;
     CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 1.0, model->single_mig_pop(1, 0) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model->single_mig_pop(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 1.3/model->default_pop_size, model->migration_rate(0, 1) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 1.3/model->default_pop_size, model->migration_rate(0, 1) );
     delete model;
   }
 

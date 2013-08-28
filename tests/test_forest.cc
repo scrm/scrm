@@ -193,6 +193,7 @@ class TestForest : public CppUnit::TestCase {
     forest->writable_model()->addGrowthRates(0.2, std::vector<double>(2, 0.000125));
     forest->writable_model()->addGrowthRates(1, std::vector<double>(2, 0.0));
     forest->writable_model()->addGrowthRates(2, std::vector<double>(2, 2));
+    forest->writable_model()->finalize();
     forest->writable_model()->resetTime();
 
     TimeIntervalIterator tii(forest, forest->nodes()->at(0));
