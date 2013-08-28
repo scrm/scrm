@@ -31,9 +31,9 @@ class TestModel : public CppUnit::TestCase {
  public:
   void testAddChangeTime() {
     Model model = Model();
-    std::vector<size_t> *v1 = new std::vector<size_t>(1, 1), 
-                        *v2 = new std::vector<size_t>(1, 2), 
-                        *v3 = new std::vector<size_t>(1, 3); 
+    std::vector<double> *v1 = new std::vector<double>(1, 1), 
+                        *v2 = new std::vector<double>(1, 2), 
+                        *v3 = new std::vector<double>(1, 3); 
 
     // Check basic adding first time;
     CPPUNIT_ASSERT( model.addChangeTime(0) == 0 );
@@ -76,7 +76,7 @@ class TestModel : public CppUnit::TestCase {
 
   void testDeleteParList() {
     Model model = Model();
-    std::vector<size_t>* pop_sizes = new std::vector<size_t>(1, 5);
+    std::vector<double>* pop_sizes = new std::vector<double>(1, 5);
     model.pop_sizes_list_.push_back(pop_sizes);
     model.deleteParList(model.pop_sizes_list_);
     CPPUNIT_ASSERT( model.pop_sizes_list_.size() == 0 );
@@ -119,25 +119,25 @@ class TestModel : public CppUnit::TestCase {
   void testAddPopulationSizes() {
     Model model = Model();
     model.set_population_number(2);
-    model.addPopulationSizes(1, std::vector<size_t>(2, 5));
+    model.addPopulationSizes(1, std::vector<double>(2, 5));
     CPPUNIT_ASSERT( model.pop_sizes_list_.at(1)->at(0) == 5 );
 
-    std::vector<size_t> pop_sizes2 = std::vector<size_t>();
+    auto pop_sizes2 = std::vector<double>();
     pop_sizes2.push_back(7);
     pop_sizes2.push_back(4);
     model.addPopulationSizes(0, pop_sizes2);
     CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(0) == 7 );
     CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(1) == 4 );
     
-    CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<size_t>(1, 5)), std::logic_error );
-    CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<size_t>(3, 5)), std::logic_error );
+    CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(1, 5)), std::logic_error );
+    CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(3, 5)), std::logic_error );
   }
   
   void testAddRelativePopulationSizes() {
     Model model = Model();
     model.set_population_number(2);
-    model.addRelativePopulationSizes(1, std::vector<double>(2, .5));
-    CPPUNIT_ASSERT_EQUAL( model.pop_sizes_list_.at(1)->at(0), (size_t)(0.5 * model.default_pop_size) );
+    model.addPopulationSizes(1, std::vector<double>(2, .5), true);
+    CPPUNIT_ASSERT_EQUAL( model.pop_sizes_list_.at(1)->at(0), 0.5 * model.default_pop_size );
   }
 
   void testAddGrowthRates() {
@@ -247,29 +247,29 @@ class TestModel : public CppUnit::TestCase {
   void testGetters() {
     Model model = Model(7);
     model.addGrowthRates(1.0, std::vector<double>(1, 1.5));
-    model.addPopulationSizes(2.0, std::vector<size_t>(1, 5000));
+    model.addPopulationSizes(2.0, std::vector<double>(1, 5000));
     model.addGrowthRates(3.0, std::vector<double>(1, 1));
-    model.addPopulationSizes(4.0, std::vector<size_t>(1, 10000));
+    model.addPopulationSizes(4.0, std::vector<double>(1, 10000));
 
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 1.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 2.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)5000, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 5000.0, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 3.0
     CPPUNIT_ASSERT_EQUAL( 1.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)5000, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 5000.0, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 4.0
     CPPUNIT_ASSERT_EQUAL( 1.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)10000, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
   }
 
   void testHasFixedTimeEvent() {

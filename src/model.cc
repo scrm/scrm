@@ -101,34 +101,42 @@ size_t Model::addChangeTime(double time) {
 
 void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes) {
   for (size_t pop = 0; pop < samples_sizes.size(); ++pop) {
-    for (size_t i = 0; i < samples_sizes.at(pop); ++i) {
-      sample_populations_.push_back(pop);
-      sample_times_.push_back(time);
-    }
+  for (size_t i = 0; i < samples_sizes.at(pop); ++i) {
+    sample_populations_.push_back(pop);
+    sample_times_.push_back(time);
   }
+}
 }
 
 
-void Model::addPopulationSizes(double time, const std::vector<size_t> &pop_sizes) {
+void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes, bool relative) {
   if ( pop_sizes.size() != population_number() ) 
     throw std::logic_error("Population size values do not meet the number of populations");
-  std::vector<size_t>* pop_sizes_heap = new std::vector<size_t>(pop_sizes);
+  auto pop_sizes_heap = new std::vector<double>(pop_sizes);
+  if (relative) {
+    for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
+      if (isnan(*it)) continue;
+      else *it *= this->default_pop_size; 
+    }
+  }
   size_t position = addChangeTime(time);
   pop_sizes_list_[position] = pop_sizes_heap;  
 }
 
 
-void Model::addRelativePopulationSizes(double time, const std::vector<double> &population_sizes) {
-  std::vector<size_t> abs_pop_sizes;
-  std::vector<double>::const_iterator it;
-  for (it = population_sizes.begin(); it != population_sizes.end(); ++it) {
-    abs_pop_sizes.push_back( *it * this->default_pop_size ); 
-  }
-  this->addPopulationSizes(time, abs_pop_sizes);
+void Model::addPopulationSizes(const double &time, const double &pop_size, bool relative) {
+  addPopulationSizes(time, std::vector<double>(population_number(), pop_size), relative);
+}
+  
+
+void Model::addPopulationSize(const double &time, const size_t &pop, const double &population_size, bool relative) {
+  size_t position = addChangeTime(time);
+  if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"));
+  pop_sizes_list_.at(position)->at(pop) = population_size*default_pop_size;
 }
 
 
-void Model::addGrowthRates(double time, const std::vector<double> &growth_rates) {
+void Model::addGrowthRates(const double &time, const std::vector<double> &growth_rates) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
   std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
@@ -137,6 +145,15 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
 
 }
 
+void Model::addGrowthRates(const double &time, const double &growth_rate) {
+  addGrowthRates(time, std::vector<double>(population_number(), growth_rate));
+}
+
+void Model::addGrowthRate(const double &time, const size_t &population, const double &growth_rate) {
+  size_t position = addChangeTime(time);
+  if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace")); 
+  growth_rates_list_.at(position)->at(population) = growth_rate;
+}
 
 /**
  * @brief Sets a migration rate form a specific population to another starting from a
@@ -157,7 +174,7 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
  */
 void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate) {
   size_t position = addChangeTime(time);
-  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, -1); 
+  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, nan("value to replace")); 
   mig_rates_list_.at(position)->at(getMigMatrixIndex(source, sink)) = mig_rate;  
 }
 
@@ -284,19 +301,29 @@ void Model::updateTotalMigRates(const size_t &position) {
 
 
 void Model::finalize() {
-  std::vector<double>* last_mig_rates = NULL; 
-  std::vector<double>* cur_mig_rates = NULL; 
+  fillVectorList(mig_rates_list_, default_mig_rate);
+  fillVectorList(pop_sizes_list_, default_pop_size);
+  fillVectorList(growth_rates_list_, default_growth_rate);
+
   for (size_t j = 0; j < mig_rates_list_.size(); ++j) {
-    cur_mig_rates = mig_rates_list_.at(j);
-    if (cur_mig_rates == NULL) continue;
-
-    for (size_t i = 0; i < cur_mig_rates->size(); ++i) {
-      if ( (cur_mig_rates)->at(i) != -1 ) continue;
-
-      if (last_mig_rates == NULL) (cur_mig_rates)->at(i) = default_mig_rate;
-      else (cur_mig_rates)->at(i) = last_mig_rates->at(i); 
-    }
-    last_mig_rates = cur_mig_rates;
+    if (mig_rates_list_.at(j) == NULL) continue;
     updateTotalMigRates(j);
   } 
+}
+
+void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value) {
+  std::vector<double>* last = NULL; 
+  std::vector<double>* current = NULL; 
+  for (size_t j = 0; j < vector_list.size(); ++j) {
+    current = vector_list.at(j);
+    if (current == NULL) continue;
+
+    for (size_t i = 0; i < current->size(); ++i) {
+      if ( !isnan(current->at(i)) ) continue;
+
+      if (last == NULL) (current)->at(i) = default_value;
+      else current->at(i) = last->at(i); 
+    }
+    last = current;
+  }
 }

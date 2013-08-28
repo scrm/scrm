@@ -86,11 +86,22 @@ Model* Param::parse() {
       model->set_loci_number(readInput<int>(argv_[argc_i]));
     }
 
+    // ------------------------------------------------------------------
+    // Mutation 
+    // ------------------------------------------------------------------
     else if (argv_i == "-t") {
       nextArg(argv_i);
       model->set_mutation_rate(readInput<double>(argv_[argc_i]));
     }
 
+    else if (argv_i == "-s"){
+      nextArg(argv_i);
+      model->set_mutation_exact_number(readInput<size_t>(argv_[argc_i]));
+    }
+
+    // ------------------------------------------------------------------
+    // Recombination 
+    // ------------------------------------------------------------------
     else if (argv_i == "-r") {
       nextArg(argv_i);
       model->set_recombination_rate(readInput<double>(argv_[argc_i]));
@@ -98,6 +109,10 @@ Model* Param::parse() {
       model->set_loci_length(readInput<size_t>(argv_[argc_i]));
     }
 
+    // ------------------------------------------------------------------
+    // Subpopulations 
+    // ------------------------------------------------------------------
+    // Set number of subpopulations and samples at time 0
     else if (argv_i == "-I") {
       nextArg(argv_i);
       model->set_population_number(readInput<size_t>(argv_[argc_i]));
@@ -109,6 +124,7 @@ Model* Param::parse() {
       model->addSampleSizes(0.0, sample_size);
     }
 
+    // Add samples at arbitrary times
     else if (argv_i == "-eI") {
       nextArg(argv_i);
       time = readInput<double>(argv_[argc_i]);
@@ -118,6 +134,40 @@ Model* Param::parse() {
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model->addSampleSizes(time, sample_size);
+    }
+
+    // ------------------------------------------------------------------
+    // Populations sizes 
+    // ------------------------------------------------------------------
+    else if (argv_i == "-eN" || argv_i == "-N") {
+      if (argv_i == "-eN") time = readNextInput<double>();
+      else time = 0.0;
+      model->addPopulationSizes(time, readNextInput<double>(), true); 
+      model->addGrowthRates(time, 0.0);
+    }
+
+    else if (argv_i == "-en" || argv_i == "-n") {
+      if (argv_i == "-en") time = readNextInput<double>();
+      else time = 0.0;
+      size_t pop = readNextInput<size_t>();
+      model->addPopulationSize(time, pop, readNextInput<double>(), true);
+      model->addGrowthRate(time, pop, 0.0);
+    }
+
+    // ------------------------------------------------------------------
+    // Exponential Growth 
+    // ------------------------------------------------------------------
+    else if (argv_i == "-G" || argv_i == "-eG") {
+      if (argv_i == "-eG") time = readNextInput<double>();
+      else time = 0.0;
+      model->addGrowthRates(time, readNextInput<double>()); 
+    }
+
+    else if (argv_i == "-g" || argv_i == "-eg") {
+      if (argv_i == "-eg") time = readNextInput<double>();
+      else time = 0.0;
+      size_t pop = readNextInput<size_t>();
+      model->addGrowthRate(time, pop, readNextInput<double>()); 
     }
 
     // ------------------------------------------------------------------
@@ -147,7 +197,7 @@ Model* Param::parse() {
       }
       else time = 0.0;
       nextArg(argv_i);
-      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/model->default_pop_size);
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->default_pop_size*(model->population_number()-1)));
     }
 
     else if (argv_i == "-esme") {
@@ -169,34 +219,29 @@ Model* Param::parse() {
       }
     }
 
-    else if (argv_i == "-eN") {
-      nextArg(argv_i);
-      time = readInput<double>(argv_[argc_i]);
-      nextArg(argv_i);
-      std::vector<double> pop_sizes(model->population_number(),
-                                    readInput<double>(argv_[argc_i]));
-      model->addRelativePopulationSizes(time, pop_sizes); 
-    }
-
+    // ------------------------------------------------------------------
+    // Pruning 
+    // ------------------------------------------------------------------
     else if (argv_i == "-l"){
       nextArg(argv_i);
       model->set_exact_window_length(readInput<size_t>(argv_[argc_i]));
     }
+
+    // ------------------------------------------------------------------
+    // Output 
+    // ------------------------------------------------------------------
+    else if (argv_i == "-T"){
+      //treefile = argv_[++argc_i];
+      tree_bool = true;
+    }
+
 
     else if (argv_i == "-seed"){
       nextArg(argv_i);
       random_seed = readInput<int>(argv_[argc_i]);
     }
 
-    else if (argv_i == "-T"){
-      //treefile = argv_[++argc_i];
-      tree_bool = true;
-    }
 
-    else if (argv_i == "-s"){
-      nextArg(argv_i);
-      model->set_mutation_exact_number(readInput<size_t>(argv_[argc_i]));
-    }
 
     else if (directly_called_){
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
