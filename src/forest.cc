@@ -415,7 +415,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
 	// Record this  interval (coalescent)
-	   this->initialize_coalevent((*it), tmp_event_.time());    
+	   this->initialize_event((*ti), tmp_event_.time());    
 	   this->record_coalevent();
         implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
@@ -423,7 +423,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     else if ( tmp_event_.isRecombination() ) {
 			// Record this  interval (recombination)
-	   this->initialize_coalevent((*it), tmp_event_.time());    
+	   this->initialize_event((*ti), tmp_event_.time());    
 	   this->record_recombevent();
       this->implementRecombination(tmp_event_, ti);
       continue;
@@ -436,7 +436,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     else if ( tmp_event_.isCoalescence() ) {
       	// Record this  interval (coalescent)
-	   this->initialize_coalevent((*it), tmp_event_.time());    
+	   this->initialize_event((*ti), tmp_event_.time());    
 	   this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
@@ -998,3 +998,10 @@ void Forest::prune(Node *node) {
   // And delete
   nodes()->remove(node);
 }
+
+void Forest::initialize_event(const TimeInterval & current_event, double current_time){};
+void Forest::initialize_recomb_coalescent(const double rec_height){};
+void Forest::record_coalevent(){};
+void Forest::record_recombevent(){};
+void Forest::clear_initial_coalevent(){};
+

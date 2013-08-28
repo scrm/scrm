@@ -87,7 +87,7 @@ class Forest
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(Forest * current_forest, bool entire_ARG=true);
-  ~Forest();
+virtual ~Forest();
 
   //Getters & Setters
   const Model &model() const { return *model_; }
@@ -163,11 +163,11 @@ class Forest
   
   //derived class from Forest
 
-virtual void initialize_event(const TimeInterval & current_event, double current_time);
-virtual	void initialize_recomb_coalescent(const double rec_height);
-virtual	void record_coalevent();
-virtual	void record_recombevent();
-virtual	void clear_initial_coalevent();
+	virtual void initialize_event(const TimeInterval & current_event, double current_time);
+	virtual	void initialize_recomb_coalescent(const double rec_height);
+	virtual	void record_coalevent();
+	virtual	void record_recombevent();
+	virtual	void clear_initial_coalevent();
 			  
 
  private:
