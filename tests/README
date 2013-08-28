@@ -1,8 +1,8 @@
 Testing files for comparing statistics between ms output and scrm ouput
 
-WITHOUT RECOMBINATION
+CHECKING THE INITIAL TREE
 	
-	##############################################
+(GOOD) ##############################################
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -10,7 +10,7 @@ WITHOUT RECOMBINATION
 		test-tmrca/compareTMRCA
 		test-tmrca/*.pdf
 		
-	##############################################
+(GOOD) ##############################################
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -18,10 +18,21 @@ WITHOUT RECOMBINATION
 		test-bl/compareBL
 		test-bl/*.pdf
 	
-	##############################################
+(GOOD) ##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg.sh 
 	
+	Output file:
+		test-seg/compareSEG
+		test-seg/*.pdf
+	
+	##############################################
+	Compare TMRCA and total branch length for migration
+	./ms_vs_scrm-tmrca-migration.sh
+	
+	Output file:
+		test-tmrca-mig/compareTMRCA 
+		test-tmrca-mig/*.pdf
 	
 	##############################################
 	Compare spectrum

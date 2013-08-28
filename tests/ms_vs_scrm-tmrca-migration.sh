@@ -105,3 +105,47 @@ hybrid-Lambda -gt scrm${Trees} -bl scrm${bl}
 
 R CMD BATCH dummy.r
 rm ms* scrm*
+
+#case 3 and 4 are from ms
+#case 3
+#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate 5
+
+prefix="3groups10sam4sam1sam_mig_5"
+Trees=${prefix}Trees
+bl=${prefix}bl
+tmrca=${prefix}tmrca
+	
+echo ${prefix} > current_case
+	
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 5.0 -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+hybrid-Lambda -gt ms${Trees} -tmrca ms${tmrca}
+hybrid-Lambda -gt ms${Trees} -bl ms${bl}
+
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > scrm${Trees}
+hybrid-Lambda -gt scrm${Trees} -tmrca scrm${tmrca}
+hybrid-Lambda -gt scrm${Trees} -bl scrm${bl}
+
+R CMD BATCH dummy.r
+rm ms* scrm*
+
+
+#case 4
+#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate matrix on manual page 5
+
+prefix="3groups10sam4sam1sam_mig_x123x456x"
+Trees=${prefix}Trees
+bl=${prefix}bl
+tmrca=${prefix}tmrca
+	
+echo ${prefix} > current_case
+	
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+hybrid-Lambda -gt ms${Trees} -tmrca ms${tmrca}
+hybrid-Lambda -gt ms${Trees} -bl ms${bl}
+
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > scrm${Trees}
+hybrid-Lambda -gt scrm${Trees} -tmrca scrm${tmrca}
+hybrid-Lambda -gt scrm${Trees} -bl scrm${bl}
+
+R CMD BATCH dummy.r
+rm ms* scrm*

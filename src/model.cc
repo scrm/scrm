@@ -128,7 +128,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
   auto pop_sizes_heap = new std::vector<double>(pop_sizes);
   if (relative) {
     for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
-      if (isnan(*it)) continue;
+      if (std::isnan(*it)) continue;
       else *it *= this->default_pop_size; 
     }
   }
@@ -332,7 +332,7 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
     if (current == NULL) continue;
 
     for (size_t i = 0; i < current->size(); ++i) {
-      if ( !isnan(current->at(i)) ) continue;
+      if ( !std::isnan(current->at(i)) ) continue;
 
       if (last == NULL) (current)->at(i) = default_value;
       else current->at(i) = last->at(i); 
