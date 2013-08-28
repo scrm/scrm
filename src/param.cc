@@ -120,7 +120,15 @@ Model* Param::parse() {
       model->addSampleSizes(time, sample_size);
     }
 
-    else if (argv_i == "-ma") {
+    // ------------------------------------------------------------------
+    // Migration
+    // ------------------------------------------------------------------
+    else if (argv_i == "-ma" || argv_i == "-ema") {
+      if (argv_i == "-ema") {
+        nextArg(argv_i);
+        time = readInput<double>(argv_[argc_i]);
+      }
+      else time = 0.0;
       std::vector<double> migration_rates;
       for (size_t i = 0; i < model->population_number(); ++i) {
         for (size_t j = 0; j < model->population_number(); ++j) {
@@ -129,7 +137,36 @@ Model* Param::parse() {
           else migration_rates.push_back(readInput<double>(argv_[argc_i])/model->default_pop_size);
         }
       }
-      model->addMigrationRates(0.0, migration_rates);
+      model->addMigrationRates(time, migration_rates);
+    }
+
+    else if (argv_i == "-M" || argv_i == "-eM") {
+      if (argv_i == "-eM") {
+        nextArg(argv_i);
+        time = readInput<double>(argv_[argc_i]);
+      }
+      else time = 0.0;
+      nextArg(argv_i);
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/model->default_pop_size);
+    }
+
+    else if (argv_i == "-esme") {
+      time = readNextInput<double>();
+      size_t source_pop = readNextInput<size_t>();
+      size_t sink_pop = readNextInput<size_t>();
+      double fraction = readNextInput<double>();
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction); 
+    }
+
+    else if (argv_i == "-ej") {
+      time = readNextInput<double>();
+      size_t source_pop = readNextInput<size_t>();
+      size_t sink_pop = readNextInput<size_t>();
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0); 
+      for (size_t i = 0; i < model->population_number(); ++i) {
+        if (i == source_pop) continue;
+        model->addMigrationRate(time, i, source_pop, 0.0);
+      }
     }
 
     else if (argv_i == "-eN") {
@@ -211,6 +248,7 @@ Model* Param::parse() {
                            / model->population_size() 
                            / (model->loci_length()));
 
+  model->finalize();
   model->resetTime();
   /*
      recomb_rate_persite=rho/4 / npop / (nsites-1);

@@ -13,9 +13,13 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestParam );
 
   CPPUNIT_TEST( testParse );
+  CPPUNIT_TEST( testParseMigrationOptions );
   CPPUNIT_TEST( testReadInput );
   
   CPPUNIT_TEST_SUITE_END();
+
+ private:
+    Model* model;
 
  public:
   void testParse() {
@@ -23,7 +27,7 @@ class TestParam : public CppUnit::TestCase {
 
     char *argv[] = { "scrm", "4", "7", "-t", "4.004", "-r", "1.24", "1001", "-l", "1000", "-seed", "123"};
     Param pars = Param(12, argv);
-    Model* model = pars.parse();
+    model = pars.parse();
     //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model->loci_number() );
     CPPUNIT_ASSERT_EQUAL( (double)1e-07, model->mutation_rate() );
@@ -67,13 +71,73 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model->population_size(1), (size_t)(0.75*model->default_pop_size) );
     CPPUNIT_ASSERT_EQUAL( model->population_size(2), (size_t)(0.75*model->default_pop_size) );
     delete model;
+  }
 
-    char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+  void testParseMigrationOptions() {
+    // -ma
+    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
                       "-ma", "x", "5", "7", "x" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv6).parse(); );
+    CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(1, 0) );
+    delete model;
+
+    // -ema
+    char *argv2[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-ema", "1.6", "x", "5", "7", "x" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv2).parse(); );
+    model->resetTime();
+    model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 5.0/model->default_pop_size, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 7.0/model->default_pop_size, model->migration_rate(1, 0) );
+    delete model;
+
+    // -M
+    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-M", "2.5" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(11, argv3).parse(); );
+    model->resetTime();
+    CPPUNIT_ASSERT_EQUAL( 2.5/model->default_pop_size, model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 2.5/model->default_pop_size, model->migration_rate(0, 1) );
+    delete model;
+
+    // -eM
+    char *argv4[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-eM", "1.6", "2.5" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(12, argv4).parse(); );
+    model->resetTime();
+    model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 2.5/model->default_pop_size, model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 2.5/model->default_pop_size, model->migration_rate(0, 1) );
+    delete model;
+
+    // -esme
+    char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-esme", "1.6", "1", "0", "0.5", "-esme", "1.6", "0", "1", "0.1" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv5).parse(); );
+    model->resetTime();
+    model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 0.1, model->single_mig_pop(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model->single_mig_pop(1, 0) );
+    delete model;
+
+    // -ej
+    char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+                      "-M", "1.3", "-ej", "1.6", "1", "0" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv6).parse(); );
+    model->finalize();
+    model->resetTime();
+    model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 1.0, model->single_mig_pop(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model->single_mig_pop(0, 1) );
+
+    CPPUNIT_ASSERT_EQUAL( 0.0, model->migration_rate(0, 1) );
+    CPPUNIT_ASSERT_EQUAL( 1.3/model->default_pop_size, model->migration_rate(1, 0) );
     delete model;
   }
 

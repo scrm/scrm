@@ -68,6 +68,7 @@ class Model
    //const double default_mig_rate;
 
    // Getters
+
    double mutation_rate() const { return mutation_rate_; }
    double recombination_rate() const { return recombination_rate_; }
    size_t loci_length() const { return loci_length_; }
@@ -88,7 +89,17 @@ class Model
      return current_pop_sizes_->at(pop);
    }
    
-   double migration_rate(const size_t &sink, const size_t &source) const {
+
+   /**
+    * @brief Returns the current migration rate for a given pair of populations.
+    *
+    * @param source The population from which the migrants come (when looking
+    *               backwards in time!)
+    * @param sink The population that the migration goes to.
+    *
+    * @return The current unscaled migration rate.
+    */
+   double migration_rate(const size_t &source, const size_t &sink) const {
      if (current_mig_rates_ == NULL) return default_mig_rate;
      if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
@@ -98,6 +109,18 @@ class Model
      if (current_total_mig_rates_ == NULL) return default_mig_rate;
      return current_total_mig_rates_->at(sink); 
    }; 
+
+   double single_mig_pop(const size_t &source, const size_t &sink) const {
+    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return 0.0;
+    if (sink == source) return 0.0;
+    return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
+   }
+
+   bool hasFixedTimeEvent(const double &at_time) const {
+    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
+    if (getCurrentTime() != at_time) return false;
+    return true;
+   }
 
    size_t sample_size() const { return sample_times_.size(); };
    size_t sample_population(size_t sample_id) const { return sample_populations_.at(sample_id); };
@@ -152,10 +175,17 @@ class Model
    void addPopulationSizes(double time, const std::vector<size_t> &population_sizes);
    void addRelativePopulationSizes(double time, const std::vector<double> &population_sizes);
    void addGrowthRates(double time, const std::vector<double> &growth_rates);
-   void addMigrationRates(double time, const std::vector<double> &mig_rates);
-   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
 
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
+
+   // functions to add Migration
+   void addMigrationRates(double time, const std::vector<double> &mig_rates);
+   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
+   void addSymmetricMigration(const double &time, const double &mig_rate); 
+   void addSingleMigrationEvent(const double &time, const size_t &source_pop, 
+                                const size_t &sink_pop, const double &fraction);
+
+   void finalize(); 
 
   private:
    Model(const Model&);
@@ -172,29 +202,28 @@ class Model
     parList.clear();
    }
 
-  void updateTotalMigRates(const size_t &position);
+   void updateTotalMigRates(const size_t &position);
 
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
+    assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
   }
 
-
+   std::vector<size_t> sample_populations_;
+   std::vector<double> sample_times_;
 
    std::vector<double> change_times_;
-
    std::vector<std::vector<size_t>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
+   std::vector<std::vector<double>*> single_mig_probs_list_;
    
-   std::vector<size_t> sample_populations_;
-   std::vector<double> sample_times_;
-
+   size_t current_time_idx_;
    std::vector<size_t>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
-   size_t current_time_idx_;
 
    double mutation_rate_;
    size_t mutation_exact_number_;

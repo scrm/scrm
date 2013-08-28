@@ -367,9 +367,14 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
 
+
     // Update States & Rates (see their declaration for explanation); 
     states_[0] = getNodeState(active_node(0), (*ti).start_height());
     states_[1] = getNodeState(active_node(1), (*ti).start_height());
+
+    // Fixed time events (e.g pop splits/merges & single migration events first
+    if (model().hasFixedTimeEvent((*ti).start_height())) implementFixedTimeEvent(ti);
+
     calcRates(*ti);
 
     dout << "* * * Active Nodes: 0:" << active_node(0) << ":" << states_[0]
@@ -757,12 +762,11 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
 
 /** 
- * Modifies the forest to reflect that two coalescing nodes coalesced together.
+ * @brief Modifies the forest to reflect that two coalescing nodes coalesced together.
  * 
- * \param root_1 The first coalescing node
- * \param root_2 The second coalescing node
- * \param time   The time at which the coalescence happens
- *
+ * @param root_1 The first coalescing node
+ * @param root_2 The second coalescing node
+ * @param time   The time at which the coalescence happens
  */
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
@@ -857,6 +861,23 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   dout << "done." << std::endl;
 }
 
+
+void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
+  dout << "* * Fixed time event" << std::endl;
+  for (size_t i = 0; i < 2; ++i) {
+    if (states_[i] != 1) continue;
+    double prob;
+    for (size_t j = 0; j < model().population_number(); ++j) {
+      prob = model().single_mig_pop(active_node(i)->population(), j);
+      if (prob == 0.0) continue;
+      if (prob == 1.0 || prob <= random_generator()->sample() ) {
+        tmp_event_ = Event((*ti).start_height());
+        tmp_event_.setToMigration(active_node(i), i, j);
+        implementMigration(tmp_event_, ti);
+      }
+    }
+  }
+}
 
 /** 
  * Helper function for doing a coalescence.

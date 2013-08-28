@@ -63,7 +63,18 @@ class Param {
   std::string tree_NAME;
   std::string tmrca_NAME;
   std::string log_NAME;
-   
+
+  template<class T>
+  T readNextInput() {
+    ++argc_i;
+
+    if (argc_i >= argc_) {
+      throw std::invalid_argument(std::string("Not enough parameters when parsing options"));
+    }
+
+    return boost::lexical_cast<T>(argv_[argc_i]);
+  }
+
  private:
   const int argc_;
   int argc_i;
@@ -82,5 +93,6 @@ T readInput(char input[])
 {
   return boost::lexical_cast<T>(input);
 }
+
 
 #endif

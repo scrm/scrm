@@ -52,6 +52,7 @@ Model::~Model() {
   deleteParList(growth_rates_list_);
   deleteParList(mig_rates_list_);
   deleteParList(total_mig_rates_list_);
+  deleteParList(single_mig_probs_list_);
 }
 
 void Model::init() {
@@ -89,6 +90,7 @@ size_t Model::addChangeTime(double time) {
     growth_rates_list_.push_back(NULL);
     mig_rates_list_.push_back(NULL);
     total_mig_rates_list_.push_back(NULL);
+    single_mig_probs_list_.push_back(NULL);
     return position;
   }
 
@@ -106,6 +108,7 @@ size_t Model::addChangeTime(double time) {
   growth_rates_list_.insert(growth_rates_list_.begin() + position, NULL);
   mig_rates_list_.insert(mig_rates_list_.begin() + position, NULL);
   total_mig_rates_list_.insert(total_mig_rates_list_.begin() + position, NULL);
+  single_mig_probs_list_.insert(single_mig_probs_list_.begin() + position, NULL);
   return position;
 }
 
@@ -147,6 +150,47 @@ void Model::addGrowthRates(double time, const std::vector<double> &growth_rates)
 
 }
 
+
+/**
+ * @brief Sets a migration rate form a specific population to another starting from a
+ * certain time point (going backwards in time); 
+ *
+ * This requires model finalization, e.g. call model.finalize() after you set up
+ * the model completely.
+ *
+ * @param time The time at which the migration is set to the given value.
+ *        It applies backwards in time until it is changed again.
+ * @param source The population from which the individuals migrate from when
+ *        looking backwards in time. Is the sink population when looking forward.
+ * @param sink The population to which the individuals migrate to (also
+ *        when looking backwards in time)
+ * @param mig_rate The backwards scaled migration rate M_ij = 4N0 * m_ij, 
+ *        where m_ij is the fraction for population i = source that migrates 
+ *        to population j = sink (again, when looking backwards in time).
+ */
+void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate) {
+  size_t position = addChangeTime(time);
+  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, -1); 
+  mig_rates_list_.at(position)->at(getMigMatrixIndex(source, sink)) = mig_rate;  
+}
+
+
+/** 
+ * @brief Sets the migration matrix to the given values for the time following at
+ * certain time point (backwards in time). 
+ *
+ * This requires model finalization, e.g. call model.finalize() after you set up
+ * the model completely.
+ *
+ * @param time The time at which the migration is set to the given values.
+ *        The values apply backwards in time until they are changed again.
+ * @param mig_rates The (backwards) scaled migration matrix, given as concatenation of
+ *        row vectors (M_00, M_01, ..., M_0n, M_10, ..., M_n1, ..., M_nn), where
+ *        M_ij = 4N0 * m_ij and m_ij is the faction of population i that
+ *        migrates to population j (viewed backwards in time; forwards the
+ *        migration is from population j to i). The diagonal elements of the
+ *        matrix are ignored and can be set to "x" for better readability. 
+ */
 void Model::addMigrationRates(double time, const std::vector<double> &mig_rates) {
   double popnr = population_number();
   if ( mig_rates.size() != population_number()*population_number() ) 
@@ -162,15 +206,56 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates)
 
   size_t position = addChangeTime(time);
   mig_rates_list_[position] = mig_rates_heap; 
-  updateTotalMigRates(position);
 }
+
+
+
+/**
+ * @brief Adds symmetric migration to a model.
+ *
+ * Sets migration between all population to the given value starting at a
+ * certain time point going backwards in time. Unlike 'ms', this uses the actual
+ * value provided and does not divide it by #population-1.
+ *
+ * This requires model finalization, e.g. call model.finalize() after you set up
+ * the model completely.
+ *
+ * @param time The time at which the migration is set to the given value.
+ *        It applies backwards in time until it is changed again.
+ * @param mig_rate The scaled migration rate M_ij = 4N0 * m_ij that is used
+ *        between all populations i and j. m_ij is the fraction of population i 
+ *        that migrates to population j.
+ */
+void Model::addSymmetricMigration(const double &time, const double &mig_rate) {
+  std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
+  this->addMigrationRates(time, mig_rates);
+}
+
+
+void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop, 
+                                    const size_t &sink_pop, const double &fraction) {
+  
+  size_t position = addChangeTime(time);
+  size_t popnr = population_number();
+  
+  if ( time < 0.0 ) throw std::invalid_argument("Single migration event: Negative time");
+  if ( source_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
+  if ( sink_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
+  if ( fraction < 0.0 || fraction > 1.0 ) throw std::invalid_argument("Single migration event: Fraction out of range");
+
+  if ( single_mig_probs_list_.at(position) == NULL ) {
+    std::vector<double> *mig_probs = new std::vector<double>(popnr*popnr-popnr, 0.0);
+    single_mig_probs_list_.at(position) = mig_probs;
+  }
+
+  single_mig_probs_list_.at(position)->at(getMigMatrixIndex(source_pop, sink_pop)) = fraction; 
+} 
 
 
 std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
   os << "Mutation rate: " << model.mutation_rate() << std::endl;  
   os << "Recombination rate: " << model.recombination_rate() << std::endl;  
-  os << model.pop_sizes_list_ << std::endl << model.growth_rates_list_ << std::endl;
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
@@ -182,6 +267,9 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
     }
     if (model.mig_rates_list_.at(idx) != NULL) {
       os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
+    }
+    if (model.single_mig_probs_list_.at(idx) != NULL) {
+      os << " Single Mig Rates: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
     }
   }
   os << "------------------------------------" << std::endl;
@@ -202,7 +290,26 @@ void Model::updateTotalMigRates(const size_t &position) {
   for (size_t i = 0; i < population_number(); ++i) {
     for (size_t j = 0; j < population_number(); ++j) {
       if (i == j) continue;
-      mig_rates->at(j) += mig_rates_list_.at(position)->at( getMigMatrixIndex(i,j) );
+      mig_rates->at(i) += mig_rates_list_.at(position)->at( getMigMatrixIndex(i,j) );
     }
   }
 }; 
+
+
+void Model::finalize() {
+  std::vector<double>* last_mig_rates = NULL; 
+  std::vector<double>* cur_mig_rates = NULL; 
+  for (size_t j = 0; j < mig_rates_list_.size(); ++j) {
+    cur_mig_rates = mig_rates_list_.at(j);
+    if (cur_mig_rates == NULL) continue;
+
+    for (size_t i = 0; i < cur_mig_rates->size(); ++i) {
+      if ( (cur_mig_rates)->at(i) != -1 ) continue;
+
+      if (last_mig_rates == NULL) (cur_mig_rates)->at(i) = default_mig_rate;
+      else (cur_mig_rates)->at(i) = last_mig_rates->at(i); 
+    }
+    last_mig_rates = cur_mig_rates;
+    updateTotalMigRates(j);
+  } 
+}
