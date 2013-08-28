@@ -162,10 +162,10 @@ Model* Param::parse() {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>();
       size_t sink_pop = readNextInput<size_t>();
-      model->addSingleMigrationEvent(time, sink_pop, source_pop, 1.0); 
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0); 
       for (size_t i = 0; i < model->population_number(); ++i) {
-        if (i == sink_pop) continue;
-        model->addMigrationRate(time, i, sink_pop, 0.0);
+        if (i == source_pop) continue;
+        model->addMigrationRate(time, i, source_pop, 0.0);
       }
     }
 

@@ -243,7 +243,6 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
   os << "Mutation rate: " << model.mutation_rate() << std::endl;  
   os << "Recombination rate: " << model.recombination_rate() << std::endl;  
-  os << model.pop_sizes_list_ << std::endl << model.growth_rates_list_ << std::endl;
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
@@ -257,7 +256,7 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
       os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
     }
     if (model.single_mig_probs_list_.at(idx) != NULL) {
-      os << "Single Mig Fractions: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
+      os << " Single Mig Rates: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
     }
   }
   os << "------------------------------------" << std::endl;

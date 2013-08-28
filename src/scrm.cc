@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
     *output << user_para << std::endl;
     *output << rg->seed() << std::endl;
 
-    *output << *model;
+    //*output << *model;
 
     /*
        std::ofstream tree_file;

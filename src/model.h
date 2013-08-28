@@ -108,7 +108,7 @@ class Model
      return current_total_mig_rates_->at(sink); 
    }; 
 
-   double single_mig_pop(const size_t &sink, const size_t &source) const {
+   double single_mig_pop(const size_t &source, const size_t &sink) const {
     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return 0.0;
     if (sink == source) return 0.0;
     return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
