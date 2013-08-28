@@ -134,7 +134,7 @@ Model* Param::parse() {
         for (size_t j = 0; j < model->population_number(); ++j) {
           nextArg(argv_i);
           if (i==j) migration_rates.push_back(0.0);
-          else migration_rates.push_back(readInput<double>(argv_[argc_i])/model->default_pop_size);
+          else migration_rates.push_back(readInput<double>(argv_[argc_i]) / model->default_pop_size * 0.25);
         }
       }
       model->addMigrationRates(time, migration_rates);
@@ -147,7 +147,7 @@ Model* Param::parse() {
       }
       else time = 0.0;
       nextArg(argv_i);
-      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/model->default_pop_size);
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i]) / model->default_pop_size * 0.25);
     }
 
     else if (argv_i == "-esme") {

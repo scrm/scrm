@@ -73,7 +73,8 @@ tmrca=${prefix}tmrca
 	
 echo ${prefix} > current_case
 	
-ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+#ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 hybrid-Lambda -gt ms${Trees} -tmrca ms${tmrca}
 hybrid-Lambda -gt ms${Trees} -bl ms${bl}
 
