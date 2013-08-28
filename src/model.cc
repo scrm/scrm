@@ -26,12 +26,25 @@ Model::Model() {
   this->init();
 }
 
+//Model::Model() : default_growth_rate(0.0), default_mig_rate(0.0)
+//{ 
+  //this->init();
+//}
+
 Model::Model(size_t sample_size) {
   this->init();
 
   this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   this->resetTime();
 }
+
+//Model::Model(size_t sample_size) : default_growth_rate(0.0), default_mig_rate(0.0)
+//{
+  //this->init();
+
+  //this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
+  //this->resetTime();
+//}
 
 Model::~Model() { 
   //std::cout << "Called ~Model" << std::endl;

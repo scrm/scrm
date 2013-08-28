@@ -65,6 +65,8 @@ class Model
    const static size_t default_pop_size = 10000;
    const double default_growth_rate = 0.0;
    const double default_mig_rate = 0.0;
+   //const double default_growth_rate;
+   //const double default_mig_rate;
 
    // Getters
 

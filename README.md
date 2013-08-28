@@ -19,3 +19,15 @@ apt-get install build-essential libboost-all-dev autoconf doxygen libcppunit-dev
 CXXFLAGS="-O3" ./bootstrap
 make
 ```
+
+On Mac OS:
+Make sure your gcc version is 4.7+. To check:
+g++ -v
+
+Install:
+```bash
+port install boost
+./bootstrap
+make
+```
+```
