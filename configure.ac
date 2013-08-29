@@ -53,8 +53,8 @@ case $host_os in
         ;;
 esac
 
-AM_CONDITIONAL([DARWIN_HOST], test $host_os = darwin)
-AM_CONDITIONAL([LINUX_HOST], test $host_os = linux)
+#AM_CONDITIONAL([DARWIN_HOST], test $host_os = darwin)
+#AM_CONDITIONAL([LINUX_HOST], test $host_os = linux)
 
 
 # Checks for the compiler viersion
