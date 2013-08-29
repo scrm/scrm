@@ -197,7 +197,7 @@ Model* Param::parse() {
       }
       else time = 0.0;
       nextArg(argv_i);
-      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i]) / model->default_pop_size * 0.25); // I think this should be right
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i]) / (model->default_pop_size*(model->population_number()-1)) * 0.25); // I think this should be right
       //model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->default_pop_size*(model->population_number()-1)));
     }
 

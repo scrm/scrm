@@ -1,8 +1,10 @@
 bin_PROGRAMS = scrm scrm_dbg scrm_prof
 PROG = SCRM
-scrm_CXXFLAGS= -DNDEBUG -std=c++0x 
-scrm_dbg_CXXFLAGS= -std=c++0x
-scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
+
+scrm_CXXFLAGS= -DNDEBUG 
+scrm_dbg_CXXFLAGS= 
+scrm_prof_CXXFLAGS= -pg -DNDEBUG 
+
 
 scrm_SOURCES = \
 param.cc param.h \
