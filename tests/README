@@ -2,6 +2,7 @@ Testing files for comparing statistics between ms output and scrm ouput
 
 CHECKING THE INITIAL TREE
 	
+* Checking -T option
 (GOOD) ##############################################
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
@@ -17,7 +18,8 @@ CHECKING THE INITIAL TREE
 	Output file:
 		test-bl/compareBL
 		test-bl/*.pdf
-	
+
+* Checking -ma option	
 (GOOD) ##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg.sh 
@@ -26,7 +28,7 @@ CHECKING THE INITIAL TREE
 		test-seg/compareSEG
 		test-seg/*.pdf
 	
-	##############################################
+(GOOD) ##############################################
 	Compare TMRCA and total branch length for migration
 	./ms_vs_scrm-tmrca-migration.sh
 	
@@ -34,9 +36,17 @@ CHECKING THE INITIAL TREE
 		test-tmrca-mig/compareTMRCA 
 		test-tmrca-mig/*.pdf
 	
-	##############################################
-	Compare spectrum
+* Checking segregating sites data
+(GOOD) ##############################################
+	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
+	./ms_vs_scrm-SEG.sh 
 	
+	Output file:
+		test-SEG/compareSEG
+		test-SEG/*.pdf
+		
+* Checking the population structure, -eN and -en options
+	##############################################
 
 
 

@@ -41,7 +41,7 @@ void Param::init(){
 
 
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
-  stream << param.argv_[0];
+  //stream << param.argv_[0];
   for (int i = 0; i < param.argc_; ++i) {
     stream << " " << param.argv_[i];
   }
