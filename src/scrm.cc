@@ -143,8 +143,8 @@ int main(int argc, char *argv[]){
     //tree_file.close();	
     time_t end_time = time(0);
 
-    std::cout << "Simulation took about " << end_time - start_time 
-        << " second(s)" << std::endl;
+    //std::cout << "Simulation took about " << end_time - start_time 
+        //<< " second(s)" << std::endl;
 
     if (user_para.log_bool){          
       std::ofstream log_file;

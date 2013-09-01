@@ -46,7 +46,7 @@ std::ostream& operator<< (std::ostream& stream, const SegDataContainer &sdc) {
   if ( sdc.seg_bool() ) {
     stream << "segsites: "<< sdc.numseg << std::endl;
     if (sdc.numseg>0){
-      stream << "Positions: ";
+      stream << "positions: ";
       for (size_t i=0; i< sdc.seg_datas_.size();i++){
         for (size_t j=0; j< sdc.seg_datas_[i]->positions.size();j++){
           stream << sdc.seg_datas_[i]->positions[j] / sdc.total_seq_length() << " ";
@@ -62,7 +62,7 @@ std::ostream& operator<< (std::ostream& stream, const SegDataContainer &sdc) {
         }
         stream <<"\n";
       }
-      stream <<"\n";
+      //stream <<"\n";
     }
   }
   return stream;
