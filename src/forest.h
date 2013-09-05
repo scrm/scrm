@@ -163,13 +163,15 @@ virtual ~Forest();
   
   //derived class from Forest
 
-	virtual void initialize_event(const TimeInterval & current_event, double current_time);
+	//virtual void initialize_event(const TimeInterval & current_event, double current_time);
 	virtual	void initialize_recomb_coalescent(const double rec_height);
-	virtual	void record_coalevent();
-	virtual	void record_recombevent();
+	//virtual	void record_coalevent();
+	//virtual	void record_recombevent();
+	virtual void initialize_event(double start_time);
+	virtual void record_coalevent(const TimeInterval & current_event, double end_time);
+	virtual void record_recombevent(const TimeInterval & current_event, double end_time);
 	virtual	void clear_initial_coalevent();
-			  
-
+	
  private:
   //segegrating sites  
   void find_descndnt();
