@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir test-POP
-cd test-POP
+#mkdir test-POP
+#cd test-POP
 rm *pdf
 
 
@@ -89,7 +89,31 @@ format(mean(msdata),scientific = TRUE),format(sd(msdata),scientific = TRUE),\"||
 format(mean(scrmdata),scientific = TRUE),format(sd(scrmdata),scientific = TRUE),\"|\",format(test\$statistic,scientific = TRUE),format(test\$p.value,scientific = TRUE), 
 sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > ks.r
 
+echo "rm(list=ls());
+#source(\"../fun_src.r\");
+figuretitle=scan(\"figuretitle\",what=\"\");
+currentcase=scan(\"current_case\",what=\"\");
+msdata=read.table(\"mstmrca\")\$V1;
+scrmdata=read.table(\"scrmtmrca\")\$V1;
+#ee=ee_tmrca(${nsam});
+#sdv=sd_tmrca(${nsam});
+test=ks.test(msdata,scrmdata)
+pdf(paste(currentcase,figuretitle,\".pdf\",sep=\"\"));
+plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=currentcase)
+plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
+legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,digits=4),sep=\"\")))
+legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
+dev.off();
+cat(paste(currentcase,figuretitle , \"\n\",\"|\",
+format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
+sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > tmrca.r
+
+#format(ee,digits=4),format(sdv,digits=4),\"|\",
 foo(){
+	echo "TMRCA" > figuretitle
+	R CMD BATCH tmrca.r
+	
 	cut -f 6 ms_stats > msdata
 	cut -f 6 scrm_stats > scrmdata
 	echo "Tajima_D" > figuretitle
@@ -113,18 +137,33 @@ foo(){
 
 #case 1 
 echo "4_samples" > current_case
+rm ms* scrm*
+#ms 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0 -T > msout
+#scrm 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0  -T > scrmout
 
-ms 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0 | sample_stats > ms_stats
-scrm 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0  | sample_stats > scrm_stats
+ms 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > msout
+scrm 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > scrmout
+
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
 
 foo
 
 
-#case 2
+##case 2
 
-echo "5_samples" > current_case
+#echo "5_samples" > current_case
 
-ms 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > ms_stats
-scrm 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > scrm_stats
+#ms 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > ms_stats
+#scrm 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > scrm_stats
 
-foo
+#foo
