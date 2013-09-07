@@ -21,12 +21,12 @@ msdata=read.table(\"ms${tmrca}\")\$V1;
 scrmdata=read.table(\"scrm${tmrca}\")\$V1;
 test=ks.test(msdata,scrmdata)
 pdf(paste(currentcase,figuretitle,\".pdf\",sep=\"\"));
-plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=paste($nsam,\"sample \",figuretitle, \" KS test\",sep=\"\"))
+plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=currentcase)
 plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
 legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,digits=4),sep=\"\")))
 legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
 dev.off();
-cat(paste(${nsam},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
+cat(currentcase,\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
 sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > tmrca.r
