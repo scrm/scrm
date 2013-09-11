@@ -30,12 +30,15 @@ double RandomGenerator::sampleUnitExponential(void) {
   return exposample;
 }
 
-// Sets new seed, and initializes unit_exponential
+// Sets new seed
 void RandomGenerator::set_seed(const size_t &seed){
   this->seed_ = seed;
-  this->unit_exponential_ = sampleUnitExponential();
 }
 
+// Initialize unit_exponential; must be called when the random generator is up and running
+void RandomGenerator::initializeUnitExponential() {
+  this->unit_exponential_ = sampleUnitExponential();
+}
 
 // Samples from an exponential distribution 
 // Distribution checked -Paul

@@ -45,6 +45,7 @@ class RandomGenerator
    virtual void set_seed(const size_t&);
 
    //Base class methods
+   void initializeUnitExponential();
    int sampleInt(int max_value);
    void sampleTwoElements(int size, int *sample1, int *sample2);
    double sampleExpo(double lambda);

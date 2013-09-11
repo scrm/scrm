@@ -24,11 +24,13 @@
 
 MersenneTwister::MersenneTwister() {
   this->set_seed(generateRandomSeed());
+  this->initializeUnitExponential();
 };
 
 MersenneTwister::MersenneTwister(const size_t &seed){
   if (seed == -1) set_seed(generateRandomSeed());
   else this->set_seed(seed);
+  this->initializeUnitExponential();
 }
 
 MersenneTwister::~MersenneTwister() { } ;

@@ -215,7 +215,7 @@ void Forest::buildInitialTree() {
     new_leaf->set_population(model().sample_population(i));
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
-    dout << "* staring coalesces" << std::endl;
+    dout << "* starting coalescences" << std::endl;
 
     //Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_leaf, false);
@@ -355,7 +355,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
   tmp_event_ = Event(-1);
   coalescence_finished_ = false;
-this->initialize_event(start_node->height());
+  this->initialize_event(start_node->height());
   // If the start_node is above the local tree, then we start with coalescence
   // of the local root
   if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);

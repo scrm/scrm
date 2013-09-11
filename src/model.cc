@@ -122,6 +122,8 @@ void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes
 }
 
 
+// This adds a new change time, and new population sizes at that time.
+// Both time and population sizes are scaled as in ms, i.e. with 4Ne_(t=0)
 void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes, bool relative) {
   if ( pop_sizes.size() != population_number() ) 
     throw std::logic_error("Population size values do not meet the number of populations");
