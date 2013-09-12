@@ -12,6 +12,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestModel );
 
   CPPUNIT_TEST( testDeleteParList );
+  CPPUNIT_TEST( testSetGetMutationRate );
+  CPPUNIT_TEST( testSetGetRecombinationRate );
   CPPUNIT_TEST( testAddChangeTime );
   CPPUNIT_TEST( testAddSampleSizes );
   CPPUNIT_TEST( testAddPopulationSizes );
@@ -253,11 +255,11 @@ class TestModel : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 1.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 2.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
@@ -284,6 +286,45 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( model.hasFixedTimeEvent(10) );
     CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(1) );
     CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(20) );
+  }
+
+  void testSetGetMutationRate() {
+    Model model = Model();
+    model.set_mutation_rate(0.001);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.mutation_rate() );
+    model.set_mutation_rate(10, true);
+    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size), model.mutation_rate() );
+  }
+
+  void testSetGetRecombinationRate() {
+    Model model = Model();
+    model.set_recombination_rate(0.001, 101);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.001/101, model.seq_rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, false, false);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.001/101, model.seq_rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, true, false);
+    CPPUNIT_ASSERT_EQUAL( 0.00001, model.rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.00001/101, model.seq_rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, false, true);
+    CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size), model.rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size*101), model.seq_rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, true, true);
+    CPPUNIT_ASSERT_EQUAL( 0.00001/(4*model.default_pop_size), model.rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.00001/(4*model.default_pop_size*101), model.seq_rec_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(0.001, 0), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(-0.001, 100), std::invalid_argument );
   }
 };
 

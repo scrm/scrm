@@ -91,7 +91,7 @@ Model* Param::parse() {
     // ------------------------------------------------------------------
     else if (argv_i == "-t") {
       nextArg(argv_i);
-      model->set_mutation_rate(readInput<double>(argv_[argc_i]));
+      model->set_mutation_rate(readInput<double>(argv_[argc_i]), true);
     }
 
     else if (argv_i == "-s"){
@@ -103,10 +103,9 @@ Model* Param::parse() {
     // Recombination 
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
-      nextArg(argv_i);
-      model->set_recombination_rate(readInput<double>(argv_[argc_i]));
-      nextArg(argv_i);
-      model->set_loci_length(readInput<size_t>(argv_[argc_i]));
+      double rec_rate = readNextInput<double>();
+      size_t loci_length = readNextInput<size_t>();
+      model->set_recombination_rate(rec_rate, loci_length, true, true);
     }
 
     // ------------------------------------------------------------------
@@ -284,15 +283,6 @@ Model* Param::parse() {
   else if (model->sample_size() != sample_size) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
-
-  // Scale recombination rate
-  model->set_recombination_rate(model->recombination_rate() * 0.25
-                                / model->population_size()  
-                                / (model->loci_length() - 1));
-
-  model->set_mutation_rate(model->mutation_rate() * 0.25
-                           / model->population_size() 
-                           / (model->loci_length()));
 
   model->finalize();
   model->resetTime();

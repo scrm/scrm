@@ -62,21 +62,79 @@ class Model
    ~Model();
    
    // Default values;
-   const static size_t default_pop_size = 1000000;
+   const double default_pop_size = 1000000;
    const double default_growth_rate = 0.0;
    const double default_mig_rate = 0.0;
-   //const double default_growth_rate;
-   //const double default_mig_rate;
 
-   // Getters
+   // Getters & Setters
 
+   /**
+    * @brief Returns the mutation rate per locus per generation
+    *
+    * @return The mutation rate per base per generation
+    */
    double mutation_rate() const { return mutation_rate_; }
-   double recombination_rate() const { return recombination_rate_; }
+  
+   /**
+    * @brief Set the mutation rate
+    *
+    * @param rate The mutation rate per locus, either scaled as theta=4N0*u or
+    * unscaled as u.
+    * @param scaled Set this to TRUE if you give the mutation rate in scaled
+    * units (e.g. as theta rather than as u).
+    */
+   void set_mutation_rate(double rate, const bool &scaled = false) { 
+     if (scaled) rate /= 4.0 * default_pop_size; 
+     mutation_rate_ = rate; 
+   }
+
+   /**
+    * @brief Sets the recombination rate and the loci_length
+    *
+    * @param rate The recombination rate per sequence length per time unit. 
+    * The sequence length can be either per locus or per base pair and the time
+    * can be given in units of 4N0 generations ("scaled") or per generation. 
+    *
+    * @param loci_length The length of every loci.
+    * @param per_locus Set to TRUE, if the rate is given per_locus, and to FALSE
+    * if the rate is per base pair.
+    * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
+    * it isn't
+    */
+   void set_recombination_rate(double rate, const size_t loci_length, 
+                               const bool per_locus = false, const bool &scaled = false) { 
+
+     if (loci_length <= 1) throw std::invalid_argument("Length of loci must be greater than 1");
+     if (rate < 0.0) throw std::invalid_argument("Recombination rate must be non-negative");
+
+     if (scaled) rate /= 4.0 * default_pop_size; 
+     if (per_locus) rate /= loci_length-1;
+     
+     set_loci_length(loci_length);
+     rec_rate_ = rate; 
+     seq_rec_rate_ = rate / loci_length;
+   }
+
+   /**
+    * @brief Returns the recombination rate per base pair per generation
+    *
+    * @return The recombination rate per base pair per generation
+    */
+   double rec_rate() const { return rec_rate_; }
+
+   /**
+    * @brief Returns the recombination rate per base pair per generation where
+    * the locus is scaled so that its begin is 0 and its end is 1.
+    *
+    * @return The recombination rate per base pair per generation on a 0-1
+    * sequence scale
+    */
+   double seq_rec_rate() const { return seq_rec_rate_; }
+
    size_t loci_length() const { return loci_length_; }
    size_t mutation_exact_number() const { return mutation_exact_number_; };
 
-   void set_mutation_rate(double rate) { mutation_rate_ = rate; }
-   void set_recombination_rate(double rate) { recombination_rate_ = rate; }
+
    void set_loci_length(size_t length) { loci_length_ = length; }
    void set_mutation_exact_number(size_t number) { mutation_exact_number_ = number; }
 
@@ -235,8 +293,12 @@ class Model
    std::vector<double>* current_total_mig_rates_;
 
    double mutation_rate_;
+   double scaled_mutation_rate_;
    size_t mutation_exact_number_;
-   double recombination_rate_;
+
+   double rec_rate_;
+   double seq_rec_rate_;
+
    size_t pop_number_;
 
    size_t loci_number_;

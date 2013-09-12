@@ -60,9 +60,11 @@ void Model::init() {
 
   this->set_population_number(1);
   this->set_loci_number(1);
-  this->set_loci_length(100000);
   this->set_mutation_rate(0.0);
-  this->set_recombination_rate(0.0);
+
+  rec_rate_ = 0.0;
+  seq_rec_rate_ = 0.0;
+  loci_length_ = 0;
 
   this->set_exact_window_length(0);
   this->set_prune_interval(0);
@@ -274,7 +276,7 @@ void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop
 std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
   os << "Mutation rate: " << model.mutation_rate() << std::endl;  
-  os << "Recombination rate: " << model.recombination_rate() << std::endl;  
+  os << "Recombination rate: " << model.rec_rate() << std::endl;  
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  

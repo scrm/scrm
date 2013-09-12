@@ -253,11 +253,12 @@ class TestForest : public CppUnit::TestCase {
       count += event.isMigration();
       count2 += event.isCoalescence();
     };
+    std::cout << count << std::endl;
     CPPUNIT_ASSERT( 450 < count && count < 550 ); // ~500
     CPPUNIT_ASSERT( 350 < count2 && count2 < 450 ); // ~400
 
     // Test recombination 
-    forest->writable_model()->set_recombination_rate(0.00009);
+    forest->writable_model()->set_recombination_rate(0.00009, 100);
     forest->set_current_base(20);
     forest->states_[0] = 1;
     forest->states_[1] = 2;

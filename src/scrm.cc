@@ -89,13 +89,13 @@ int main(int argc, char *argv[]){
       }
 
       // Just output a single tree if the recombination rate is 0
-      if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
+      if (forest->model().mutation_exact_number() == -1 && model->rec_rate() == 0.0){	
         tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
         seg_data_array->append_new_seg_data(forest);
       }
 
       // Start main loop, if the recombination rate is nonzero
-      if (model->recombination_rate() > 0.0){
+      if (model->rec_rate() > 0.0){
 
         size_t previous_recombination_event;
         size_t next_recombination_event;
@@ -103,7 +103,6 @@ int main(int argc, char *argv[]){
         size_t distance_between_events;
 
         do {
-
           previous_recombination_event = ceil(forest->current_base());
           next_recombination_event = ceil(forest->next_base());
           next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
