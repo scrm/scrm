@@ -20,14 +20,6 @@
 
 */
 
-/* 
- * param.cc
- * 
- * Read in ms parameters and convert to scrm parameters
- * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
- * and -ej options in ms are time t in unit of 4N_0 generations. 
- * In scrm, we define time t in number of generations. 
- */
 
 #include "param.h"
 
@@ -61,7 +53,12 @@ void Param::nextArg(std::string option) {
   }
 }
 
-
+/*! 
+ * \brief Read in ms parameters and convert to scrm parameters
+ * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
+ * and -ej options in ms are time t in unit of 4N_0 generations. 
+ * In scrm, we define time t in number of generations. 
+ */
 Model* Param::parse() {
   Model* model = new Model();
   size_t sample_size = 0;
