@@ -183,10 +183,10 @@ Model* Param::parse() {
         for (size_t j = 0; j < model->population_number(); ++j) {
           nextArg(argv_i);
           if (i==j) migration_rates.push_back(0.0);
-          else migration_rates.push_back(readInput<double>(argv_[argc_i]) / model->default_pop_size * 0.25);
+          else migration_rates.push_back(readInput<double>(argv_[argc_i]));
         }
       }
-      model->addMigrationRates(time, migration_rates);
+      model->addMigrationRates(time, migration_rates, true, true);
     }
 
     else if (argv_i == "-M" || argv_i == "-eM") {
@@ -196,8 +196,7 @@ Model* Param::parse() {
       }
       else time = 0.0;
       nextArg(argv_i);
-      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i]) / (model->default_pop_size*(model->population_number()-1)) * 0.25); // I think this should be right
-      //model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->default_pop_size*(model->population_number()-1)));
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->population_number()-1), true, true);
     }
 
     else if (argv_i == "-esme") {
@@ -205,17 +204,17 @@ Model* Param::parse() {
       size_t source_pop = readNextInput<size_t>();
       size_t sink_pop = readNextInput<size_t>();
       double fraction = readNextInput<double>();
-      model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction); 
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction, true); 
     }
 
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>();
       size_t sink_pop = readNextInput<size_t>();
-      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0); 
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
       for (size_t i = 0; i < model->population_number(); ++i) {
         if (i == source_pop) continue;
-        model->addMigrationRate(time, i, source_pop, 0.0);
+        model->addMigrationRate(time, i, source_pop, 0.0, true);
       }
     }
 

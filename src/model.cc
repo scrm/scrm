@@ -284,10 +284,17 @@ void Model::addGrowthRate(const double &time, const size_t &population,
  * @param mig_rate The backwards scaled migration rate M_ij = 4N0 * m_ij, 
  *        where m_ij is the fraction for population i = source that migrates 
  *        to population j = sink (again, when looking backwards in time).
+ * @param scaled_time Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ * @param scaled_rate Set to true if the rate is given as M = 4*N0*m and to
+ *  false if it is given as m.
+ *
  */
-void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate) {
-  size_t position = addChangeTime(time);
-  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, nan("value to replace")); 
+void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
+                             const bool &scaled_time, const bool &scaled_rates) {
+  size_t position = addChangeTime(time, scaled_time);
+  if (scaled_rates) mig_rate /= 4 * default_pop_size;
+  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, nan("value to replace"), scaled_time); 
   mig_rates_list_.at(position)->at(getMigMatrixIndex(source, sink)) = mig_rate;  
 }
 
@@ -307,9 +314,16 @@ void Model::addMigrationRate(double time, size_t source, size_t sink, double mig
  *        migrates to population j (viewed backwards in time; forwards the
  *        migration is from population j to i). The diagonal elements of the
  *        matrix are ignored and can be set to "x" for better readability. 
+ * @param scaled_time Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ * @param scaled_rate Set to true if the rate is given as M = 4*N0*m and to
+ *  false if it is given as m.
  */
-void Model::addMigrationRates(double time, const std::vector<double> &mig_rates) {
+void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
+                              const bool &scaled_time, const bool &scaled_rates) {
   double popnr = population_number();
+  double scaling = 1;
+  if (scaled_rates) scaling = 1 / ( 4 * default_pop_size );
   if ( mig_rates.size() != population_number()*population_number() ) 
     throw std::logic_error("Migration rates values do not meet the number of populations");
   std::vector<double>* mig_rates_heap = new std::vector<double>();
@@ -317,11 +331,11 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates)
   for (size_t i = 0; i < popnr; ++i) {
     for (size_t j = 0; j < popnr; ++j) {
       if (i == j) continue;
-      mig_rates_heap->push_back(mig_rates.at(i*popnr+j)); 
+      mig_rates_heap->push_back(mig_rates.at(i*popnr+j) * scaling); 
     }
   }
 
-  size_t position = addChangeTime(time);
+  size_t position = addChangeTime(time, scaled_time);
   mig_rates_list_[position] = mig_rates_heap; 
 }
 
@@ -342,17 +356,23 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates)
  * @param mig_rate The scaled migration rate M_ij = 4N0 * m_ij that is used
  *        between all populations i and j. m_ij is the fraction of population i 
  *        that migrates to population j.
+ * @param time_scaled Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ * @param rate_scaled Set to true if the rate is given as M = 4*N0*m and to
+ *  false if it is given as m.
  */
-void Model::addSymmetricMigration(const double &time, const double &mig_rate) {
+void Model::addSymmetricMigration(const double &time, const double &mig_rate, 
+                                  const bool &time_scaled, const bool &rate_scaled) {
   std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
-  this->addMigrationRates(time, mig_rates);
+  this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
 }
 
 
 void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop, 
-                                    const size_t &sink_pop, const double &fraction) {
+                                    const size_t &sink_pop, const double &fraction,
+                                    const bool &time_scaled) {
   
-  size_t position = addChangeTime(time);
+  size_t position = addChangeTime(time, time_scaled);
   size_t popnr = population_number();
   
   if ( time < 0.0 ) throw std::invalid_argument("Single migration event: Negative time");

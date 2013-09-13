@@ -285,11 +285,18 @@ class Model
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
 
    // functions to add Migration
-   void addMigrationRates(double time, const std::vector<double> &mig_rates);
-   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate); 
-   void addSymmetricMigration(const double &time, const double &mig_rate); 
+   void addMigrationRates(double time, const std::vector<double> &mig_rates,
+                       const bool &time_scaled = false, const bool &rate_scaled = false);
+
+   void addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
+                       const bool &time_scaled = false, const bool &rate_scaled = false);
+
+   void addSymmetricMigration(const double &time, const double &mig_rate,
+                       const bool &time_scaled = false, const bool &rate_scaled = false);
+
    void addSingleMigrationEvent(const double &time, const size_t &source_pop, 
-                                const size_t &sink_pop, const double &fraction);
+                                const size_t &sink_pop, const double &fraction,
+                                const bool &time_scaled = false);
 
    void finalize(); 
 

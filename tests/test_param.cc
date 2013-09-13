@@ -117,20 +117,19 @@ class TestParam : public CppUnit::TestCase {
                       "-ma", "x", "5", "7", "x" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 5.0/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/(4*model->default_pop_size), model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT( areSame(5.0/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(7.0/(4*model->default_pop_size), model->migration_rate(1, 0)) );
     delete model;
 
     // -ema
     char *argv2[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
                       "-ema", "1.6", "x", "5", "7", "x" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv2).parse(); );
-    std::cout << *model << std::endl;
     model->resetTime();
     model->increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 5.0/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/(4*model->default_pop_size), model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT( areSame(5.0/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(7.0/(4*model->default_pop_size), model->migration_rate(1, 0)) );
     delete model;
 
     // -M
@@ -138,9 +137,9 @@ class TestParam : public CppUnit::TestCase {
                       "-M", "5" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(12, argv3).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 2) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 2)) );
     delete model;
 
     // -eM
@@ -150,9 +149,9 @@ class TestParam : public CppUnit::TestCase {
     model->resetTime();
     model->increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size,  model->getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 2) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 2)) );
     delete model;
 
     // -esme
