@@ -82,17 +82,16 @@ SegDataBlock::SegDataBlock(
     ){
   double position_at = forest->current_base();
   int remaining_num_mut = max_num_mut;
-  position_at = position_at + 
-                forest->random_generator()->sampleExpo(forest->local_tree_length() * 
-                forest->writable_model()->mutation_rate() );
+  position_at += forest->random_generator()->sampleExpo(forest->local_tree_length() * 
+                 forest->writable_model()->mutation_rate() );
   double max_base = min(forest->next_base(),double(forest->model().loci_length()));
   //forest->printTree_cout();
   while ( (remaining_num_mut > 0 || max_num_mut < 0 ) && position_at < max_base){
     TreePoint mut_point = forest->samplePoint();
     haplotypes.push_back(find_haplotypes(mut_point.base_node(), forest->model().sample_size()));
     positions.push_back(position_at);
-    position_at = position_at + 
-        forest->random_generator()->sampleExpo(forest->local_tree_length() * forest->writable_model() ->mutation_rate() );
+    position_at += forest->random_generator()->sampleExpo(forest->local_tree_length() * 
+                 forest->writable_model()->mutation_rate() );
     //cout<<mut_point.base_node()<<" ";	
     remaining_num_mut--;
   }	//cout<<endl;

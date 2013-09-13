@@ -22,6 +22,11 @@
 
 /* 
  * param.cc
+ * 
+ * Read in ms parameters and convert to scrm parameters
+ * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
+ * and -ej options in ms are time t in unit of 4N_0 generations. 
+ * In scrm, we define time t in number of generations. 
  */
 
 #include "param.h"
@@ -76,9 +81,6 @@ Model* Param::parse() {
   while( argc_i < argc_ ){
     //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
-    /*! \bug Comparing the program name with a fixed value fails when a user starts the program e.g. as "src/scrm", as I did.  Why is this necessary?  I'm removing it... */
-
-    //if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
     if (argc_i == 0) {
       nextArg("nsam (1st option)");
       sample_size = readInput<size_t>(argv_[argc_i]);
@@ -296,6 +298,7 @@ Model* Param::parse() {
 
   model->finalize();
   model->resetTime();
+  model->rescaleChangeTimes();
   /*
      recomb_rate_persite=rho/4 / npop / (nsites-1);
      remove(treefile.c_str());

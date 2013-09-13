@@ -20,7 +20,7 @@
 
 */
 
-/*
+/*!
  * model.h
  *
  * This file contains the class Model, which is a simple container object for
@@ -62,7 +62,7 @@ class Model
    ~Model();
    
    // Default values;
-   const double default_pop_size = 1000000;
+   const double default_pop_size = 1000000; /*! \todo IS THIS EQUIVALENT TO N0 IN MS???*/
    const double default_growth_rate = 0.0;
    const double default_mig_rate = 0.0;
    //const double default_growth_rate;
@@ -196,7 +196,15 @@ class Model
                                 const size_t &sink_pop, const double &fraction);
 
    void finalize(); 
-
+   
+   // Rescaling
+   void rescaleChangeTimes();
+   
+   double popSizeAtLayerI(size_t I, size_t pop) const;
+   size_t getPopLayerIatHeight(double height);
+   double popSizeAtHeight(double height, size_t pop);
+   std::vector<double> change_times_;
+  
   private:
    Model(const Model&);
    Model& operator=(const Model&);
@@ -215,7 +223,8 @@ class Model
    void updateTotalMigRates(const size_t &position);
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
-
+  void fillVectorList_new(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+  
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
@@ -224,7 +233,7 @@ class Model
    std::vector<size_t> sample_populations_;
    std::vector<double> sample_times_;
 
-   std::vector<double> change_times_;
+   
    std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;

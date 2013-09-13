@@ -23,6 +23,7 @@
 #include <iostream>
 #include <ctime>
 #include "forest.h"
+#include "printtree.h"
 #include "seg.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
@@ -90,7 +91,7 @@ int main(int argc, char *argv[]){
 
       // Just output a single tree if the recombination rate is 0
       if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
-        tree_buffer << writeTree_new(forest->local_root(), forest->model().population_size()) << ";\n";
+		tree_buffer << writeTree(forest->local_root(), forest->writable_model()) << ";\n";
         seg_data_array->append_new_seg_data(forest);
       }
 
@@ -112,7 +113,7 @@ int main(int argc, char *argv[]){
           // Obtain string representation of current tree
           string previous_genealogy;
           if (user_para.tree_bool) { 
-            previous_genealogy = writeTree_new(forest->local_root(),forest->writable_model()->population_size());
+            previous_genealogy = writeTree(forest->local_root(),forest->writable_model());
           }
 
           // Sample next genealogy

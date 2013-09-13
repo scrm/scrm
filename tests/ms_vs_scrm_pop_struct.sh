@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#mkdir test-POP
-#cd test-POP
+mkdir test-POP
+cd test-POP
 rm *pdf
 
 
-rep=10000
+rep=100000
 
 ## compare population sturture for a single population data
 comparePop=comparePop
@@ -113,22 +113,22 @@ sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\
 foo(){
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
-	
+
 	cut -f 6 ms_stats > msdata
 	cut -f 6 scrm_stats > scrmdata
 	echo "Tajima_D" > figuretitle
 	R CMD BATCH ks.r
-	
+
 	cut -f 2 ms_stats > msdata
 	cut -f 2 scrm_stats > scrmdata
 	echo "Pairewise_difference" > figuretitle
 	R CMD BATCH chisq.r
-	
+
 	cut -f 8 ms_stats > msdata
 	cut -f 8 scrm_stats > scrmdata
 	echo "theta_H" > figuretitle
 	R CMD BATCH chisq.r
-	
+
 	cut -f 10 ms_stats > msdata
 	cut -f 10 scrm_stats > scrmdata
 	echo "H" > figuretitle
@@ -136,13 +136,23 @@ foo(){
 	}
 
 #case 1 
-echo "4_samples" > current_case
+echo "6_samples" > current_case
 rm ms* scrm*
-#ms 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0 -T > msout
-#scrm 4 ${rep} -t ${theta} -eN 0.8 0.1 -eN 2.0 4.0  -T > scrmout
+ms 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01 -T > msout
+scrm 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01  -T > scrmout
 
-ms 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > msout
-scrm 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > scrmout
+#ms 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > msout
+#scrm 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > scrmout
+
+#ms 2 ${rep} -t ${theta} -eN .5 0.01 -T > msout
+#scrm 2 ${rep} -t ${theta} -eN .5 0.01  -T > scrmout
+
+#ms 6 ${rep} -t ${theta} -eN 1 1 -eN 3 1 -T > msout
+#scrm 6 ${rep} -t ${theta} -eN 1 1 -eN 3 1  -T > scrmout
+
+#ms 6 ${rep} -t ${theta}  -eN 3 1 -T > msout
+#scrm 6 ${rep} -t ${theta}  -eN 3 1  -T > scrmout
+
 
 cat msout | sample_stats > ms_stats
 cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees

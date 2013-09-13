@@ -14,7 +14,8 @@ node.cc node.h \
 node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
-seg.cc seg.h event.h\
+seg.cc seg.h event.h \
+printtree.h printtree.cc \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \
@@ -30,6 +31,7 @@ node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
 seg.cc seg.h \
+printtree.h printtree.cc \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \
@@ -45,6 +47,7 @@ node_container.cc node_container.h \
 time_interval.cc time_interval.h \
 tree_point.cc tree_point.h \
 seg.cc seg.h \
+printtree.h printtree.cc \
 scrm.cc \
 random/constant_generator.cc random/mersenne_twister.h  \
 random/random_generator.cc   random/constant_generator.h \

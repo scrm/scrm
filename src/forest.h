@@ -47,13 +47,13 @@
 
 #include <vector>
 #include <map>
-#include <iostream>
+//#include <iostream>
 #include <iomanip>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
 #include <boost/assign/std/vector.hpp>
-#include <ostream>
+//#include <ostream>
 
 #include "node.h"
 #include "event.h"
