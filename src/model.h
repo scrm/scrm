@@ -62,7 +62,7 @@ class Model
    ~Model();
    
    // Default values;
-   const static size_t default_pop_size = 1000000;
+   const double default_pop_size = 1000000;
    const double default_growth_rate = 0.0;
    const double default_mig_rate = 0.0;
    //const double default_growth_rate;

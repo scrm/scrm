@@ -253,11 +253,11 @@ class TestModel : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 1.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 10000.0, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 2.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
