@@ -185,7 +185,7 @@ void Model::addPopulationSizes(const double &time, const double &pop_size,
  * specific point in time. 
  *
  * The sizes apply for with point on backwards in time.    
- * Require Model.finalization() to be called after the model is set up.
+ * Requires Model.finalization() to be called after the model is set up.
  *
  * @param time The time at which the population change its size.
  * @param pop The population which will change its size.
@@ -201,11 +201,23 @@ void Model::addPopulationSize(const double &time, const size_t &pop, double popu
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
-  if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"));
+  if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
   pop_sizes_list_.at(position)->at(pop) = population_size;
 }
 
 
+/**
+ * @brief Set the population size growth rates at a certain time point.
+ *
+ * The population growth or shrinks exponentially from that time point on
+ * backwards in time. 
+ * Requires Model.finalization() to be called after the model is set up.
+ *
+ * @param time The time at which to set the growth rates
+ * @param growth_rates A vector of growth rates for all populations
+ * @param time_scaled Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ */
 void Model::addGrowthRates(const double &time, const std::vector<double> &growth_rates,
                            const bool &time_scaled) {
   if ( growth_rates.size() != population_number() ) 
@@ -216,17 +228,45 @@ void Model::addGrowthRates(const double &time, const std::vector<double> &growth
 
 }
 
+
+/**
+ * @brief Set the population size growth rates at a certain time point.
+ *
+ * The population growth or shrinks exponentially from that time point on
+ * backwards in time. 
+ * Requires Model.finalization() to be called after the model is set up.
+ *
+ * @param time The time at which to set the growth rates
+ * @param growth_rates The growth rate for all populations
+ * @param time_scaled Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ */
 void Model::addGrowthRates(const double &time, const double &growth_rate,
                            const bool &time_scaled) {
   addGrowthRates(time, std::vector<double>(population_number(), growth_rate), time_scaled);
 }
 
+
+/**
+ * @brief Set the population size growth rates of a population at a certain time point.
+ *
+ * The population growth or shrinks exponentially from that time point on
+ * backwards in time. 
+ * Requires Model.finalization() to be called after the model is set up.
+ *
+ * @param time The time at which to set the growth rates
+ * @param population The population to which the growth rate applies.
+ * @param growth_rates The growth rate for the populations
+ * @param time_scaled Set to true if the time is given in units of 4*N0
+ *    generations, or to false if the time is given in units of generations.
+ */
 void Model::addGrowthRate(const double &time, const size_t &population, 
                           const double &growth_rate, const bool &time_scaled) {
   size_t position = addChangeTime(time, time_scaled);
-  if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace")); 
+  if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace"), time_scaled); 
   growth_rates_list_.at(position)->at(population) = growth_rate;
 }
+
 
 /**
  * @brief Sets a migration rate form a specific population to another starting from a

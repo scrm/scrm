@@ -125,6 +125,7 @@ class TestParam : public CppUnit::TestCase {
     char *argv2[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
                       "-ema", "1.6", "x", "5", "7", "x" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv2).parse(); );
+    std::cout << *model << std::endl;
     model->resetTime();
     model->increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
