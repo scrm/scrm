@@ -333,6 +333,7 @@ void Forest::sampleNextGenealogy() {
   assert(this->checkLeafsOnLocalTree());
   assert(this->printNodes());
   assert(this->checkTree());
+
   this->set_next_base();
   //writeTree(this->local_root(),this->model_->population_size(),0);
 }

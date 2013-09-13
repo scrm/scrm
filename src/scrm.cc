@@ -104,7 +104,6 @@ int main(int argc, char *argv[]){
         size_t distance_between_events;
 
         do {
-
           previous_recombination_event = ceil(forest->current_base());
           next_recombination_event = ceil(forest->next_base());
           next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0

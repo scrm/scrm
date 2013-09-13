@@ -12,6 +12,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestModel );
 
   CPPUNIT_TEST( testDeleteParList );
+  CPPUNIT_TEST( testSetGetMutationRate );
+  CPPUNIT_TEST( testSetGetRecombinationRate );
   CPPUNIT_TEST( testAddChangeTime );
   CPPUNIT_TEST( testAddSampleSizes );
   CPPUNIT_TEST( testAddPopulationSizes );
@@ -119,15 +121,29 @@ class TestModel : public CppUnit::TestCase {
   void testAddPopulationSizes() {
     Model model = Model();
     model.set_population_number(2);
-    model.addPopulationSizes(1, std::vector<double>(2, 5));
-    CPPUNIT_ASSERT( model.pop_sizes_list_.at(1)->at(0) == 5 );
+    model.addPopulationSizes(1, std::vector<double>(2, 4));
+    model.resetTime();
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0, model.getCurrentTime() );
+    CPPUNIT_ASSERT( model.population_size(0) == 4 );
+
+    model.addPopulationSizes(1, std::vector<double>(2, 5), true, false);
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT( model.population_size(0) == 5 );
+
+    model.addPopulationSizes(2, 10, true, false);
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT( model.population_size(0) == 10 );
 
     auto pop_sizes2 = std::vector<double>();
     pop_sizes2.push_back(7);
-    pop_sizes2.push_back(4);
-    model.addPopulationSizes(0, pop_sizes2);
-    CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(0) == 7 );
-    CPPUNIT_ASSERT( model.pop_sizes_list_.at(0)->at(1) == 4 );
+    pop_sizes2.push_back(6);
+    model.addPopulationSizes(0.0, pop_sizes2);
+    model.resetTime();
+    CPPUNIT_ASSERT( model.population_size(0) == 7 );
+    CPPUNIT_ASSERT( model.population_size(1) == 6 );
     
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(3, 5)), std::logic_error );
@@ -136,8 +152,22 @@ class TestModel : public CppUnit::TestCase {
   void testAddRelativePopulationSizes() {
     Model model = Model();
     model.set_population_number(2);
-    model.addPopulationSizes(1, std::vector<double>(2, .5), true);
-    CPPUNIT_ASSERT_EQUAL( model.pop_sizes_list_.at(1)->at(0), 0.5 * model.default_pop_size );
+    model.addPopulationSizes(1, std::vector<double>(2, .5), false, true);
+    model.resetTime();
+    model.increaseTime();
+
+    CPPUNIT_ASSERT_EQUAL( 1.0, model.getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 0.5 * model.default_pop_size, model.population_size(0) );
+
+    model.addPopulationSizes(1, std::vector<double>(2, .4), true, true);
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 0.4 * model.default_pop_size, model.population_size(0) );
+
+    model.addPopulationSizes(2, 10, true, true);
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 10.0 * model.default_pop_size, model.population_size(0) );
   }
 
   void testAddGrowthRates() {
@@ -157,7 +187,6 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( model.addGrowthRates(1, std::vector<double>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addGrowthRates(1, std::vector<double>(3, 5)), std::logic_error );
   }
-
 
   void testAddMigRates() {
     Model model = Model();
@@ -284,6 +313,50 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( model.hasFixedTimeEvent(10) );
     CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(1) );
     CPPUNIT_ASSERT( ! model.hasFixedTimeEvent(20) );
+  }
+
+  void testSetGetMutationRate() {
+    Model model = Model();
+    model.set_mutation_rate(0.001);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.mutation_rate() );
+    
+    model.set_mutation_rate(10, false, false);
+    CPPUNIT_ASSERT_EQUAL( 10.0, model.mutation_rate() );
+
+    model.set_mutation_rate(10, true, false);
+    CPPUNIT_ASSERT_EQUAL( 10.0/model.default_loci_length, model.mutation_rate() );
+
+    model.set_mutation_rate(10, false, true);
+    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size), model.mutation_rate() );
+
+    model.set_mutation_rate(10, true, true);
+    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size*model.default_loci_length), model.mutation_rate() );
+  }
+
+  void testSetGetRecombinationRate() {
+    Model model = Model();
+    model.set_recombination_rate(0.001, 101);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, false, false);
+    CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, true, false);
+    CPPUNIT_ASSERT_EQUAL( 0.00001, model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, false, true);
+    CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size), model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    model.set_recombination_rate(0.001, 101, true, true);
+    CPPUNIT_ASSERT_EQUAL( 0.00001/(4*model.default_pop_size), model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(0.001, 0), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(-0.001, 100), std::invalid_argument );
   }
 };
 

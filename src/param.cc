@@ -90,7 +90,7 @@ Model* Param::parse() {
     // ------------------------------------------------------------------
     else if (argv_i == "-t") {
       nextArg(argv_i);
-      model->set_mutation_rate(readInput<double>(argv_[argc_i]));
+      model->set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
     }
 
     else if (argv_i == "-s"){
@@ -102,10 +102,9 @@ Model* Param::parse() {
     // Recombination 
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
-      nextArg(argv_i);
-      model->set_recombination_rate(readInput<double>(argv_[argc_i]));
-      nextArg(argv_i);
-      model->set_loci_length(readInput<size_t>(argv_[argc_i]));
+      double rec_rate = readNextInput<double>();
+      size_t loci_length = readNextInput<size_t>();
+      model->set_recombination_rate(rec_rate, loci_length, true, true);
     }
 
     // ------------------------------------------------------------------
@@ -141,16 +140,16 @@ Model* Param::parse() {
     else if (argv_i == "-eN" || argv_i == "-N") {
       if (argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
-      model->addPopulationSizes(time, readNextInput<double>(), true); 
-      model->addGrowthRates(time, 0.0);
+      model->addPopulationSizes(time, readNextInput<double>(), true, true); 
+      model->addGrowthRates(time, 0.0, true);
     }
 
     else if (argv_i == "-en" || argv_i == "-n") {
       if (argv_i == "-en") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInput<size_t>();
-      model->addPopulationSize(time, pop, readNextInput<double>(), true);
-      model->addGrowthRate(time, pop, 0.0);
+      model->addPopulationSize(time, pop, readNextInput<double>(), true, true);
+      model->addGrowthRate(time, pop, 0.0, true);
     }
 
     // ------------------------------------------------------------------
@@ -159,14 +158,14 @@ Model* Param::parse() {
     else if (argv_i == "-G" || argv_i == "-eG") {
       if (argv_i == "-eG") time = readNextInput<double>();
       else time = 0.0;
-      model->addGrowthRates(time, readNextInput<double>()); 
+      model->addGrowthRates(time, readNextInput<double>(), true); 
     }
 
     else if (argv_i == "-g" || argv_i == "-eg") {
       if (argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInput<size_t>();
-      model->addGrowthRate(time, pop, readNextInput<double>()); 
+      model->addGrowthRate(time, pop, readNextInput<double>(), true); 
     }
 
     // ------------------------------------------------------------------
@@ -183,10 +182,10 @@ Model* Param::parse() {
         for (size_t j = 0; j < model->population_number(); ++j) {
           nextArg(argv_i);
           if (i==j) migration_rates.push_back(0.0);
-          else migration_rates.push_back(readInput<double>(argv_[argc_i]) / model->default_pop_size * 0.25);
+          else migration_rates.push_back(readInput<double>(argv_[argc_i]));
         }
       }
-      model->addMigrationRates(time, migration_rates);
+      model->addMigrationRates(time, migration_rates, true, true);
     }
 
     else if (argv_i == "-M" || argv_i == "-eM") {
@@ -196,8 +195,7 @@ Model* Param::parse() {
       }
       else time = 0.0;
       nextArg(argv_i);
-      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i]) / (model->default_pop_size*(model->population_number()-1)) * 0.25); // I think this should be right
-      //model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->default_pop_size*(model->population_number()-1)));
+      model->addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model->population_number()-1), true, true);
     }
 
     else if (argv_i == "-esme") {
@@ -205,17 +203,17 @@ Model* Param::parse() {
       size_t source_pop = readNextInput<size_t>();
       size_t sink_pop = readNextInput<size_t>();
       double fraction = readNextInput<double>();
-      model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction); 
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction, true); 
     }
 
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>();
       size_t sink_pop = readNextInput<size_t>();
-      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0); 
+      model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
       for (size_t i = 0; i < model->population_number(); ++i) {
         if (i == source_pop) continue;
-        model->addMigrationRate(time, i, source_pop, 0.0);
+        model->addMigrationRate(time, i, source_pop, 0.0, true);
       }
     }
 
@@ -284,18 +282,9 @@ Model* Param::parse() {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
-  // Scale recombination rate
-  model->set_recombination_rate(model->recombination_rate() * 0.25
-                                / model->population_size()  
-                                / (model->loci_length() - 1));
-
-  model->set_mutation_rate(model->mutation_rate() * 0.25
-                           / model->population_size() 
-                           / (model->loci_length()));
-
   model->finalize();
   model->resetTime();
-  model->rescaleChangeTimes();
+  //model->rescaleChangeTimes();
   /*
      recomb_rate_persite=rho/4 / npop / (nsites-1);
      remove(treefile.c_str());

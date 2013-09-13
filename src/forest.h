@@ -83,11 +83,11 @@ class Forest
 
   friend class TimeInterval;
   friend class TimeIntervalIterator;
-	
+
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(Forest * current_forest, bool entire_ARG=true);
-virtual ~Forest();
+  virtual ~Forest();
 
   //Getters & Setters
   const Model &model() const { return *model_; }
@@ -96,7 +96,7 @@ virtual ~Forest();
 
   Node* local_root() const { return local_root_; }
   void set_local_root(Node* local_root) { local_root_ = local_root; };
-  
+
   Node* primary_root() const { return primary_root_; }
   void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
 
@@ -105,33 +105,33 @@ virtual ~Forest();
     return this->sample_size_; 
   }
   void set_sample_size(const size_t &size ) { sample_size_ = size; }
-  
+
   double current_base() const { return current_base_; }
   void set_current_base(double base) { current_base_ = base; }
-  
+
   double next_base() const{return next_base_;}
   void set_next_base() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
   } 
 
   double local_tree_length() const { return this->local_root()->length_below(); }
-  
+
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
-  
+
   NodeContainer const *getNodes() const { return nodes_; };
-  
+
   size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
   void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
-  
+
   bool pruning() const{return pruning_;}
   void set_pruning(bool pruning){pruning_=pruning;}
 
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
-  
+
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
@@ -158,20 +158,20 @@ virtual ~Forest();
 
   //segegrating sites
   std::ostream &generateSegData(std::ostream &output, int total_mut);
-  
+
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
-  
+
   //derived class from Forest
 
-	//virtual void initialize_event(const TimeInterval & current_event, double current_time);
-	virtual	void initialize_recomb_coalescent(const double rec_height);
-	//virtual	void record_coalevent();
-	//virtual	void record_recombevent();
-	virtual void initialize_event(double start_time);
-	virtual void record_coalevent(const TimeInterval & current_event, double end_time);
-	virtual void record_recombevent(const TimeInterval & current_event, double end_time);
-	virtual	void clear_initial_coalevent();
-	
+  //virtual void initialize_event(const TimeInterval & current_event, double current_time);
+  virtual	void initialize_recomb_coalescent(const double rec_height);
+  //virtual	void record_coalevent();
+  //virtual	void record_recombevent();
+  virtual void initialize_event(double start_time);
+  virtual void record_coalevent(const TimeInterval & current_event, double end_time);
+  virtual void record_recombevent(const TimeInterval & current_event, double end_time);
+  virtual	void clear_initial_coalevent();
+
  private:
   //segegrating sites  
   void find_descndnt();
@@ -194,7 +194,7 @@ virtual ~Forest();
   size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
- 
+
   // Implementation of the different events
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
@@ -206,7 +206,7 @@ virtual ~Forest();
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
 
-  
+
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
@@ -225,10 +225,10 @@ virtual ~Forest();
                    size_t tmp_event_line, Event &return_event) const;
 
   void sampleEventType(const double &time, const size_t &time_line, 
-                        const TimeInterval &ti, Event &return_event) const;
+                       const TimeInterval &ti, Event &return_event) const;
 
   void selectFirstTime(const double &new_time, const size_t &time_line, 
-                             double &current_time, size_t &current_time_line) const;
+                       double &current_time, size_t &current_time_line) const;
 
   double getTimeLineGrowth(const size_t &time_line) const {
     if (time_line == 0) return 0.0;

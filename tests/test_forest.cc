@@ -264,7 +264,7 @@ class TestForest : public CppUnit::TestCase {
     std::cout << std::endl << "TEST TEMPORARILY DEACTIVATED" << std::endl;
 
     // Test recombination 
-    forest->writable_model()->set_recombination_rate(0.00009);
+    forest->writable_model()->set_recombination_rate(0.00009, 100);
     forest->set_current_base(20);
     forest->states_[0] = 1;
     forest->states_[1] = 2;

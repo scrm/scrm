@@ -31,7 +31,7 @@ class TestParam : public CppUnit::TestCase {
     model = pars.parse();
     //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model->loci_number() );
-    CPPUNIT_ASSERT_EQUAL( 1.001/model->default_pop_size/1001, model->mutation_rate() );
+    CPPUNIT_ASSERT_EQUAL( 4.004/(4*model->default_pop_size*1001), model->mutation_rate() );
     CPPUNIT_ASSERT_EQUAL( 1.24/(4*model->default_pop_size*1000), model->recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model->loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model->exact_window_length() );
@@ -69,10 +69,12 @@ class TestParam : public CppUnit::TestCase {
                       "-N", "0.3", "-eN", "8.2", "0.75", "-G", "1.5" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(17, argv5).parse() ); 
     model->resetTime();
+    CPPUNIT_ASSERT_EQUAL( 0.0, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 0.3*model->default_pop_size, model->population_size(0) );
     CPPUNIT_ASSERT_EQUAL( 0.3*model->default_pop_size, model->population_size(1) );
     CPPUNIT_ASSERT_EQUAL( 0.3*model->default_pop_size, model->population_size(2) );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 8.2 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 0.75*model->default_pop_size, model->population_size(0) );
     CPPUNIT_ASSERT_EQUAL( 0.75*model->default_pop_size, model->population_size(1) );
     CPPUNIT_ASSERT_EQUAL( 0.75*model->default_pop_size, model->population_size(2) );
@@ -87,6 +89,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model = Param(25, argv6).parse() ); 
     model->finalize();
     model->resetTime();
+    CPPUNIT_ASSERT_EQUAL( 0.0, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( (double)model->default_pop_size, model->population_size(0) );
     CPPUNIT_ASSERT_EQUAL( 0.3*model->default_pop_size, model->population_size(1) );
     CPPUNIT_ASSERT_EQUAL( (double)model->default_pop_size, model->population_size(2) );
@@ -94,8 +97,11 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.0, model->growth_rate(1) );
     CPPUNIT_ASSERT_EQUAL( 1.5, model->growth_rate(2) );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.1 * 4 * model->default_pop_size, model->getCurrentTime() );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.5 * 4 * model->default_pop_size, model->getCurrentTime() );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 0.75*model->default_pop_size, model->population_size(0) );
     CPPUNIT_ASSERT_EQUAL( 0.75*model->default_pop_size, model->population_size(1) );
     CPPUNIT_ASSERT_EQUAL( 0.10*model->default_pop_size, model->population_size(2) );
@@ -111,8 +117,8 @@ class TestParam : public CppUnit::TestCase {
                       "-ma", "x", "5", "7", "x" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 5.0/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/(4*model->default_pop_size), model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT( areSame(5.0/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(7.0/(4*model->default_pop_size), model->migration_rate(1, 0)) );
     delete model;
 
     // -ema
@@ -121,9 +127,9 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv2).parse(); );
     model->resetTime();
     model->increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 5.0/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 7.0/(4*model->default_pop_size), model->migration_rate(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(5.0/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(7.0/(4*model->default_pop_size), model->migration_rate(1, 0)) );
     delete model;
 
     // -M
@@ -131,9 +137,9 @@ class TestParam : public CppUnit::TestCase {
                       "-M", "5" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(12, argv3).parse(); );
     model->resetTime();
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 2) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 2)) );
     delete model;
 
     // -eM
@@ -142,10 +148,10 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model = Param(13, argv4).parse(); );
     model->resetTime();
     model->increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 2.5/(4*model->default_pop_size), model->migration_rate(0, 2) );
+    CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size,  model->getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(2.5/(4*model->default_pop_size), model->migration_rate(0, 2)) );
     delete model;
 
     // -esme
@@ -154,7 +160,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv5).parse(); );
     model->resetTime();
     model->increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 0.1, model->single_mig_pop(0, 1) );
     CPPUNIT_ASSERT_EQUAL( 0.5, model->single_mig_pop(1, 0) );
     delete model;
@@ -165,7 +171,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv6).parse(); );
     model->resetTime();
     model->increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.6, model->getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 1.0, model->single_mig_pop(1, 0) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model->single_mig_pop(0, 1) );
 
@@ -191,6 +197,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 2.0, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 2.0, model->growth_rate(1) );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 3.0, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 3.0, model->growth_rate(1) );
     delete model;
@@ -204,7 +211,9 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model->default_growth_rate, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 0.1, model->growth_rate(1) );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model->default_pop_size, model->getCurrentTime() );
     model->increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 2.4, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 3.0, model->growth_rate(1) );
   }
