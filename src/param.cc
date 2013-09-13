@@ -91,7 +91,7 @@ Model* Param::parse() {
     // ------------------------------------------------------------------
     else if (argv_i == "-t") {
       nextArg(argv_i);
-      model->set_mutation_rate(readInput<double>(argv_[argc_i]), true);
+      model->set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
     }
 
     else if (argv_i == "-s"){
@@ -141,15 +141,15 @@ Model* Param::parse() {
     else if (argv_i == "-eN" || argv_i == "-N") {
       if (argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
-      model->addPopulationSizes(time, readNextInput<double>(), true); 
-      model->addGrowthRates(time, 0.0);
+      model->addPopulationSizes(time, readNextInput<double>(), true, true); 
+      model->addGrowthRates(time, 0.0, true);
     }
 
     else if (argv_i == "-en" || argv_i == "-n") {
       if (argv_i == "-en") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInput<size_t>();
-      model->addPopulationSize(time, pop, readNextInput<double>(), true);
+      model->addPopulationSize(time, pop, readNextInput<double>(), true, true);
       model->addGrowthRate(time, pop, 0.0);
     }
 

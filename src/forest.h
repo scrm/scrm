@@ -111,7 +111,7 @@ class Forest
 
   double next_base() const{return next_base_;}
   void set_next_base() {
-    next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().rec_rate());
+    next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
   } 
 
   double local_tree_length() const { return this->local_root()->length_below(); }
@@ -216,7 +216,7 @@ class Forest
   }
 
   double calcRecombinationRate(Node const* node) const {
-    return ( model().rec_rate() * (this->current_base() - node->last_update()) );
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   }
 
   void calcRates(const TimeInterval &ti);
