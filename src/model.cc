@@ -66,7 +66,8 @@ void Model::init() {
 
   this->set_exact_window_length(0);
   this->set_prune_interval(0);
-  this->set_mutation_exact_number(-1); //-1 is equivalent to infinity
+  //this->set_mutation_exact_number(-1); //-1 is equivalent to infinity
+  this->mutation_exact_number_ = -1;
 
   this->resetTime();
 }

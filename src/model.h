@@ -78,7 +78,10 @@ class Model
    void set_mutation_rate(double rate) { mutation_rate_ = rate; }
    void set_recombination_rate(double rate) { recombination_rate_ = rate; }
    void set_loci_length(size_t length) { loci_length_ = length; }
-   void set_mutation_exact_number(size_t number) { mutation_exact_number_ = number; }
+   void set_mutation_exact_number(size_t number) { 
+     throw std::runtime_error("SCRM does not support simulating a fixed number of mutations yet. Sorry"); 
+     mutation_exact_number_ = number; 
+   }
 
    double growth_rate(size_t pop = 0) const {
      if (current_growth_rates_ == NULL) return default_growth_rate;
