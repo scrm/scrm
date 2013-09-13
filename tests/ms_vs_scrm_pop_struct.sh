@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#mkdir test-POP
-#cd test-POP
+mkdir test-POP
+cd test-POP
 rm *pdf
 
 
