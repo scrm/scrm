@@ -21,9 +21,9 @@
 */
 
 /*!
- * model.h
+ * \file model.h
  *
- * This file contains the class Model, which is a simple container object for
+ * \brief This file contains the class Model, which is a simple container object for
  * model parameters.
  *
  */
@@ -302,11 +302,11 @@ class Model
    void finalize(); 
    
    // Rescaling
-   void rescaleChangeTimes();
+   //void rescaleChangeTimes();
    
    double popSizeAtLayerI(size_t I, size_t pop) const;
    size_t getPopLayerIatHeight(double height);
-   double popSizeAtHeight(double height, size_t pop);
+   //double popSizeAtHeight(double height, size_t pop);
    std::vector<double> change_times_;
   
   private:
@@ -332,7 +332,7 @@ class Model
    }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
-  void fillVectorList_new(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+  //void fillVectorList_new(std::vector<std::vector<double>*> &vector_list, const double &default_value);
   
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);
@@ -355,11 +355,11 @@ class Model
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
 
-   double mutation_rate_;            // Unit: Mutations per base per generation
-   double mutation_rate_per_locus_;  // Unit: Mutations per locus per generation
+   double mutation_rate_;            /*!< Unit: Mutations per base per generation */
+   double mutation_rate_per_locus_;  /*!< Unit: Mutations per locus per generation */
    size_t mutation_exact_number_;
 
-   double rec_rate_;                 // Unit: Recombinations per base per generation
+   double rec_rate_;                 /*!< Unit: Recombinations per base per generation */
 
    size_t pop_number_;
 

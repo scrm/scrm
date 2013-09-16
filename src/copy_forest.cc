@@ -20,11 +20,17 @@
 
 */
 
-//copy_forest.cc
+/*! \file copy_forest.cc
+ *  \brief Contains files to make a new copy of the current forest structure.
+ * 
+ */
+ 
 #include "forest.h"
+/*! \brief Constructor of Forest for making a copy of input Forest
+ */
 Forest::Forest(
 Forest * current_forest /*! Forest that needs to be duplicated */, 
-bool entire_ARG /*! if entire_ARG is false, only copy the local tree (McVean2005) */
+bool entire_ARG /*! if entire_ARG is false, only copy the local tree (\cite mcvean_approximating_2005) \todo entire_ARG is not yet implemented */
 ){ 
 	//Initialize 
 	this->nodes_ = new NodeContainer();

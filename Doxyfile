@@ -608,7 +608,7 @@ LAYOUT_FILE            =
 # feature you need bibtex and perl available in the search path. Do not use
 # file names with spaces, bibtex cannot handle them.
 
-CITE_BIB_FILES         =
+CITE_BIB_FILES         = doc/manual.bib
 
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
@@ -688,7 +688,8 @@ INPUT                  = src/forest.cc \
                          src/seg.cc \
 			 src/param.cc \
 			 src/param.h \
-			 src/scrm.cc
+			 src/scrm.cc \
+			 src/printtree.cc \
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
@@ -743,6 +744,9 @@ EXCLUDE_PATTERNS       =
 # AClass::ANamespace, ANamespace::*Test
 
 EXCLUDE_SYMBOLS        = Test* \
+						Param::tmrca_bool \
+						Param::tree* \
+						Param::tmrca* \
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or
 # directories that contain example code fragments that are included (see
@@ -1403,7 +1407,7 @@ LATEX_SOURCE_CODE      = NO
 # bibliography, e.g. plainnat, or ieeetr. The default style is "plain". See
 # http://en.wikipedia.org/wiki/BibTeX for more info.
 
-LATEX_BIB_STYLE        = plain
+LATEX_BIB_STYLE        =  chicago
 
 #---------------------------------------------------------------------------
 # configuration options related to the RTF output

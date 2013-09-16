@@ -435,8 +435,7 @@ void Model::updateTotalMigRates(const size_t &position) {
 
 void Model::finalize() {
   fillVectorList(mig_rates_list_, default_mig_rate);
-  //fillVectorList(pop_sizes_list_, default_pop_size);
-  fillVectorList_new(pop_sizes_list_, default_pop_size);
+  fillVectorList(pop_sizes_list_, default_pop_size);
   fillVectorList(growth_rates_list_, default_growth_rate);
 
   for (size_t j = 0; j < mig_rates_list_.size(); ++j) {
@@ -463,33 +462,22 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
 }
 
 
-void Model::fillVectorList_new(std::vector<std::vector<double>*> &vector_list, const double &default_value) {/*! \todo  this needs more work (Joe) */
-  if (vector_list.at(0) != NULL){return;}
-  if (vector_list.size() < 1){
-    vector_list.at(0) = new std::vector<double>(1,0);
-    vector_list.at(0)->at(0)=default_value;
-    return;
-    }
-    
-  std::vector<double>* current = vector_list.at(1);
-  vector_list.at(0) = new std::vector<double>(current->size(),0);
-  for (size_t i = 0; i < current->size(); ++i) {
-    vector_list.at(0)->at(i)=default_value;
-  }
-}
+//void Model::rescaleChangeTimes(){ /*! \todo  this maybe changed later (Joe) */
+  //for (size_t i = 0; i < this->change_times_.size(); i++){
+    //this->change_times_[i] = this->change_times_[i] * 4 * this->default_pop_size; 
+  //}
+//}
 
-void Model::rescaleChangeTimes(){ /*! \todo  this maybe changed later (Joe) */
-  for (size_t i = 0; i < this->change_times_.size(); i++){
-    this->change_times_[i] = this->change_times_[i] * 4 * this->default_pop_size; 
-  }
-}
-
-double Model::popSizeAtHeight(double height, size_t pop){ /*! \todo  this needs more work (Joe) */
-  return this->popSizeAtLayerI(getPopLayerIatHeight(height),pop);
-}
+//double Model::popSizeAtHeight(double height, size_t pop){ /*! \todo  this needs more work (Joe) */
+  //return this->popSizeAtLayerI(getPopLayerIatHeight(height),pop);
+//}
 
 double Model::popSizeAtLayerI(size_t I, size_t pop) const{ /*! \todo  this needs more work (Joe) */
-  return this->pop_sizes_list_[I]->at(pop);
+  if (pop_sizes_list_[I] == NULL){
+	return this->default_pop_size;}
+  else{
+    return this->pop_sizes_list_[I]->at(pop);
+  }
 }
 
 size_t Model::getPopLayerIatHeight(double height){ /*! \todo  this needs more work (Joe) */

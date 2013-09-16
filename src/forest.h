@@ -20,9 +20,9 @@
 
 */
 
-/*
- * forest.h
- * Contains the class Forest, which is the central class in scrm
+/*!
+ * \file forest.h
+ * \brief Contains the class Forest, which is the central class in scrm
  *
  * The central data structure of scrm is a forest, which is a collection of
  * trees. This class on the one hand contains a NodeContainer object with all
@@ -155,6 +155,9 @@ class Forest
   void printPositions(const std::vector<Node const*> &positions) const;
 
   NodeContainer *nodes() { return this->nodes_; }
+  
+  //printing tree
+  std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
 
   //segegrating sites
   std::ostream &generateSegData(std::ostream &output, int total_mut);
@@ -163,16 +166,17 @@ class Forest
 
   //derived class from Forest
 
-  //virtual void initialize_event(const TimeInterval & current_event, double current_time);
-  virtual	void initialize_recomb_coalescent(const double rec_height);
-  //virtual	void record_coalevent();
-  //virtual	void record_recombevent();
+  virtual void initialize_recomb_coalescent(const double rec_height);
   virtual void initialize_event(double start_time);
   virtual void record_coalevent(const TimeInterval & current_event, double end_time);
   virtual void record_recombevent(const TimeInterval & current_event, double end_time);
-  virtual	void clear_initial_coalevent();
+  virtual void clear_initial_coalevent();
 
  private:
+  
+  //printing tree
+  Node * tracking_local_node_with_bl(Node * node, double * bl);
+ 
   //segegrating sites  
   void find_descndnt();
   void exp_mut_num(int total_mut);
