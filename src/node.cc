@@ -31,19 +31,19 @@
 Node::Node() { init(); };
 Node::Node(double height) { init(height, true); };
 Node::Node(double height, bool local) { init(height, local); };
-Node::Node(double height, bool local, size_t last_update) { 
+Node::Node(double height, bool local, double last_update) { 
   init(height, local, last_update); };
-Node::Node(double height, bool local, size_t last_update, size_t samples_below)
+Node::Node(double height, bool local, double last_update, size_t samples_below)
   { init(height, local, last_update, samples_below); };
-Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below)
+Node::Node(double height, bool local, double last_update, size_t samples_below, double length_below)
   { init(height, local, last_update, samples_below, length_below); };
-Node::Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, size_t label)
+Node::Node(double height, bool local, double last_update, size_t samples_below, double length_below, size_t label)
   { init(height, local, last_update, samples_below, length_below, label); };
   
 //Node::~Node() {delete[] marginal_likelihood;}
 Node::~Node() {};
 
-void Node::init(double height, bool local, size_t last_update,
+void Node::init(double height, bool local, double last_update,
                 size_t samples_below, double length_below, size_t label) {
   this->set_height(height);
   this->set_local(local);
@@ -57,8 +57,6 @@ void Node::init(double height, bool local, size_t last_update,
   this->set_previous(NULL);
   this->set_next(NULL);
   this->mutation_state=false;
-  //this->marginal_likelihood[0]=0;
-  //this->marginal_likelihood[1]=0;
   this->set_mut_num(0);
   this->set_population(0);
 }
