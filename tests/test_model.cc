@@ -6,6 +6,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
 #include "../src/model.h"
+#include "../src/forest.h"
 
 class TestModel : public CppUnit::TestCase {
 
@@ -352,7 +353,7 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
     model.set_recombination_rate(0.001, 101, true, true);
-    CPPUNIT_ASSERT_EQUAL( 0.00001/(4*model.default_pop_size), model.recombination_rate() );
+    CPPUNIT_ASSERT( areSame(0.00001/(4*model.default_pop_size), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
     CPPUNIT_ASSERT_THROW( model.set_recombination_rate(0.001, 0), std::invalid_argument );
