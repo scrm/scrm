@@ -192,11 +192,12 @@ class Model
 
 
 
-   void set_mutation_rate(double rate, 
+   void set_mutation_rate(double rate, /*! \todo CHECK Units in per generation per base, Paul suggested to use per generation per locus, as the
+locus length might change after the rate is read in from command line */
                           const bool &per_locus = false, 
                           const bool &scaled = false);
 
-   void set_recombination_rate(double rate, 
+   void set_recombination_rate(double rate, /*! \todo CHECK Units in per generation per base */
                                const size_t &loci_length, 
                                const bool &per_locus = false, 
                                const bool &scaled = false);
