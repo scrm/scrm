@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
 
       // Set up a buffer to hold the tree representations
       std::ostringstream tree_buffer;
-
+      double tmrca, tot_bl;
       // Now set up the ARG, and sample the initial tree
       Forest *forest = new Forest(model, rg);
       forest->buildInitialTree();
@@ -81,18 +81,20 @@ int main(int argc, char *argv[]){
       SegDataContainer *seg_data_array = new SegDataContainer(&user_para, forest);
 
       // Optionally output the TMRCA of the initial coalescent tree in a file
-      if (user_para.tmrca_bool()){
-        std::ofstream tmrca_file;
-        tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        tmrca_file << forest->local_root()->height() <<"\n";  
-        tmrca_file.close();	
-      }
+      //if (user_para.tmrca_bool()){
+        //std::ofstream tmrca_file;
+        //tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+        //tmrca_file << forest->local_root()->height() <<"\n";  
+        //tmrca_file.close();	
+      //}
 
       // Just output a single tree if the recombination rate is 0
       if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
 		//tree_buffer << writeTree(forest->local_root(), forest->writable_model()) << ";\n";
 		tree_buffer << forest->writeTree(forest->local_root()) << ";\n";
         seg_data_array->append_new_seg_data(forest);
+		tmrca = forest->tmrca();
+		tot_bl = forest->tot();
       }
 
       // Start main loop, if the recombination rate is nonzero
@@ -114,7 +116,9 @@ int main(int argc, char *argv[]){
           if (user_para.tree_bool) { 
             previous_genealogy = forest->writeTree(forest->local_root());
           }
-
+			
+			tmrca = forest->tmrca();
+			tot_bl = forest->tot();
           // Sample next genealogy
           forest->sampleNextGenealogy();
 
@@ -133,6 +137,10 @@ int main(int argc, char *argv[]){
       if (user_para.tree_bool) {
         *output << tree_buffer.str();
       }
+
+	  if (user_para.tmrca_bool){
+		*output << "time:\t"<<tmrca<< "\t"<<tot_bl <<"\n";  
+	  }
 
       *output << *seg_data_array;
 

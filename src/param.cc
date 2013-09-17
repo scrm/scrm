@@ -32,7 +32,8 @@ void Param::init(){
   this->log_NAME = "scrm.log";
   this->tree_NAME = "scrm.treefile";
   this->set_seg_bool(true);
-  this->set_tmrca_bool(false);
+  //this->set_tmrca_bool(false);
+  this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
 }
 
@@ -233,6 +234,10 @@ Model* Param::parse() {
       tree_bool = true;
     }
 
+    else if (argv_i == "-L"){
+      //treefile = argv_[++argc_i];
+      tmrca_bool = true;
+    }
 
     else if (argv_i == "-seed"){
       nextArg(argv_i);

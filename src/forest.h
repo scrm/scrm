@@ -158,6 +158,8 @@ class Forest
   
   //printing tree
   std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
+  double tmrca(); /*! TMRCA in unit of 4N0 */
+  double tot(){return tot_below(local_root_);};/*! Total branch length in unit of 4N0 */
 
   //segegrating sites
   std::ostream &generateSegData(std::ostream &output, int total_mut);
@@ -176,7 +178,10 @@ class Forest
   
   //printing tree
   Node * tracking_local_node_with_bl(Node * node, double * bl);
- 
+  void tracking_bl(Node * node, double * bl);
+  Node * tracking_tip_node_with_bl(Node * node, double * bl); 
+  double tot_below(Node * node); 
+
   //segegrating sites  
   void find_descndnt();
   void exp_mut_num(int total_mut);
