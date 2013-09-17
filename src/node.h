@@ -56,10 +56,10 @@ class Node
   Node();
   Node(double height);
   Node(double height, bool local);
-  Node(double height, bool local, size_t last_update);
-  Node(double height, bool local, size_t last_update, size_t samples_below);
-  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below);
-  Node(double height, bool local, size_t last_update, size_t samples_below, double length_below, size_t label);
+  Node(double height, bool local, double last_update);
+  Node(double height, bool local, double last_update, size_t samples_below);
+  Node(double height, bool local, double last_update, size_t samples_below, double length_below);
+  Node(double height, bool local, double last_update, size_t samples_below, double length_below, size_t label);
 
   ~Node();
 
@@ -81,7 +81,7 @@ class Node
   void set_local(bool local) { this->local_ = local; }
 
   void make_local() { this->set_local(true); }
-  void make_nonlocal(const size_t &current_base) { 
+  void make_nonlocal(const double &current_base) { 
     if ( !local() ) return;
     set_last_update(current_base);
     this->set_local(false);
@@ -98,9 +98,8 @@ class Node
   Node *first_child() const { return this->first_child_; }
   void set_first_child(Node *first_child) { this->first_child_ = first_child; }
 
-  size_t last_update() const { if ( local() ) return 0; 
-    return(last_update_); }
-  void set_last_update(size_t position) { this->last_update_ = position; }
+  double last_update() const { if ( local() ) return 0.0; return(last_update_); }
+  void set_last_update(double position) { this->last_update_ = position; }
 
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
@@ -160,7 +159,7 @@ class Node
  
   void init(double heigh=-1, 
             bool local=true, 
-            size_t last_update = 0, 
+            double last_update = 0, 
             size_t samples_below=0, 
             double length_below=0,
             size_t label=0);
@@ -169,7 +168,7 @@ class Node
   double height_;        // The total height of the node
   bool   local_;         // Indicates if the branch above is local,
                          // i.e. on the local tree
-  size_t last_update_;   // The sequence position on which the branch above the node
+  double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events. Ignored for
                          // local nodes, which are always up to date
 

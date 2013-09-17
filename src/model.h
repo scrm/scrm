@@ -62,8 +62,7 @@ class Model
    ~Model();
    
    // Default values;
-
-   const double default_pop_size = 1000000; /*! \todo IS THIS EQUIVALENT TO N0 IN MS???*/
+   const double default_pop_size = 10000;
    const size_t default_loci_length = 100000;
    const double default_growth_rate = 0.0;
    const double default_mig_rate = 0.0;

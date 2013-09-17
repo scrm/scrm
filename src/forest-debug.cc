@@ -193,10 +193,7 @@ bool Forest::checkNodeProperties() const {
         success = false;
       }
     }
-  }
-  return success;
-}
-
+  } return success; } 
 
 bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
@@ -528,7 +525,7 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
-      dout << std::setw(6) << std::right << this->getNodes()->get(i)->last_update();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
       dout << std::endl;
