@@ -45,9 +45,12 @@ CHECKING THE INITIAL TREE
 		test-SEG/compareSEG
 		test-SEG/*.pdf
 		
-* Checking the population structure, -eN and -en options
+* Checking the population structure, -eN options
 	##############################################
 
+
+* Checking the population structure, -en options
+	##############################################
 
 
 WITH RECOMBINATION

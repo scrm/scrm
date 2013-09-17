@@ -1,6 +1,7 @@
 #include "forest.h"
 #include <sstream>
 
+/*! \todo CHECK!!!! NEWICK FORMAT STRING TMRCA AND BL ARE INCORRECT!!!*/
 
 std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
 	//if(node->first_child() == NULL && ((node->label())>0)){ // real tip node

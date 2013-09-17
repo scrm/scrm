@@ -13,23 +13,7 @@ rm ${comparePop}
 
 theta=10
 
-	echo "rm(list=ls());
-currentcase=scan(\"current_case\",what=\"\");
-figuretitle=scan(\"figuretitle\",what=\"\");
 
-msdata=read.table(\"ms${tmrca}\")\$V1;
-scrmdata=read.table(\"scrm${tmrca}\")\$V1;
-test=ks.test(msdata,scrmdata)
-pdf(paste(currentcase,figuretitle,\".pdf\",sep=\"\"));
-plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=currentcase)
-plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
-legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,digits=4),sep=\"\")))
-legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
-dev.off();
-cat(currentcase,\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
-format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
-format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
-sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > tmrca.r
 
 		echo "rm(list=ls());
 		#source(\"../fun_src.r\");
@@ -109,10 +93,31 @@ format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
 sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > tmrca.r
 
+echo "rm(list=ls());
+#source(\"../fun_src.r\");
+figuretitle=scan(\"figuretitle\",what=\"\");
+currentcase=scan(\"current_case\",what=\"\");
+msdata=read.table(\"msbl\")\$V1;
+scrmdata=read.table(\"scrmbl\")\$V1;
+test=ks.test(msdata,scrmdata)
+pdf(paste(currentcase,figuretitle,\".pdf\",sep=\"\"));
+plot(ecdf(msdata), xlim=range(c(msdata, scrmdata)),col=\"red\", main=currentcase)
+plot(ecdf(scrmdata), add=TRUE, lty=\"dashed\", col=\"blue\")
+legend(\"bottomright\",c(paste(\"Tests Statistics = \",test\$statistic,sep=\"\"), paste(\"p-value = \",format(test\$p.value,digits=4),sep=\"\")))
+legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
+dev.off();
+cat(paste(currentcase,figuretitle , \"\n\",\"|\",
+format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
+sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > bl.r
+
 #format(ee,digits=4),format(sdv,digits=4),\"|\",
 foo(){
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
+
+	echo "BL" > figuretitle
+	R CMD BATCH bl.r
 
 	cut -f 6 ms_stats > msdata
 	cut -f 6 scrm_stats > scrmdata
@@ -136,22 +141,10 @@ foo(){
 	}
 
 #case 1 
-echo "6_samples" > current_case
+echo "2_samples_case1" > current_case
 rm ms* scrm*
 ms 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01 -T > msout
 scrm 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01  -T > scrmout
-
-#ms 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > msout
-#scrm 4 ${rep} -t ${theta} -eN 0.8 1.5  -T > scrmout
-
-#ms 2 ${rep} -t ${theta} -eN .5 0.01 -T > msout
-#scrm 2 ${rep} -t ${theta} -eN .5 0.01  -T > scrmout
-
-#ms 6 ${rep} -t ${theta} -eN 1 1 -eN 3 1 -T > msout
-#scrm 6 ${rep} -t ${theta} -eN 1 1 -eN 3 1  -T > scrmout
-
-#ms 6 ${rep} -t ${theta}  -eN 3 1 -T > msout
-#scrm 6 ${rep} -t ${theta}  -eN 3 1  -T > scrmout
 
 
 cat msout | sample_stats > ms_stats
@@ -162,18 +155,104 @@ hybrid-Lambda -gt msTrees -bl msbl
 
 cat scrmout | sample_stats > scrm_stats
 cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
 
+foo
+
+#case 2
+echo "2_samples_case2" > current_case
+rm ms* scrm*
+ms 2 ${rep} -t ${theta} -eN .5 0.01 -T > msout
+scrm 2 ${rep} -t ${theta} -eN .5 0.01  -T > scrmout
+
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
 hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
 hybrid-Lambda -gt scrmTrees -bl scrmbl
 
 foo
 
 
-##case 2
+##case 3
 
-#echo "5_samples" > current_case
+echo "5_samples" > current_case
+rm ms* scrm*
 
-#ms 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > ms_stats
-#scrm 5 ${rep} -t ${theta} -eN 2.0 2.0 | sample_stats > scrm_stats
+ms 5 ${rep} -t ${theta} -eN 0.5 10.0 -T > msout
+scrm 5 ${rep} -t ${theta} -eN 0.5 10.0 -T > scrmout
 
-#foo
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
+
+foo
+
+#case 4
+echo "4_samples" > current_case
+rm ms* scrm*
+
+ms 4 ${rep} -t ${theta} -eN 0.8 15  -T > msout
+scrm 4 ${rep} -t ${theta} -eN 0.8 15  -T > scrmout
+
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
+
+foo
+
+#case 5
+echo "6_samples_case1" > current_case
+rm ms* scrm*
+ms 6 ${rep} -t ${theta} -eN 1 .1 -eN 3 10 -T > msout
+scrm 6 ${rep} -t ${theta} -eN 1 .1 -eN 3 10  -T > scrmout
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
+
+foo
+
+#case 6
+echo "6_samples_case2" > current_case
+rm ms* scrm*
+ms 6 ${rep} -t ${theta}  -eN .3 10 -T > msout
+scrm 6 ${rep} -t ${theta}  -eN .3 10  -T > scrmout
+cat msout | sample_stats > ms_stats
+cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
+hybrid-Lambda -gt msTrees -tmrca mstmrca
+hybrid-Lambda -gt msTrees -bl msbl
+
+
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
+hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+hybrid-Lambda -gt scrmTrees -bl scrmbl
+
+foo

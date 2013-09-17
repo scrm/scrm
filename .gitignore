@@ -29,6 +29,10 @@
 *.swp
 
 tests/tests
+tests/test-*
+tests/bad-tests/
+tests/good-tests/
+tests/*working*
 src/scrm
 src/scrm_dbg
 src/scrm_prof
