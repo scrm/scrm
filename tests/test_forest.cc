@@ -11,6 +11,7 @@
 class TestForest : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestForest );
+
   CPPUNIT_TEST( testInitialization );
   CPPUNIT_TEST( testGettersAndSetters );
   CPPUNIT_TEST( testCreateExampleTree );
@@ -22,7 +23,12 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrune );
   CPPUNIT_TEST( testSelectFirstTime );
   CPPUNIT_TEST( testSampleEventType );
-  //CPPUNIT_TEST( testBuildInitialTree ); //CPPUNIT_TEST( testCoalescenceWithStructure ); //CPPUNIT_TEST( testGetNodeState ); CPPUNIT_TEST( testImplementRecombination ); CPPUNIT_TEST( testPrintTree );
+  CPPUNIT_TEST( testBuildInitialTree ); 
+  CPPUNIT_TEST( testCoalescenceWithStructure ); 
+  CPPUNIT_TEST( testGetNodeState ); 
+  CPPUNIT_TEST( testImplementRecombination ); 
+  CPPUNIT_TEST( testPrintTree );
+
   CPPUNIT_TEST_SUITE_END();
 
  private:
