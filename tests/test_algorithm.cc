@@ -37,17 +37,16 @@ class TestAlgorithm : public CppUnit::TestCase {
       Forest forest = Forest(model, rg);
 
       forest.buildInitialTree();
-      tmrca += forest.local_root()->height() / ( 2 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 2 * model->default_pop_size );
+      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
-    tmrca /= 1000; // Expectation: 1.8
-    tree_length /= 1000; // Expectation: 5.66
-    //std::cout << tmrca << std::endl;
-    //std::cout << tree_length << std::endl; 
+    tmrca /= 1000;        // Expectation: 0.9
+    tree_length /= 1000;  // Expectation: 2.84
+    std::cout << std::endl << tmrca << std::endl;
+    std::cout << tree_length << std::endl; 
     
-    CPPUNIT_ASSERT( 1.75 <= tmrca && tmrca <= 1.85 );
-    CPPUNIT_ASSERT( 5.5 <= tree_length && tree_length <= 5.8 );
-
+    CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
+    CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
   }
 
   void testTreeAfterRecombination() {
@@ -62,18 +61,17 @@ class TestAlgorithm : public CppUnit::TestCase {
 
       forest.buildInitialTree();
       for (int j=0; j < 20; ++j) forest.sampleNextGenealogy();
-      tmrca += forest.local_root()->height() / ( 2 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 2 * model->default_pop_size );
+      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
-    tmrca /= 1000;          // Expectation: 1.8
-    tree_length /= 1000;    // Expectation: 5.66
+    tmrca /= 1000;          // Expectation: 0.9 
+    tree_length /= 1000;    // Expectation: 2.84 
 
     std::cout << std::endl << tmrca << std::endl;
     std::cout << tree_length << std::endl; 
-    CPPUNIT_ASSERT( 1.75 <= tmrca && tmrca <= 1.85 );
-    CPPUNIT_ASSERT( 5.5 <= tree_length && tree_length <= 5.8 );
+    CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
+    CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
   }
-
 };
 
 //Uncomment this to activate the test

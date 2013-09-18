@@ -655,6 +655,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+    // Rate for each pair is 1/(2N), as N is the diploid population size
     return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
 }
 
