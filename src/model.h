@@ -117,7 +117,7 @@ class Model
    
 
    /**
-    * @brief Getter for the current size of a (sub-)population.
+    * @brief Getter for the current diploid size of a (sub-)population.
     *
     * This returns the size of a population for the current time of the
     * model. Use resetTime() and increaseTime() to set the model to the time you

@@ -11,6 +11,7 @@
 class TestForest : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestForest );
+
   CPPUNIT_TEST( testInitialization );
   CPPUNIT_TEST( testGettersAndSetters );
   CPPUNIT_TEST( testCreateExampleTree );
@@ -22,19 +23,21 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrune );
   CPPUNIT_TEST( testSelectFirstTime );
   CPPUNIT_TEST( testSampleEventType );
-  //CPPUNIT_TEST( testBuildInitialTree );
-  //CPPUNIT_TEST( testCoalescenceWithStructure );
-  //CPPUNIT_TEST( testGetNodeState );
+  CPPUNIT_TEST( testBuildInitialTree ); 
+  CPPUNIT_TEST( testCoalescenceWithStructure ); 
+  CPPUNIT_TEST( testGetNodeState ); 
+  CPPUNIT_TEST( testImplementRecombination ); 
   CPPUNIT_TEST( testPrintTree );
+
   CPPUNIT_TEST_SUITE_END();
 
  private:
   Forest *forest;
-  ConstantGenerator *rg;
+  MersenneTwister *rg;
 
  public:
   void setUp() {
-    rg = new ConstantGenerator;
+    rg = new MersenneTwister(1234);
     forest = new Forest(new Model(5), rg);
     forest->createExampleTree();
   }
@@ -69,12 +72,6 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->checkTreeLength() );
   }
 
-
-  void testSamplePoint() {
-    TreePoint tp = forest->samplePoint();
-    CPPUNIT_ASSERT( tp.base_node() != NULL );
-    CPPUNIT_ASSERT( tp.relative_height() > 0 );
-  }
 
   void testCalcRate() {
     TimeIntervalIterator tii(forest, forest->nodes()->at(0));
@@ -476,6 +473,65 @@ class TestForest : public CppUnit::TestCase {
     for (NodeIterator ni = frst.nodes()->iterator(); ni.good(); ++ni) {
       CPPUNIT_ASSERT( (*ni)->population() != 0 );
     }
+  }
+
+  void testImplementRecombination() {
+    Node* new_root = forest->cut(TreePoint(forest->nodes()->at(4), 3.5, false));
+    TimeIntervalIterator tii(forest, new_root, false);
+    forest->set_active_node(0, new_root);
+    forest->set_active_node(1, forest->local_root());
+
+    Event event = Event(3.7);
+    event.setToCoalescence(new_root, 0);
+    forest->tmp_event_ = event;
+
+    forest->implementCoalescence(event, tii);
+    ++tii;
+
+    forest->set_current_base(100);
+    event.set_time(4.5);
+    event.setToRecombination(forest->active_node(0), 0);
+    CPPUNIT_ASSERT_NO_THROW( forest->implementRecombination(event, tii) );
+
+    CPPUNIT_ASSERT( forest->nodes()->at(9) == forest->active_node(0) || 
+                    forest->nodes()->at(10) == forest->active_node(0) );
+
+    CPPUNIT_ASSERT( forest->active_node(0)->local() );
+    CPPUNIT_ASSERT( forest->active_node(0)->is_root() );
+    CPPUNIT_ASSERT_EQUAL( 1, forest->active_node(0)->numberOfChildren() );
+
+    Node* single_branch = forest->nodes()->at(9);
+    if( forest->nodes()->at(9) == forest->active_node(0) ) 
+      single_branch = forest->nodes()->at(10);
+
+    //forest->printTree_cout();
+    CPPUNIT_ASSERT( !single_branch->local() );
+    CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
+  }
+
+  void testSamplePoint() {
+    rg->set_seed(12345);
+    TreePoint point;
+    int n0 = 0, n1 = 0, n2 = 0, n3 = 0, 
+        n4 = 0, n5 = 0;
+    for (int i = 0; i < 240000; ++i) {
+      point = forest->samplePoint();
+      CPPUNIT_ASSERT( point.base_node() != NULL );
+      CPPUNIT_ASSERT( point.base_node()->local() );
+      if (point.base_node() == forest->nodes()->at(0)) ++n0;
+      if (point.base_node() == forest->nodes()->at(1)) ++n1;
+      if (point.base_node() == forest->nodes()->at(2)) ++n2;
+      if (point.base_node() == forest->nodes()->at(3)) ++n3;
+      if (point.base_node() == forest->nodes()->at(4)) ++n4;
+      if (point.base_node() == forest->nodes()->at(5)) ++n5;
+    }
+    CPPUNIT_ASSERT( 29500 <= n0 && n0 <= 30500 ); // expected 30000 
+    CPPUNIT_ASSERT( 29500 <= n1 && n1 <= 30500 ); // expected 30000 
+    CPPUNIT_ASSERT(  9800 <= n2 && n2 <= 10200 ); // expected 10000 
+    CPPUNIT_ASSERT(  9800 <= n3 && n3 <= 10200 ); // expected 10000 
+    CPPUNIT_ASSERT( 89000 <= n4 && n4 <= 91000 ); // expected 90000 
+    CPPUNIT_ASSERT( 69000 <= n5 && n5 <= 71000 ); // expected 70000 
   }
 };
 

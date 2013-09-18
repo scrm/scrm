@@ -52,10 +52,9 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  dout<<"Forest destructor is called"<<endl;
-  //delete[] nodes_;
+  //dout<<"Forest destructor is called"<<endl;
   nodes()->clear();
-  dout<<"Forest is deleted"<<endl;
+  //dout<<"Forest is deleted"<<endl;
 }
 
 
@@ -221,6 +220,7 @@ void Forest::buildInitialTree() {
     this->sampleCoalescences(new_leaf, false);
     //this->clear_initial_coalevent();
     dout << "* * Tree:" << std::endl;
+
     assert(this->printNodes());
     assert(this->checkTree());
     assert(this->checkLeafsOnLocalTree());
@@ -251,43 +251,44 @@ void Forest::buildInitialTree() {
 * \return The sampled point on the tree.
 */
 TreePoint Forest::samplePoint(Node* node, double length_left) {
-if (node == NULL) {
-  // Called without arguments => initialization
-  node = this->local_root();
-  length_left = this->random_generator()->sample() * node->length_below();
-}
-
-assert( node->local() || node == this->local_root() );
-assert( length_left >= 0 );
-assert( length_left < (node->length_below() + node->height_above()) );
-
-if ( node != this->local_root() ) {
-  if ( length_left < node->height_above() ) {
-    return TreePoint(node, length_left, true);
+  if (node == NULL) {
+    // Called without arguments => initialization
+    node = this->local_root();
+    length_left = this->random_generator()->sample() * node->length_below();
   }
 
-  length_left = length_left - node->height_above();
+  assert( node->local() || node == this->local_root() );
   assert( length_left >= 0 );
-}
+  assert( length_left < (node->length_below() + node->height_above()) );
 
-// At this point, we should have at least one local child
-assert( node->first_child() != NULL );
-assert( node->first_child()->local() || node->second_child()->local() );
+  if ( node != this->local_root() ) {
+    if ( length_left < node->height_above() ) {
+      assert( node->local() );
+      return TreePoint(node, length_left, true);
+    }
 
-// If we have only one local child, then give it the full length we have left.
-if ( !node->first_child()->local() ) {
-  return samplePoint(node->second_child(), length_left);
-}
-if ( node->second_child() == NULL || !node->second_child()->local() ) {
-  return samplePoint(node->first_child(), length_left);
-}
+    length_left = length_left - node->height_above();
+    assert( length_left >= 0 );
+  }
 
-// If we have two local children, the look if we should go down left or right.
-double tmp = node->first_child()->height_above() + node->first_child()->length_below();
-if ( length_left <= tmp )
-  return samplePoint(node->first_child(), length_left);
-else 
-  return samplePoint(node->second_child(), length_left - tmp);
+  // At this point, we should have at least one local child
+  assert( node->first_child() != NULL );
+  assert( node->first_child()->local() || node->second_child()->local() );
+
+  // If we have only one local child, then give it the full length we have left.
+  if ( !node->first_child()->local() ) {
+    return samplePoint(node->second_child(), length_left);
+  }
+  if ( node->second_child() == NULL || !node->second_child()->local() ) {
+    return samplePoint(node->first_child(), length_left);
+  }
+
+  // If we have two local children, the look if we should go down left or right.
+  double tmp = node->first_child()->height_above() + node->first_child()->length_below();
+  if ( length_left <= tmp )
+    return samplePoint(node->first_child(), length_left);
+  else 
+    return samplePoint(node->second_child(), length_left - tmp);
 }
 
 
@@ -323,16 +324,16 @@ void Forest::sampleNextGenealogy() {
   this->cut(rec_point);
 
   assert( rec_point.base_node()->local() );
-  assert(this->printTree());
+  assert( this->printTree() );
 
   this->initialize_recomb_coalescent(rec_point.height());
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-  assert(this->printTree());
-  assert(this->checkLeafsOnLocalTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
+  assert( this->printTree() );
+  assert( this->checkLeafsOnLocalTree() );
+  assert( this->printNodes() );
+  assert( this->checkTree() );
 
   this->set_next_base();
   //writeTree(this->local_root(),this->model_->population_size(),0);
@@ -449,7 +450,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 	   //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
-      assert(this->printTree());
+
+      assert( this->printTree() );
     }
   }
 }  
@@ -655,6 +657,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+    // Rate for each pair is 1/(2N), as N is the diploid population size
     return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
 }
 
@@ -678,6 +681,8 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
   assert( coal_node->population() == target->population() );
+  assert( getEventNode() != NULL );
+  assert( getOtherNode() != NULL );
 
   Node* new_node;
 
@@ -721,8 +726,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   set_active_node(event.active_node_nr(), new_node);
 
-  // If the other node was looking for a recombination, we must ensure that 
-  // the branch below the event gets marked as updated.
   if ( getOtherNodesState() == 2 ) {
     // If the coalescing node coalesced into the branch directly above 
     // the recombining node, then we are done.
@@ -735,7 +738,8 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
       return;
     }
 
-    // XXX: Is there missing something here?
+    // The branch below the event will be made local later anyway, so we don't
+    // have to care about marking it as updated.
   }
 
   // Check if are can stop.
@@ -817,17 +821,19 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   updateAbove(root_2, false, false);
   updateAbove(new_root, false, false);
   dout << " done" << std::endl;
+
+  assert( this->local_root()->height() == time );
 }
 
 
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
-  updateAbove(event.node(), false, false);
   TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
   set_active_node(event.active_node_nr(), cut(event_point));
-  updateAbove(active_node(event.active_node_nr()), false, false);
+  updateAbove(event.node(), false, true); // Make the branch below the rec local
+  //updateAbove(active_node(event.active_node_nr()), false, false);
   ti.recalculateInterval();
 
-  assert(this->printTree());
+  assert( this->printTree() );
 }
 
 
@@ -909,24 +915,6 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
     return node->parent();
   }
   return node;
-}
-
-
-/**
- * Sample which of two waiting time ran off, conditioned on that one of them
- * did.
- *
- * \param rate_1 The rate of the first waiting time
- * \param rate_2 The rate of the second waiting time
- *
- * \return 1 if the first one ran off, and 2 if the second one did.
- */
-size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) const {
-  if (rate_1 == 0) return 2;
-  if (rate_2 == 0) return 1;
-
-  if (this->random_generator()->sample() * (rate_1 + rate_2) > rate_1) return 2;
-  return 1;
 }
 
 
@@ -1022,6 +1010,11 @@ void Forest::prune(Node *node) {
 
   // And delete
   nodes()->remove(node);
+}
+
+bool areSame(const double &a, const double &b, const double &epsilon) {
+  // from Knuths "The art of computer programming"
+  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
 

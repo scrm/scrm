@@ -39,10 +39,15 @@
 //Unless compiled with options NDEBUG, we will produce a debug output using 
 //'dout' instead of cout and execute (expensive) assert statements.
 #ifndef NDEBUG
+#define DEBUGFUNCTIONS
 #define dout std::cout
 #else
 #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
+#endif
+
+#ifdef UNITTEST
+#define DEBUGFUNCTIONS
 #endif
 
 #include <vector>
@@ -133,6 +138,7 @@ class Forest
   void sampleNextGenealogy();
 
   //Debugging Tools
+#ifdef DEBUGFUNCTIONS
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
@@ -153,6 +159,7 @@ class Forest
 
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
+#endif
 
   NodeContainer *nodes() { return this->nodes_; }
   
@@ -188,6 +195,7 @@ class Forest
 
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
+
   void updateAbove(Node* node, 
                    bool above_local_root = false,
                    bool recursive = true,
@@ -199,8 +207,6 @@ class Forest
   //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
-
-  size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
@@ -215,12 +221,11 @@ class Forest
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
 
-
-
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
 
   double calcPwCoalescenceRate(const size_t &pop) const {
+    // Rate a pair is 1/(2N), as N is the diploid population size
     return ( 1.0 / ( 2.0 * this->model().population_size(pop) ) );
   }
 

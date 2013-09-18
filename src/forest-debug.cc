@@ -20,6 +20,16 @@
 
 */
 
+#ifndef NDEBUG
+#define DEBUGFUNCTIONS
+#endif
+
+#ifdef UNITTEST
+#define DEBUGFUNCTIONS
+#endif
+
+#ifdef DEBUGFUNCTIONS
+
 #include "forest.h"
 #include <sstream>
 
@@ -535,7 +545,4 @@ std::vector<Node const*> Forest::determinePositions() const {
     return true;
   }
 
-  bool areSame(const double &a, const double &b, const double &epsilon) {
-    // from Knuths "The art of computer programming"
-    return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-  }
+#endif
