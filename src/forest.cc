@@ -250,43 +250,44 @@ void Forest::buildInitialTree() {
 * \return The sampled point on the tree.
 */
 TreePoint Forest::samplePoint(Node* node, double length_left) {
-if (node == NULL) {
-  // Called without arguments => initialization
-  node = this->local_root();
-  length_left = this->random_generator()->sample() * node->length_below();
-}
-
-assert( node->local() || node == this->local_root() );
-assert( length_left >= 0 );
-assert( length_left < (node->length_below() + node->height_above()) );
-
-if ( node != this->local_root() ) {
-  if ( length_left < node->height_above() ) {
-    return TreePoint(node, length_left, true);
+  if (node == NULL) {
+    // Called without arguments => initialization
+    node = this->local_root();
+    length_left = this->random_generator()->sample() * node->length_below();
   }
 
-  length_left = length_left - node->height_above();
+  assert( node->local() || node == this->local_root() );
   assert( length_left >= 0 );
-}
+  assert( length_left < (node->length_below() + node->height_above()) );
 
-// At this point, we should have at least one local child
-assert( node->first_child() != NULL );
-assert( node->first_child()->local() || node->second_child()->local() );
+  if ( node != this->local_root() ) {
+    if ( length_left < node->height_above() ) {
+      assert( node->local() );
+      return TreePoint(node, length_left, true);
+    }
 
-// If we have only one local child, then give it the full length we have left.
-if ( !node->first_child()->local() ) {
-  return samplePoint(node->second_child(), length_left);
-}
-if ( node->second_child() == NULL || !node->second_child()->local() ) {
-  return samplePoint(node->first_child(), length_left);
-}
+    length_left = length_left - node->height_above();
+    assert( length_left >= 0 );
+  }
 
-// If we have two local children, the look if we should go down left or right.
-double tmp = node->first_child()->height_above() + node->first_child()->length_below();
-if ( length_left <= tmp )
-  return samplePoint(node->first_child(), length_left);
-else 
-  return samplePoint(node->second_child(), length_left - tmp);
+  // At this point, we should have at least one local child
+  assert( node->first_child() != NULL );
+  assert( node->first_child()->local() || node->second_child()->local() );
+
+  // If we have only one local child, then give it the full length we have left.
+  if ( !node->first_child()->local() ) {
+    return samplePoint(node->second_child(), length_left);
+  }
+  if ( node->second_child() == NULL || !node->second_child()->local() ) {
+    return samplePoint(node->first_child(), length_left);
+  }
+
+  // If we have two local children, the look if we should go down left or right.
+  double tmp = node->first_child()->height_above() + node->first_child()->length_below();
+  if ( length_left <= tmp )
+    return samplePoint(node->first_child(), length_left);
+  else 
+    return samplePoint(node->second_child(), length_left - tmp);
 }
 
 
