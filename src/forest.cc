@@ -220,12 +220,11 @@ void Forest::buildInitialTree() {
     this->sampleCoalescences(new_leaf, false);
     //this->clear_initial_coalevent();
     dout << "* * Tree:" << std::endl;
-#ifndef NDEBUG
+
     assert(this->printNodes());
     assert(this->checkTree());
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
-#endif
   }
   this->set_next_base();
 }
@@ -325,20 +324,16 @@ void Forest::sampleNextGenealogy() {
   this->cut(rec_point);
 
   assert( rec_point.base_node()->local() );
-#ifndef NDEBUG
-  this->printTree();
-#endif
+  assert( this->printTree() );
 
   this->initialize_recomb_coalescent(rec_point.height());
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-#ifndef NDEBUG
-  this->printTree();
-  this->checkLeafsOnLocalTree();
-  this->printNodes();
-  this->checkTree();
-#endif
+  assert( this->printTree() );
+  assert( this->checkLeafsOnLocalTree() );
+  assert( this->printNodes() );
+  assert( this->checkTree() );
 
   this->set_next_base();
   //writeTree(this->local_root(),this->model_->population_size(),0);
@@ -455,9 +450,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 	   //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
-#ifndef NDEBUG
-      this->printTree();
-#endif
+
+      assert( this->printTree() );
     }
   }
 }  
@@ -837,9 +831,7 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
   //updateAbove(active_node(event.active_node_nr()), false, false);
   ti.recalculateInterval();
 
-#ifndef NDEBUG
-  this->printTree();
-#endif
+  assert( this->printTree() );
 }
 
 

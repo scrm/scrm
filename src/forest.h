@@ -137,8 +137,8 @@ class Forest
   void buildInitialTree();
   void sampleNextGenealogy();
 
-#ifdef DEBUGFUNCTIONS
   //Debugging Tools
+#ifdef DEBUGFUNCTIONS
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
@@ -148,7 +148,6 @@ class Forest
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
   bool printNodes() const;
-#endif
 
   //Tree printing
   int countLinesLeft(Node const* node) const;
@@ -160,6 +159,7 @@ class Forest
 
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
+#endif
 
   NodeContainer *nodes() { return this->nodes_; }
 
