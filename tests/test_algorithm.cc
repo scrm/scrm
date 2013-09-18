@@ -69,8 +69,8 @@ class TestAlgorithm : public CppUnit::TestCase {
 
     std::cout << std::endl << tmrca << std::endl;
     std::cout << tree_length << std::endl; 
-    //CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
-    //CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
+    CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
+    CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
   }
 };
 
