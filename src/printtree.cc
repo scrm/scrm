@@ -89,7 +89,9 @@ double Forest::tmrca(){/*! \todo Still working progress*/
 }
 
 
-Node * Forest::tracking_tip_node_with_bl(Node * node, double * bl){/*! \todo Still working progress*/
+Node * Forest::tracking_tip_node_with_bl(Node * node, double * bl){
+	/*! \todo use node->samples_below() */
+	/*! \todo Still working progress*/
   assert( node->local() );
 
   this->tracking_bl(node,bl);

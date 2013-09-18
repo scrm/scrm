@@ -94,7 +94,7 @@ bool Node::in_sample() const {
   return ( this->label() != 0 ); 
 }
 
-Node * tracking_local_node(Node * node){
+Node * tracking_local_node(Node * node){ /*! \todo use node->samples_below() */
   assert( node->local() );
   dout << node << std::endl;
   if (node->in_sample()){
