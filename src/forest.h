@@ -39,10 +39,15 @@
 //Unless compiled with options NDEBUG, we will produce a debug output using 
 //'dout' instead of cout and execute (expensive) assert statements.
 #ifndef NDEBUG
+#define DEBUGFUNCTIONS
 #define dout std::cout
 #else
 #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
+#endif
+
+#ifdef UNITTEST
+#define DEBUGFUNCTIONS
 #endif
 
 #include <vector>
@@ -132,6 +137,7 @@ class Forest
   void buildInitialTree();
   void sampleNextGenealogy();
 
+#ifdef DEBUGFUNCTIONS
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
@@ -142,6 +148,7 @@ class Forest
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
   bool printNodes() const;
+#endif
 
   //Tree printing
   int countLinesLeft(Node const* node) const;
@@ -179,6 +186,7 @@ class Forest
 
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
+
   void updateAbove(Node* node, 
                    bool above_local_root = false,
                    bool recursive = true,
