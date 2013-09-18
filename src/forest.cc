@@ -821,6 +821,8 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   updateAbove(root_2, false, false);
   updateAbove(new_root, false, false);
   dout << " done" << std::endl;
+
+  assert( this->local_root()->height() == time );
 }
 
 
