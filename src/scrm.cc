@@ -94,6 +94,7 @@ int main(int argc, char *argv[]){
         seg_data_array->append_new_seg_data(forest);
       }
 
+      int i = 0;
       // Start main loop, if the recombination rate is nonzero
       if (model->recombination_rate() > 0.0){
 
@@ -114,8 +115,12 @@ int main(int argc, char *argv[]){
             previous_genealogy = writeTree_new(forest->local_root(),forest->writable_model()->population_size());
           }
 
+
+          std::cerr << i << " " << forest->local_root()->height() / ( 4 * forest->model().default_pop_size )  
+                    << " " << forest->local_tree_length() / ( 4 * forest->model().default_pop_size )<< std::endl;
           // Sample next genealogy
           forest->sampleNextGenealogy();
+          ++i;
 
           // Sample and store segregating sites data
           seg_data_array->append_new_seg_data(forest);

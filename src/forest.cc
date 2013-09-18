@@ -52,10 +52,9 @@ void Forest::initialize(Model* model,
  *****************************************************************/
 
 Forest::~Forest() { 
-  dout<<"Forest destructor is called"<<endl;
-  //delete[] nodes_;
+  //dout<<"Forest destructor is called"<<endl;
   nodes()->clear();
-  dout<<"Forest is deleted"<<endl;
+  //dout<<"Forest is deleted"<<endl;
 }
 
 
@@ -679,6 +678,8 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
   assert( coal_node->population() == target->population() );
+  assert( getEventNode() != NULL );
+  assert( getOtherNode() != NULL );
 
   Node* new_node;
 
@@ -722,8 +723,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   set_active_node(event.active_node_nr(), new_node);
 
-  // If the other node was looking for a recombination, we must ensure that 
-  // the branch below the event gets marked as updated.
   if ( getOtherNodesState() == 2 ) {
     // If the coalescing node coalesced into the branch directly above 
     // the recombining node, then we are done.
@@ -736,7 +735,8 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
       return;
     }
 
-    // XXX: Is there missing something here?
+    // The branch below the event will be made local later anyway, so we don't
+    // have to care about marking it as updated.
   }
 
   // Check if are can stop.
@@ -822,10 +822,10 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 
 
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
-  updateAbove(event.node(), false, false);
   TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
   set_active_node(event.active_node_nr(), cut(event_point));
-  updateAbove(active_node(event.active_node_nr()), false, false);
+  updateAbove(event.node(), false, true); // Make the branch below the rec local
+  //updateAbove(active_node(event.active_node_nr()), false, false);
   ti.recalculateInterval();
 
   assert(this->printTree());

@@ -25,6 +25,7 @@ class TestForest : public CppUnit::TestCase {
   //CPPUNIT_TEST( testBuildInitialTree );
   //CPPUNIT_TEST( testCoalescenceWithStructure );
   //CPPUNIT_TEST( testGetNodeState );
+  CPPUNIT_TEST( testImplementRecombination );
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST_SUITE_END();
 
@@ -476,6 +477,41 @@ class TestForest : public CppUnit::TestCase {
     for (NodeIterator ni = frst.nodes()->iterator(); ni.good(); ++ni) {
       CPPUNIT_ASSERT( (*ni)->population() != 0 );
     }
+  }
+
+  void testImplementRecombination() {
+    Node* new_root = forest->cut(TreePoint(forest->nodes()->at(4), 3.5, false));
+    TimeIntervalIterator tii(forest, new_root, false);
+    forest->set_active_node(0, new_root);
+    forest->set_active_node(1, forest->local_root());
+
+    Event event = Event(3.7);
+    event.setToCoalescence(new_root, 0);
+    forest->tmp_event_ = event;
+
+    forest->implementCoalescence(event, tii);
+    ++tii;
+
+    forest->set_current_base(100);
+    event.set_time(4.5);
+    event.setToRecombination(forest->active_node(0), 0);
+    CPPUNIT_ASSERT_NO_THROW( forest->implementRecombination(event, tii) );
+
+    CPPUNIT_ASSERT( forest->nodes()->at(9) == forest->active_node(0) || 
+                    forest->nodes()->at(10) == forest->active_node(0) );
+
+    CPPUNIT_ASSERT( forest->active_node(0)->local() );
+    CPPUNIT_ASSERT( forest->active_node(0)->is_root() );
+    CPPUNIT_ASSERT_EQUAL( 1, forest->active_node(0)->numberOfChildren() );
+
+    Node* single_branch = forest->nodes()->at(9);
+    if( forest->nodes()->at(9) == forest->active_node(0) ) 
+      single_branch = forest->nodes()->at(10);
+
+    //forest->printTree_cout();
+    CPPUNIT_ASSERT( !single_branch->local() );
+    CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
   }
 };
 
