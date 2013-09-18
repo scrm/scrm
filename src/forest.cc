@@ -915,24 +915,6 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 
 
 /**
- * Sample which of two waiting time ran off, conditioned on that one of them
- * did.
- *
- * \param rate_1 The rate of the first waiting time
- * \param rate_2 The rate of the second waiting time
- *
- * \return 1 if the first one ran off, and 2 if the second one did.
- */
-size_t Forest::sampleWhichRateRang(const double &rate_1, const double &rate_2) const {
-  if (rate_1 == 0) return 2;
-  if (rate_2 == 0) return 1;
-
-  if (this->random_generator()->sample() * (rate_1 + rate_2) > rate_1) return 2;
-  return 1;
-}
-
-
-/**
  * Test if a branch above a given node can be pruned, i.e. removed from the
  * forest.
  *

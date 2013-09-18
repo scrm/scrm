@@ -191,8 +191,6 @@ class Forest
   size_t getNodeState(Node const *node, const double &current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
 
-  size_t sampleWhichRateRang(const double &rate_1, const double &rate_2) const;
-
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
