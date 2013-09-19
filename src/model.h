@@ -302,10 +302,10 @@ locus length might change after the rate is read in from command line */
    void finalize(); 
    
    // Rescaling
-   //void rescaleChangeTimes();
+   //void rescaleChangeTimes(); /*! Not used, \todo to be removed */
    
-   double popSizeAtLayerI(size_t I, size_t pop) const;
-   size_t getPopLayerIatHeight(double height);
+   //double popSizeAtLayerI(size_t I, size_t pop) const; /*! Not used, \todo to be removed */
+   //size_t getPopLayerIatHeight(double height); /*! Not used, \todo to be removed */
    //double popSizeAtHeight(double height, size_t pop);
    std::vector<double> change_times_;
   

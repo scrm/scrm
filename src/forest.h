@@ -187,12 +187,7 @@ class Forest
   virtual void clear_initial_coalevent();
 
  private:
-  Node * tracking_local_node(Node * node);
-  //printing tree
-  //Node * tracking_local_node_with_bl(Node * node, double * bl); 
-  //void tracking_bl(Node * node, double * bl);
-  //Node * tracking_tip_node_with_bl(Node * node, double * bl); 
-  //double tot_below(Node * node); 
+  Node * tracking_local_node(Node * node); 
 
   //segegrating sites  
   //void find_descndnt(); // Not used, to be removed

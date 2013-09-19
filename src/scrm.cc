@@ -120,9 +120,11 @@ int main(int argc, char *argv[]){
           }
           tmrca = forest->tmrca();
 		  tot_bl = forest->tot();
+
+		/*! \todo Keep? */
           std::cerr << i << " " << forest->local_root()->height() / ( 4 * forest->model().default_pop_size )  
                     << " " << forest->local_tree_length() / ( 4 * forest->model().default_pop_size )<< std::endl;
-          //assert(tot_bl == forest->local_tree_length() / ( 4 * forest->model().default_pop_size ));
+
           // Sample next genealogy
           forest->sampleNextGenealogy();
           ++i;

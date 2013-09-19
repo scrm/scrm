@@ -472,23 +472,24 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
   //return this->popSizeAtLayerI(getPopLayerIatHeight(height),pop);
 //}
 
-double Model::popSizeAtLayerI(size_t I, size_t pop) const{ /*! \todo  this needs more work (Joe) */
-  if (pop_sizes_list_[I] == NULL){
-	return this->default_pop_size;}
-  else{
-    return this->pop_sizes_list_[I]->at(pop);
-  }
-}
+/*! Not used, \todo to be removed */
+//double Model::popSizeAtLayerI(size_t I, size_t pop) const{ /*! \todo  this needs more work (Joe) */
+  //if (pop_sizes_list_[I] == NULL){
+	//return this->default_pop_size;}
+  //else{
+    //return this->pop_sizes_list_[I]->at(pop);
+  //}
+//}
 
-size_t Model::getPopLayerIatHeight(double height){ /*! \todo  this needs more work (Joe) */
-  size_t time_position = 0;
-  while (this->change_times_[time_position+1] < height && time_position+1 != this->change_times_.size()){
-    time_position++;
-  }
-  //dout<<"model->pop_change_times_[time_position] " << model->pop_change_times_[time_position] 
-  //<<" node->height() "<<node->height()<<std::endl;
-  //std::cout<<"model->change_times_.size()"<<model->change_times_.size()<<endl;
-  //std::cout<<"time_position "<<time_position<<endl;
-  //std::cout<<"pop_sizes_list_ "<<model->pop_sizes_list_.size()<<endl;
-  return time_position;
-}
+//size_t Model::getPopLayerIatHeight(double height){ /*! \todo  this needs more work (Joe) */
+  //size_t time_position = 0;
+  //while (this->change_times_[time_position+1] < height && time_position+1 != this->change_times_.size()){
+    //time_position++;
+  //}
+  ////dout<<"model->pop_change_times_[time_position] " << model->pop_change_times_[time_position] 
+  ////<<" node->height() "<<node->height()<<std::endl;
+  ////std::cout<<"model->change_times_.size()"<<model->change_times_.size()<<endl;
+  ////std::cout<<"time_position "<<time_position<<endl;
+  ////std::cout<<"pop_sizes_list_ "<<model->pop_sizes_list_.size()<<endl;
+  //return time_position;
+//}
