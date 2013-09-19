@@ -33,14 +33,16 @@ class TestSeg : public CppUnit::TestCase {
 
   void testTraversal() {
     std::valarray <int>haplotype(4);
-    traversal(forest->nodes()->at(4), haplotype);
+    //traversal(forest->nodes()->at(4), haplotype);
+    forest->traversal(forest->nodes()->at(4), haplotype);
     CPPUNIT_ASSERT_EQUAL( 1, haplotype[0] );
     CPPUNIT_ASSERT_EQUAL( 1, haplotype[1] );
     CPPUNIT_ASSERT_EQUAL( 0, haplotype[2] );
     CPPUNIT_ASSERT_EQUAL( 0, haplotype[3] );
 
     haplotype *= 0;
-    traversal(forest->nodes()->at(5), haplotype);
+    //traversal(forest->nodes()->at(5), haplotype);
+    forest->traversal(forest->nodes()->at(5), haplotype);
     CPPUNIT_ASSERT_EQUAL( 0, haplotype[0] );
     CPPUNIT_ASSERT_EQUAL( 0, haplotype[1] );
     CPPUNIT_ASSERT_EQUAL( 1, haplotype[2] );
