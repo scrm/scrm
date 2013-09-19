@@ -21,6 +21,7 @@
 */
  
 #include "forest.h"
+#include <sstream> // This is required by Forest::writeTree, ostringstream
 
 /******************************************************************
  * Constructors & Initialization
@@ -1017,6 +1018,56 @@ bool areSame(const double &a, const double &b, const double &epsilon) {
   return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
+Node * Forest::tracking_local_node(Node * node){ /*! \todo use node->samples_below(), and move it under the forest class*/
+  assert( node->local() );
+  dout << node << std::endl;
+  if (node->in_sample()){
+    dout<<" is tip node, it is local, return."<<std::endl;
+    return node;
+  }
+
+  assert( node->first_child() != NULL );
+  if ( node->second_child() == NULL ){
+    return this->tracking_local_node(node->first_child());
+  }
+
+  else if (node->first_child()->local() && node->second_child()->local()){
+    dout<< " is an internal local node, return"<<std::endl;
+    return node;
+  }
+  
+  else if (!node->first_child()->local() ){ 
+    assert( node->second_child()->local() );
+    dout<< "is internal node with one non-local branch" << std::endl;
+    return this->tracking_local_node(node->second_child());
+  }
+
+  else{
+    assert( node->first_child()->local() );
+    dout<< "is internal node with one non-local branch" << std::endl;
+    return this->tracking_local_node(node->first_child());
+  }
+}
+
+
+std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
+	if(node->in_sample()){ // real tip node
+		std::ostringstream label_strm;
+		label_strm<<node->label();
+		return label_strm.str();
+	}
+	else{
+		Node *left = this->tracking_local_node(node->first_child());
+		double t1=node->height()- left->height();
+		std::ostringstream t1_strm;
+		t1_strm << t1 / 4 / this->model_->default_pop_size;
+		Node *right = this->tracking_local_node(node->second_child());
+		double t2=node->height()- right->height();
+		std::ostringstream t2_strm;
+		t2_strm << t2 / 4 / this->model_->default_pop_size;
+		return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
+	}
+}
 
 void Forest::initialize_recomb_coalescent(const double rec_height){};
 void Forest::initialize_event(double start_time){};

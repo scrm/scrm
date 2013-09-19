@@ -65,6 +65,4 @@ class SegDataContainer {
 };
 
 
-std::valarray<int> find_haplotypes(Node *node, int nsam);
-void traversal(Node *node, std::valarray <int>&haplotype);
 #endif

@@ -88,7 +88,8 @@ SegDataBlock::SegDataBlock(
   //forest->printTree_cout();
   while ( (remaining_num_mut > 0 || max_num_mut < 0 ) && position_at < max_base){
     TreePoint mut_point = forest->samplePoint();
-    haplotypes.push_back(find_haplotypes(mut_point.base_node(), forest->model().sample_size()));
+    //haplotypes.push_back(find_haplotypes(mut_point.base_node(), forest->model().sample_size()));
+    haplotypes.push_back(forest->find_haplotypes(mut_point.base_node()));
     positions.push_back(position_at);
     position_at += forest->random_generator()->sampleExpo(forest->local_tree_length() * 
                  forest->writable_model()->mutation_rate() );
@@ -97,14 +98,14 @@ SegDataBlock::SegDataBlock(
   }	//cout<<endl;
 }
 
-std::valarray <int> find_haplotypes(Node *node, int nsam){
-  std::valarray <int> haplotype(nsam);
+std::valarray <int> Forest::find_haplotypes(Node *node){
+  std::valarray <int> haplotype(this->model().sample_size());
   traversal(node, haplotype);
   return haplotype;
 }
 
 
-void traversal(Node *node, std::valarray<int> &haplotype){
+void Forest::traversal(Node *node, std::valarray<int> &haplotype){
   //std::cout << "start " << node << std::endl;
   if (node->in_sample()){
     haplotype[node->label()-1]=1;

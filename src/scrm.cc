@@ -90,8 +90,8 @@ int main(int argc, char *argv[]){
 
       // Just output a single tree if the recombination rate is 0
       if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
-		//tree_buffer << writeTree(forest->local_root(), forest->writable_model()) << ";\n";
 		tree_buffer << forest->writeTree(forest->local_root()) << ";\n";
+        //tree_buffer << writeTree_new(forest->local_root(), forest->model().default_pop_size) << ";\n";
         seg_data_array->append_new_seg_data(forest);
 		tmrca = forest->tmrca();
 		tot_bl = forest->tot();
@@ -116,6 +116,7 @@ int main(int argc, char *argv[]){
           string previous_genealogy;
           if (user_para.tree_bool) { 
             previous_genealogy = forest->writeTree(forest->local_root());
+            //previous_genealogy = writeTree_new(forest->local_root(),forest->model().default_pop_size);
           }
           tmrca = forest->tmrca();
 		  tot_bl = forest->tot();

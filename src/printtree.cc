@@ -4,25 +4,41 @@
 /*! \todo CHECK!!!! NEWICK FORMAT STRING TMRCA AND BL ARE INCORRECT!!!*/
 
 std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
-	//if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
-	if (node->in_sample()){
+	if(node->in_sample()){ // real tip node
 		std::ostringstream label_strm;
 		label_strm<<node->label();
 		return label_strm.str();
 	}
 	else{
-		double *t1 = new double;
-		*t1 = 0;
-		Node *left = this->tracking_local_node_with_bl(node->first_child(), t1);
+		Node *left = tracking_local_node(node->first_child());
+		double t1=node->height()- left->height();
 		std::ostringstream t1_strm;
-		t1_strm << *t1;
-		double *t2 = new double;
-		*t2 = 0;
-		Node *right = this->tracking_local_node_with_bl(node->second_child(), t2);
+		t1_strm << t1 / 4 / this->model_->default_pop_size;
+		Node *right = tracking_local_node(node->second_child());
+		double t2=node->height()- right->height();
 		std::ostringstream t2_strm;
-		t2_strm << *t2;
-		return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
+		t2_strm << t2 / 4 / this->model_->default_pop_size;
+		return "("+writeTree_new(left,npop)+":"+t1_strm.str()+","+ writeTree_new(right,npop)+":"+t2_strm.str() +")";
 	}
+	////if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
+	//if (node->in_sample()){
+		//std::ostringstream label_strm;
+		//label_strm<<node->label();
+		//return label_strm.str();
+	//}
+	//else{
+		//double *t1 = new double;
+		//*t1 = 0;
+		//Node *left = this->tracking_local_node_with_bl(node->first_child(), t1);
+		//std::ostringstream t1_strm;
+		//t1_strm << *t1;
+		//double *t2 = new double;
+		//*t2 = 0;
+		//Node *right = this->tracking_local_node_with_bl(node->second_child(), t2);
+		//std::ostringstream t2_strm;
+		//t2_strm << *t2;
+		//return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
+	//}
 }
 
 void Forest::tracking_bl(Node * node, double * bl){
@@ -80,13 +96,13 @@ Node * Forest::tracking_local_node_with_bl(Node * node, double * bl){
   }
 }
 
-double Forest::tmrca(){/*! \todo Still working progress*/
-	double *t1 = new double;
-	*t1 = 0;
-	//Node *left = this->tracking_local_node_with_bl(local_root_, t1);
-	this->tracking_tip_node_with_bl(local_root_->first_child(), t1);
-	return *t1;
-}
+//double Forest::tmrca(){/*! \todo Still working progress*/
+	//double *t1 = new double;
+	//*t1 = 0;
+	////Node *left = this->tracking_local_node_with_bl(local_root_, t1);
+	//this->tracking_tip_node_with_bl(local_root_->first_child(), t1);
+	//return *t1;
+//}
 
 
 Node * Forest::tracking_tip_node_with_bl(Node * node, double * bl){
@@ -124,17 +140,17 @@ Node * Forest::tracking_tip_node_with_bl(Node * node, double * bl){
   }
 }
 
-double Forest::tot_below(Node * node){
-	if (node->in_sample()){
-		return 0;
-	}
-	else{
-		double *t1 = new double;
-		*t1 = 0;
-		Node *left = this->tracking_local_node_with_bl(node->first_child(), t1);
-		double *t2 = new double;
-		*t2 = 0;
-		Node *right = this->tracking_local_node_with_bl(node->second_child(), t2);
-		return tot_below(left) + *t1 + tot_below(right) + *t2;
-	}
-}
+//double Forest::tot_below(Node * node){
+	//if (node->in_sample()){
+		//return 0;
+	//}
+	//else{
+		//double *t1 = new double;
+		//*t1 = 0;
+		//Node *left = this->tracking_local_node_with_bl(node->first_child(), t1);
+		//double *t2 = new double;
+		//*t2 = 0;
+		//Node *right = this->tracking_local_node_with_bl(node->second_child(), t2);
+		//return tot_below(left) + *t1 + tot_below(right) + *t2;
+	//}
+//}

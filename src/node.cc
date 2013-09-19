@@ -94,92 +94,92 @@ bool Node::in_sample() const {
   return ( this->label() != 0 ); 
 }
 
-Node * tracking_local_node(Node * node){ /*! \todo use node->samples_below() */
-  assert( node->local() );
-  dout << node << std::endl;
-  if (node->in_sample()){
-    dout<<" is tip node, it is local, return."<<std::endl;
-    return node;
-  }
+//Node * tracking_local_node(Node * node){ /*! \todo use node->samples_below(), and move it under the forest class*/
+  //assert( node->local() );
+  //dout << node << std::endl;
+  //if (node->in_sample()){
+    //dout<<" is tip node, it is local, return."<<std::endl;
+    //return node;
+  //}
 
-  assert( node->first_child() != NULL );
-  if ( node->second_child() == NULL ){
-    return tracking_local_node(node->first_child());
-  }
+  //assert( node->first_child() != NULL );
+  //if ( node->second_child() == NULL ){
+    //return tracking_local_node(node->first_child());
+  //}
 
-  else if (node->first_child()->local() && node->second_child()->local()){
-    dout<< " is an internal local node, return"<<std::endl;
-    return node;
-  }
+  //else if (node->first_child()->local() && node->second_child()->local()){
+    //dout<< " is an internal local node, return"<<std::endl;
+    //return node;
+  //}
   
-  else if (!node->first_child()->local() ){ 
-    assert( node->second_child()->local() );
-    dout<< "is internal node with one non-local branch" << std::endl;
-    return tracking_local_node(node->second_child());
-  }
+  //else if (!node->first_child()->local() ){ 
+    //assert( node->second_child()->local() );
+    //dout<< "is internal node with one non-local branch" << std::endl;
+    //return tracking_local_node(node->second_child());
+  //}
 
-  else{
-    assert( node->first_child()->local() );
-    dout<< "is internal node with one non-local branch" << std::endl;
-    return tracking_local_node(node->first_child());
-  }
-}
+  //else{
+    //assert( node->first_child()->local() );
+    //dout<< "is internal node with one non-local branch" << std::endl;
+    //return tracking_local_node(node->first_child());
+  //}
+//}
 
-std::string writeTree_new(Node * node, int npop){
-	if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
-		std::ostringstream label_strm;
-		label_strm<<node->label();
-		return label_strm.str();
-	}
-	else{
-		Node *left = tracking_local_node(node->first_child());
-		double t1=node->height()- left->height();
-		std::ostringstream t1_strm;
-		t1_strm << t1/4/npop;
-		Node *right = tracking_local_node(node->second_child());
-		double t2=node->height()- right->height();
-		std::ostringstream t2_strm;
-		t2_strm << t2/4/npop;
-		return "("+writeTree_new(left,npop)+":"+t1_strm.str()+","+ writeTree_new(right,npop)+":"+t2_strm.str() +")";
-	}
-}
+//std::string writeTree_new(Node * node, int npop){ /*! \todo TO BE REMOVED */
+	//if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
+		//std::ostringstream label_strm;
+		//label_strm<<node->label();
+		//return label_strm.str();
+	//}
+	//else{
+		//Node *left = tracking_local_node(node->first_child());
+		//double t1=node->height()- left->height();
+		//std::ostringstream t1_strm;
+		//t1_strm << t1/4/npop;
+		//Node *right = tracking_local_node(node->second_child());
+		//double t2=node->height()- right->height();
+		//std::ostringstream t2_strm;
+		//t2_strm << t2/4/npop;
+		//return "("+writeTree_new(left,npop)+":"+t1_strm.str()+","+ writeTree_new(right,npop)+":"+t2_strm.str() +")";
+	//}
+//}
 
 
 
-/**
- * Extract the string to represent the subtree that is descendant from node.
+///**
+ //* Extract the string to represent the subtree that is descendant from node.
 
-*/
-std::string writeTree(Node * node, int npop, double bl_above_parent){
-	if (!node->local()){
-		return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
-		}
-	else{	
-		if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
-			std::ostringstream label_strm;
-			label_strm<<node->label();
-			std::ostringstream bl_strm;
-			bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
-			return label_strm.str()+":"+bl_strm.str();
-		}
-		else if (node->is_root()){ // check if this is the root
-				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
-				}
-		else{ // this is an interior node, but need to check if it is real, i.e. any of its children is a local
-			if (node->first_child()->local() && node->second_child()->local()){ // both children are local
-				std::ostringstream bl_strm;
-				bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
-				return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+"):"+bl_strm.str();;
-			}
-			else if(node->first_child()->local() && !node->second_child()->local()) { // first child is local, 
-				double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
-				return writeTree(node->first_child(),npop, local_bl_above_parent);
-			}
-			else {// !node->first_child()->local() && node->second_child()->local() // second child is local, 
-				double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
-				return writeTree(node->second_child(),npop, local_bl_above_parent);
-			}
+//*/
+//std::string writeTree(Node * node, int npop, double bl_above_parent){ /*! \todo TO BE REMOVED */
+	//if (!node->local()){
+		//return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
+		//}
+	//else{	
+		//if(node->first_child() == NULL && ((node->label())>0)){ // real tip node
+			//std::ostringstream label_strm;
+			//label_strm<<node->label();
+			//std::ostringstream bl_strm;
+			//bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
+			//return label_strm.str()+":"+bl_strm.str();
+		//}
+		//else if (node->is_root()){ // check if this is the root
+				//return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+")";
+				//}
+		//else{ // this is an interior node, but need to check if it is real, i.e. any of its children is a local
+			//if (node->first_child()->local() && node->second_child()->local()){ // both children are local
+				//std::ostringstream bl_strm;
+				//bl_strm<< (node->parent_height() - node->height() + bl_above_parent)/4/npop;
+				//return "("+ writeTree(node->first_child(),npop,0) +","+ writeTree(node->second_child(),npop,0)+"):"+bl_strm.str();;
+			//}
+			//else if(node->first_child()->local() && !node->second_child()->local()) { // first child is local, 
+				//double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
+				//return writeTree(node->first_child(),npop, local_bl_above_parent);
+			//}
+			//else {// !node->first_child()->local() && node->second_child()->local() // second child is local, 
+				//double local_bl_above_parent = bl_above_parent + node->parent_height() - node->height();
+				//return writeTree(node->second_child(),npop, local_bl_above_parent);
+			//}
 			
-		}
-	}
-}
+		//}
+	//}
+//}

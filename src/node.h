@@ -188,8 +188,8 @@ class Node
   double mut_num_;
 };
 
-Node * tracking_local_node(Node * node);
-std::string writeTree_new(Node * node, int npop);
+//Node * tracking_local_node(Node * node);
+//std::string writeTree_new(Node * node, int npop);
 
 inline bool Node::is_migrating() const { 
   if ( this->numberOfChildren() != 1 ) return false;

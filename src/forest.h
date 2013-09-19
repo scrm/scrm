@@ -51,6 +51,7 @@
 #endif
 
 #include <vector>
+#include <valarray>
 #include <map>
 //#include <iostream>
 #include <iomanip>
@@ -165,10 +166,14 @@ class Forest
   
   //printing tree
   std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
-  double tmrca(); /*! TMRCA in unit of 4N0 */
-  double tot(){return tot_below(local_root_);};/*! Total branch length in unit of 4N0 */
+  double tmrca(){/*! TMRCA in unit of 4N0 */
+	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
+  double tot(){/*! Total branch length in unit of 4N0 */
+	  return this->local_root_->length_below() / this->model_->default_pop_size / 4;}
 
   //segegrating sites
+  std::valarray<int> find_haplotypes(Node *node); 
+  void traversal(Node *node, std::valarray <int>&haplotype);
   std::ostream &generateSegData(std::ostream &output, int total_mut);
 
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
@@ -182,16 +187,16 @@ class Forest
   virtual void clear_initial_coalevent();
 
  private:
-  
+  Node * tracking_local_node(Node * node);
   //printing tree
-  Node * tracking_local_node_with_bl(Node * node, double * bl);
-  void tracking_bl(Node * node, double * bl);
-  Node * tracking_tip_node_with_bl(Node * node, double * bl); 
-  double tot_below(Node * node); 
+  //Node * tracking_local_node_with_bl(Node * node, double * bl); 
+  //void tracking_bl(Node * node, double * bl);
+  //Node * tracking_tip_node_with_bl(Node * node, double * bl); 
+  //double tot_below(Node * node); 
 
   //segegrating sites  
-  void find_descndnt();
-  void exp_mut_num(int total_mut);
+  //void find_descndnt(); // Not used, to be removed
+  //void exp_mut_num(int total_mut); // Not used, to be removed
 
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
