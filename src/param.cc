@@ -32,7 +32,6 @@ void Param::init(){
   this->log_NAME = "scrm.log";
   this->tree_NAME = "scrm.treefile";
   this->set_seg_bool(true);
-  //this->set_tmrca_bool(false);
   this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
 }
@@ -289,7 +288,6 @@ Model* Param::parse() {
 
   model->finalize();
   model->resetTime();
-  //model->rescaleChangeTimes();
   /*
      recomb_rate_persite=rho/4 / npop / (nsites-1);
      remove(treefile.c_str());

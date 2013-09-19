@@ -22,8 +22,9 @@ make
 
 On Mac OS:
 ```bash
-port install boost autoconf autoconf-archive doxygen 
+port install boost autoconf autoconf-archive doxygen cppunit 
 ./bootstrap
 make
+
 ```
-```
+

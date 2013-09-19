@@ -3,7 +3,7 @@ Testing files for comparing statistics between ms output and scrm ouput
 CHECKING THE INITIAL TREE
 	
 * Checking -T option
-(GOOD) ##############################################
+(GOOD Sep19) ##############################################
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -11,7 +11,7 @@ CHECKING THE INITIAL TREE
 		test-tmrca/compareTMRCA
 		test-tmrca/*.pdf
 		
-(GOOD) ##############################################
+(GOOD Sep19) ##############################################
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -19,39 +19,59 @@ CHECKING THE INITIAL TREE
 		test-bl/compareBL
 		test-bl/*.pdf
 
-* Checking -ma option	
-(GOOD) ##############################################
+
+(GOOD Sep19) ##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg.sh 
 	
 	Output file:
 		test-seg/compareSEG
 		test-seg/*.pdf
-	
-(GOOD) ##############################################
-	Compare TMRCA and total branch length for migration
-	./ms_vs_scrm-tmrca-migration.sh
-	
-	Output file:
-		test-tmrca-mig/compareTMRCA 
-		test-tmrca-mig/*.pdf
-	
+
 * Checking segregating sites data
-(GOOD) ##############################################
+(GOOD Sep19) ##############################################
 	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
-	./ms_vs_scrm-SEG.sh 
+	./ms_vs_scrm_SEG_samplestats.sh
 	
 	Output file:
-		test-SEG/compareSEG
-		test-SEG/*.pdf
-		
-* Checking the population structure, -eN options
-	##############################################
+		test-SEGsamplestats/compareSEG
+		test-SEGsamplestats/*.pdf
+
+CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
+
+* Checking -ma option	
+(GOOD Sep19) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration
+	./ms_vs_scrm-mig.sh
+	
+	Output file:
+		test-mig/compareMIG  
+		test-mig/*.pdf
+			
+* Checking the population structure, -eN option
+(GOOD Sep19) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for Population structure
+	./ms_vs_scrm_pop_struct.sh 
+
+	Output file:
+		test-POP/comparePop
+		test-POP/*.pdf
+
+* Checking -ma option with -eN option
+(GOOD Sep19) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration
+	./ms_vs_scrm-mig-popsize.sh 
+	
+	Output file:
+		test-mig-popsize/compareMIG  
+		test-mig-popsize/*.pdf
+
+* Checking the sub population structure, -en, and -ej options
+(TO COME)##############################################
 
 
-* Checking the population structure, -en options
-	##############################################
-
+* Checking growth rate, -eg option
+(TO COME)##############################################
 
 WITH RECOMBINATION
 

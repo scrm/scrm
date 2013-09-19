@@ -332,7 +332,6 @@ locus length might change after the rate is read in from command line */
    }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
-  //void fillVectorList_new(std::vector<std::vector<double>*> &vector_list, const double &default_value);
   
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);

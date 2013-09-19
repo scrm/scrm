@@ -1,7 +1,7 @@
 #!/bin/bash
 
-mkdir test-SEG
-cd test-SEG
+mkdir test-SEGsamplestats
+cd test-SEGsamplestats
 rm *pdf
 
 
