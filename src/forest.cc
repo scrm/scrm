@@ -358,12 +358,13 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
   tmp_event_ = Event(-1);
   coalescence_finished_ = false;
-  this->initialize_event(start_node->height());
+  //this->initialize_event(start_node->height());
   // If the start_node is above the local tree, then we start with coalescence
   // of the local root
   if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
+    this->initialize_event((*ti).start_height());
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << std::endl;
@@ -397,10 +398,15 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
 
-    
-
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
+      // Record this  interval (nothing)
+      if (rates_[0]>0 || rates_[1]>0 || rates_[2]>0){
+		this->record_event((*ti),(*ti).end_height(), 4);
+	  }
+	  else{ /*! \todo CHECK THIS ELSE, CASE 5 IS NOT NECESSARY ?? recombination above the root??? */
+		  this->record_event((*ti),(*ti).end_height(), 5);
+		  }
       if (states_[0] == 2) {
         set_active_node(0, possiblyMoveUpwards(active_node(0), *ti));
         if (active_node(0)->local()) {
@@ -422,8 +428,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
-	// Record this  interval (coalescent)
-   	   this->record_coalevent((*ti),tmp_event_.time());
+	  // Record this  interval (coalescent)
+	  this->record_event((*ti),tmp_event_.time(), 1);
+   	   //this->record_coalevent((*ti),tmp_event_.time());
 	   //this->initialize_event((*ti), tmp_event_.time());    
 	   //this->record_coalevent();
         implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
@@ -431,8 +438,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     }
 
     else if ( tmp_event_.isRecombination() ) {
-		// Record this  interval (recombination)
-	   this->record_recombevent((*ti),tmp_event_.time());
+	  // Record this  interval (recombination)
+	  this->record_event((*ti),tmp_event_.time(), 2);
+	   //this->record_recombevent((*ti),tmp_event_.time());
 	   //this->initialize_event((*ti), tmp_event_.time());    
 	   //this->record_recombevent();
       this->implementRecombination(tmp_event_, ti);
@@ -440,13 +448,16 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     }
 
     else if ( tmp_event_.isMigration() ) {
+	  // Record this  interval (migration)
+	  this->record_event((*ti),tmp_event_.time(), 3);
       this->implementMigration(tmp_event_, ti);
       continue;
     }
 
     else if ( tmp_event_.isCoalescence() ) {
-      	// Record this  interval (coalescent)
-	   this->record_coalevent((*ti),tmp_event_.time());
+      // Record this  interval (coalescent)
+      this->record_event((*ti),tmp_event_.time(), 1);
+	   //this->record_coalevent((*ti),tmp_event_.time());
 	   //this->initialize_event((*ti), tmp_event_.time());    
 	   //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
@@ -1071,6 +1082,8 @@ std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
 
 void Forest::initialize_recomb_coalescent(const double rec_height){};
 void Forest::initialize_event(double start_time){};
-void Forest::record_coalevent(const TimeInterval & current_event, double end_time){};
-void Forest::record_recombevent(const TimeInterval & current_event, double end_time){};
+void Forest::record_event(const TimeInterval & current_event, double end_time, size_t event_state){};
+//void Forest::record_coalevent(const TimeInterval & current_event, double end_time){};
+//void Forest::record_recombevent(const TimeInterval & current_event, double end_time){};
+//void Forest::record_migevent(const TimeInterval & current_event, double end_time){};
 void Forest::clear_initial_coalevent(){};

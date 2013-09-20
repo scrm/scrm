@@ -173,19 +173,22 @@ class Forest
   std::valarray<int> find_haplotypes(Node *node); 
   void traversal(Node *node, std::valarray <int>&haplotype);
   std::ostream &generateSegData(std::ostream &output, int total_mut);
-
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
+
+  Node * tracking_local_node(Node * node); 
 
   //derived class from Forest
 
   virtual void initialize_recomb_coalescent(const double rec_height);
   virtual void initialize_event(double start_time);
-  virtual void record_coalevent(const TimeInterval & current_event, double end_time);
-  virtual void record_recombevent(const TimeInterval & current_event, double end_time);
+  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state);
+
+  //virtual void record_coalevent(const TimeInterval & current_event, double end_time);
+  //virtual void record_recombevent(const TimeInterval & current_event, double end_time);
+  //virtual void record_migevent(const TimeInterval & current_event, double end_time);
   virtual void clear_initial_coalevent();
 
  private:
-  Node * tracking_local_node(Node * node); 
 
   //segegrating sites  
   //void find_descndnt(); // Not used, to be removed
