@@ -86,7 +86,7 @@ class TestParam : public CppUnit::TestCase {
 
     // -n & -en 
     char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-G", "1.5", 
-                      "-n", "1", "0.3", "-eN", "1.1", "0.75", "-en", "2", "2", "0.1", "-eG", "1.5", "2" };
+                      "-n", "2", "0.3", "-eN", "1.1", "0.75", "-en", "2", "3", "0.1", "-eG", "1.5", "2" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(25, argv6).parse() ); 
     model->finalize();
     model->resetTime();
@@ -157,7 +157,7 @@ class TestParam : public CppUnit::TestCase {
 
     // -esme
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-                      "-esme", "1.6", "1", "0", "0.5", "-esme", "1.6", "0", "1", "0.1" };
+                      "-esme", "1.6", "2", "1", "0.5", "-esme", "1.6", "1", "2", "0.1" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv5).parse(); );
     model->resetTime();
     model->increaseTime();
@@ -168,7 +168,7 @@ class TestParam : public CppUnit::TestCase {
 
     // -ej
     char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-                      "-M", "1.3", "-ej", "1.6", "1", "0" };
+                      "-M", "1.3", "-ej", "1.6", "2", "1" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv6).parse(); );
     model->resetTime();
     model->increaseTime();
@@ -206,7 +206,7 @@ class TestParam : public CppUnit::TestCase {
     // -g && -eg
     char *argv2[] = { 
       "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-      "-g", "1", "0.1", "-eG", "1", "3", "-eg", "2", "0", "2.4" };
+      "-g", "2", "0.1", "-eG", "1", "3", "-eg", "2", "1", "2.4" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv2).parse(); );
     model->resetTime();
     CPPUNIT_ASSERT_EQUAL( model->default_growth_rate, model->growth_rate(0) );

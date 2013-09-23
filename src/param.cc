@@ -146,7 +146,7 @@ Model* Param::parse() {
     else if (argv_i == "-en" || argv_i == "-n") {
       if (argv_i == "-en") time = readNextInput<double>();
       else time = 0.0;
-      size_t pop = readNextInput<size_t>();
+      size_t pop = readNextInput<size_t>() - 1;
       model->addPopulationSize(time, pop, readNextInput<double>(), true, true);
       model->addGrowthRate(time, pop, 0.0, true);
     }
@@ -163,7 +163,7 @@ Model* Param::parse() {
     else if (argv_i == "-g" || argv_i == "-eg") {
       if (argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
-      size_t pop = readNextInput<size_t>();
+      size_t pop = readNextInput<size_t>() - 1;
       model->addGrowthRate(time, pop, readNextInput<double>(), true); 
     }
 
@@ -199,16 +199,16 @@ Model* Param::parse() {
 
     else if (argv_i == "-esme") {
       time = readNextInput<double>();
-      size_t source_pop = readNextInput<size_t>();
-      size_t sink_pop = readNextInput<size_t>();
+      size_t source_pop = readNextInput<size_t>() - 1;
+      size_t sink_pop = readNextInput<size_t>() - 1;
       double fraction = readNextInput<double>();
       model->addSingleMigrationEvent(time, source_pop, sink_pop, fraction, true); 
     }
 
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
-      size_t source_pop = readNextInput<size_t>();
-      size_t sink_pop = readNextInput<size_t>();
+      size_t source_pop = readNextInput<size_t>() - 1;
+      size_t sink_pop = readNextInput<size_t>() - 1;
       model->addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
       for (size_t i = 0; i < model->population_number(); ++i) {
         if (i == source_pop) continue;
