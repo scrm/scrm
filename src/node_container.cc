@@ -91,9 +91,13 @@ void NodeContainer::add(Node* node, Node* after_node) {
   // Find position in between
   while ( current->height() <= node->height() ) {
     assert( !current->is_last() );
-    if ( (!current->is_root()) && current->parent_height() < node->height() ) 
-      current = current->parent();
-    else current = current->next();
+    if ( !current->is_root() ) {
+      if ( current->parent_height() < node->height() ) { 
+        current = current->parent();
+        continue;
+      }
+    }
+    current = current->next();
   }
  
   // And add the node;

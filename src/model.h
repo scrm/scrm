@@ -299,6 +299,7 @@ class Model
                                 const bool &time_scaled = false);
 
    void finalize(); 
+   void reset();
 
   private:
    Model(const Model&);

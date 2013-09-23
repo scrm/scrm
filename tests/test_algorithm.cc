@@ -19,21 +19,25 @@ class TestAlgorithm : public CppUnit::TestCase {
 
  private:
   MersenneTwister *rg;
+  Model *model;
 
  public:
   void setUp() {
+    model = new Model(10);
+    rg = new MersenneTwister(78361);
   }
 
   void tearDown() {
+    delete model;
+    delete rg;
   }
+
 
   void testInitialTree() {
     double tmrca = 0;
     double tree_length = 0;
 
     for (size_t i = 0; i < 1000; ++i) {
-      Model* model = new Model(10);
-      rg = new MersenneTwister(i);
       Forest forest = Forest(model, rg);
 
       forest.buildInitialTree();
@@ -49,14 +53,13 @@ class TestAlgorithm : public CppUnit::TestCase {
     CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
   }
 
+
   void testTreeAfterRecombination() {
     double tmrca = 0;
     double tree_length = 0;
 
     for (size_t i = 0; i < 1000; ++i) {
-      Model* model = new Model(10);
       model->set_recombination_rate(10, 100);
-      rg = new MersenneTwister(i+10000);
       Forest forest = Forest(model, rg);
 
       forest.buildInitialTree();

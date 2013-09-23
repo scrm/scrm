@@ -38,11 +38,12 @@ Forest::Forest(Model* model, RandomGenerator* random_generator) {
 void Forest::initialize(Model* model, 
                         RandomGenerator* rg) {
 
-  this->nodes_ = new NodeContainer();
+  this->nodes_ = NodeContainer();
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_current_base(1);
   this->prune_countdown_ = model->prune_interval();
+  this->set_sample_size(0);
 }
 
 
@@ -938,6 +939,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
  * \param return TRUE iff the node can be pruned
  */
 bool Forest::isPrunable(Node const* node) const {
+  assert ( node != NULL );
   if ( model().exact_window_length() == 0 ) return false;
   if ( node == local_root() ) return false;
   if ( node->is_migrating() ) return false;

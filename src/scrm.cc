@@ -37,7 +37,6 @@ int main(int argc, char *argv[]){
   }
 
   try {
-    time_t start_time = time(0);
     Param user_para(argc, argv);
 
     Model* model = user_para.parse();
@@ -141,19 +140,16 @@ int main(int argc, char *argv[]){
       *output << *seg_data_array;
 
       delete seg_data_array;
+      NodeContainer *nodes = forest->nodes();
+      delete rg;
+      delete model;
       delete forest;
+      delete nodes;
     }
-
-    //tree_file.close();	
-    time_t end_time = time(0);
-
-    //std::cout << "Simulation took about " << end_time - start_time 
-        //<< " second(s)" << std::endl;
 
     if (user_para.log_bool){          
       std::ofstream log_file;
       log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      log_file << "Simulation took about " << end_time - start_time << " second(s) \n";
       log_file << "Trees are saved in: " << user_para.tree_NAME << "\n";
       log_file.close();
     }

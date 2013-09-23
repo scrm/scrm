@@ -38,8 +38,9 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
-  this->model_ = new Model(4);
   this->nodes()->clear();
+  this->writable_model()->reset();
+  this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
   Node* leaf1 = new Node(0, true, 0, 1, 0, 1);
   Node* leaf2 = new Node(0, true, 0, 1, 0, 2);
@@ -59,7 +60,7 @@ void Forest::createExampleTree() {
   Node* root = new Node(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
-  this->set_primary_root(root);
+  //this->set_primary_root(root);
 
   // Add a non-local tree
   Node* nl_node = new Node(4, false, 5, 0); 

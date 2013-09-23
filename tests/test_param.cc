@@ -24,11 +24,12 @@ class TestParam : public CppUnit::TestCase {
 
  public:
   void testParse() {
-    CPPUNIT_ASSERT_NO_THROW( Param().parse() );
+    CPPUNIT_ASSERT_NO_THROW( model = Param().parse() );
+    delete model;
 
     char *argv[] = { "scrm", "4", "7", "-t", "4.004", "-r", "1.24", "1001", "-l", "1000", "-seed", "123"};
     Param pars = Param(12, argv);
-    model = pars.parse();
+    CPPUNIT_ASSERT_NO_THROW( model = pars.parse() );
     //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model->loci_number() );
     CPPUNIT_ASSERT_EQUAL( 4.004/(4*model->default_pop_size*1001), model->mutation_rate() );
@@ -46,7 +47,7 @@ class TestParam : public CppUnit::TestCase {
 
     char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-T" };
     Param pars2 = Param(11, argv3);
-    model = pars2.parse(); 
+    CPPUNIT_ASSERT_NO_THROW( model = pars2.parse() ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model->population_number() );
     CPPUNIT_ASSERT_EQUAL( model->sample_population(4), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model->sample_population(10), (size_t)1 );
@@ -216,6 +217,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model->default_pop_size, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 2.4, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 3.0, model->growth_rate(1) );
+    delete model;
   }
 };
 

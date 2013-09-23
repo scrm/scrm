@@ -26,11 +26,6 @@ Model::Model() {
   this->init();
 }
 
-//Model::Model() : default_growth_rate(0.0), default_mig_rate(0.0)
-//{ 
-  //this->init();
-//}
-
 Model::Model(size_t sample_size) {
   this->init();
 
@@ -38,16 +33,7 @@ Model::Model(size_t sample_size) {
   this->resetTime();
 }
 
-//Model::Model(size_t sample_size) : default_growth_rate(0.0), default_mig_rate(0.0)
-//{
-  //this->init();
-
-  //this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
-  //this->resetTime();
-//}
-
 Model::~Model() { 
-  //std::cout << "Called ~Model" << std::endl;
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
   deleteParList(mig_rates_list_);
@@ -56,22 +42,46 @@ Model::~Model() {
 }
 
 void Model::init() {
+  sample_times_ = std::vector<double>();
+  sample_populations_ = std::vector<size_t>();
+
   this->addChangeTime(0.0);
 
   this->set_population_number(1);
+
   this->set_loci_number(1);
+  this->loci_length_ = this->default_loci_length;
+
   this->set_mutation_rate(0.0);
   this->set_recombination_rate(0.0, default_loci_length);
 
   this->set_exact_window_length(0);
   this->set_prune_interval(0);
 
-  //this->set_mutation_exact_number(-1); //-1 is equivalent to infinity
   this->mutation_exact_number_ = -1;
 
   this->resetTime();
 }
 
+
+void Model::reset() {
+  sample_times_.clear();
+  sample_populations_.clear();
+  change_times_.clear();
+
+  deleteParList(pop_sizes_list_);
+  deleteParList(growth_rates_list_);
+  deleteParList(mig_rates_list_);
+  deleteParList(total_mig_rates_list_);
+  deleteParList(single_mig_probs_list_);
+
+  pop_sizes_list_.clear();
+  growth_rates_list_.clear();
+  mig_rates_list_.clear();
+  total_mig_rates_list_.clear();
+  single_mig_probs_list_.clear();
+  init();
+}
 
 /** 
  * Function to add a new change time to the model.
@@ -91,12 +101,12 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 
   size_t position = 0;
   if ( change_times_.size() == 0 ) {
-    change_times_.push_back(time);
-    pop_sizes_list_.push_back(NULL);
-    growth_rates_list_.push_back(NULL);
-    mig_rates_list_.push_back(NULL);
-    total_mig_rates_list_.push_back(NULL);
-    single_mig_probs_list_.push_back(NULL);
+    change_times_ = std::vector<double>(1, time);
+    pop_sizes_list_ = std::vector<std::vector<double>*>(1, NULL);
+    growth_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
+    mig_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
+    total_mig_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
+    single_mig_probs_list_ = std::vector<std::vector<double>*>(1, NULL);
     return position;
   }
 

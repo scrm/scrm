@@ -22,16 +22,20 @@ class TestNode : public CppUnit::TestCase {
  private:
   Forest *forest;
   ConstantGenerator *rg;
+  Model *model;
 
  public:
   void setUp() {
     rg = new ConstantGenerator();
-    forest = new Forest(new Model(0), rg);
+    model = new Model(0);
+    forest = new Forest(model, rg);
     forest->createExampleTree();
   }
 
   void tearDown() {
     delete forest;
+    delete rg;
+    delete model;
   }
 
   void testGettersAndSetters() {

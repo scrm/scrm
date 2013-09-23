@@ -76,9 +76,7 @@ Model* Param::parse() {
   while( argc_i < argc_ ){
     //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
-    /*! \bug Comparing the program name with a fixed value fails when a user starts the program e.g. as "src/scrm", as I did.  Why is this necessary?  I'm removing it... */
 
-    //if (argv_i=="scrm" || argv_i=="./scrm" || argv_i=="./scrm_dbg" || argv_i=="./scrm_prof"){ // if scrm is directly called
     if (argc_i == 0) {
       nextArg("nsam (1st option)");
       sample_size = readInput<size_t>(argv_[argc_i]);
@@ -234,13 +232,10 @@ Model* Param::parse() {
       tree_bool = true;
     }
 
-
     else if (argv_i == "-seed"){
       nextArg(argv_i);
       random_seed = readInput<int>(argv_[argc_i]);
     }
-
-
 
     else if (directly_called_){
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);

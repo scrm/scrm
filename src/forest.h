@@ -125,7 +125,7 @@ class Forest
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
-  NodeContainer const *getNodes() const { return nodes_; };
+  NodeContainer const *getNodes() const { return &nodes_; };
 
   size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
   void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
@@ -161,7 +161,7 @@ class Forest
   void printPositions(const std::vector<Node const*> &positions) const;
 #endif
 
-  NodeContainer *nodes() { return this->nodes_; }
+  NodeContainer *nodes() { return &(this->nodes_); }
 
   //segegrating sites
   std::ostream &generateSegData(std::ostream &output, int total_mut);
@@ -244,7 +244,7 @@ class Forest
 
 
   //Private variables
-  NodeContainer* nodes_;    // The nodes of the Tree/Forest
+  NodeContainer nodes_;    // The nodes of the Tree/Forest
 
   // We have 2 different roots that are important:
   // - local_root: root of the smallest subtree containing all local sequences
