@@ -40,7 +40,6 @@ int main(int argc, char *argv[]){
     Param user_para(argc, argv);
 
     Model* model = user_para.parse();
-
     MersenneTwister *rg = new MersenneTwister(user_para.random_seed);
 
     // Organize output
@@ -115,11 +114,11 @@ int main(int argc, char *argv[]){
           }
 
 
-          std::cerr << i << " " << forest->local_root()->height() / ( 4 * forest->model().default_pop_size )  
-                    << " " << forest->local_tree_length() / ( 4 * forest->model().default_pop_size )<< std::endl;
+          //std::cerr << i << " " << forest->local_root()->height() / ( 4 * forest->model().default_pop_size )  
+          //          << " " << forest->local_tree_length() / ( 4 * forest->model().default_pop_size )<< std::endl;
           // Sample next genealogy
           forest->sampleNextGenealogy();
-          ++i;
+          //++i;
 
           // Sample and store segregating sites data
           seg_data_array->append_new_seg_data(forest);
@@ -140,12 +139,10 @@ int main(int argc, char *argv[]){
       *output << *seg_data_array;
 
       delete seg_data_array;
-      NodeContainer *nodes = forest->nodes();
-      delete rg;
-      delete model;
-      delete forest;
-      delete nodes;
     }
+    
+    delete rg;
+    delete model;
 
     if (user_para.log_bool){          
       std::ofstream log_file;

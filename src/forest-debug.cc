@@ -20,16 +20,6 @@
 
 */
 
-#ifndef NDEBUG
-#define DEBUGFUNCTIONS
-#endif
-
-#ifdef UNITTEST
-#define DEBUGFUNCTIONS
-#endif
-
-#ifdef DEBUGFUNCTIONS
-
 #include "forest.h"
 #include <sstream>
 
@@ -545,5 +535,3 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << "Primary Root:  " << this->primary_root() << std::endl;
     return true;
   }
-
-#endif

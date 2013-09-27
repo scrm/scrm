@@ -8,7 +8,7 @@ scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
 
 scrm_SOURCES = \
 param.cc param.h \
-forest.cc forest.h forest-debug.cc \
+forest.cc forest.h \
 model.cc model.h \
 node.cc node.h \
 node_container.cc node_container.h \
@@ -38,7 +38,7 @@ random/fastfunc.cc           random/fastfunc.h
 
 scrm_prof_SOURCES = \
 param.cc param.h \
-forest.cc forest.h forest-debug.cc \
+forest.cc forest.h \
 model.cc model.h \
 node.cc node.h \
 node_container.cc node_container.h \

@@ -44,7 +44,7 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-    ~NodeContainer();
+  ~NodeContainer();
     
   NodeIterator iterator(); 
   NodeIterator iterator(Node* node);

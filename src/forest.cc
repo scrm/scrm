@@ -38,7 +38,6 @@ Forest::Forest(Model* model, RandomGenerator* random_generator) {
 void Forest::initialize(Model* model, 
                         RandomGenerator* rg) {
 
-  this->nodes_ = NodeContainer();
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_current_base(1);
