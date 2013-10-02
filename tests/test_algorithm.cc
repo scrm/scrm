@@ -58,7 +58,7 @@ class TestAlgorithm : public CppUnit::TestCase {
   void testTreeAfterRecombination() {
     double tmrca = 0;
     double tree_length = 0;
-    size_t reps = 100000;
+    size_t reps = 1000;
 
     for (size_t i = 0; i < reps; ++i) {
       model->set_recombination_rate(0.0001, 1000);
