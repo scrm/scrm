@@ -45,6 +45,13 @@ void Model::init() {
   sample_times_ = std::vector<double>();
   sample_populations_ = std::vector<size_t>();
 
+  change_times_ = std::vector<double>();
+  pop_sizes_list_ = std::vector<std::vector<double>*>();
+  growth_rates_list_ = std::vector<std::vector<double>*>();
+  mig_rates_list_ = std::vector<std::vector<double>*>();
+  total_mig_rates_list_ = std::vector<std::vector<double>*>(); 
+  single_mig_probs_list_ = std::vector<std::vector<double>*>();
+
   this->addChangeTime(0.0);
 
   this->set_population_number(1);
@@ -102,11 +109,11 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
   size_t position = 0;
   if ( change_times_.size() == 0 ) {
     change_times_ = std::vector<double>(1, time);
-    pop_sizes_list_ = std::vector<std::vector<double>*>(1, NULL);
-    growth_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
-    mig_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
-    total_mig_rates_list_ = std::vector<std::vector<double>*>(1, NULL);
-    single_mig_probs_list_ = std::vector<std::vector<double>*>(1, NULL);
+    pop_sizes_list_.push_back(NULL);
+    growth_rates_list_.push_back(NULL);
+    mig_rates_list_.push_back(NULL);
+    total_mig_rates_list_.push_back(NULL);
+    single_mig_probs_list_.push_back(NULL);
     return position;
   }
 
