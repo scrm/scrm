@@ -191,7 +191,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 
 
 /**
- * Function that build the initial tree at the very left end of the sequence.
+ * Function that builds the initial tree at the very left end of the sequence.
  *
  * Also creates the sample nodes.
  */
@@ -395,8 +395,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     
     sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
-
-    
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
@@ -728,7 +726,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   if ( getOtherNodesState() == 2 ) {
     // If the coalescing node coalesced into the branch directly above 
-    // the recombining node, then we are done.
+    // a recombining node, then we are done.
     if ( getOtherNode()->parent() == getEventNode() ) {
       getOtherNode()->set_last_update(this->current_base());
       dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
@@ -984,10 +982,6 @@ void Forest::prune(Node *node) {
   assert( !node->in_sample() );
 
   dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
-  dout << "* * * PRUNING: Parent: " << node->parent() << "; " 
-       << "l_child: " << node->first_child() << "; "
-       << "h_child: " << node->second_child() << "; "
-       << "local: " << node->local() << std::endl;
 
   /* Possible Cases:
    * + Orphaned root => just delete 
