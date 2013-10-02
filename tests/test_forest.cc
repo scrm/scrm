@@ -26,6 +26,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testBuildInitialTree ); 
   CPPUNIT_TEST( testCoalescenceWithStructure ); 
   CPPUNIT_TEST( testGetNodeState ); 
+  CPPUNIT_TEST( testCut );
   CPPUNIT_TEST( testImplementRecombination ); 
   CPPUNIT_TEST( testPrintTree );
 
@@ -485,6 +486,23 @@ class TestForest : public CppUnit::TestCase {
     delete model;
   }
 
+  void testCut() {
+    Node* base_node = forest->nodes()->at(4);
+    Node* new_root = forest->cut(TreePoint(base_node, 3.5, false));
+    CPPUNIT_ASSERT_EQUAL((size_t)11, forest->nodes()->size());
+    CPPUNIT_ASSERT( new_root->local() );
+    CPPUNIT_ASSERT( new_root->is_root() );
+    CPPUNIT_ASSERT_EQUAL(1, new_root->numberOfChildren() );
+
+    CPPUNIT_ASSERT( base_node->parent() == new_root );
+    CPPUNIT_ASSERT( base_node->local() );
+
+    Node* single_branch = forest->local_root()->first_child();
+    CPPUNIT_ASSERT( !single_branch->local() );
+    CPPUNIT_ASSERT_EQUAL( forest->current_base(), single_branch->last_update() );
+    CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+  }
+
   void testImplementRecombination() {
     Node* new_root = forest->cut(TreePoint(forest->nodes()->at(4), 3.5, false));
     TimeIntervalIterator tii(forest, new_root, false);
@@ -546,7 +564,10 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( 89000 <= n4 && n4 <= 91000 ); // expected 90000 
     CPPUNIT_ASSERT( 69000 <= n5 && n5 <= 71000 ); // expected 70000 
   }
+
 };
+
+
 
 //Uncomment this to activate the test
 CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
