@@ -32,7 +32,6 @@ class TestAlgorithm : public CppUnit::TestCase {
     delete rg;
   }
 
-
   void testInitialTree() {
     double tmrca = 0;
     double tree_length = 0;
@@ -66,7 +65,7 @@ class TestAlgorithm : public CppUnit::TestCase {
       tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
     tmrca /= reps;        // Expectation: 0.8
-    tree_length /= reps;  // Expectation: 2.84
+    tree_length /= reps;  // Expectation: 
     std::cout << std::endl << tmrca << std::endl;
     std::cout << tree_length << std::endl; 
     
@@ -115,7 +114,7 @@ class TestAlgorithm : public CppUnit::TestCase {
       tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
     tmrca /= reps;          // Expectation: 0.9 
-    tree_length /= reps;    // Expectation: 2.84 
+    tree_length /= reps;    // Expectation:
 
     std::cout << std::endl << tmrca << std::endl;
     std::cout << tree_length << std::endl; 

@@ -256,7 +256,7 @@ class TestForest : public CppUnit::TestCase {
     // active_node 0: Pop 1, 2 Contemporaries 
     // active_node 1: Pop 1, 2 Contemporaries
     // => Coal: 4/2Ne, Pw Coal: 1/2Ne
-    //    Migration: 2* 5/4Ne
+    //    Migration: 2 * 5/4Ne
     // => 40% Coal, 10% Pw Coal, 50% Mig 
     forest2->writable_model()->increaseTime();
     forest2->writable_model()->increaseTime();
