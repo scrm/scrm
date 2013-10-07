@@ -14,6 +14,7 @@ class TestRandomGenerator : public CppUnit::TestCase {
   CPPUNIT_TEST( testSampleExpoLimit );
   CPPUNIT_TEST( testSampleUnitExpo );
   CPPUNIT_TEST( testSampleExpo );
+  CPPUNIT_TEST( testSampleExpoExpoLimit );
   CPPUNIT_TEST( testSampleInt );
   CPPUNIT_TEST( testSeeding );
 
@@ -57,12 +58,56 @@ class TestRandomGenerator : public CppUnit::TestCase {
 
   void testSampleExpo() {
     size_t n = 10000;
-    double expo;
+    double expo = 0;
     for (size_t i = 0; i < n; ++i) {
       expo += rg->sampleExpo(5);
     }
     expo /= n;
     CPPUNIT_ASSERT( 0.199 <= expo && expo <= 0.201 );
+  }
+  
+  void testSampleExpoExpoLimit() {
+    size_t n = 10000;
+    double expo = 0, sample = 0;
+    size_t sample_number = 0;
+    
+    // c = 0;
+    for (size_t i = 0; i < n; ++i) {
+      sample = rg->sampleExpoExpoLimit(2,0,1);
+      if (sample >= 0) {
+        expo += sample;
+        ++sample_number;
+      }
+    }
+    expo /= sample_number;
+    // Expected: 0.34 
+    CPPUNIT_ASSERT( 0.32 < expo && expo < 0.36 );
+
+    expo = 0;
+    sample_number = 0;
+    for (size_t i = 0; i < n; ++i) {
+      sample = rg->sampleExpoExpoLimit(2,0,2);
+      if (sample >= 0) {
+        expo += sample;
+        ++sample_number;
+      }
+    }
+    expo /= sample_number;
+    // Expected: 0.46 
+    CPPUNIT_ASSERT( 0.44 < expo && expo < 0.48 );
+
+    expo = 0;
+    sample_number = 0;
+    for (size_t i = 0; i < n; ++i) {
+      sample = rg->sampleExpoExpoLimit(2,0,4);
+      if (sample >= 0) {
+        expo += sample;
+        ++sample_number;
+      }
+    }
+    expo /= sample_number;
+    // Expected: 0.50 
+    CPPUNIT_ASSERT( 0.48 < expo && expo < 0.52 );
   }
 
   void testSampleInt() {

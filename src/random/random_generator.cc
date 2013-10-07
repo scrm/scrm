@@ -50,15 +50,7 @@ double RandomGenerator::sampleExpo(double lambda){
 // If a limit is known, this version is faster than the standard one
 // Unit tested
 double RandomGenerator::sampleExpoLimit(double lambda, double limit){
-  assert( unit_exponential_ != 0 );
-  if (unit_exponential_ >= limit * lambda) {
-    unit_exponential_ -= limit * lambda;
-    return -1;
-  } else {
-    double result = unit_exponential_ / lambda;
-    unit_exponential_ = sampleUnitExponential();
-    return result;
-  }
+  return sampleExpoExpoLimit(lambda, 0, limit);
 }
 
 // Samples waiting time, with limit, for a process with an exponentially changing rate:
