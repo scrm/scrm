@@ -379,10 +379,10 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     calcRates(*ti);
 
-    dout << "* * * Active Nodes: 0:" << active_node(0) << ":" << states_[0]
-        << "(" << active_node(0)->population() << ")" 
-        << " 1:" << active_node(1) << ":" << states_[1] 
-        << "(" << active_node(1)->population() << ")" << std::endl
+    dout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
+        << "(p" << active_node(0)->population() << ")" 
+        << " a1:" << active_node(1) << ":s" << states_[1] 
+        << "(p" << active_node(1)->population() << ")" << std::endl
         << "* * * Total Rates: " << rates_[0] << " " 
         << rates_[1] << " " << rates_[2] << std::endl;
 
@@ -401,11 +401,13 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
       if (states_[0] == 2) {
         set_active_node(0, possiblyMoveUpwards(active_node(0), *ti));
         if (active_node(0)->local()) {
-          dout << "* * * Active Node 1 hit a local node. Done" << std::endl;
+          dout << "* * * Active Node 0 hit a local node. Done" << std::endl;
           updateAbove(active_node(0));
           return;
         }
       }
+      // There are no local node above the local root, which is the lowest node
+      // that active_node(1) can be.
       if (states_[1] == 2) set_active_node(1, possiblyMoveUpwards(active_node(1), *ti));
 
       if (active_node(0) == active_node(1)) {
@@ -673,6 +675,8 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  */
 void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii) {
   // Coalescence: sample target point and implement the coalescence
+  assert( event.node() == active_node(event.active_node_nr()) );
+
   Node* coal_node = event.node();
   Node* target = (*tii).getRandomContemporary(coal_node->population());
 
