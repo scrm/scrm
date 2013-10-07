@@ -23,7 +23,6 @@
 #include "random_generator.h"
 #include <iostream>
 
-
 // Sample from a unit exponential distribution
 double RandomGenerator::sampleUnitExponential(void) {
   double exposample = -ff.fastlog( sample() );
@@ -46,7 +45,6 @@ double RandomGenerator::sampleExpo(double lambda){
   return sampleUnitExponential() / lambda;
 }
 
-
 // Samples from an exponential distribution; return -1 if beyond limit
 // If a limit is known, this version is faster than the standard one
 double RandomGenerator::sampleExpoLimit(double lambda, double limit){
@@ -60,7 +58,6 @@ double RandomGenerator::sampleExpoLimit(double lambda, double limit){
     return result;
   }
 }
-
 
 // Samples waiting time, with limit, for a process with an exponentially changing rate:
 //  rate(t) = b exp( c t )
@@ -113,23 +110,8 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
   }
 }
 
-    
 // Uniformly samples a number out of 0, ..., range-1
-// Distribution checked -Paul
+// Unit tested 
 int RandomGenerator::sampleInt(int range) {
   return(static_cast<int>(this->sample()*range));
 }
-
-
-// Uniformly samples a pair of different elements of 0, ..., range-1
-// Distribution checked -Paul
-void RandomGenerator::sampleTwoElements(int range, int *sample1, int *sample2) {
-  *sample1 = this->sampleInt(range);
-  *sample2 = this->sampleInt(range-1);
-  if (*sample1 == *sample2) *sample2 = range - 1;
-  assert( 0 <= *sample1 && *sample1 < range );
-  assert( 0 <= *sample2 && *sample2 < range );
-}
-
-
-
