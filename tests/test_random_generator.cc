@@ -15,6 +15,7 @@ class TestRandomGenerator : public CppUnit::TestCase {
   CPPUNIT_TEST( testSampleUnitExpo );
   CPPUNIT_TEST( testSampleExpo );
   CPPUNIT_TEST( testSampleInt );
+  CPPUNIT_TEST( testSeeding );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -78,6 +79,16 @@ class TestRandomGenerator : public CppUnit::TestCase {
       //std::cout << i << " : " << result[i] << std::endl;
       CPPUNIT_ASSERT( 9900 < result[i] && result[i] < 10100 ); 
     }
+  }
+
+  void testSeeding() {
+    rg->set_seed(5);
+    int sample = rg->sampleInt(10000);
+    rg->set_seed(5);
+    CPPUNIT_ASSERT_EQUAL( sample, rg->sampleInt(10000) );
+
+    MersenneTwister rg2 = MersenneTwister(5);
+    CPPUNIT_ASSERT_EQUAL( sample, rg2.sampleInt(10000) );
   }
 };
 

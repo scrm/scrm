@@ -24,6 +24,7 @@
 #include <iostream>
 
 // Sample from a unit exponential distribution
+// Unit tested
 double RandomGenerator::sampleUnitExponential(void) {
   double exposample = -ff.fastlog( sample() );
   return exposample;
@@ -40,13 +41,14 @@ void RandomGenerator::initializeUnitExponential() {
 }
 
 // Samples from an exponential distribution 
-// Distribution checked -Paul
+// Unit tested 
 double RandomGenerator::sampleExpo(double lambda){
   return sampleUnitExponential() / lambda;
 }
 
 // Samples from an exponential distribution; return -1 if beyond limit
 // If a limit is known, this version is faster than the standard one
+// Unit tested
 double RandomGenerator::sampleExpoLimit(double lambda, double limit){
   assert( unit_exponential_ != 0 );
   if (unit_exponential_ >= limit * lambda) {
