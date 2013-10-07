@@ -135,6 +135,7 @@ class Forest
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
+  void createScaledExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node const* root = NULL) const;
   double calcTreeLength() const;
