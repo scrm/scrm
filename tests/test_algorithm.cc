@@ -52,6 +52,26 @@ class TestAlgorithm : public CppUnit::TestCase {
     
     CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
     CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
+
+
+    tmrca = 0;
+    tree_length = 0;
+    Model* model2 = new Model(5);
+
+    for (size_t i = 0; i < reps; ++i) {
+      Forest forest = Forest(model2, rg);
+
+      forest.buildInitialTree();
+      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    }
+    tmrca /= reps;        // Expectation: 0.8
+    tree_length /= reps;  // Expectation: 2.84
+    std::cout << std::endl << tmrca << std::endl;
+    std::cout << tree_length << std::endl; 
+    
+    CPPUNIT_ASSERT( 0.75 <= tmrca && tmrca <= 0.85 );
+    delete model2;
   }
 
 
@@ -76,8 +96,32 @@ class TestAlgorithm : public CppUnit::TestCase {
 
     std::cout << std::endl << tmrca << std::endl;
     std::cout << tree_length << std::endl; 
-    CPPUNIT_ASSERT( 0.88 <= tmrca && tmrca <= 0.92 );
-    CPPUNIT_ASSERT( 2.80 <= tree_length && tree_length <= 2.90 );
+    //CPPUNIT_ASSERT( 0.88 <= tmrca && tmrca <= 0.92 );
+    //CPPUNIT_ASSERT( 2.80 <= tree_length && tree_length <= 2.90 );
+
+    tmrca = 0;
+    tree_length = 0;
+    Model* model2 = new Model(5);
+
+    for (size_t i = 0; i < reps; ++i) {
+      model->set_recombination_rate(0.0001, 1000);
+      Forest forest = Forest(model2, rg);
+
+      forest.buildInitialTree();
+      while (forest.next_base() < 5) {
+        forest.sampleNextGenealogy();
+      }
+      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    }
+    tmrca /= reps;          // Expectation: 0.9 
+    tree_length /= reps;    // Expectation: 2.84 
+
+    std::cout << std::endl << tmrca << std::endl;
+    std::cout << tree_length << std::endl; 
+    //CPPUNIT_ASSERT( 0.88 <= tmrca && tmrca <= 0.92 );
+    //CPPUNIT_ASSERT( 2.80 <= tree_length && tree_length <= 2.90 );
+    delete model2;
   }
 };
 
