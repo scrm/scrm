@@ -44,7 +44,6 @@ size_t MersenneTwister::generateRandomSeed() const {
 }
 
 void MersenneTwister::set_seed(const size_t &seed) {
-  std::cout << "set_seed: " << seed << std::endl;
   RandomGenerator::set_seed(seed);
   mt_ = std::mt19937(seed);
   this->initializeUnitExponential();
