@@ -12,6 +12,9 @@ class TestRandomGenerator : public CppUnit::TestCase {
 
   CPPUNIT_TEST( testConstructor );
   CPPUNIT_TEST( testSampleExpoLimit );
+  CPPUNIT_TEST( testSampleUnitExpo );
+  CPPUNIT_TEST( testSampleExpo );
+  CPPUNIT_TEST( testSampleInt );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -41,7 +44,41 @@ class TestRandomGenerator : public CppUnit::TestCase {
     }
   }
 
+  void testSampleUnitExpo() {
+    size_t n = 10000;
+    double expo;
+    for (size_t i = 0; i < n; ++i) {
+      expo += rg->sampleUnitExponential();
+    }
+    expo /= n;
+    CPPUNIT_ASSERT( 0.99 <= expo && expo <= 1.01 );
+  }
+
+  void testSampleExpo() {
+    size_t n = 10000;
+    double expo;
+    for (size_t i = 0; i < n; ++i) {
+      expo += rg->sampleExpo(5);
+    }
+    expo /= n;
+    CPPUNIT_ASSERT( 0.199 <= expo && expo <= 0.201 );
+  }
+
+  void testSampleInt() {
+    size_t n = 50000;
+    int sample;
+    int result[5] = { 0 };
+
+    for (size_t i = 0; i < n; ++i) {
+      sample = rg->sampleInt(5);
+      ++result[sample]; 
+    }
+
+    for (size_t i = 0; i < 5; ++i) {
+      //std::cout << i << " : " << result[i] << std::endl;
+      CPPUNIT_ASSERT( 9900 < result[i] && result[i] < 10100 ); 
+    }
+  }
 };
 
-//Uncomment this to activate the test
 CPPUNIT_TEST_SUITE_REGISTRATION( TestRandomGenerator );
