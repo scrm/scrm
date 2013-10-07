@@ -62,7 +62,7 @@ void Model::init() {
   this->set_mutation_rate(0.0);
   this->set_recombination_rate(0.0, default_loci_length);
 
-  this->set_exact_window_length(0);
+  this->set_exact_window_length(-1);
   this->set_prune_interval(10);
 
   this->mutation_exact_number_ = -1;

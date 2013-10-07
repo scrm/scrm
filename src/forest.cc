@@ -305,7 +305,7 @@ void Forest::sampleNextGenealogy() {
 
   // Check if we prune while building the genealogy
   pruning_ = false;
-  if ( model().exact_window_length() != 0 && current_base() >= model().exact_window_length() ) {
+  if ( model().exact_window_length() != -1 && current_base() >= model().exact_window_length() ) {
     if (prune_countdown_ == 0) {
       prune_countdown_ = model().prune_interval();
       pruning_ = true;
@@ -937,7 +937,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
  */
 bool Forest::isPrunable(Node const* node) const {
   assert ( node != NULL );
-  if ( model().exact_window_length() == 0 ) return false;
+  if ( model().exact_window_length() == -1 ) return false;
   if ( node == local_root() ) return false;
   if ( node->is_migrating() ) return false;
 
