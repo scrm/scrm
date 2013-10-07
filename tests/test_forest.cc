@@ -192,7 +192,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->writable_model()->set_population_number(2);
     forest2->nodes()->at(0)->set_population(1);
     forest2->nodes()->at(1)->set_population(1);
-    forest2->writable_model()->addMigrationRates(1, std::vector<double>(4, 0.000125));
+    forest2->writable_model()->addMigrationRates(1, std::vector<double>(4, 5.0), false, true);
     forest2->writable_model()->addGrowthRates(0.2, std::vector<double>(2, 0.000125));
     forest2->writable_model()->addGrowthRates(1, std::vector<double>(2, 0.0));
     forest2->writable_model()->addGrowthRates(2, std::vector<double>(2, 2));
@@ -216,58 +216,68 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.5, event.time() );
     CPPUNIT_ASSERT( event.isCoalescence() );
 
-    for (size_t i = 0; i < 100; ++i) {
+    // Only coalescence possible
+    for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() );
       CPPUNIT_ASSERT( event.node() == forest2->active_node(0) );
     };
 
-    // Test with Coalescence
+    // Coalescence of two nodes
+    // active_node 0: Pop 1, 2 Contemporaries 
+    // active_node 1: Pop 0, 2 Contemporaries
+    // => 50% each 
     forest2->states_[1] = 1;
     forest2->calcRates(*tii);
     size_t count = 0, count2 = 0;
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() );
       count += (event.node() == forest2->active_node(0));
     };
-    CPPUNIT_ASSERT( 450 < count && count < 550 ); // ~500
+    CPPUNIT_ASSERT( 4950 < count && count < 5050 ); // ~5000
 
     // Test with Pw Coalescence
+    // active_node 0: Pop 1, 2 Contemporaries 
+    // active_node 1: Pop 1, 2 Contemporaries
+    // 4/5 Prob of Coalescence, 1/5 of Pw coalescence
     forest2->writable_model()->resetTime();
     forest2->set_active_node(1, forest2->nodes()->at(1));
     forest2->calcRates(*tii);
     count = 0;
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() );
       count += event.isCoalescence();
     };
-    CPPUNIT_ASSERT( 700 < count && count < 900 ); // ~800
+    CPPUNIT_ASSERT( 7900 < count && count < 8100 ); 
 
     // Test with migration
+    // active_node 0: Pop 1, 2 Contemporaries 
+    // active_node 1: Pop 1, 2 Contemporaries
+    // => Coal: 4/2Ne, Pw Coal: 1/2Ne
+    //    Migration: 2* 5/4Ne
+    // => 40% Coal, 10% Pw Coal, 50% Mig 
     forest2->writable_model()->increaseTime();
     forest2->writable_model()->increaseTime();
-    //time = 1.0, both active nodes in pop 1
-    /*
-    cout << forest2->model().migration_rate(1, 0) << " " 
-         << forest2->calcCoalescenceRate(1, *tii) << " "
-         << forest2->calcPwCoalescenceRate(1) << std::endl;
-    */
     forest2->calcRates(*tii);
+
     count = 0;
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() || event.isMigration() );
       count += event.isMigration();
       count2 += event.isCoalescence();
     };
-    //CPPUNIT_ASSERT( 450 < count && count < 550 ); // ~500
-    //CPPUNIT_ASSERT( 350 < count2 && count2 < 450 ); // ~400
-    std::cout << std::endl << "TEST TEMPORARILY DEACTIVATED" << std::endl;
+    std::cout << count << " " << count2 << std::endl;
+    CPPUNIT_ASSERT( 4900 < count && count < 5100 );
+    CPPUNIT_ASSERT( 3900 < count2 && count2 < 4100 );
 
-    // Test recombination 
-    forest2->writable_model()->set_recombination_rate(0.00009, 100);
+    // Test coalescence with recombination 
+    // active_node 0: Pop 1, 2 Contemporaries => Coal rate: 2 / 2 * Ne = 1/Ne 
+    // active_node 1: Pop 1, Recombination    => Rec rate: 10 Bases * 0.4 / 4Ne = 1/Ne    
+    // => 50% Recombination, 50% Coalescence 
+    forest2->writable_model()->set_recombination_rate(0.4, 101, false, true);
     forest2->set_current_base(20);
     forest2->states_[0] = 1;
     forest2->states_[1] = 2;
@@ -276,17 +286,20 @@ class TestForest : public CppUnit::TestCase {
     forest2->calcRates(*tii);
     
     count = 0;
-    for (size_t i = 0; i < 1000; ++i) {
+    for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() || event.isRecombination() );
       count += event.isRecombination();
     };
-    //CPPUNIT_ASSERT( 875 < count && count < 925 ); // ~500
+    //std::cout << count << std::endl;
+    CPPUNIT_ASSERT( 4900 < count && count < 5100 );
     
     // Recombination with Rate 0
+    // active_node 1: Up to date = rec rate = 0;
+    // => always coalescence
     forest2->active_node(1)->set_last_update(20);
     forest2->calcRates(*tii);
-    for (size_t i = 0; i < 100; ++i) {
+    for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() );
     };
