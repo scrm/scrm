@@ -5,3 +5,7 @@ EXTRA_DIST = oldMakefile bootstrap doc/manual.pdf acinclude.m4 tests/*sh tests/*
 distdir = $(PACKAGE)-$(VERSION)
 CXXFLAGS= -I/opt/local/include
 LDFLAGS= -L/opt/local/lib
+
+travis-test: 
+	cd src; make scrm
+	cd tests; make check 
