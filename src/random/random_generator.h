@@ -52,11 +52,6 @@ class RandomGenerator
    double sampleExpoLimit(double lambda, double limit);
    double sampleExpoExpoLimit(double b, double c, double limit);
 
-   int samplePoisson(double lambda) {
-     boost::math::poisson poisson(lambda);
-     return quantile(poisson, sample());
-   }
-
 #ifdef UNITTEST
    friend class TestRandomGenerator;
 #endif
