@@ -73,3 +73,7 @@ reference/
 *.lai
 *.la
 *.a
+
+compile
+test-driver
+tests/tests.trs
