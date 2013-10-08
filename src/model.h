@@ -62,10 +62,10 @@ class Model
    ~Model();
    
    // Default values;
-   const double default_pop_size = 10000;
-   const size_t default_loci_length = 100000;
-   const double default_growth_rate = 0.0;
-   const double default_mig_rate = 0.0;
+   double default_pop_size;
+   size_t default_loci_length;
+   double default_growth_rate;
+   double default_mig_rate;
 
    // Getters & Setters
 
@@ -361,6 +361,8 @@ class Model
    size_t prune_interval_;
 };
 
+
+
 std::ostream& operator<<(std::ostream& os, const Model& model); 
 
 template <typename T>
@@ -418,4 +420,5 @@ inline void Model::set_mutation_rate(double rate, const bool &per_locus, const b
     mutation_rate_ = rate;
   }
 }
+
 #endif

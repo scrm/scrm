@@ -22,6 +22,7 @@
 
 #include "model.h"
 
+
 Model::Model() { 
   this->init();
 }
@@ -42,6 +43,11 @@ Model::~Model() {
 }
 
 void Model::init() {
+  default_pop_size = 10000;
+  default_loci_length = 100000;
+  default_growth_rate = 0.0;
+  default_mig_rate = 0.0;
+
   sample_times_ = std::vector<double>();
   sample_populations_ = std::vector<size_t>();
 
