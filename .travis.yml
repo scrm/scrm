@@ -1,9 +1,10 @@
 language: cpp
 compiler:
     - gcc
-    - clang
+#    - clang
 # Change this to your needs
-script: ./bootstrap && make check
+script: ./bootstrap && cd tests && make check
 before_install:
  - sudo apt-get update -qq
  - sudo apt-get install -qq libboost-all-dev doxygen libcppunit-dev 
+ - g++ --version
