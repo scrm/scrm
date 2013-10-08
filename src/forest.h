@@ -123,7 +123,7 @@ class Forest
   NodeContainer const *getNodes() const { return &nodes_; };
 
   size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
-  void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
+  void set_prune_countdown(size_t  prune_countdown){prune_countdown_ = prune_countdown;}
 
   bool pruning() const{return pruning_;}
   void set_pruning(bool pruning){pruning_=pruning;}

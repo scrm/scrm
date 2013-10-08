@@ -277,7 +277,7 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
   std::cout << node << " " << current_node << std::endl;
   if (current_node == NULL) {
     if (contemporaries().size() > 0) contemporaries_.clear();
-    current_node == this->forest_->primary_root();
+    current_node = this->forest_->primary_root();
     assert( current_node != NULL);
     std::cout << "P.root: " << current_node << std::endl;
   }
