@@ -1,7 +1,7 @@
 language: cpp
 compiler:
     - gcc
-#    - clang
+    - clang
 # Change this to your needs
 script: ./bootstrap && make travis-test 
 before_install:
