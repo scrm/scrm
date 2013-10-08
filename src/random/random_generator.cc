@@ -22,12 +22,15 @@
 
 #include "random_generator.h"
 #include <iostream>
+#include <cmath>
 
 // Sample from a unit exponential distribution
 // Unit tested
+// fastlog can return 0, which causes a bug in scrm.
+// log or fastlog does seems to have an influence on the runtime.
 double RandomGenerator::sampleUnitExponential(void) {
-  double exposample = -ff.fastlog( sample() );
-  return exposample;
+  //return -ff.fastlog( sample() );
+  return -std::log( sample() );
 }
 
 // Sets new seed
@@ -99,6 +102,7 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
     } else {
       double result = unit_exponential_ / b;
       unit_exponential_ = sampleUnitExponential();
+      assert( result > 0 );
       return result;
     }
   }

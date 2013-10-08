@@ -63,7 +63,7 @@ class RandomGenerator
 
    //Protected methods
   protected:
-   double sampleUnitExponential();
+   virtual double sampleUnitExponential();
 
   protected:
    // seed

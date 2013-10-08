@@ -86,36 +86,56 @@ class TestAlgorithm : public CppUnit::TestCase {
     tmrca /= reps;        // Expectation: 0.95
     tree_length /= reps;  // Expectation: 3.55
     //std::cout << std::endl << tmrca << std::endl;
-    //std::cout << tree_length << std::endl; 
+    std::cout << tree_length << std::endl; 
     
     CPPUNIT_ASSERT( 0.90 <= tmrca && tmrca <= 1.0 );
-    CPPUNIT_ASSERT( 3.50 <= tree_length && tree_length <= 3.60 );
+    CPPUNIT_ASSERT( 3.45 <= tree_length && tree_length <= 3.65 );
     delete model3;
   }
 
   void testTreeAfterRecombination() {
-    double tmrca = 0;
-    double tree_length = 0;
-    size_t reps = 1000;
+    double tmrca[3] = { 0 };
+    double tree_length[3] = { 0 };
+    size_t reps = 2000;
 
     for (size_t i = 0; i < reps; ++i) {
       model->set_recombination_rate(0.0001, 1000);
       Forest forest = Forest(model, rg);
 
+      int j = 0;
       forest.buildInitialTree();
+      while (forest.next_base() < 5) {
+        forest.sampleNextGenealogy();
+      }
+      tmrca[0] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length[0] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+
+      while (forest.next_base() < 10) {
+        forest.sampleNextGenealogy();
+      }
+      tmrca[1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length[1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+
       while (forest.next_base() < 15) {
         forest.sampleNextGenealogy();
       }
-      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
+      tmrca[2] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length[2] += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
-    tmrca /= reps;          // Expectation: 0.9 
-    tree_length /= reps;    // Expectation: 2.84 
+    tmrca[0] /= reps;          // Expectation: 0.9 
+    tmrca[1] /= reps;          // Expectation: 0.9 
+    tmrca[2] /= reps;          // Expectation: 0.9 
+    tree_length[0] /= reps;    // Expectation: 2.84 
+    tree_length[1] /= reps;    // Expectation: 2.84 
+    tree_length[2] /= reps;    // Expectation: 2.84 
 
-    std::cout << std::endl << tmrca << std::endl;
-    std::cout << tree_length << std::endl; 
-    CPPUNIT_ASSERT( 0.88 <= tmrca && tmrca <= 0.92 );
-    CPPUNIT_ASSERT( 2.80 <= tree_length && tree_length <= 2.90 );
+    std::cout << std::endl << tmrca[0] << " " << tmrca[1] << " " << tmrca[2] << std::endl;
+    std::cout << tree_length[0] <<  " " << tree_length[1] << " " << tree_length[2] << std::endl; 
+
+    for (int i = 0; i < 3; ++i) {
+      CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
+      CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.90 );
+    }
   }
 };
 
