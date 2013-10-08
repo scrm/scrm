@@ -65,10 +65,10 @@ if test "$GCC_VERSION_MAJOR" -ge 4
 then
 	if test "$GCC_VERSION_MINOR" -lt 7
 	then
-		AC_MSG_ERROR([Require g++ compiler 4.7+])
+		AC_MSG_ERROR([Require g++ compiler 4.6+])
 	fi
 else
-	AC_MSG_ERROR([Require g++ compiler 4.7+])
+	AC_MSG_ERROR([Require g++ compiler 4.6+])
 fi 
 
 # Checks for the std=c++0x option
