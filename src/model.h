@@ -45,7 +45,6 @@ class Param;
 class Model
 {
   public:
-
 #ifdef UNITTEST
   friend class TestModel;
   friend class TestTimeInterval;
@@ -56,6 +55,18 @@ class Model
 
    Model();
    Model(size_t sample_size);
+
+   Model(const Model& model);
+   //Move Operator
+   Model(Model&& model) : Model() {
+    swap(*this, model);
+   } 
+   //Assignment Operator
+   Model& operator=(Model model) {
+    swap(*this, model);  
+    return(*this);
+   };
+
 
    void init();
    
@@ -299,11 +310,10 @@ class Model
                                 const bool &time_scaled = false);
 
    void finalize(); 
+   void check();
    void reset();
 
   private:
-   Model(const Model&);
-   Model& operator=(const Model&);
 
    size_t addChangeTime(double time, const bool &scaled = false);
    
@@ -317,6 +327,8 @@ class Model
    }
 
    void updateTotalMigRates(const size_t &position);
+   bool has_migration_;
+   bool has_migration() { return has_migration_; };
 
    void set_loci_length(const size_t &length) { 
     loci_length_ = length; 
@@ -324,6 +336,9 @@ class Model
    }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+  std::vector<std::vector<double>*> copyVectorList(const std::vector<std::vector<double>*> &source);
+
+  friend void swap(Model& first, Model& second);
 
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);

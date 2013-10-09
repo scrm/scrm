@@ -45,8 +45,8 @@ class TestParam : public CppUnit::TestCase {
     argv2[3] = "-tv";
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(), std::invalid_argument ); 
 
-    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-T" };
-    Param pars2 = Param(11, argv3);
+    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-T", "-M", "5.0" };
+    Param pars2 = Param(13, argv3);
     CPPUNIT_ASSERT_NO_THROW( model = pars2.parse() ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model->population_number() );
     CPPUNIT_ASSERT_EQUAL( model->sample_population(4), (size_t)0 );
@@ -57,8 +57,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( true, pars2.tree_bool );
     delete model;
 
-    char *argv4[] = { "scrm", "23", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eI", "12.3", "2", "0", "1" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(15, argv4).parse() ); 
+    char *argv4[] = { "scrm", "23", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eI", "12.3", "2", "0", "1" , "-M", "5.0" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(17, argv4).parse() ); 
     CPPUNIT_ASSERT_EQUAL( model->sample_population(20), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model->sample_population(22), (size_t)2 );
     CPPUNIT_ASSERT_EQUAL( model->sample_time(20), (double)12.3 );
@@ -67,8 +67,8 @@ class TestParam : public CppUnit::TestCase {
    
     // -N & -eN 
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", 
-                      "-N", "0.3", "-eN", "8.2", "0.75", "-G", "1.5" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(17, argv5).parse() ); 
+                      "-N", "0.3", "-eN", "8.2", "0.75", "-G", "1.5", "-M", "5.0"};
+    CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv5).parse() ); 
     model->resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model->getCurrentTime() );
     CPPUNIT_ASSERT_EQUAL( 0.3*model->default_pop_size, model->population_size(0) );
@@ -86,8 +86,8 @@ class TestParam : public CppUnit::TestCase {
 
     // -n & -en 
     char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-G", "1.5", 
-                      "-n", "2", "0.3", "-eN", "1.1", "0.75", "-en", "2", "3", "0.1", "-eG", "1.5", "2" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(25, argv6).parse() ); 
+                      "-n", "2", "0.3", "-eN", "1.1", "0.75", "-en", "2", "3", "0.1", "-eG", "1.5", "2", "-M", "5.0" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(27, argv6).parse() ); 
     model->finalize();
     model->resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model->getCurrentTime() );
@@ -157,8 +157,8 @@ class TestParam : public CppUnit::TestCase {
 
     // -esme
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-                      "-esme", "1.6", "2", "1", "0.5", "-esme", "1.6", "1", "2", "0.1" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv5).parse(); );
+                      "-esme", "1.6", "2", "1", "0.5", "-esme", "1.6", "1", "2", "0.1", "-M", "5.0" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(21, argv5).parse(); );
     model->resetTime();
     model->increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model->default_pop_size, model->getCurrentTime() );
@@ -192,8 +192,8 @@ class TestParam : public CppUnit::TestCase {
   void testParseGrowthOptions() {
     // -G && -eG
     char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-      "-G", "2", "-eG", "1", "3" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(14, argv).parse(); );
+      "-G", "2", "-eG", "1", "3", "-M", "5.0" };
+    CPPUNIT_ASSERT_NO_THROW( model = Param(16, argv).parse(); );
     model->resetTime();
     CPPUNIT_ASSERT_EQUAL( 2.0, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 2.0, model->growth_rate(1) );
@@ -206,8 +206,8 @@ class TestParam : public CppUnit::TestCase {
     // -g && -eg
     char *argv2[] = { 
       "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-      "-g", "2", "0.1", "-eG", "1", "3", "-eg", "2", "1", "2.4" };
-    CPPUNIT_ASSERT_NO_THROW( model = Param(19, argv2).parse(); );
+      "-g", "2", "0.1", "-eG", "1", "3", "-eg", "2", "1", "2.4", "-M", "5.0"};
+    CPPUNIT_ASSERT_NO_THROW( model = Param(21, argv2).parse(); );
     model->resetTime();
     CPPUNIT_ASSERT_EQUAL( model->default_growth_rate, model->growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 0.1, model->growth_rate(1) );

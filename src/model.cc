@@ -42,6 +42,45 @@ Model::~Model() {
   deleteParList(single_mig_probs_list_);
 }
 
+// Copy constructor
+Model::Model(const Model& model) {
+  //normal members
+  default_pop_size = model.default_pop_size;
+  default_loci_length = model.default_loci_length;
+  default_growth_rate = model.default_growth_rate;
+  default_mig_rate = model.default_mig_rate;
+  
+  mutation_rate_ = model.mutation_rate_;
+  mutation_rate_per_locus_ = model.mutation_rate_per_locus_;
+  mutation_exact_number_ = model.mutation_exact_number_;
+  rec_rate_ = model.rec_rate_;
+  pop_number_ = model.pop_number_;
+  loci_number_ = model.loci_number_;
+  loci_length_ = model.loci_length_;
+  exact_window_length_ = model.exact_window_length_;
+  prune_interval_ = model.prune_interval_;
+  has_migration_ = model.has_migration_;
+
+  // Vector members
+  sample_times_ = model.sample_times_;
+  sample_populations_ = model.sample_populations_;
+  change_times_ = model.change_times_;
+
+  // Vector lists
+  pop_sizes_list_ = copyVectorList(model.pop_sizes_list_);
+  growth_rates_list_ = copyVectorList(model.growth_rates_list_);
+  mig_rates_list_ = copyVectorList(model.mig_rates_list_);
+  total_mig_rates_list_ = copyVectorList(model.total_mig_rates_list_);
+  single_mig_probs_list_ = copyVectorList(single_mig_probs_list_);
+
+  // Pointers
+  current_time_idx_ = model.current_time_idx_; 
+  current_pop_sizes_ = model.pop_sizes_list_.at(current_time_idx_);
+  current_growth_rates_ = model.growth_rates_list_.at(current_time_idx_); 
+  current_mig_rates_ = model.mig_rates_list_.at(current_time_idx_);
+  current_total_mig_rates_ = model.total_mig_rates_list_.at(current_time_idx_);
+}
+
 void Model::init() {
   default_pop_size = 10000;
   default_loci_length = 100000;
@@ -57,6 +96,8 @@ void Model::init() {
   mig_rates_list_ = std::vector<std::vector<double>*>();
   total_mig_rates_list_ = std::vector<std::vector<double>*>(); 
   single_mig_probs_list_ = std::vector<std::vector<double>*>();
+
+  has_migration_ = false;
 
   this->addChangeTime(0.0);
 
@@ -452,6 +493,7 @@ void Model::updateTotalMigRates(const size_t &position) {
       if (i == j) continue;
       mig_rates->at(i) += mig_rates_list_.at(position)->at( getMigMatrixIndex(i,j) );
     }
+    if (mig_rates->at(i) > 0) has_migration_ = true;
   }
 }; 
 
@@ -465,7 +507,20 @@ void Model::finalize() {
     if (mig_rates_list_.at(j) == NULL) continue;
     updateTotalMigRates(j);
   } 
+  
+  check();
 }
+
+
+void Model::check() {
+  // Sufficient sample size?
+  if (sample_size() < 2) throw std::invalid_argument("Sample size needs be to at least 2");
+
+  // Structure without migration?
+  if (population_number() > 1 && !has_migration())
+    throw std::invalid_argument("Model has multiple population but no migration. Coalescence impossible"); 
+}
+
 
 void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value) {
   std::vector<double>* last = NULL; 
@@ -482,4 +537,58 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
     }
     last = current;
   }
+}
+
+
+std::vector<std::vector<double>*> Model::copyVectorList(const std::vector<std::vector<double>*> &source) {
+  auto copy = std::vector<std::vector<double>*>();
+
+  for (size_t j = 0; j < source.size(); ++j) {
+    if (source.at(j) == NULL) { 
+      copy.push_back(NULL);
+      continue;
+    }
+    copy.push_back(new std::vector<double>(*source.at(j)));
+  }
+
+  return copy;
+}
+
+
+void swap(Model& first, Model& second) {
+  using std::swap;
+  swap(first.default_pop_size, second.default_pop_size);
+  swap(first.default_loci_length, second.default_loci_length);
+  swap(first.default_growth_rate, second.default_growth_rate);
+  swap(first.default_mig_rate, second.default_mig_rate);
+
+  swap(first.mutation_rate_, second.mutation_rate_);
+  swap(first.mutation_rate_per_locus_, second.mutation_rate_per_locus_);
+  swap(first.mutation_exact_number_, second.mutation_exact_number_);
+  swap(first.rec_rate_, second.rec_rate_);
+  swap(first.pop_number_, second.pop_number_);
+  swap(first.loci_number_, second.loci_number_);
+  swap(first.loci_length_, second.loci_length_);
+  swap(first.exact_window_length_, second.exact_window_length_);
+  swap(first.prune_interval_, second.prune_interval_);
+  swap(first.has_migration_, second.has_migration_);
+
+  // Vector members
+  swap(first.sample_times_, second.sample_times_);
+  swap(first.sample_populations_, second.sample_populations_);
+  swap(first.change_times_, second.change_times_);
+
+  // Vector lists
+  swap(first.pop_sizes_list_, second.pop_sizes_list_);
+  swap(first.growth_rates_list_, second.growth_rates_list_);
+  swap(first.mig_rates_list_, second.mig_rates_list_);
+  swap(first.total_mig_rates_list_, second.total_mig_rates_list_);
+  swap(first.single_mig_probs_list_, second.single_mig_probs_list_);
+
+  // Pointers
+  swap(first.current_time_idx_, second.current_time_idx_); 
+  swap(first.current_pop_sizes_, second.current_pop_sizes_);
+  swap(first.current_growth_rates_, second.current_growth_rates_); 
+  swap(first.current_mig_rates_, second.current_mig_rates_);
+  swap(first.current_total_mig_rates_, second.current_total_mig_rates_);
 }
