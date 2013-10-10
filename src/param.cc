@@ -234,7 +234,7 @@ Model* Param::parse() {
 
     else if (argv_i == "-seed"){
       nextArg(argv_i);
-      random_seed = readInput<int>(argv_[argc_i]);
+      random_seed = readInput<size_t>(argv_[argc_i]);
     }
 
     else if (directly_called_){

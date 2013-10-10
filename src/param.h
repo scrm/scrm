@@ -56,7 +56,7 @@ class Param {
   void print_param();
 
   // Member variables
-  int random_seed;
+  size_t random_seed;
   bool tree_bool;
   bool log_bool;
 
