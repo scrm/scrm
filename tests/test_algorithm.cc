@@ -14,6 +14,7 @@ class TestAlgorithm : public CppUnit::TestCase {
 
 	CPPUNIT_TEST( testInitialTree );
 	CPPUNIT_TEST( testTreeAfterRecombination );
+	CPPUNIT_TEST( testHeightChange );
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -24,6 +25,7 @@ class TestAlgorithm : public CppUnit::TestCase {
  public:
   void setUp() {
     model = new Model(10);
+    model->set_recombination_rate(0.0001, 1000);
     rg = new MersenneTwister(78361);
   }
 
@@ -99,7 +101,6 @@ class TestAlgorithm : public CppUnit::TestCase {
     size_t reps = 2000;
 
     for (size_t i = 0; i < reps; ++i) {
-      model->set_recombination_rate(0.0001, 1000);
       Forest forest = Forest(model, rg);
 
       int j = 0;
@@ -136,6 +137,34 @@ class TestAlgorithm : public CppUnit::TestCase {
       CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
       CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.90 );
     }
+  }
+
+  void testHeightChange() {
+    size_t reps = 100000; 
+    double lower = 0, higher = 0, equal = 0;
+    double height = 0.0, new_height = 0.0;
+
+    for (size_t i = 0; i < reps; ++i) {
+      Forest forest = Forest(model, rg);
+      forest.buildInitialTree();
+      height = forest.local_root()->height();
+      forest.sampleNextGenealogy();
+      new_height = forest.local_root()->height();
+
+      //std::cout << i << " " << height << " " << new_height << std::endl; 
+      if (new_height == height) ++equal;
+      if (new_height > height) ++higher;
+      if (new_height < height) ++lower;
+    }
+
+    equal /= reps;
+    higher /= reps; 
+    lower /= reps; 
+
+    std::cout << std::endl << equal << " " << higher << " " << lower << std::endl;
+    CPPUNIT_ASSERT( 0.650 < equal && equal < 0.656 );   // E: 0.653
+    CPPUNIT_ASSERT( 0.171 < lower && lower < 0.177 );   // E: 0.174
+    CPPUNIT_ASSERT( 0.171 < higher && higher < 0.177 ); // E: 0.174
   }
 };
 
