@@ -93,6 +93,7 @@ double Forest::calcTreeLength() const {
     if ( (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
+
   return local_length;
 }
 
@@ -209,7 +210,10 @@ bool Forest::checkNodeProperties() const {
         success = false;
       }
     }
-  } return success; } 
+  } 
+  return success; 
+} 
+
 
 bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
@@ -550,3 +554,45 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << "Primary Root:  " << this->primary_root() << std::endl;
     return true;
   }
+
+
+// Checks if all nodes in contemporaries are contempoaries.
+bool Forest::checkContemporaries(const TimeInterval &ti) const {
+  // Check if all nodes in contemporaries() are contemporaries
+  for (std::vector<Node*>::const_iterator it = ti.contemporaries().begin(); 
+       it != ti.contemporaries().end(); ++it) {
+
+    if ( *it == NULL ) return 0;
+    if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
+      dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
+      return 0;
+    }
+
+    for (size_t i = 0; i < 2; ++i) {
+      if ( *it == active_node(i) && states_[i] == 1 ) {
+        dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
+        return 0;
+      }
+    }
+  }
+
+  // Chech if all contemporaries are in contemporaries() 
+  for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
+    if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
+      if ( *ni == active_node(0) || *ni == active_node(1) ) continue;
+      bool found = false;
+      for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
+        if ( *it == *ni ) {
+          found = true;
+          break;
+        }
+      } 
+      if (!found) { 
+        dout << "Node " << *ni << " not in contemporaries." << std::endl;
+        return 0;
+      }
+    }
+  }
+
+  return 1;
+}

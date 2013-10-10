@@ -59,22 +59,6 @@ Node* TimeInterval::getRandomContemporary(size_t population) const {
 }
 
 
-// Checks if all nodes in contemporaries are contempoaries.
-// Does not check if their are an nodes missing.
-bool TimeInterval::checkContemporaries() const {
-  for (std::vector<Node*>::const_iterator it = contemporaries().begin(); 
-       it != contemporaries().end(); ++it) {
-
-    if ( *it == NULL ) return 0;
-    //std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
-    if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
-      std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
-      return 0;
-    }
-  }
-  return 1;
-}
-
 size_t TimeInterval::numberOfContemporaries(size_t pop) const { 
   return tii_->numberOfContemporaries(pop); 
 }
@@ -150,7 +134,6 @@ void TimeIntervalIterator::next() {
   if (this->inside_node_ != NULL ) {
     this->current_interval_.start_height_ = inside_node_->height();
     this->inside_node_ = NULL;
-    assert( this->current_interval_.checkContemporaries() );  
     return;
   }
 
@@ -204,8 +187,6 @@ void TimeIntervalIterator::next() {
   this->current_interval_ = TimeInterval(this, 
                                          start_height, 
                                          current_time_);
-
-  assert( this->current_interval_.checkContemporaries() );  
 }
 
 

@@ -47,11 +47,10 @@ class TimeInterval {
 
   size_t numberOfContemporaries(size_t pop = 0) const;
   Node* getRandomContemporary(size_t pop = 0) const;
+  const std::vector<Node*> &contemporaries() const;
 
  private:
-  bool checkContemporaries() const;
   Node* getIthContemporaryOfPop(size_t i, const size_t &pop) const;
-  const std::vector<Node*> &contemporaries() const;
   
   double start_height_;
   double end_height_; 

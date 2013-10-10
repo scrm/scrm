@@ -142,6 +142,7 @@ class Forest
   bool checkTreeLength() const;
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
+  bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
 
   //Tree printing

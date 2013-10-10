@@ -363,12 +363,10 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
-
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << std::endl;
 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
-
 
     // Update States & Rates (see their declaration for explanation); 
     states_[0] = getNodeState(active_node(0), (*ti).start_height());
@@ -390,6 +388,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[0] != 0 || states_[1] != 0 );
     assert( states_[0] == 1 || active_node(0)->parent_height() >= tmp_event_.time() );
     assert( states_[1] == 1 || active_node(1)->parent_height() >= tmp_event_.time() );
+    assert( checkContemporaries(*ti) );
 
     // Sample the time at which the next thing happens
     
