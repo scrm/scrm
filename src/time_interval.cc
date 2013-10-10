@@ -235,6 +235,13 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
     if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
+      // If we prune an internal note that would have been a contemporary,
+      // it's child will become a contemporary after pruning.
+      if ((*node_iterator)->numberOfChildren() == 1 && 
+          (*node_iterator)->parent_height() > node->height() ) {
+        this->addToContemporaries((*node_iterator)->first_child() );
+      }
+
       forest_->prune(*node_iterator);
       continue;
     }

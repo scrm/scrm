@@ -131,6 +131,10 @@ class Node
     return (this->numberOfChildren() == 1 && !this->is_migrating()); 
   }
 
+  bool is_contemporary(const double &time) {
+    return ( time <= height() && height() <= parent_height() ); 
+  }
+
   void remove_child(Node* child);
 
   Node* next() const { 

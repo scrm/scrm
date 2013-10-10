@@ -18,15 +18,30 @@ function debug_call {
   done
 }
 
+function normal_call {
+  for i in `seq 1 100`; do
+    loci=`./src/scrm $@ -seed $i | grep -c "//"`
+    if [ $loci -ne $2 ]; then
+      echo "Executing \"./src/scrm $@ -seed $i\" failed."
+      exit 1
+    fi
+  done
+}
+
+echo "Testing Binary..."
+normal_call 8 1 -t 5 || exit 1
+normal_call 9 10 -t 5 -T || exit 1
+normal_call 10 11 -r 10 100 -t 5 || exit 1
+
 echo "Testing Initial Tree..."
-debug_call 5 1 || exit 1
+debug_call 5 1 -t 5 || exit 1
 debug_call 3 100 -t 5 || exit 2 
-debug_call 100 1 || exit 3 
+debug_call 100 1 -T || exit 3 
 
 echo "Testing Recombinations..."
 debug_call 4 10 -r 5 100 -T || exit 4 
 debug_call 6 10 -r 1 100 -t 5 || exit 5 
 
 echo "Testing Pruning..."
-debug_call 10 10 -r 100 1000 -l 10 || exit 7 
-debug_call 3 10 -r 100 1000 -l 0 || exit 6 
+debug_call 10 10 -r 10 500 -l 10 || exit 7 
+debug_call 3 10 -r 10 500 -l 0 || exit 6 

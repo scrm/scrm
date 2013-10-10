@@ -589,7 +589,7 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
         }
       } 
       if (!found) { 
-        dout << "Node " << *ni << " not in contemporaries." << std::endl;
+        dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
         return 0;
       }
     }
