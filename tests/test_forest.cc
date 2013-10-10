@@ -363,7 +363,7 @@ class TestForest : public CppUnit::TestCase {
     for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( 0 <= event.time() && event.time() < forest2->nodes()->at(4)->height() ) );
-      CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() || event.isPwCoalescence() );
+      CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }
 
     ++tii;
@@ -371,7 +371,7 @@ class TestForest : public CppUnit::TestCase {
     for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( forest2->nodes()->at(4)->height() <= event.time() && event.time() < forest2->nodes()->at(5)->height() ) );
-      CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() || event.isPwCoalescence() );
+      CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }
   }
 
@@ -536,10 +536,12 @@ class TestForest : public CppUnit::TestCase {
   void testCut() {
     Node* base_node = forest->nodes()->at(4);
     Node* new_root = forest->cut(TreePoint(base_node, 3.5, false));
+
     CPPUNIT_ASSERT_EQUAL((size_t)11, forest->nodes()->size());
     CPPUNIT_ASSERT( new_root->local() );
     CPPUNIT_ASSERT( new_root->is_root() );
     CPPUNIT_ASSERT_EQUAL(1, new_root->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL(3.5, new_root->height() );
 
     CPPUNIT_ASSERT( base_node->parent() == new_root );
     CPPUNIT_ASSERT( base_node->local() );
@@ -548,6 +550,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !single_branch->local() );
     CPPUNIT_ASSERT_EQUAL( forest->current_base(), single_branch->last_update() );
     CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( 3.5, single_branch->height() );
   }
 
   void testImplementRecombination() {

@@ -72,7 +72,7 @@ void Forest::createExampleTree() {
 
 void Forest::createScaledExampleTree() {
   this->createExampleTree();
-  std::cout << (this->model()) << std::endl;
+
   this->nodes()->at(4)->set_height(1 * 4 * model().default_pop_size); 
   this->nodes()->at(5)->set_height(3 * 4 * model().default_pop_size); 
   this->nodes()->at(6)->set_height(4 * 4 * model().default_pop_size); 

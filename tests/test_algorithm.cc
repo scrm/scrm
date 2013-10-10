@@ -13,8 +13,8 @@ class TestAlgorithm : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( TestAlgorithm );
 
 	CPPUNIT_TEST( testInitialTree );
-	CPPUNIT_TEST( testTreeAfterRecombination );
 	CPPUNIT_TEST( testHeightChange );
+	CPPUNIT_TEST( testTreeAfterRecombination );
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -88,7 +88,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     tmrca /= reps;        // Expectation: 0.95
     tree_length /= reps;  // Expectation: 3.55
     //std::cout << std::endl << tmrca << std::endl;
-    std::cout << tree_length << std::endl; 
+    //std::cout << tree_length << std::endl; 
     
     CPPUNIT_ASSERT( 0.90 <= tmrca && tmrca <= 1.0 );
     CPPUNIT_ASSERT( 3.45 <= tree_length && tree_length <= 3.65 );
