@@ -589,7 +589,9 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testSamplePoint() {
-    rg->set_seed(12345);
+    rg->set_seed(123456);
+    forest->createScaledExampleTree();
+
     TreePoint point;
     int n0 = 0, n1 = 0, n2 = 0, n3 = 0, 
         n4 = 0, n5 = 0;
@@ -604,6 +606,9 @@ class TestForest : public CppUnit::TestCase {
       if (point.base_node() == forest->nodes()->at(4)) ++n4;
       if (point.base_node() == forest->nodes()->at(5)) ++n5;
     }
+
+    //std::cout << n0 << " " << n1 << " " << n2 << " "
+    //          << n3 << " " << n4 << " " << n5 << std::endl;
     CPPUNIT_ASSERT( 29500 <= n0 && n0 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT( 29500 <= n1 && n1 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT(  9800 <= n2 && n2 <= 10200 ); // expected 10000 

@@ -119,21 +119,12 @@ void Model::init() {
 
 
 void Model::reset() {
-  sample_times_.clear();
-  sample_populations_.clear();
-  change_times_.clear();
-
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
   deleteParList(mig_rates_list_);
   deleteParList(total_mig_rates_list_);
   deleteParList(single_mig_probs_list_);
 
-  pop_sizes_list_.clear();
-  growth_rates_list_.clear();
-  mig_rates_list_.clear();
-  total_mig_rates_list_.clear();
-  single_mig_probs_list_.clear();
   init();
 }
 
@@ -457,6 +448,7 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
   os << "Mutation rate: " << model.mutation_rate() << std::endl;  
   os << "Recombination rate: " << model.recombination_rate() << std::endl;  
+  os << "Sample size: " << model.sample_size() << std::endl;  
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  

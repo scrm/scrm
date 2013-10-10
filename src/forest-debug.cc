@@ -72,11 +72,12 @@ void Forest::createExampleTree() {
 
 void Forest::createScaledExampleTree() {
   this->createExampleTree();
+  std::cout << (this->model()) << std::endl;
   this->nodes()->at(4)->set_height(1 * 4 * model().default_pop_size); 
   this->nodes()->at(5)->set_height(3 * 4 * model().default_pop_size); 
   this->nodes()->at(6)->set_height(4 * 4 * model().default_pop_size); 
   this->nodes()->at(7)->set_height(6 * 4 * model().default_pop_size); 
-  this->nodes()->at(8)->set_height(8 * 4 * model().default_pop_size); 
+  this->nodes()->at(8)->set_height(10 * 4 * model().default_pop_size); 
 
   updateAbove(nodes()->at(4));
   updateAbove(nodes()->at(5));
@@ -524,8 +525,8 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::setw(10) << std::right << "Height";
     dout << std::setw(6) << std::right << "label";
     dout << std::setw(10) << std::right << "Parent";
-    dout << std::setw(10) << std::right << "h_child";
-    dout << std::setw(10) << std::right << "l_child";
+    dout << std::setw(10) << std::right << "1th_child";
+    dout << std::setw(10) << std::right << "2nd_child";
     dout << std::setw(6) << std::right << "local";
     dout << std::setw(6) << std::right << "pop";
     dout << std::setw(6) << std::right << "l_upd";
@@ -541,8 +542,8 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
