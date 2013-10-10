@@ -7,6 +7,6 @@ CXXFLAGS= -I/opt/local/include
 LDFLAGS= -L/opt/local/lib
 
 travis-test: 
-	cd src; make scrm
+	cd src; make scrm scrm_dbg
 	cd tests; make check 
 	./tests/test_binaries.sh
