@@ -9,3 +9,4 @@ LDFLAGS= -L/opt/local/lib
 travis-test: 
 	cd src; make scrm
 	cd tests; make check 
+	./tests/test_binaries.sh
