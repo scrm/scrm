@@ -86,6 +86,7 @@ void NodeContainer::add(Node* node, Node* after_node) {
 
   assert( after_node == NULL || node->height() >= after_node->height() );
 
+
   if (after_node == NULL) after_node = first();
   Node* current = after_node;
   // Find position in between

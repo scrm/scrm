@@ -48,7 +48,7 @@ class TestRandomGenerator : public CppUnit::TestCase {
 
   void testSampleUnitExpo() {
     size_t n = 10000;
-    double expo;
+    double expo = 0.0;
     for (size_t i = 0; i < n; ++i) {
       expo += rg->sampleUnitExponential();
     }

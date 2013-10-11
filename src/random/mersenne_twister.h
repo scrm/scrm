@@ -38,7 +38,7 @@ class MersenneTwister : public RandomGenerator
    void set_seed(const size_t &seed);
 
   protected:
-   //virtual double sampleUnitExponential() { return expo_(mt_); };
+   virtual double sampleUnitExponential() { return expo_(mt_); };
 
    std::mt19937 mt_; 
    std::uniform_real_distribution<> unif_;

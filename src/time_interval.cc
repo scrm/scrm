@@ -123,8 +123,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 TimeIntervalIterator::~TimeIntervalIterator() {
   if (!pruning_) return;
 
-  for( ; node_iterator_.good(); node_iterator_++ ) {
-    if ( forest_->isPrunable(*node_iterator_) ) forest_->prune(*node_iterator_);
+  Node *node;
+  while (node_iterator_.good()) {
+    node = *node_iterator_;
+    ++node_iterator_; 
+    if ( forest_->isPrunable(node) ) forest_->prune(node);
   }
 }
 
@@ -230,7 +233,7 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
   if (contemporaries_.size() > 0) contemporaries_.clear();
 
   NodeIterator node_iterator = forest_->nodes()->iterator();
-  for( ; *node_iterator != node; node_iterator++ ) {
+  while( *node_iterator != node ) {
     if ( ! node_iterator.good() )
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
@@ -242,13 +245,15 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
         this->addToContemporaries((*node_iterator)->first_child() );
       }
 
-      forest_->prune(*node_iterator);
+      forest_->prune(node_iterator++);
       continue;
     }
 
     if ( (*node_iterator)->parent_height() > node->height() )
       this->addToContemporaries(*node_iterator);
-  }
+    
+    ++node_iterator; 
+  };
 }
 
 

@@ -342,35 +342,36 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testSampleEvent() {
-    Forest *forest2 = new Forest(new Model(5), rg);
-    forest2->createScaledExampleTree();
-    forest2->writable_model()->finalize();
-    forest2->writable_model()->resetTime();
+    Model model = Model(5);
+    Forest forest2 = Forest(&model, rg);
+    forest2.createScaledExampleTree();
+    forest2.writable_model()->finalize();
+    forest2.writable_model()->resetTime();
 
-    TimeIntervalIterator tii(forest2, forest2->nodes()->at(0), false);
+    TimeIntervalIterator tii(&forest2, forest2.nodes()->at(0), false);
     
-    forest2->set_active_node(0, forest2->nodes()->at(0));
-    forest2->set_active_node(1, forest2->nodes()->at(8));
-    forest2->states_[0] = 1;
-    forest2->states_[1] = 0;
-    forest2->calcRates(*tii);
-    forest2->active_nodes_timelines_[0] = 0;
-    forest2->active_nodes_timelines_[1] = 0;
+    forest2.set_active_node(0, forest2.nodes()->at(0));
+    forest2.set_active_node(1, forest2.nodes()->at(8));
+    forest2.states_[0] = 1;
+    forest2.states_[1] = 0;
+    forest2.calcRates(*tii);
+    forest2.active_nodes_timelines_[0] = 0;
+    forest2.active_nodes_timelines_[1] = 0;
     
     Event event;
     double tmp_event_time = 0.0;
     size_t tmp_event_line = -1;
     for (size_t i = 0; i < 1000; ++i) {
-      forest2->sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
-      CPPUNIT_ASSERT( event.isNoEvent() || ( 0 <= event.time() && event.time() < forest2->nodes()->at(4)->height() ) );
+      forest2.sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
+      CPPUNIT_ASSERT( event.isNoEvent() || ( 0 <= event.time() && event.time() < forest2.nodes()->at(4)->height() ) );
       CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }
 
     ++tii;
-    forest2->calcRates(*tii);
+    forest2.calcRates(*tii);
     for (size_t i = 0; i < 1000; ++i) {
-      forest2->sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
-      CPPUNIT_ASSERT( event.isNoEvent() || ( forest2->nodes()->at(4)->height() <= event.time() && event.time() < forest2->nodes()->at(5)->height() ) );
+      forest2.sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
+      CPPUNIT_ASSERT( event.isNoEvent() || ( forest2.nodes()->at(4)->height() <= event.time() && event.time() < forest2.nodes()->at(5)->height() ) );
       CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }
   }

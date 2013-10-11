@@ -792,7 +792,9 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
       // both trees have a single branch => delete one
       root_2 = root_2->first_child();
       this->nodes()->remove(root_2->parent());
+      root_2->set_parent(NULL);
       assert( root_2 != NULL );
+      assert( root_2->is_root() );
     }
     // (now) only root_1 has a single branch => use as new root
     this->nodes()->move(root_1, time);

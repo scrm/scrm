@@ -39,8 +39,10 @@ int main(int argc, char *argv[]){
   try {
     Param user_para(argc, argv);
 
-    Model* model = user_para.parse();
-    MersenneTwister *rg = new MersenneTwister(user_para.random_seed);
+    Model model;
+    user_para.parse(model);
+
+    MersenneTwister rg = MersenneTwister(user_para.random_seed);
 
     // Organize output
     std::ostream *output = &std::cout;
@@ -51,19 +53,10 @@ int main(int argc, char *argv[]){
     }
 
     *output << user_para << std::endl;
-    *output << rg->seed() << std::endl;
-
-    //*output << *model;
-
-    /*
-       std::ofstream tree_file;
-       tree_file.open (user_para.treefile.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-       tree_file  <<"//\n";
-       tree_file.close();	
-       */
+    *output << rg.seed() << std::endl;
 
     // Loop over the independent samples
-    for (size_t rep_i=0; rep_i < model->loci_number(); ++rep_i) {
+    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
 
       // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
@@ -72,29 +65,29 @@ int main(int argc, char *argv[]){
       std::ostringstream tree_buffer;
 
       // Now set up the ARG, and sample the initial tree
-      Forest *forest = new Forest(model, rg);
-      forest->buildInitialTree();
+      Forest forest = Forest(&model, &rg);
+      forest.buildInitialTree();
 
       // Set up a buffer to hold the data for segregating sites
-      SegDataContainer *seg_data_array = new SegDataContainer(&user_para, forest);
+      SegDataContainer seg_data_array = SegDataContainer(&user_para, &forest);
 
       // Optionally output the TMRCA of the initial coalescent tree in a file
       if (user_para.tmrca_bool()){
         std::ofstream tmrca_file;
         tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        tmrca_file << forest->local_root()->height() <<"\n";  
+        tmrca_file << forest.local_root()->height() <<"\n";  
         tmrca_file.close();	
       }
 
       // Just output a single tree if the recombination rate is 0
-      if (forest->model().mutation_exact_number() == -1 && model->recombination_rate() == 0.0){	
-        tree_buffer << writeTree_new(forest->local_root(), forest->model().default_pop_size) << ";\n";
-        seg_data_array->append_new_seg_data(forest);
+      if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
+        tree_buffer << writeTree_new(forest.local_root(), model.default_pop_size) << ";\n";
+        seg_data_array.append_new_seg_data(&forest);
       }
 
       int i = 0;
       // Start main loop, if the recombination rate is nonzero
-      if (model->recombination_rate() > 0.0){
+      if (model.recombination_rate() > 0.0){
 
         size_t previous_recombination_event;
         size_t next_recombination_event;
@@ -102,26 +95,26 @@ int main(int argc, char *argv[]){
         size_t distance_between_events;
 
         do {
-          previous_recombination_event = ceil(forest->current_base());
-          next_recombination_event = ceil(forest->next_base());
-          next_event = min(1+forest->model().loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
+          previous_recombination_event = ceil(forest.current_base());
+          next_recombination_event = ceil(forest.next_base());
+          next_event = min(1+model.loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
           distance_between_events = next_event - previous_recombination_event;
 
           // Obtain string representation of current tree
           string previous_genealogy;
           if (user_para.tree_bool) { 
-            previous_genealogy = writeTree_new(forest->local_root(),forest->model().default_pop_size);
+            previous_genealogy = writeTree_new(forest.local_root(),model.default_pop_size);
           }
 
 
           //std::cerr << i << " " << forest->local_root()->height() / ( 4 * forest->model().default_pop_size )  
           //          << " " << forest->local_tree_length() / ( 4 * forest->model().default_pop_size )<< std::endl;
           // Sample next genealogy
-          forest->sampleNextGenealogy();
+          forest.sampleNextGenealogy();
           //++i;
 
           // Sample and store segregating sites data
-          seg_data_array->append_new_seg_data(forest);
+          seg_data_array.append_new_seg_data(&forest);
 
           // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool) {
@@ -136,13 +129,9 @@ int main(int argc, char *argv[]){
         *output << tree_buffer.str();
       }
 
-      *output << *seg_data_array;
-      delete seg_data_array;
+      *output << seg_data_array;
     }
     
-    delete rg;
-    delete model;
-
     if (user_para.log_bool){          
       std::ofstream log_file;
       log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
