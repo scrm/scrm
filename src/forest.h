@@ -186,7 +186,7 @@ class Forest
   //virtual void record_coalevent(const TimeInterval & current_event, double end_time);
   //virtual void record_recombevent(const TimeInterval & current_event, double end_time);
   //virtual void record_migevent(const TimeInterval & current_event, double end_time);
-  virtual void clear_initial_coalevent();
+  //virtual void clear_initial_coalevent();
 
  private:
 

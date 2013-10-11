@@ -1,0 +1,23 @@
+/** @defgroup group_scrm Scrm
+*
+*/
+
+/** @defgroup group_scrm_init Build initial genealogy
+*@ingroup group_scrm
+*/
+
+/** @defgroup group_scrm_next New genealogy
+*@ingroup group_scrm
+*/
+
+/** @defgroup group_out Output
+*
+*/
+
+/** @defgroup group_seg Segregating data
+*@ingroup group_out
+*/
+
+/** @defgroup group_debug Debug utilities
+*
+*/

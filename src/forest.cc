@@ -298,6 +298,8 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * sequence. Also samples a place for this recombination on the tree, marks the
  * branch above as non-local (and updates invariants) if needed, cuts the
  * subtree below away and starts a coalescence from it's root.
+ * @ingroup group_scrm_next
+ * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
   this->set_current_base(next_base_);
@@ -1086,4 +1088,4 @@ void Forest::record_event(const TimeInterval & current_event, double end_time, s
 //void Forest::record_coalevent(const TimeInterval & current_event, double end_time){};
 //void Forest::record_recombevent(const TimeInterval & current_event, double end_time){};
 //void Forest::record_migevent(const TimeInterval & current_event, double end_time){};
-void Forest::clear_initial_coalevent(){};
+//void Forest::clear_initial_coalevent(){};
