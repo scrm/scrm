@@ -91,6 +91,7 @@ double Forest::calcTreeLength() const {
   double local_length = 0;
 
   for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
+    if ( *it == local_root() ) return local_length;
     if ( (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
@@ -130,7 +131,7 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *first_child, Node *se
 bool Forest::checkTreeLength() const {
   double local_length = calcTreeLength();
 
-  if ( !areSame(local_length, local_tree_length()) ) {
+  if ( !areSame(local_length, local_tree_length(), 0.000001) ) {
     dout << "Error: local tree length is " << this->local_tree_length() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
@@ -226,9 +227,10 @@ bool Forest::checkTree(Node const* root) const {
 
     assert( this->checkInvariants() );
     assert( this->checkNodeProperties() );
+    assert( this->checkTreeLength() );
     return good;
   }
-  assert( root != NULL);
+  assert( root != NULL );
 
   Node* h_child = root->second_child();
   Node* l_child = root->first_child();

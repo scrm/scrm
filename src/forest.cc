@@ -355,17 +355,19 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
   // Placeholders for the rates at which things happen for the active nodes
 
-  tmp_event_ = Event(-1);
+  tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
   this->initialize_event(start_node->height());
   // If the start_node is above the local tree, then we start with coalescence
-  // of the local root
-  if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);
+  // of the local root -- this should not happen?
+  assert ( start_node->height() <= active_node(1)->height() );
+  // if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << std::endl;
 
+    // Assert that we don't accidentaly jump backwards in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
 
     // Update States & Rates (see their declaration for explanation); 
@@ -386,14 +388,19 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     assert( active_node(0) != active_node(1) );
     assert( states_[0] != 0 || states_[1] != 0 );
+    assert( states_[0] != 1 || active_node(0)->is_root() );
+    assert( states_[1] != 1 || active_node(1)->is_root() );
     assert( states_[0] == 1 || active_node(0)->parent_height() >= tmp_event_.time() );
     assert( states_[1] == 1 || active_node(1)->parent_height() >= tmp_event_.time() );
+    assert( states_[0] != 2 || !active_node(0)->local() );
+    assert( states_[1] != 2 || !active_node(1)->local() );
     assert( checkContemporaries(*ti) );
 
     // Sample the time at which the next thing happens
-    
     sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
+    assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
+    assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
@@ -420,11 +427,10 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
-	// Record this  interval (coalescent)
-   	   this->record_coalevent((*ti),tmp_event_.time());
-	   //this->initialize_event((*ti), tmp_event_.time());    
-	   //this->record_coalevent();
-        implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
+      // Record this  interval (coalescent)
+      this->record_coalevent((*ti),tmp_event_.time());
+
+      implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
 
@@ -443,10 +449,10 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     }
 
     else if ( tmp_event_.isCoalescence() ) {
-      	// Record this  interval (coalescent)
-	   this->record_coalevent((*ti),tmp_event_.time());
-	   //this->initialize_event((*ti), tmp_event_.time());    
-	   //this->record_coalevent();
+      // Record this  interval (coalescent)
+      this->record_coalevent((*ti),tmp_event_.time());
+      //this->initialize_event((*ti), tmp_event_.time());    
+      //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
 
