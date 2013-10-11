@@ -277,10 +277,10 @@ void Model::addGrowthRates(const double &time, const std::vector<double> &growth
                            const bool &time_scaled) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
-  std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
   size_t position = addChangeTime(time, time_scaled);
+  std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
+  if (growth_rates_list_[position] != NULL) delete growth_rates_list_[position];    
   growth_rates_list_[position] = growth_rates_heap; 
-
 }
 
 

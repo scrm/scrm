@@ -70,16 +70,16 @@ class TestAlgorithm : public CppUnit::TestCase {
     //std::cout << std::endl << tmrca << std::endl;
     //std::cout << tree_length << std::endl; 
     
+    delete model2;
     CPPUNIT_ASSERT( 0.75 <= tmrca && tmrca <= 0.85 );
     CPPUNIT_ASSERT( 2.00 <= tree_length && tree_length <= 2.18 );
-    delete model2;
 
     tmrca = 0;
     tree_length = 0;
     Model* model3 = new Model(20);
 
     for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model2, rg);
+      Forest forest = Forest(model3, rg);
 
       forest.buildInitialTree();
       tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
@@ -90,9 +90,9 @@ class TestAlgorithm : public CppUnit::TestCase {
     //std::cout << std::endl << tmrca << std::endl;
     //std::cout << tree_length << std::endl; 
     
+    delete model3;
     CPPUNIT_ASSERT( 0.90 <= tmrca && tmrca <= 1.0 );
     CPPUNIT_ASSERT( 3.45 <= tree_length && tree_length <= 3.65 );
-    delete model3;
   }
 
   void testTreeAfterRecombination() {
@@ -169,4 +169,4 @@ class TestAlgorithm : public CppUnit::TestCase {
 };
 
 //Uncomment this to activate the test
-//CPPUNIT_TEST_SUITE_REGISTRATION( TestAlgorithm );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestAlgorithm );
