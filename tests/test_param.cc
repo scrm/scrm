@@ -86,9 +86,9 @@ class TestParam : public CppUnit::TestCase {
     model.finalize();
     model.resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( (double)model.default_pop_size, model.population_size(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)(0.3*model.default_pop_size), (size_t)model.population_size(1) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)model.default_pop_size, (size_t)model.population_size(2) );
+    CPPUNIT_ASSERT( areSame(model.default_pop_size, model.population_size(0)) );
+    CPPUNIT_ASSERT( areSame(0.3*model.default_pop_size, model.population_size(1)) );
+    CPPUNIT_ASSERT( areSame(model.default_pop_size, (size_t)model.population_size(2)) );
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(1) );
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(2) );
