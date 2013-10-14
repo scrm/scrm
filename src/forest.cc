@@ -657,7 +657,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   dout << "Node local: " << node->local() << std::endl;
   dout << "Node root: " << node->is_root() << std::endl;
   assert( false );
-  return(0);
+  return(-1);
 }
 
 
