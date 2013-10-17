@@ -24,17 +24,21 @@ class TestTimeInterval : public CppUnit::TestCase {
 
  private:
   Forest *forest;
-  ConstantGenerator *rg;
+  Model *model;
+  MersenneTwister *rg;
 
  public:
   void setUp() {
-    rg = new ConstantGenerator();
-    forest = new Forest(new Model(0), new MersenneTwister(5));
+    model = new Model(5);
+    rg = new MersenneTwister(5);
+    forest = new Forest(model, rg);
     forest->createExampleTree();
   }
 
   void tearDown() {
     delete forest;
+    delete model; 
+    delete rg;
   }
 
   void testIteratorCreation() {
@@ -182,6 +186,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 3);
     CPPUNIT_ASSERT( it.good() );
+    delete split_node;
   }
 
   void testGetIthContemporary() {
@@ -204,6 +209,9 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( node1 == (*tii).getIthContemporaryOfPop(0, 1) );
     CPPUNIT_ASSERT( node2 == (*tii).getIthContemporaryOfPop(1, 1) );
     CPPUNIT_ASSERT( node3 == (*tii).getIthContemporaryOfPop(4, 0) );
+    delete node1;
+    delete node2;
+    delete node3;
   } 
 
   void testSampleContemporary() {

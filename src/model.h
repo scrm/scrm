@@ -45,7 +45,6 @@ class Param;
 class Model
 {
   public:
-
 #ifdef UNITTEST
   friend class TestModel;
   friend class TestTimeInterval;
@@ -57,15 +56,27 @@ class Model
    Model();
    Model(size_t sample_size);
 
+   Model(const Model& model);
+   //Move Operator
+   Model(Model&& model) : Model() {
+    swap(*this, model);
+   } 
+   //Assignment Operator
+   Model& operator=(Model model) {
+    swap(*this, model);  
+    return(*this);
+   };
+
+
    void init();
    
    ~Model();
    
    // Default values;
-   const double default_pop_size = 10000;
-   const size_t default_loci_length = 100000;
-   const double default_growth_rate = 0.0;
-   const double default_mig_rate = 0.0;
+   double default_pop_size;
+   size_t default_loci_length;
+   double default_growth_rate;
+   double default_mig_rate;
 
    // Getters & Setters
 
@@ -300,18 +311,12 @@ locus length might change after the rate is read in from command line */
                                 const bool &time_scaled = false);
 
    void finalize(); 
-   
-   // Rescaling
-   //void rescaleChangeTimes(); /*! Not used, \todo to be removed */
-   
-   //double popSizeAtLayerI(size_t I, size_t pop) const; /*! Not used, \todo to be removed */
-   //size_t getPopLayerIatHeight(double height); /*! Not used, \todo to be removed */
-   //double popSizeAtHeight(double height, size_t pop);
    std::vector<double> change_times_;
   
+   void check();
+   void reset();
+
   private:
-   Model(const Model&);
-   Model& operator=(const Model&);
 
    size_t addChangeTime(double time, const bool &scaled = false);
    
@@ -325,6 +330,8 @@ locus length might change after the rate is read in from command line */
    }
 
    void updateTotalMigRates(const size_t &position);
+   bool has_migration_;
+   bool has_migration() { return has_migration_; };
 
    void set_loci_length(const size_t &length) { 
     loci_length_ = length; 
@@ -332,7 +339,11 @@ locus length might change after the rate is read in from command line */
    }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
-  
+
+  std::vector<std::vector<double>*> copyVectorList(const std::vector<std::vector<double>*> &source);
+
+  friend void swap(Model& first, Model& second);
+
   size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
     assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
@@ -368,6 +379,8 @@ locus length might change after the rate is read in from command line */
    size_t exact_window_length_;
    size_t prune_interval_;
 };
+
+
 
 std::ostream& operator<<(std::ostream& os, const Model& model); 
 
@@ -426,4 +439,5 @@ inline void Model::set_mutation_rate(double rate, const bool &per_locus, const b
     mutation_rate_ = rate;
   }
 }
+
 #endif

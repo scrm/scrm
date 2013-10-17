@@ -59,22 +59,6 @@ Node* TimeInterval::getRandomContemporary(size_t population) const {
 }
 
 
-// Checks if all nodes in contemporaries are contempoaries.
-// Does not check if their are an nodes missing.
-bool TimeInterval::checkContemporaries() const {
-  for (std::vector<Node*>::const_iterator it = contemporaries().begin(); 
-       it != contemporaries().end(); ++it) {
-
-    if ( *it == NULL ) return 0;
-    //std::cout << "Size " << numberOfContemporaries() << " checking " << *it << std::endl;
-    if ( (*it)->height() > start_height_ || (*it)->parent_height() < end_height_ ) {
-      std::cout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
-      return 0;
-    }
-  }
-  return 1;
-}
-
 size_t TimeInterval::numberOfContemporaries(size_t pop) const { 
   return tii_->numberOfContemporaries(pop); 
 }
@@ -139,8 +123,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 TimeIntervalIterator::~TimeIntervalIterator() {
   if (!pruning_) return;
 
-  for( ; node_iterator_.good(); node_iterator_++ ) {
-    if ( forest_->isPrunable(*node_iterator_) ) forest_->prune(*node_iterator_);
+  Node *node;
+  while (node_iterator_.good()) {
+    node = *node_iterator_;
+    ++node_iterator_; 
+    if ( forest_->isPrunable(node) ) forest_->prune(node);
   }
 }
 
@@ -150,7 +137,6 @@ void TimeIntervalIterator::next() {
   if (this->inside_node_ != NULL ) {
     this->current_interval_.start_height_ = inside_node_->height();
     this->inside_node_ = NULL;
-    assert( this->current_interval_.checkContemporaries() );  
     return;
   }
 
@@ -174,10 +160,9 @@ void TimeIntervalIterator::next() {
     ++node_iterator_;
 
     // Pruning
-    // Maybe we could prune were allways, as we are encountering this part of
-    // the tree anyway. Warning: just removing pruning_ below will not have this
-    // effect.
-    while ( pruning_ && node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
+    while ( forest_->model().exact_window_length() != -1 && 
+            node_iterator_.good() && 
+            forest_->isPrunable(*node_iterator_) ) {
       forest_->prune(node_iterator_++);
     }
   }
@@ -205,8 +190,6 @@ void TimeIntervalIterator::next() {
   this->current_interval_ = TimeInterval(this, 
                                          start_height, 
                                          current_time_);
-
-  assert( this->current_interval_.checkContemporaries() );  
 }
 
 
@@ -250,18 +233,27 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
   if (contemporaries_.size() > 0) contemporaries_.clear();
 
   NodeIterator node_iterator = forest_->nodes()->iterator();
-  for( ; *node_iterator != node; node_iterator++ ) {
+  while( *node_iterator != node ) {
     if ( ! node_iterator.good() )
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
     if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
-      forest_->prune(*node_iterator);
+      // If we prune an internal note that would have been a contemporary,
+      // it's child will become a contemporary after pruning.
+      if ((*node_iterator)->numberOfChildren() == 1 && 
+          (*node_iterator)->parent_height() > node->height() ) {
+        this->addToContemporaries((*node_iterator)->first_child() );
+      }
+
+      forest_->prune(node_iterator++);
       continue;
     }
 
     if ( (*node_iterator)->parent_height() > node->height() )
       this->addToContemporaries(*node_iterator);
-  }
+    
+    ++node_iterator; 
+  };
 }
 
 
@@ -278,7 +270,7 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
   std::cout << node << " " << current_node << std::endl;
   if (current_node == NULL) {
     if (contemporaries().size() > 0) contemporaries_.clear();
-    current_node == this->forest_->primary_root();
+    current_node = this->forest_->primary_root();
     assert( current_node != NULL);
     std::cout << "P.root: " << current_node << std::endl;
   }

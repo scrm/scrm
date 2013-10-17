@@ -28,7 +28,9 @@ class TestSeg : public CppUnit::TestCase {
   }
 
   void tearDown() {
+    delete forest->writable_model();
     delete forest;
+    delete rg;
   }
 
   void testTraversal() {

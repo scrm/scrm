@@ -20,16 +20,6 @@
 
 */
 
-#ifndef NDEBUG
-#define DEBUGFUNCTIONS
-#endif
-
-#ifdef UNITTEST
-#define DEBUGFUNCTIONS
-#endif
-
-#ifdef DEBUGFUNCTIONS
-
 #include "forest.h"
 #include <sstream>
 
@@ -38,8 +28,9 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
-  this->model_ = new Model(4);
   this->nodes()->clear();
+  this->writable_model()->reset();
+  this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
   Node* leaf1 = new Node(0, true, 0, 1, 0, 1);
   Node* leaf2 = new Node(0, true, 0, 1, 0, 2);
@@ -59,7 +50,7 @@ void Forest::createExampleTree() {
   Node* root = new Node(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
-  this->set_primary_root(root);
+  //this->set_primary_root(root);
 
   // Add a non-local tree
   Node* nl_node = new Node(4, false, 5, 0); 
@@ -79,6 +70,22 @@ void Forest::createExampleTree() {
   assert( this->checkTree() );
 }
 
+void Forest::createScaledExampleTree() {
+  this->createExampleTree();
+
+  this->nodes()->at(4)->set_height(1 * 4 * model().default_pop_size); 
+  this->nodes()->at(5)->set_height(3 * 4 * model().default_pop_size); 
+  this->nodes()->at(6)->set_height(4 * 4 * model().default_pop_size); 
+  this->nodes()->at(7)->set_height(6 * 4 * model().default_pop_size); 
+  this->nodes()->at(8)->set_height(10 * 4 * model().default_pop_size); 
+
+  updateAbove(nodes()->at(4));
+  updateAbove(nodes()->at(5));
+  updateAbove(nodes()->at(6));
+
+  assert( this->checkTreeLength() );
+  assert( this->checkTree() );
+}
 
 double Forest::calcTreeLength() const {
   double local_length = 0;
@@ -87,6 +94,7 @@ double Forest::calcTreeLength() const {
     if ( (*it)->is_root() || !(*it)->local() ) continue;
     local_length += (*it)->height_above();
   }
+
   return local_length;
 }
 
@@ -203,7 +211,10 @@ bool Forest::checkNodeProperties() const {
         success = false;
       }
     }
-  } return success; } 
+  } 
+  return success; 
+} 
+
 
 bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
@@ -514,8 +525,8 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::setw(10) << std::right << "Height";
     dout << std::setw(6) << std::right << "label";
     dout << std::setw(10) << std::right << "Parent";
-    dout << std::setw(10) << std::right << "h_child";
-    dout << std::setw(10) << std::right << "l_child";
+    dout << std::setw(10) << std::right << "1th_child";
+    dout << std::setw(10) << std::right << "2nd_child";
     dout << std::setw(6) << std::right << "local";
     dout << std::setw(6) << std::right << "pop";
     dout << std::setw(6) << std::right << "l_upd";
@@ -531,8 +542,8 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
@@ -545,4 +556,44 @@ std::vector<Node const*> Forest::determinePositions() const {
     return true;
   }
 
-#endif
+
+// Checks if all nodes in contemporaries are contempoaries.
+bool Forest::checkContemporaries(const TimeInterval &ti) const {
+  // Check if all nodes in contemporaries() are contemporaries
+  for (std::vector<Node*>::const_iterator it = ti.contemporaries().begin(); 
+       it != ti.contemporaries().end(); ++it) {
+
+    if ( *it == NULL ) return 0;
+    if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
+      dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
+      return 0;
+    }
+
+    for (size_t i = 0; i < 2; ++i) {
+      if ( *it == active_node(i) && states_[i] == 1 ) {
+        dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
+        return 0;
+      }
+    }
+  }
+
+  // Chech if all contemporaries are in contemporaries() 
+  for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
+    if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
+      if ( *ni == active_node(0) || *ni == active_node(1) ) continue;
+      bool found = false;
+      for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
+        if ( *it == *ni ) {
+          found = true;
+          break;
+        }
+      } 
+      if (!found) { 
+        dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
+        return 0;
+      }
+    }
+  }
+
+  return 1;
+}

@@ -22,12 +22,15 @@
 
 #include "random_generator.h"
 #include <iostream>
-
+#include <cmath>
 
 // Sample from a unit exponential distribution
+// Unit tested
+// fastlog can return 0, which causes a bug in scrm.
+// log or fastlog does seems to have an influence on the runtime.
 double RandomGenerator::sampleUnitExponential(void) {
-  double exposample = -ff.fastlog( sample() );
-  return exposample;
+  //return -ff.fastlog( sample() );
+  return -std::log( sample() );
 }
 
 // Sets new seed
@@ -41,26 +44,17 @@ void RandomGenerator::initializeUnitExponential() {
 }
 
 // Samples from an exponential distribution 
-// Distribution checked -Paul
+// Unit tested 
 double RandomGenerator::sampleExpo(double lambda){
   return sampleUnitExponential() / lambda;
 }
 
-
 // Samples from an exponential distribution; return -1 if beyond limit
 // If a limit is known, this version is faster than the standard one
+// Unit tested
 double RandomGenerator::sampleExpoLimit(double lambda, double limit){
-  assert( unit_exponential_ != 0 );
-  if (unit_exponential_ >= limit * lambda) {
-    unit_exponential_ -= limit * lambda;
-    return -1;
-  } else {
-    double result = unit_exponential_ / lambda;
-    unit_exponential_ = sampleUnitExponential();
-    return result;
-  }
+  return sampleExpoExpoLimit(lambda, 0, limit);
 }
-
 
 // Samples waiting time, with limit, for a process with an exponentially changing rate:
 //  rate(t) = b exp( c t )
@@ -108,28 +102,14 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
     } else {
       double result = unit_exponential_ / b;
       unit_exponential_ = sampleUnitExponential();
+      assert( result > 0 );
       return result;
     }
   }
 }
 
-    
 // Uniformly samples a number out of 0, ..., range-1
-// Distribution checked -Paul
+// Unit tested 
 int RandomGenerator::sampleInt(int range) {
   return(static_cast<int>(this->sample()*range));
 }
-
-
-// Uniformly samples a pair of different elements of 0, ..., range-1
-// Distribution checked -Paul
-void RandomGenerator::sampleTwoElements(int range, int *sample1, int *sample2) {
-  *sample1 = this->sampleInt(range);
-  *sample2 = this->sampleInt(range-1);
-  if (*sample1 == *sample2) *sample2 = range - 1;
-  assert( 0 <= *sample1 && *sample1 < range );
-  assert( 0 <= *sample2 && *sample2 < range );
-}
-
-
-

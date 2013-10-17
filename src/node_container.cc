@@ -86,14 +86,19 @@ void NodeContainer::add(Node* node, Node* after_node) {
 
   assert( after_node == NULL || node->height() >= after_node->height() );
 
+
   if (after_node == NULL) after_node = first();
   Node* current = after_node;
   // Find position in between
   while ( current->height() <= node->height() ) {
     assert( !current->is_last() );
-    if ( (!current->is_root()) && current->parent_height() < node->height() ) 
-      current = current->parent();
-    else current = current->next();
+    if ( !current->is_root() ) {
+      if ( current->parent_height() < node->height() ) { 
+        current = current->parent();
+        continue;
+      }
+    }
+    current = current->next();
   }
  
   // And add the node;
@@ -157,33 +162,18 @@ void NodeContainer::move(Node *node, const double &new_height) {
 // The loop deletes the node from the previous iteration because we still need
 // the current node for calling ++it.
 void NodeContainer::clear() {
-  dout<<"NodeContainer::clear() is called"<<std::endl;
   Node* tmp = NULL;
   for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
     if (tmp != NULL) delete tmp;
     tmp = *it;
   }
-  dout<<"all node deleted"<<std::endl;
   if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
-  dout<<"NodeContainer is deleted"<<std::endl;
 }
 
 NodeContainer::~NodeContainer() {
-  dout<<"first node is "<<this->get(1)<<std::endl;
-  dout<<"NodeContainer destructor is called"<<std::endl;
-  Node* tmp = NULL;
-  for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
-    if (tmp != NULL) delete tmp;
-    tmp = *it;
-  }
-  if (tmp != NULL) delete tmp;
-  dout<<"all node deleted"<<std::endl;
-
-  set_first(NULL);
-  set_last(NULL);
-  dout<<"NodeContainer is deleted"<<std::endl;
+  clear();
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){

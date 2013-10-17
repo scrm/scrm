@@ -22,14 +22,10 @@
 
 #include "model.h"
 
+
 Model::Model() { 
   this->init();
 }
-
-//Model::Model() : default_growth_rate(0.0), default_mig_rate(0.0)
-//{ 
-  //this->init();
-//}
 
 Model::Model(size_t sample_size) {
   this->init();
@@ -38,16 +34,7 @@ Model::Model(size_t sample_size) {
   this->resetTime();
 }
 
-//Model::Model(size_t sample_size) : default_growth_rate(0.0), default_mig_rate(0.0)
-//{
-  //this->init();
-
-  //this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
-  //this->resetTime();
-//}
-
 Model::~Model() { 
-  //std::cout << "Called ~Model" << std::endl;
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);
   deleteParList(mig_rates_list_);
@@ -55,23 +42,91 @@ Model::~Model() {
   deleteParList(single_mig_probs_list_);
 }
 
+// Copy constructor
+Model::Model(const Model& model) {
+  //normal members
+  default_pop_size = model.default_pop_size;
+  default_loci_length = model.default_loci_length;
+  default_growth_rate = model.default_growth_rate;
+  default_mig_rate = model.default_mig_rate;
+  
+  mutation_rate_ = model.mutation_rate_;
+  mutation_rate_per_locus_ = model.mutation_rate_per_locus_;
+  mutation_exact_number_ = model.mutation_exact_number_;
+  rec_rate_ = model.rec_rate_;
+  pop_number_ = model.pop_number_;
+  loci_number_ = model.loci_number_;
+  loci_length_ = model.loci_length_;
+  exact_window_length_ = model.exact_window_length_;
+  prune_interval_ = model.prune_interval_;
+  has_migration_ = model.has_migration_;
+
+  // Vector members
+  sample_times_ = model.sample_times_;
+  sample_populations_ = model.sample_populations_;
+  change_times_ = model.change_times_;
+
+  // Vector lists
+  pop_sizes_list_ = copyVectorList(model.pop_sizes_list_);
+  growth_rates_list_ = copyVectorList(model.growth_rates_list_);
+  mig_rates_list_ = copyVectorList(model.mig_rates_list_);
+  total_mig_rates_list_ = copyVectorList(model.total_mig_rates_list_);
+  single_mig_probs_list_ = copyVectorList(single_mig_probs_list_);
+
+  // Pointers
+  current_time_idx_ = model.current_time_idx_; 
+  current_pop_sizes_ = model.pop_sizes_list_.at(current_time_idx_);
+  current_growth_rates_ = model.growth_rates_list_.at(current_time_idx_); 
+  current_mig_rates_ = model.mig_rates_list_.at(current_time_idx_);
+  current_total_mig_rates_ = model.total_mig_rates_list_.at(current_time_idx_);
+}
+
 void Model::init() {
+  default_pop_size = 10000;
+  default_loci_length = 100000;
+  default_growth_rate = 0.0;
+  default_mig_rate = 0.0;
+
+  sample_times_ = std::vector<double>();
+  sample_populations_ = std::vector<size_t>();
+
+  change_times_ = std::vector<double>();
+  pop_sizes_list_ = std::vector<std::vector<double>*>();
+  growth_rates_list_ = std::vector<std::vector<double>*>();
+  mig_rates_list_ = std::vector<std::vector<double>*>();
+  total_mig_rates_list_ = std::vector<std::vector<double>*>(); 
+  single_mig_probs_list_ = std::vector<std::vector<double>*>();
+
+  has_migration_ = false;
+
   this->addChangeTime(0.0);
 
   this->set_population_number(1);
+
   this->set_loci_number(1);
+  this->loci_length_ = this->default_loci_length;
+
   this->set_mutation_rate(0.0);
   this->set_recombination_rate(0.0, default_loci_length);
 
-  this->set_exact_window_length(0);
-  this->set_prune_interval(0);
+  this->set_exact_window_length(-1);
+  this->set_prune_interval(10);
 
-  //this->set_mutation_exact_number(-1); //-1 is equivalent to infinity
   this->mutation_exact_number_ = -1;
 
   this->resetTime();
 }
 
+
+void Model::reset() {
+  deleteParList(pop_sizes_list_);
+  deleteParList(growth_rates_list_);
+  deleteParList(mig_rates_list_);
+  deleteParList(total_mig_rates_list_);
+  deleteParList(single_mig_probs_list_);
+
+  init();
+}
 
 /** 
  * Function to add a new change time to the model.
@@ -91,7 +146,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 
   size_t position = 0;
   if ( change_times_.size() == 0 ) {
-    change_times_.push_back(time);
+    change_times_ = std::vector<double>(1, time);
     pop_sizes_list_.push_back(NULL);
     growth_rates_list_.push_back(NULL);
     mig_rates_list_.push_back(NULL);
@@ -222,10 +277,10 @@ void Model::addGrowthRates(const double &time, const std::vector<double> &growth
                            const bool &time_scaled) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
-  std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
   size_t position = addChangeTime(time, time_scaled);
+  std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
+  if (growth_rates_list_[position] != NULL) delete growth_rates_list_[position];    
   growth_rates_list_[position] = growth_rates_heap; 
-
 }
 
 
@@ -393,6 +448,7 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
   os << "Mutation rate: " << model.mutation_rate() << std::endl;  
   os << "Recombination rate: " << model.recombination_rate() << std::endl;  
+  os << "Sample size: " << model.sample_size() << std::endl;  
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
@@ -429,6 +485,7 @@ void Model::updateTotalMigRates(const size_t &position) {
       if (i == j) continue;
       mig_rates->at(i) += mig_rates_list_.at(position)->at( getMigMatrixIndex(i,j) );
     }
+    if (mig_rates->at(i) > 0) has_migration_ = true;
   }
 }; 
 
@@ -442,7 +499,20 @@ void Model::finalize() {
     if (mig_rates_list_.at(j) == NULL) continue;
     updateTotalMigRates(j);
   } 
+  
+  check();
 }
+
+
+void Model::check() {
+  // Sufficient sample size?
+  if (sample_size() < 2) throw std::invalid_argument("Sample size needs be to at least 2");
+
+  // Structure without migration?
+  if (population_number() > 1 && !has_migration())
+    throw std::invalid_argument("Model has multiple population but no migration. Coalescence impossible"); 
+}
+
 
 void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value) {
   std::vector<double>* last = NULL; 
@@ -462,34 +532,56 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
 }
 
 
-//void Model::rescaleChangeTimes(){ /*! \todo  this maybe changed later (Joe) */
-  //for (size_t i = 0; i < this->change_times_.size(); i++){
-    //this->change_times_[i] = this->change_times_[i] * 4 * this->default_pop_size; 
-  //}
-//}
 
-//double Model::popSizeAtHeight(double height, size_t pop){ /*! \todo  this needs more work (Joe) */
-  //return this->popSizeAtLayerI(getPopLayerIatHeight(height),pop);
-//}
+std::vector<std::vector<double>*> Model::copyVectorList(const std::vector<std::vector<double>*> &source) {
+  auto copy = std::vector<std::vector<double>*>();
 
-/*! Not used, \todo to be removed */
-//double Model::popSizeAtLayerI(size_t I, size_t pop) const{ /*! \todo  this needs more work (Joe) */
-  //if (pop_sizes_list_[I] == NULL){
-	//return this->default_pop_size;}
-  //else{
-    //return this->pop_sizes_list_[I]->at(pop);
-  //}
-//}
+  for (size_t j = 0; j < source.size(); ++j) {
+    if (source.at(j) == NULL) { 
+      copy.push_back(NULL);
+      continue;
+    }
+    copy.push_back(new std::vector<double>(*source.at(j)));
+  }
 
-//size_t Model::getPopLayerIatHeight(double height){ /*! \todo  this needs more work (Joe) */
-  //size_t time_position = 0;
-  //while (this->change_times_[time_position+1] < height && time_position+1 != this->change_times_.size()){
-    //time_position++;
-  //}
-  ////dout<<"model->pop_change_times_[time_position] " << model->pop_change_times_[time_position] 
-  ////<<" node->height() "<<node->height()<<std::endl;
-  ////std::cout<<"model->change_times_.size()"<<model->change_times_.size()<<endl;
-  ////std::cout<<"time_position "<<time_position<<endl;
-  ////std::cout<<"pop_sizes_list_ "<<model->pop_sizes_list_.size()<<endl;
-  //return time_position;
-//}
+  return copy;
+}
+
+
+void swap(Model& first, Model& second) {
+  using std::swap;
+  swap(first.default_pop_size, second.default_pop_size);
+  swap(first.default_loci_length, second.default_loci_length);
+  swap(first.default_growth_rate, second.default_growth_rate);
+  swap(first.default_mig_rate, second.default_mig_rate);
+
+  swap(first.mutation_rate_, second.mutation_rate_);
+  swap(first.mutation_rate_per_locus_, second.mutation_rate_per_locus_);
+  swap(first.mutation_exact_number_, second.mutation_exact_number_);
+  swap(first.rec_rate_, second.rec_rate_);
+  swap(first.pop_number_, second.pop_number_);
+  swap(first.loci_number_, second.loci_number_);
+  swap(first.loci_length_, second.loci_length_);
+  swap(first.exact_window_length_, second.exact_window_length_);
+  swap(first.prune_interval_, second.prune_interval_);
+  swap(first.has_migration_, second.has_migration_);
+
+  // Vector members
+  swap(first.sample_times_, second.sample_times_);
+  swap(first.sample_populations_, second.sample_populations_);
+  swap(first.change_times_, second.change_times_);
+
+  // Vector lists
+  swap(first.pop_sizes_list_, second.pop_sizes_list_);
+  swap(first.growth_rates_list_, second.growth_rates_list_);
+  swap(first.mig_rates_list_, second.mig_rates_list_);
+  swap(first.total_mig_rates_list_, second.total_mig_rates_list_);
+  swap(first.single_mig_probs_list_, second.single_mig_probs_list_);
+
+  // Pointers
+  swap(first.current_time_idx_, second.current_time_idx_); 
+  swap(first.current_pop_sizes_, second.current_pop_sizes_);
+  swap(first.current_growth_rates_, second.current_growth_rates_); 
+  swap(first.current_mig_rates_, second.current_mig_rates_);
+  swap(first.current_total_mig_rates_, second.current_total_mig_rates_);
+}

@@ -37,8 +37,9 @@ class TestNodeContainer : public CppUnit::TestCase {
     nc.add(node2);
     nc.add(node3);
   }
+
   void tearDown() {
-    nc = NodeContainer();
+    nc.clear();
   }
 
   void testGet() {

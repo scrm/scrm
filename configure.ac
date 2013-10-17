@@ -1,4 +1,4 @@
-AC_INIT([scrm],esyscmd([sh -c "date \"+%Y%m%d\" | tr -d '\n'"]),[staab@biologie.uni-muenchen.de])
+AC_INIT([scrm],esyscmd([sh -c "date \"+%Y%m%d\" | tr -d '\n'"]),[https://github.com/paulstaab/scrm/issues])
 #AC_INIT([scrm],[beta],[staab@biologie.uni-muenchen.de])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
@@ -38,10 +38,10 @@ AC_CANONICAL_HOST
 case $host_os in
   darwin* )
     export CXXFLAGS=-I/opt/local/include
-    AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp /opt/local/include/boost/math/distributions/poisson.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
+    AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
-    AC_CHECK_HEADERS([boost/assign/std/vector.hpp boost/lexical_cast.hpp boost/math/distributions/poisson.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
+    AC_CHECK_HEADERS([boost/assign/std/vector.hpp boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
     ;;
     #compile on cluster 3, ./configure CXXFLAGS=-I/usr/local/boost
    *BSD*)
@@ -63,12 +63,12 @@ GCC_VERSION_MINOR=$(g++ -dumpversion | cut -d'.' -f2)
 
 if test "$GCC_VERSION_MAJOR" -ge 4
 then
-	if test "$GCC_VERSION_MINOR" -lt 7
+	if test "$GCC_VERSION_MINOR" -lt 6
 	then
-		AC_MSG_ERROR([Require g++ compiler 4.7+])
+		AC_MSG_ERROR([Require g++ compiler 4.6+])
 	fi
 else
-	AC_MSG_ERROR([Require g++ compiler 4.7+])
+	AC_MSG_ERROR([Require g++ compiler 4.6+])
 fi 
 
 # Checks for the std=c++0x option

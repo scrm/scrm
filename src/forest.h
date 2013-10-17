@@ -39,15 +39,10 @@
 //Unless compiled with options NDEBUG, we will produce a debug output using 
 //'dout' instead of cout and execute (expensive) assert statements.
 #ifndef NDEBUG
-#define DEBUGFUNCTIONS
 #define dout std::cout
 #else
 #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
-#endif
-
-#ifdef UNITTEST
-#define DEBUGFUNCTIONS
 #endif
 
 #include <vector>
@@ -124,10 +119,10 @@ class Forest
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
-  NodeContainer const *getNodes() const { return nodes_; };
+  NodeContainer const *getNodes() const { return &nodes_; };
 
   size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
-  void set_prune_countdown(size_t  prune_countdown){prune_countdown_=prune_countdown_;}
+  void set_prune_countdown(size_t  prune_countdown){prune_countdown_ = prune_countdown;}
 
   bool pruning() const{return pruning_;}
   void set_pruning(bool pruning){pruning_=pruning;}
@@ -137,15 +132,16 @@ class Forest
   void sampleNextGenealogy();
 
   //Debugging Tools
-#ifdef DEBUGFUNCTIONS
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
+  void createScaledExampleTree();
   bool checkLeafsOnLocalTree(Node const* node=NULL) const;
   bool checkTree(Node const* root = NULL) const;
   double calcTreeLength() const;
   bool checkTreeLength() const;
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
+  bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
 
   //Tree printing
@@ -158,10 +154,9 @@ class Forest
 
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
-#endif
 
-  NodeContainer *nodes() { return this->nodes_; }
-  
+  NodeContainer *nodes() { return &(this->nodes_); }
+
   //printing tree
   std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
   double tmrca(){/*! TMRCA in unit of 4N0 */
@@ -254,7 +249,7 @@ class Forest
 
 
   //Private variables
-  NodeContainer* nodes_;    // The nodes of the Tree/Forest
+  NodeContainer nodes_;    // The nodes of the Tree/Forest
 
   // We have 2 different roots that are important:
   // - local_root: root of the smallest subtree containing all local sequences

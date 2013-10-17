@@ -49,12 +49,13 @@ class Param {
   void init();
   void log_param();
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
-  Model* parse();
+
+  void parse(Model &model);
   void nextArg(std::string option);
   void print_param();
 
   // Member variables
-  int random_seed;
+  size_t random_seed;
   bool tree_bool;
   bool tmrca_bool;
   bool log_bool;

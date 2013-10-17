@@ -47,15 +47,10 @@ class RandomGenerator
    //Base class methods
    void initializeUnitExponential();
    int sampleInt(int max_value);
-   void sampleTwoElements(int size, int *sample1, int *sample2);
+
    double sampleExpo(double lambda);
    double sampleExpoLimit(double lambda, double limit);
    double sampleExpoExpoLimit(double b, double c, double limit);
-
-   int samplePoisson(double lambda) {
-     boost::math::poisson poisson(lambda);
-     return quantile(poisson, sample());
-   }
 
 #ifdef UNITTEST
    friend class TestRandomGenerator;
@@ -63,7 +58,7 @@ class RandomGenerator
 
    //Protected methods
   protected:
-   double sampleUnitExponential();
+   virtual double sampleUnitExponential();
 
   protected:
    // seed

@@ -20,7 +20,7 @@ tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x
 #tests_CXXFLAGS = -DUNITTEST -std=c++0x
 #tests_LDADD= -lcppunit
 #tests_LDFLAGS=-L/opt/local/lib
-tests_LDADD= -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
-
+#tests_LDADD= -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
+tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 include_HEADERS = ../src/forest.h ../src/model.h ../src/node.h ../src/node_container.h ../src/time_interval.h\
 				  ../src/tree_point.h ../src/param.h ../src/seg.h

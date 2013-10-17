@@ -23,14 +23,16 @@
 #include "mersenne_twister.h"
 
 MersenneTwister::MersenneTwister() {
+  unif_ = std::uniform_real_distribution<>(0, 1);
+  expo_ = std::exponential_distribution<>(1);
   this->set_seed(generateRandomSeed());
-  this->initializeUnitExponential();
 };
 
 MersenneTwister::MersenneTwister(const size_t &seed){
+  unif_ = std::uniform_real_distribution<>(0, 1);
+  expo_ = std::exponential_distribution<>(1);
   if (seed == -1) set_seed(generateRandomSeed());
   else this->set_seed(seed);
-  this->initializeUnitExponential();
 }
 
 MersenneTwister::~MersenneTwister() { } ;
@@ -48,6 +50,7 @@ size_t MersenneTwister::generateRandomSeed() const {
 void MersenneTwister::set_seed(const size_t &seed) {
   RandomGenerator::set_seed(seed);
   mt_ = std::mt19937(seed);
+  this->initializeUnitExponential();
 }
 
 

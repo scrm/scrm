@@ -26,12 +26,14 @@
  */
  
 #include "forest.h"
-/*! \brief Constructor of Forest for making a copy of input Forest
+
+/**
+ * @brief Copy constructor for forest
+ *
+ * @param current_forest Forest that needs to be duplicated
+ * @param entire_ARG if entire_ARG is false, only copy the local tree (McVean2005) 
  */
-Forest::Forest(
-Forest * current_forest /*! Forest that needs to be duplicated */, 
-bool entire_ARG /*! if entire_ARG is false, only copy the local tree (\cite mcvean_approximating_2005) \todo entire_ARG is not yet implemented */
-){ 
+Forest::Forest(Forest * current_forest, bool entire_ARG) { 
 	//Initialize 
 	this->nodes_ = new NodeContainer();
 	//this->set_local_root(NULL);
@@ -50,7 +52,6 @@ bool entire_ARG /*! if entire_ARG is false, only copy the local tree (\cite mcve
 		}
 	}
 	dout<<reverse_i<<" tips"<<endl;
-	
 
 	for(size_t i = reverse_i; i > 0; i--) {
 	  double height = current_forest->getNodes()->get(i-1)->height();
