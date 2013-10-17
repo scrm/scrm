@@ -487,6 +487,32 @@ void Forest::calcRates(const TimeInterval &ti) {
   active_nodes_timelines_[0] = 0;
   active_nodes_timelines_[1] = 0;
 
+std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
+std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
+
+std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
+std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
+
+std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
+std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
+
+std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
+std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
+
+std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
+std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
+std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
+
+std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
+std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
+std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
+std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
+
+std::cout<<"ti = "<<&ti<<std::endl; //DEBUG
+std::cout<<"model() "<<model()<<std::endl; //DEBUG
+
+
+
   // Set rate of first node
   if (states_[0] == 1) {
     rates_[0] += model().total_migration_rate(active_node(0)->population());
@@ -498,7 +524,7 @@ void Forest::calcRates(const TimeInterval &ti) {
     }
   }
   else if (states_[0] == 2) {
-    rates_[0] += calcRecombinationRate(active_node(0));
+    rates_[0] += calcRecombinationRate(active_node(0));    
   }
 
   // The second node is a bit more complicated 

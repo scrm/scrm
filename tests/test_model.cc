@@ -44,6 +44,7 @@ class TestModel : public CppUnit::TestCase {
     parList.push_back(NULL);
     parList.push_back(new std::vector<double>(2, 2.0));
     auto parListCopy = model.copyVectorList(parList);
+    //DEBUG //std::vector<std::vector<double>*> parListCopy = model.copyVectorList(parList);
     CPPUNIT_ASSERT( parListCopy.at(0) == NULL );
     CPPUNIT_ASSERT( parListCopy.at(2) == NULL );
     CPPUNIT_ASSERT( parListCopy.at(1)->at(0) == 1.0 );
