@@ -151,8 +151,6 @@ class TestForest : public CppUnit::TestCase {
   }
   
   void testGetNodeState() { 
-    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(0), 5) == 0 );
-    CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(8), 5) == 0 );
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(8), 11) == 1 );
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(6), 11) == 2 );
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(7), 11) == 1 );
@@ -593,7 +591,7 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testSamplePoint() {
-    rg->set_seed(123456);
+    rg->set_seed(1234);
     forest->createScaledExampleTree();
 
     TreePoint point;
@@ -611,8 +609,8 @@ class TestForest : public CppUnit::TestCase {
       if (point.base_node() == forest->nodes()->at(5)) ++n5;
     }
 
-    //std::cout << n0 << " " << n1 << " " << n2 << " "
-    //          << n3 << " " << n4 << " " << n5 << std::endl;
+    std::cout << n0 << " " << n1 << " " << n2 << " "
+              << n3 << " " << n4 << " " << n5 << std::endl;
     CPPUNIT_ASSERT( 29500 <= n0 && n0 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT( 29500 <= n1 && n1 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT(  9800 <= n2 && n2 <= 10200 ); // expected 10000 
