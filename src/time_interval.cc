@@ -110,6 +110,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->contemporaries_.reserve(forest_->sample_size());
   this->searchContemporariesOfNode(start_node);
   
+  /*! \todo remove the next a few lines*/
+  //std::cout<<std::setw(35)<<"start_node "<<start_node<<std::endl; //DEBUG
+  //std::cout<<std::setw(35)<<"start_node address "<<&start_node<<std::endl; //DEBUG
+  //std::cout<<std::setw(35)<<"this->contemporaries_ address "<<&this->contemporaries_<<std::endl;//DEBUG
+  
   // Skip through model changes
   while ( forest_->model().getNextTime() <= start_node->height() ) { 
     forest_->writable_model()->increaseTime();

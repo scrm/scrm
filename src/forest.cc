@@ -487,30 +487,30 @@ void Forest::calcRates(const TimeInterval &ti) {
   active_nodes_timelines_[0] = 0;
   active_nodes_timelines_[1] = 0;
 
-std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
-std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
-
-std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
-std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
-
-std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
-std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
-
-std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
-std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
-
-std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
-std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
-std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
-
-std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
-std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
-std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
-std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
-
-std::cout<<"ti = "<<&ti<<std::endl; //DEBUG
-std::cout<<"model() "<<model()<<std::endl; //DEBUG
-
+/*! \todo remove the next a few lines*/
+	//std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
+	//std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
+	
+	//std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
+	//std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
+	
+	//std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
+	//std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
+	
+	//std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
+	//std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
+	
+	//std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
+	//std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
+	//std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
+	
+	//std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
+	//std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
+	//std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
+	//std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
+	
+	//std::cout<<std::setw(35)<<"ti address "<<&ti<<std::endl; //DEBUG
+	//std::cout<<"model() "<< &model()<<std::endl; //DEBUG
 
 
   // Set rate of first node
