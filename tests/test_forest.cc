@@ -609,8 +609,8 @@ class TestForest : public CppUnit::TestCase {
       if (point.base_node() == forest->nodes()->at(5)) ++n5;
     }
 
-    std::cout << n0 << " " << n1 << " " << n2 << " "
-              << n3 << " " << n4 << " " << n5 << std::endl;
+    //std::cout << n0 << " " << n1 << " " << n2 << " "
+    //          << n3 << " " << n4 << " " << n5 << std::endl;
     CPPUNIT_ASSERT( 29500 <= n0 && n0 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT( 29500 <= n1 && n1 <= 30500 ); // expected 30000 
     CPPUNIT_ASSERT(  9800 <= n2 && n2 <= 10200 ); // expected 10000 
