@@ -49,6 +49,7 @@ class Node
  public:                       
 
 #ifdef UNITTEST
+  friend class TestForest;
   friend class TestNode;
 #endif
   //size_t index; // this is the index of the node in the node container...
@@ -78,7 +79,7 @@ class Node
   void make_local() { last_update_ = 0; }
   void make_nonlocal(const double &current_base) { 
     assert( this->local() ); 
-    //std::cout << "AAA Making " << this << " non-local" << std::endl;
+    //std::cout << "AAA Making " << this << " non-local " << current_base << std::endl;
     set_last_update(current_base);
   }
 
@@ -95,10 +96,6 @@ class Node
   void set_first_child(Node *first_child) { this->first_child_ = first_child; }
 
   double last_update() const { return last_update_; }
-  void set_last_update(const double &position) { 
-    //std::cout << "AAA set last update of " << this << " to " << position << std::endl;
-    last_update_ = position;
-  }; 
 
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
@@ -153,6 +150,7 @@ class Node
 
  private:
   void init(double heigh=-1, size_t label=0);
+  void set_last_update(const double &position) { last_update_ = position; }; 
 
   size_t label_;
   double height_;        // The total height of the node

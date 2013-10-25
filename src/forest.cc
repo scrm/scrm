@@ -791,10 +791,13 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     // If the coalescing node coalesced into the branch directly above 
     // a recombining node, then we are done.
     if ( getOtherNode()->parent() == getEventNode() ) {
-      getOtherNode()->set_last_update(this->current_base());
       dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
       updateAbove(getOtherNode(), false, false);
       updateAbove(getOtherNode()->parent());
+
+      //We don't need to update the other nodes "last_update", as it is active
+      //by now...
+      assert ( getOtherNode()->local() );
       coalescence_finished_ = true;
       return;
     }
@@ -974,8 +977,9 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
  */
 Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval) {
   if ( node->parent_height() == time_interval.end_height() ) {
-    node->set_last_update(this->current_base());
     updateAbove(node, false, false);
+    // Again, we don't need to mark the node as updated, as it becomes local
+    assert( node->local() );
     return node->parent();
   }
   return node;
