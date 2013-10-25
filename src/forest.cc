@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
- 
+
 #include "forest.h"
 #include <sstream> // This is required by Forest::writeTree, ostringstream
 
@@ -157,18 +157,18 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
     if (h_child->local()) length_below += h_child->height_above();
   }
 
+  // Update wether the node is local or not 
+  if ( samples_below == 0 ) node->make_nonlocal(current_base());
+  else if ( samples_below < this->sample_size() && !dont_localize ) node->make_local();
+
   // If nothing changed, we also don't need to update the tree further above...
-  // (Is that really the case?)
   if (recursive &&
       samples_below == node->samples_below() && 
       areSame(length_below, node->length_below()) ) {
-    //dout << "FF STOPED:" << node << std::endl; 
     return;
   }
 
-  // Update the node
-  if ( samples_below == 0 ) node->make_nonlocal(current_base());
-  else if ( samples_below < this->sample_size() && !dont_localize ) node->make_local();
+  // Update the node invariants
   node->set_samples_below(samples_below);
   node->set_length_below(length_below);
 
@@ -208,7 +208,7 @@ void Forest::buildInitialTree() {
 
   for (size_t i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
-    
+
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(model().sample_time(i), true, 0, 1, 0, i+1);
@@ -232,25 +232,25 @@ void Forest::buildInitialTree() {
 
 
 /**
-* Uniformly samples a TreePoint on the local tree.
-*
-* Its arguments are meant to be used only when the function iteratively calls
-* itself. Just call it without any arguments if you want to sample a TreePoint.
-*
-* The function first samples a part of the total height of the tree and then
-* goes down from the root, deciding at each node if that point is to the left
-* or right, which should give us an O(log(#nodes)) algorithm.
-*
-* I checked the distribution of this function in multiple cases. -Paul
-*
-* \param node The current position in the tree when the functions goes down
-*             iteratively.
-*
-* \param length_left The length that is left until we encounter the sampled
-*              length.
-*
-* \return The sampled point on the tree.
-*/
+ * Uniformly samples a TreePoint on the local tree.
+ *
+ * Its arguments are meant to be used only when the function iteratively calls
+ * itself. Just call it without any arguments if you want to sample a TreePoint.
+ *
+ * The function first samples a part of the total height of the tree and then
+ * goes down from the root, deciding at each node if that point is to the left
+ * or right, which should give us an O(log(#nodes)) algorithm.
+ *
+ * I checked the distribution of this function in multiple cases. -Paul
+ *
+ * \param node The current position in the tree when the functions goes down
+ *             iteratively.
+ *
+ * \param length_left The length that is left until we encounter the sampled
+ *              length.
+ *
+ * \return The sampled point on the tree.
+ */
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
@@ -344,11 +344,11 @@ void Forest::sampleNextGenealogy() {
 
 
 /** 
-* Function for doing a coalescence.
-*
-* \param start_node The node at which the coalescence starts. Must be the root
-*                   of a tree.
-*/
+ * Function for doing a coalescence.
+ *
+ * \param start_node The node at which the coalescence starts. Must be the root
+ *                   of a tree.
+ */
 void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
@@ -411,11 +411,11 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     if ( tmp_event_.isNoEvent() ) {
       // Record this  interval (nothing)
       if (rates_[0]>0 || rates_[1]>0 || rates_[2]>0){
-		this->record_event((*ti),(*ti).end_height(), 4);
-	  }
-	  else{ /*! \todo CHECK THIS ELSE, CASE 5 IS NOT NECESSARY ?? recombination above the root??? */
-		  this->record_event((*ti),(*ti).end_height(), 5);
-		  }
+        this->record_event((*ti),(*ti).end_height(), 4);
+      }
+      else{ /*! \todo CHECK THIS ELSE, CASE 5 IS NOT NECESSARY ?? recombination above the root??? */
+        this->record_event((*ti),(*ti).end_height(), 5);
+      }
       if (states_[0] == 2) {
         set_active_node(0, possiblyMoveUpwards(active_node(0), *ti));
         if (active_node(0)->local()) {
@@ -439,28 +439,28 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
-	  // Record this  interval (coalescent)
-	  this->record_event((*ti),tmp_event_.time(), 1);
-   	   //this->record_coalevent((*ti),tmp_event_.time());
-	   //this->initialize_event((*ti), tmp_event_.time());    
-	   //this->record_coalevent();
-        implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
+      // Record this  interval (coalescent)
+      this->record_event((*ti),tmp_event_.time(), 1);
+      //this->record_coalevent((*ti),tmp_event_.time());
+      //this->initialize_event((*ti), tmp_event_.time());    
+      //this->record_coalevent();
+      implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
 
     else if ( tmp_event_.isRecombination() ) {
-	  // Record this  interval (recombination)
-	  this->record_event((*ti),tmp_event_.time(), 2);
-	   //this->record_recombevent((*ti),tmp_event_.time());
-	   //this->initialize_event((*ti), tmp_event_.time());    
-	   //this->record_recombevent();
+      // Record this  interval (recombination)
+      this->record_event((*ti),tmp_event_.time(), 2);
+      //this->record_recombevent((*ti),tmp_event_.time());
+      //this->initialize_event((*ti), tmp_event_.time());    
+      //this->record_recombevent();
       this->implementRecombination(tmp_event_, ti);
       continue;
     }
 
     else if ( tmp_event_.isMigration() ) {
-	  // Record this  interval (migration)
-	  this->record_event((*ti),tmp_event_.time(), 3);
+      // Record this  interval (migration)
+      this->record_event((*ti),tmp_event_.time(), 3);
       this->implementMigration(tmp_event_, ti);
       continue;
     }
@@ -468,9 +468,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isCoalescence() ) {
       // Record this  interval (coalescent)
       this->record_event((*ti),tmp_event_.time(), 1);
-	   //this->record_coalevent((*ti),tmp_event_.time());
-	   //this->initialize_event((*ti), tmp_event_.time());    
-	   //this->record_coalevent();
+      //this->record_coalevent((*ti),tmp_event_.time());
+      //this->initialize_event((*ti), tmp_event_.time());    
+      //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
 
@@ -487,30 +487,30 @@ void Forest::calcRates(const TimeInterval &ti) {
   active_nodes_timelines_[0] = 0;
   active_nodes_timelines_[1] = 0;
 
-/*! \todo remove the next a few lines*/
-	//std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
-	//std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
-	
-	//std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
-	//std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
-	
-	//std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
-	//std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
-	
-	//std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
-	//std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
-	
-	//std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
-	//std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
-	//std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
-	
-	//std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
-	//std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
-	//std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
-	//std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
-	
-	//std::cout<<std::setw(35)<<"ti address "<<&ti<<std::endl; //DEBUG
-	//std::cout<<"model() "<< &model()<<std::endl; //DEBUG
+  /*! \todo remove the next a few lines*/
+  //std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
+  //std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
+
+  //std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
+  //std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
+
+  //std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
+  //std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
+
+  //std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
+  //std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
+
+  //std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
+  //std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
+  //std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
+
+  //std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
+  //std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
+  //std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
+  //std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
+
+  //std::cout<<std::setw(35)<<"ti address "<<&ti<<std::endl; //DEBUG
+  //std::cout<<"model() "<< &model()<<std::endl; //DEBUG
 
 
   // Set rate of first node
@@ -563,15 +563,15 @@ void Forest::calcRates(const TimeInterval &ti) {
 
 
 /**
-* Samples if an event (coalescence, recombination or migration of active nodes)
-* happens in the current TimeInterval or not. 
-*
-* In particular requires that the 'temporary' forest members samples_, rates_
-* and active_nodes_ are set correctly beforehand.  
-*
-* \param ti The current time interval
-* \returns the event that has happened (can also be a "NoEvent" event)
-*/
+ * Samples if an event (coalescence, recombination or migration of active nodes)
+ * happens in the current TimeInterval or not. 
+ *
+ * In particular requires that the 'temporary' forest members samples_, rates_
+ * and active_nodes_ are set correctly beforehand.  
+ *
+ * \param ti The current time interval
+ * \returns the event that has happened (can also be a "NoEvent" event)
+ */
 void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time, 
                          size_t tmp_event_line, Event &return_event) const {
   tmp_event_time = -1;
@@ -587,7 +587,7 @@ void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time,
   // Correct the time from relative to the time interval to absolute 
   if (tmp_event_time != -1) tmp_event_time += ti.start_height();
   assert( (tmp_event_time == -1) || 
-          (ti.start_height() < tmp_event_time && tmp_event_time <= ti.end_height()) );
+         (ti.start_height() < tmp_event_time && tmp_event_time <= ti.end_height()) );
 
   // Sample the event type
   sampleEventType(tmp_event_time, tmp_event_line, ti, return_event);
@@ -595,13 +595,13 @@ void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time,
 
 
 /**
-* Given that an event has happened, this function samples the events type. 
-* 
-* In particular requires that the 'temporary' forest members samples_, rates_, 
-* active_nodes_, and nodes_timelines_ are set correctly beforehand.  
-*/
+ * Given that an event has happened, this function samples the events type. 
+ * 
+ * In particular requires that the 'temporary' forest members samples_, rates_, 
+ * active_nodes_, and nodes_timelines_ are set correctly beforehand.  
+ */
 void Forest::sampleEventType(const double &time, const size_t &time_line, 
-                              const TimeInterval &ti, Event &event) const {
+                             const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
   if ( rates_[time_line] == 0.0 ) throw std::logic_error("And event with rate 0 has happend!");
@@ -696,8 +696,8 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
   if (!node->local()) return(2);
   dout << "Error getting node state." << std::endl;
   dout << "Height: " << node->height() 
-       << " current time: " << current_time 
-       << " diff: " << node->height() - current_time << std::endl;
+      << " current time: " << current_time 
+      << " diff: " << node->height() - current_time << std::endl;
   dout << "Node local: " << node->local() << std::endl;
   dout << "Node root: " << node->is_root() << std::endl;
   assert( false );
@@ -706,8 +706,8 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
-    // Rate for each pair is 1/(2N), as N is the diploid population size
-    return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
+  // Rate for each pair is 1/(2N), as N is the diploid population size
+  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
 }
 
 
@@ -882,18 +882,19 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
   TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
   set_active_node(event.active_node_nr(), cut(event_point));
-  updateAbove(event.node(), false, true); // Make the branch below the rec local
-  //updateAbove(active_node(event.active_node_nr()), false, false);
+  updateAbove(event.node(), false, false); // Make the branch below the rec local
+
   ti.recalculateInterval();
 
   assert( this->printTree() );
+  assert( event.node()->local() );
 }
 
 
 void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   dout << "* * Implementing migration event... " << std::flush;
   assert( event.node()->is_root() );
-  
+
   // There is only little to do if we can reuse the event.node() 
   if ( event.node()->is_unimportant() ) {
     dout << "Reusing: " << event.node() << "... " << std::flush;
@@ -908,7 +909,7 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
-    
+
     // Integrate it into the tree
     event.node()->set_parent(mig_node);
     mig_node->set_first_child(event.node());
@@ -1000,21 +1001,21 @@ bool Forest::isPrunable(Node const* node) const {
     case 2: return false;
 
     case 1:
-      // in-between branches (= 1 child, 1 parent (=not root), updated at same time)
-      if ( (!node->is_root()) &&
-            node->last_update() == node->first_child()->last_update() ) return true;
-      return false;
+            // in-between branches (= 1 child, 1 parent (=not root), updated at same time)
+            if ( (!node->is_root()) &&
+                node->last_update() == node->first_child()->last_update() ) return true;
+            return false;
 
     case 0:
-      // remove orphaned roots
-      if ( node->is_root() ) return true;  
+            // remove orphaned roots
+            if ( node->is_root() ) return true;  
 
-      // remove old external nodes
-      if ( (!node->local()) && 
-          this->current_base() - node->last_update() > model().exact_window_length() ) { 
-        return true;
-      }
-      return false;
+            // remove old external nodes
+            if ( (!node->local()) && 
+                this->current_base() - node->last_update() > model().exact_window_length() ) { 
+              return true;
+            }
+            return false;
   }
   assert(0);
   return false; 
@@ -1084,7 +1085,7 @@ Node * Forest::tracking_local_node(Node * node){ /*! \todo use node->samples_bel
     dout<< " is an internal local node, return"<<std::endl;
     return node;
   }
-  
+
   else if (!node->first_child()->local() ){ 
     assert( node->second_child()->local() );
     dout<< "is internal node with one non-local branch" << std::endl;
@@ -1100,22 +1101,22 @@ Node * Forest::tracking_local_node(Node * node){ /*! \todo use node->samples_bel
 
 
 std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
-	if(node->in_sample()){ // real tip node
-		std::ostringstream label_strm;
-		label_strm<<node->label();
-		return label_strm.str();
-	}
-	else{
-		Node *left = this->tracking_local_node(node->first_child());
-		double t1=node->height()- left->height();
-		std::ostringstream t1_strm;
-		t1_strm << t1 / 4 / this->model_->default_pop_size;
-		Node *right = this->tracking_local_node(node->second_child());
-		double t2=node->height()- right->height();
-		std::ostringstream t2_strm;
-		t2_strm << t2 / 4 / this->model_->default_pop_size;
-		return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
-	}
+  if(node->in_sample()){ // real tip node
+    std::ostringstream label_strm;
+    label_strm<<node->label();
+    return label_strm.str();
+  }
+  else{
+    Node *left = this->tracking_local_node(node->first_child());
+    double t1=node->height()- left->height();
+    std::ostringstream t1_strm;
+    t1_strm << t1 / 4 / this->model_->default_pop_size;
+    Node *right = this->tracking_local_node(node->second_child());
+    double t2=node->height()- right->height();
+    std::ostringstream t2_strm;
+    t2_strm << t2 / 4 / this->model_->default_pop_size;
+    return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
+  }
 }
 
 void Forest::initialize_recomb_coalescent(const double rec_height){};
