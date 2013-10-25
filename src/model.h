@@ -58,9 +58,9 @@ class Model
 
    Model(const Model& model);
    //Move Operator
-   Model(Model&& model) : Model() {
+   /*Model(Model&& model) : Model() {
     swap(*this, model);
-   } 
+   }*/
    //Assignment Operator
    Model& operator=(Model model) {
     swap(*this, model);  
