@@ -13,7 +13,7 @@ class TestAlgorithm : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( TestAlgorithm );
 
 	CPPUNIT_TEST( testInitialTree );
-	CPPUNIT_TEST( testHeightChange );
+	CPPUNIT_TEST( testTreeAfterRecombination );
 
 	CPPUNIT_TEST_SUITE_END();
 

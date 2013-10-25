@@ -51,15 +51,11 @@ class Node
 #ifdef UNITTEST
   friend class TestNode;
 #endif
-  size_t index; // this is the index of the node in the node container...
+  //size_t index; // this is the index of the node in the node container...
   
   Node();
   Node(double height);
-  Node(double height, bool local);
-  Node(double height, bool local, double last_update);
-  Node(double height, bool local, double last_update, size_t samples_below);
-  Node(double height, bool local, double last_update, size_t samples_below, double length_below);
-  Node(double height, bool local, double last_update, size_t samples_below, double length_below, size_t label);
+  Node(double height, size_t label);
 
   ~Node();
 
@@ -77,20 +73,20 @@ class Node
   size_t population() const { return population_; }
   void set_population(const size_t &pop) { population_ = pop; }
 
-  bool local() const { return this->local_; }
-  void set_local(bool local) { this->local_ = local; }
+  bool local() const { return (last_update_ == 0); }
 
-  void make_local() { this->set_local(true); }
+  void make_local() { last_update_ = 0; }
   void make_nonlocal(const double &current_base) { 
-    if ( !local() ) return;
+    assert( this->local() ); 
+    //std::cout << "AAA Making " << this << " non-local" << std::endl;
     set_last_update(current_base);
-    this->set_local(false);
   }
 
-	Node *parent() const; 
-   void set_parent(Node *parent) { this->parent_ = parent; }
-  //void set_parent_copy(Node *parent) { parent_ = parent; }
-
+	Node *parent() const {
+    assert( this->parent_ != NULL ); 
+    return this->parent_; 
+  }
+  void set_parent(Node *parent) { this->parent_ = parent; }
 
   Node *second_child() const { return this->second_child_; }
   void set_second_child(Node *second_child) { this->second_child_ = second_child; }
@@ -98,14 +94,17 @@ class Node
   Node *first_child() const { return this->first_child_; }
   void set_first_child(Node *first_child) { this->first_child_ = first_child; }
 
-  double last_update() const { if ( local() ) return 0.0; return(last_update_); }
-  void set_last_update(double position) { this->last_update_ = position; }
+  double last_update() const { return last_update_; }
+  void set_last_update(const double &position) { 
+    //std::cout << "AAA set last update of " << this << " to " << position << std::endl;
+    last_update_ = position;
+  }; 
 
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
 
   double length_below() const { return length_below_; }
-  void set_length_below(double length) { length_below_ = length; }
+  void set_length_below(const double &length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
   int  numberOfChildren() const { 
@@ -118,7 +117,10 @@ class Node
   size_t label() const { return label_; }
 
   bool is_root() const { return ( this->parent_ == NULL ); }
-  bool in_sample() const;
+  bool in_sample() const {
+    return ( this->label() != 0 ); 
+  }
+
   bool is_migrating() const; 
 
   bool is_first() const { return( previous_ == NULL ); }
@@ -149,32 +151,14 @@ class Node
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
 
-  
-  //std::string tree_topo_bl;
-  bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
-  //double marginal_likelihood[2]; //marginal_likelihood[0] is the marginal probability of P(X = 0), 
-								//marginal_likelihood[1] is the marginal probability of P(X = 1), 
-
-  //std::vector <int> descndnt;
-  double mut_num() const { return this->mut_num_; }
-  void set_mut_num(const double &mut_num) { this->mut_num_ = mut_num; }
-
  private:
- 
-  void init(double heigh=-1, 
-            bool local=true, 
-            double last_update = 0, 
-            size_t samples_below=0, 
-            double length_below=0,
-            size_t label=0);
+  void init(double heigh=-1, size_t label=0);
 
   size_t label_;
   double height_;        // The total height of the node
-  bool   local_;         // Indicates if the branch above is local,
-                         // i.e. on the local tree
   double last_update_;   // The sequence position on which the branch above the node
-                         // was last checked for recombination events. Ignored for
-                         // local nodes, which are always up to date
+                         // was last checked for recombination events or 0 if
+                         // the node is local 
 
   size_t population_;    // The number of the population the node belong to. 
   
@@ -188,12 +172,7 @@ class Node
   Node *parent_;
   Node *first_child_;
   Node *second_child_;
-  
-  double mut_num_;
 };
-
-//Node * tracking_local_node(Node * node);
-//std::string writeTree_new(Node * node, int npop);
 
 inline bool Node::is_migrating() const { 
   if ( this->numberOfChildren() != 1 ) return false;

@@ -56,8 +56,8 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT( node2.first_child()->height() == 1 );
 
     //local
-    node1.set_local(true);
-    node2.set_local(false);
+    node1.make_local();
+    node2.make_nonlocal(1);
     CPPUNIT_ASSERT( node1.local() && !node2.local() );
     node1.make_nonlocal(1);
     node2.make_local();

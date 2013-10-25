@@ -75,20 +75,27 @@ Node* Forest::cut(const TreePoint &cut_point) {
   assert( parent != NULL );
 
   //The new end of the old branch after the cut
-  Node* new_leaf = new Node(cut_point.height(), false, current_base(), 0, 0);
-  new_leaf->set_population(cut_point.base_node()->population());
+  Node* new_leaf = new Node(cut_point.height());
+  
   if ( !cut_point.base_node()->local() )
-    new_leaf->set_last_update(cut_point.base_node()->last_update() );
+    new_leaf->make_nonlocal(cut_point.base_node()->last_update());
+  else
+    new_leaf->make_nonlocal(current_base());
+
+  new_leaf->set_population(cut_point.base_node()->population());
+  new_leaf->set_length_below(0);
+  new_leaf->set_samples_below(0);
   new_leaf->set_parent(parent);
+
   parent->change_child(cut_point.base_node(), new_leaf);
   nodes()->add(new_leaf, cut_point.base_node());
+
   // Update all local nodes above.
   updateAbove(parent, false, true, true);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
-  Node* new_root = new Node(cut_point.height(), 
-                            cut_point.base_node()->local());
+  Node* new_root = new Node(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
@@ -145,21 +152,36 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   size_t samples_below = node->in_sample();
   if (l_child != NULL) samples_below = l_child->samples_below();
   if (h_child != NULL) samples_below += h_child->samples_below();
+  assert( samples_below <= this->sample_size() );
 
-  double length_below = 0;
+  double length_below = 0.0;
   if (l_child != NULL) {
     length_below += l_child->length_below();
     if (l_child->local()) length_below += l_child->height_above();
-  }
 
-  if (h_child != NULL) {
-    length_below += h_child->length_below();
-    if (h_child->local()) length_below += h_child->height_above();
+    if (h_child != NULL) {
+      length_below += h_child->length_below();
+      if (h_child->local()) length_below += h_child->height_above();
+    }
   }
+  assert( length_below >= 0 );
 
   // Update wether the node is local or not 
-  if ( samples_below == 0 ) node->make_nonlocal(current_base());
-  else if ( samples_below < this->sample_size() && !dont_localize ) node->make_local();
+  if (samples_below == 0) {
+    if ( node->local() ) node->make_nonlocal(current_base());
+  }
+  else if ( samples_below == sample_size() ) {
+    if ( node->local() ) node->make_nonlocal(current_base());
+
+    // Are we the local root?
+    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) {
+      //dout << "* * * is local_root" << std::endl;
+      set_local_root(node);
+    }
+    if ( node->is_root() ) set_primary_root(node);
+    above_local_root = true;
+  }
+  else if ( (!node->local()) && !dont_localize ) node->make_local();
 
   // If nothing changed, we also don't need to update the tree further above...
   if (recursive &&
@@ -172,17 +194,6 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   node->set_samples_below(samples_below);
   node->set_length_below(length_below);
 
-  // Check if we are above or equal the local root
-  if ( samples_below == this->sample_size() ) {
-    node->make_nonlocal(current_base());
-    // Are we the local root?
-    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) {
-      //dout << "* * * is local_root" << std::endl;
-      set_local_root(node);
-    }
-    if ( node->is_root() ) set_primary_root(node);
-    above_local_root = true;
-  }
 
   // Go further up if possible
   if ( recursive && !node->is_root() ) {
@@ -199,7 +210,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
   dout << "* Adding first node... ";
-  Node* first_node = new Node(model().sample_time(1), true, 0, 1, 0, 1);
+  Node* first_node = new Node(model().sample_time(1), 1);
   first_node->set_population(model().sample_population(1));
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
@@ -211,7 +222,7 @@ void Forest::buildInitialTree() {
 
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
-    Node* new_leaf = new Node(model().sample_time(i), true, 0, 1, 0, i+1);
+    Node* new_leaf = new Node(model().sample_time(i), i+1);
     new_leaf->set_population(model().sample_population(i));
     dout << "(" << new_leaf << ")" << std::endl;
     nodes()->add(new_leaf);
@@ -759,10 +770,9 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->change_child(NULL, target);
   new_node->set_parent(target->parent());
   if (!target->local()) {
-    new_node->set_local(false);
-    new_node->set_last_update(target->last_update());
+    new_node->make_nonlocal(target->last_update());
   } else {
-    new_node->set_local(true);
+    new_node->make_local();
   }
 
   // Integrate it into the tree

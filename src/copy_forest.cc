@@ -27,12 +27,14 @@
  
 #include "forest.h"
 
+
 /**
  * @brief Copy constructor for forest
  *
  * @param current_forest Forest that needs to be duplicated
  * @param entire_ARG if entire_ARG is false, only copy the local tree (McVean2005) 
  */
+/*
 Forest::Forest(Forest * current_forest, bool entire_ARG) { 
 	//Initialize 
 	this->nodes_ = new NodeContainer();
@@ -116,4 +118,4 @@ Forest::Forest(Forest * current_forest, bool entire_ARG) {
 	assert(this->checkTree());
 	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
-
+*/

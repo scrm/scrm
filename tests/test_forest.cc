@@ -390,7 +390,8 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(8)) );
 
     // Orphaned nodes should be pruned
-    Node* orphaned = new Node(12, false);
+    Node* orphaned = new Node(12);
+    orphaned->make_nonlocal(5);
     forest->nodes()->add(orphaned);
     CPPUNIT_ASSERT( forest->isPrunable(orphaned) );
 
@@ -401,10 +402,16 @@ class TestForest : public CppUnit::TestCase {
     // CPPUNIT_ASSERT( !forest->isPrunable(orphaned2) );
 
     // In-Between Nodes should be pruned, iff they are of same age
-    Node *parent = new Node(20, false, 15), 
-         *inbetween1 = new Node(19, false, 15), 
-         *inbetween2 = new Node(18, false, 13), 
-         *child = new Node(17, false, 13);
+    Node *parent = new Node(20), 
+         *inbetween1 = new Node(19), 
+         *inbetween2 = new Node(18), 
+         *child = new Node(17);
+
+    parent->make_nonlocal(15);
+    inbetween1->make_nonlocal(15);
+    inbetween2->make_nonlocal(13);
+    child->make_nonlocal(13);
+
     forest->nodes()->add(parent);
     forest->nodes()->add(inbetween1);
     forest->nodes()->add(inbetween2);
@@ -446,10 +453,15 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
 
     // In-Between Nodes should be pruned, iff they are of same age
-    Node *parent = new Node(20, false, 15), 
-         *inbetween1 = new Node(19, false, 15), 
-         *inbetween2 = new Node(18, false, 13), 
-         *child = new Node(17, false, 13);
+    Node *parent = new Node(20), 
+         *inbetween1 = new Node(19), 
+         *inbetween2 = new Node(18), 
+         *child = new Node(17);
+
+    parent->make_nonlocal(15);
+    inbetween1->make_nonlocal(15);
+    inbetween2->make_nonlocal(13);
+    child->make_nonlocal(13);
     forest->nodes()->add(parent);
     forest->nodes()->add(inbetween1);
     forest->nodes()->add(inbetween2);

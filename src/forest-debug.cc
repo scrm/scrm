@@ -32,10 +32,11 @@ void Forest::createExampleTree() {
   this->writable_model()->reset();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
-  Node* leaf1 = new Node(0, true, 0, 1, 0, 1);
-  Node* leaf2 = new Node(0, true, 0, 1, 0, 2);
-  Node* leaf3 = new Node(0, true, 0, 1, 0, 3);
-  Node* leaf4 = new Node(0, true, 0, 1, 0, 4);
+  Node* leaf1 = new Node(0, 1);
+  Node* leaf2 = new Node(0, 2);
+  Node* leaf3 = new Node(0, 3);
+  Node* leaf4 = new Node(0, 4);
+
   this->nodes()->add(leaf1);
   this->nodes()->add(leaf2);
   this->nodes()->add(leaf3);
@@ -53,16 +54,21 @@ void Forest::createExampleTree() {
   //this->set_primary_root(root);
 
   // Add a non-local tree
-  Node* nl_node = new Node(4, false, 5, 0); 
-  Node* nl_root = new Node(6, false, 5, 0);
+  Node* nl_node = new Node(4); 
+  nl_node->make_nonlocal(5);
+  Node* nl_root = new Node(6);
+  nl_root->make_nonlocal(5);
+  
   nl_node->set_parent(nl_root);
   nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
   updateAbove(nl_node);
 
-  updateAbove(node12);
-  updateAbove(node34);
+  updateAbove(leaf1);
+  updateAbove(leaf2);
+  updateAbove(leaf3);
+  updateAbove(leaf4);
 
   this->set_current_base(5);  
   this->set_sample_size(4);
@@ -531,19 +537,18 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::setw(10) << std::right << "2nd_child";
     dout << std::setw(6) << std::right << "local";
     dout << std::setw(6) << std::right << "pop";
-    dout << std::setw(6) << std::right << "l_upd";
+    dout << std::setw(10) << std::right << "l_upd";
     dout << std::setw(6) << std::right << "s_bel";
     dout << std::setw(10) << std::right << "l_bel";
     dout << std::endl;
 
-    //   \t\t Height\t Parent\t h_child\t  l_child" << std::endl;
-    //    std::cout << std::setw(20) << std::right << "Hi there!" << std::endl;
-    //        std::cout << std::setw(20) << std::right << "shorter" << std::endl;
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
       dout << std::setw(10) << std::right << this->getNodes()->get(i);
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
+      if (!getNodes()->get(i)->is_root()) 
+        dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
+      else dout << std::setw(10) << std::right << 0;
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
