@@ -124,7 +124,7 @@ int main(int argc, char *argv[]){
 
           // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool) {
-            tree_buffer << "[" << distance_between_events << "] "<< previous_genealogy << ";\n";
+            tree_buffer << "[" << distance_between_events << "]" << previous_genealogy << ";\n";
           }
 
         } while ( next_recombination_event == next_event ); // stop if the next recombination event is outside the locus
