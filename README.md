@@ -1,6 +1,8 @@
 scrm
 ====
 
+[![Build Status](https://travis-ci.org/paulstaab/scrm.png?branch=master)](https://travis-ci.org/paulstaab/scrm)
+
 scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
 
 ## Licence
