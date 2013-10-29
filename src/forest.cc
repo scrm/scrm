@@ -23,6 +23,8 @@
 #include "forest.h"
 #include <sstream> // This is required by Forest::writeTree, ostringstream
 
+
+
 /******************************************************************
  * Constructors & Initialization
  *****************************************************************/
@@ -69,12 +71,13 @@ Node* Forest::cut(const TreePoint &cut_point) {
     new_leaf->make_nonlocal(cut_point.base_node()->last_update());
   else
     new_leaf->make_nonlocal(current_base());
+  assert( !new_leaf->local() );
 
   new_leaf->set_population(cut_point.base_node()->population());
   new_leaf->set_length_below(0);
   new_leaf->set_samples_below(0);
-  new_leaf->set_parent(parent);
 
+  new_leaf->set_parent(parent);
   parent->change_child(cut_point.base_node(), new_leaf);
   nodes()->add(new_leaf, cut_point.base_node());
 
@@ -83,14 +86,26 @@ Node* Forest::cut(const TreePoint &cut_point) {
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
+  updateAbove(cut_point.base_node(), false, false);
   Node* new_root = new Node(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
-  nodes()->add(new_root, new_leaf);
-  dout << "* * New root of subtree: " << new_root << std::endl;
 
+  new_root->set_length_below(cut_point.base_node()->length_below() + 
+                             cut_point.base_node()->height_above() );
+  new_root->set_samples_below(cut_point.base_node()->samples_below() );
+
+  nodes()->add(new_root, new_leaf);
+
+  dout << "* * New root of subtree: " << new_root << std::endl;
   dout << "* * Done" << std::endl;
+
+  assert( this->checkInvariants(cut_point.base_node()) );
+  assert( this->checkInvariants(parent) );
+  assert( this->checkInvariants(new_leaf) );
+  assert( this->checkInvariants(new_root) );
+
   return(new_root);
 }
 
@@ -116,9 +131,6 @@ Node* Forest::cut(const TreePoint &cut_point) {
 // ignore postponed recombinations this way. Will investigate this further. 
 // -Paul
 void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool dont_localize) {
-  //dout << "* * * Updating: " << node << " local: " << node->local()
-  //     << " fastforward: " << above_local_root << std::endl;
-
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -253,8 +265,11 @@ void Forest::buildInitialTree() {
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
+    assert( this->checkTreeLength() );
+
     node = this->local_root();
-    length_left = this->random_generator()->sample() * node->length_below();
+    length_left = random_generator()->sample() * local_tree_length();
+    assert( length_left < local_tree_length() );
   }
 
   assert( node->local() || node == this->local_root() );
@@ -338,7 +353,6 @@ void Forest::sampleNextGenealogy() {
   assert( this->checkTree() );
 
   this->set_next_base();
-  //writeTree(this->local_root(),this->model_->population_size(),0);
 }
 
 
@@ -355,15 +369,11 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   set_active_node(0, start_node);
   set_active_node(1, this->local_root());
 
-  // Placeholders for the rates at which things happen for the active nodes
-
+  // Initialize Temporary Variables
   tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
-  //this->initialize_event(start_node->height());
-  // If the start_node is above the local tree, then we start with coalescence
-  // of the local root -- this should not happen?
+
   assert ( start_node->height() <= active_node(1)->height() );
-  // if ( start_node->height() > active_node(1)->height() ) start_node = active_node(1);
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
     this->initialize_event((*ti).start_height());
