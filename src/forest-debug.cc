@@ -152,6 +152,7 @@ bool Forest::checkInvariants(Node const* node) const {
     bool okay = 1;
 
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
+      if ( (*it)->height() > this->local_root()->height() ) return(okay);
       okay *= checkInvariants(*it);
     }
     return(okay);

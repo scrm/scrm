@@ -134,8 +134,8 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
-    node->set_samples_below(this->sample_size());
-    node->set_length_below(this->local_root()->length_below());
+    //node->set_samples_below(this->sample_size());
+    //node->set_length_below(this->local_root()->length_below());
     if ( node->is_root() ) {
       set_primary_root(node);
       return;
@@ -173,6 +173,9 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   else if ( samples_below == sample_size() ) {
     if ( node->local() ) node->make_nonlocal(current_base());
 
+    assert( l_child != NULL );
+    assert( h_child != NULL );
+
     // Are we the local root?
     if (l_child->samples_below() > 0 && h_child->samples_below() > 0) {
       //dout << "* * * is local_root" << std::endl;
@@ -184,8 +187,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   else if ( (!node->local()) && !dont_localize ) node->make_local();
 
   // If nothing changed, we also don't need to update the tree further above...
-  if (recursive &&
-      samples_below == node->samples_below() && 
+  if (samples_below == node->samples_below() && 
       areSame(length_below, node->length_below()) ) {
     return;
   }
