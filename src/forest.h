@@ -184,18 +184,13 @@ class Forest
   //virtual void clear_initial_coalevent();
 
  private:
-
-  //segegrating sites  
-  //void find_descndnt(); // Not used, to be removed
-  //void exp_mut_num(int total_mut); // Not used, to be removed
-
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
   void updateAbove(Node* node, 
                    bool above_local_root = false,
-                   bool recursive = true,
-                   bool local_only = false);
+                   const bool &recursive = true,
+                   const bool &local_only = false);
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);

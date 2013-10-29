@@ -130,7 +130,8 @@ Node* Forest::cut(const TreePoint &cut_point) {
 // Think this function should not make any non-local local, because we may
 // ignore postponed recombinations this way. Will investigate this further. 
 // -Paul
-void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool dont_localize) {
+void Forest::updateAbove(Node* node, bool above_local_root, 
+                         const bool &recursive, const bool &dont_localize) {
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -140,7 +141,7 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
       set_primary_root(node);
       return;
     }
-    if ( recursive ) updateAbove(node->parent(), true);
+    if ( recursive ) updateAbove(node->parent(), true, true, dont_localize);
     return;
   }
 
@@ -173,12 +174,9 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   else if ( samples_below == sample_size() ) {
     if ( node->local() ) node->make_nonlocal(current_base());
 
-    assert( l_child != NULL );
-    assert( h_child != NULL );
-
     // Are we the local root?
-    if (l_child->samples_below() > 0 && h_child->samples_below() > 0) {
-      //dout << "* * * is local_root" << std::endl;
+    if (node->numberOfChildren() == 2 && 
+        l_child->samples_below() > 0 && h_child->samples_below() > 0) {
       set_local_root(node);
     }
     if ( node->is_root() ) set_primary_root(node);
@@ -195,7 +193,6 @@ void Forest::updateAbove(Node* node, bool above_local_root, bool recursive, bool
   // Update the node invariants
   node->set_samples_below(samples_below);
   node->set_length_below(length_below);
-
 
   // Go further up if possible
   if ( recursive && !node->is_root() ) {
