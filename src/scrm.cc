@@ -81,11 +81,11 @@ int main(int argc, char *argv[]){
 
       // Just output a single tree if the recombination rate is 0
       if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
-		tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
+        tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
         //tree_buffer << writeTree_new(forest.local_root(), forest.model().default_pop_size) << ";\n";
         seg_data_array.append_new_seg_data(&forest);
-		tmrca = forest.tmrca();
-		tot_bl = forest.tot();
+        tmrca = forest.tmrca();
+        tot_bl = forest.tot();
       }
 
       int i = 0;
