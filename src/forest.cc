@@ -47,18 +47,6 @@ void Forest::initialize(Model* model,
 }
 
 
-
-/******************************************************************
- * Destructor
- *****************************************************************/
-
-Forest::~Forest() { 
-  //dout<<"Forest destructor is called"<<endl;
-  nodes()->clear();
-  //dout<<"Forest is deleted"<<endl;
-}
-
-
 /** 
  * function that cuts a subtree out of a tree of the forest and reinserts it as
  * a separate tree.
