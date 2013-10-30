@@ -232,7 +232,7 @@ void Forest::buildInitialTree() {
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
   }
-  this->set_next_base();
+  this->sampleNextBase();
 }
 
 
@@ -346,7 +346,7 @@ void Forest::sampleNextGenealogy() {
   assert( this->printNodes() );
   assert( this->checkTree() );
 
-  this->set_next_base();
+  this->sampleNextBase();
 }
 
 

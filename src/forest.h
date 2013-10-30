@@ -106,14 +106,14 @@ class Forest
   void set_sample_size(const size_t &size ) { sample_size_ = size; }
 
   double current_base() const { return current_base_; }
-  void set_current_base(double base) { current_base_ = base; }
+  void set_current_base(const double &base) { current_base_ = base; }
 
-  double next_base() const{return next_base_;}
-  void set_next_base() {
+  double next_base() const {return next_base_;}
+  void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
   } 
 
-  double local_tree_length() const { return this->local_root()->length_below(); }
+  double local_tree_length() const { return local_root()->length_below(); }
 
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
