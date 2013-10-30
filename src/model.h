@@ -339,6 +339,7 @@ locus length might change after the rate is read in from command line */
    }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+  void calcPopSizes();
 
   std::vector<std::vector<double>*> copyVectorList(const std::vector<std::vector<double>*> &source);
 
@@ -352,7 +353,6 @@ locus length might change after the rate is read in from command line */
    std::vector<size_t> sample_populations_;
    std::vector<double> sample_times_;
 
-   
    std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;

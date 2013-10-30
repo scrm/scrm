@@ -2,6 +2,7 @@
  * A sample test case which can be used as a template.
  */
 #include <iostream>
+#include <cmath>
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
@@ -31,6 +32,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testGetters );
   CPPUNIT_TEST( testHasFixedTimeEvent );
   CPPUNIT_TEST( testCheck );
+  CPPUNIT_TEST( testPopSizeAfterGrowth );
+
 
 
   CPPUNIT_TEST_SUITE_END();
@@ -434,6 +437,80 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.growth_rate(0), model2.growth_rate(0));
     model.increaseTime(); model2.increaseTime();
     CPPUNIT_ASSERT_EQUAL( model.population_size(0), model2.population_size(0));
+  }
+
+  void testPopSizeAfterGrowth() {
+    // Growth only
+    Model model = Model(5); 
+    model.set_population_number(2);
+    model.addSymmetricMigration(0, 1.0);
+    model.addPopulationSizes(0, 1000);
+    std::vector<double> growth_rates;
+    growth_rates.push_back(-0.5);
+    growth_rates.push_back(0.5);
+    model.addGrowthRates(1.0, growth_rates);
+    model.addGrowthRates(2.5, 2);
+    model.finalize();
+
+    model.increaseTime();
+    model.increaseTime();
+    CPPUNIT_ASSERT( areSame( 1000*std::exp(0.5*1.5/(4*model.default_pop_size)), model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( 1000*std::exp(-0.5*1.5/(4*model.default_pop_size)), model.population_size(1) ) );
+    model.reset();
+    
+    // Growth with a pop size change in between
+    model = Model(5); 
+    model.set_population_number(2);
+    model.addSymmetricMigration(0, 1.0);
+    growth_rates.clear();
+    growth_rates.push_back(-0.5);
+    growth_rates.push_back(0.5);
+    model.addGrowthRates(1.0, growth_rates);
+    model.addPopulationSize(1.5, 0, 500);
+    model.addGrowthRate(2.5, 1, 2.0);
+    model.addPopulationSize(3.0, 0, 500);
+    model.addGrowthRate(3.5, 0, 2.0);
+    model.finalize();
+    //std::cout << model << std::endl;
+    
+
+    model.resetTime();
+    CPPUNIT_ASSERT( areSame( model.default_pop_size, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size, model.population_size(1) ) );
+    model.increaseTime();
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.5, model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame( 500, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size*std::exp(-0.5*0.5/(4*model.default_pop_size)), model.population_size(1) ) );
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 2.5, model.getCurrentTime() );
+    double size0 = 500*std::exp(0.5*1.0/(4*model.default_pop_size));
+    double size1 = model.default_pop_size*std::exp(-0.5*1.5/(4*model.default_pop_size));
+    CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 3.0, model.getCurrentTime() );
+    size0  = 500; 
+    size1 *= exp(-2*0.5/(4*model.default_pop_size));
+    CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 3.5, model.getCurrentTime() );
+    size0 *= exp(0.5*0.5/(4*model.default_pop_size));
+    size1 *= exp(-2*0.5/(4*model.default_pop_size));
+    CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
+
+    model.reset();
+    model = Model(5); 
+    model.set_population_number(2);
+    model.addSymmetricMigration(0, 1.0);
+    model.addPopulationSize(0, 1, 500);
+    model.finalize();
+    //std::cout << model << std::endl;
+    model.resetTime();
+    CPPUNIT_ASSERT( areSame( model.default_pop_size, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( 500.0, model.population_size(1) ) );
   }
 };
 

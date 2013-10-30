@@ -29,7 +29,7 @@ class TestParam : public CppUnit::TestCase {
     char *argv[] = { "scrm", "4", "7", "-t", "40.04", "-r", "1.24", "1001", "-l", "1000", "-seed", "123"};
     Param pars = Param(12, argv);
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
-    //CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.loci_number() );
     CPPUNIT_ASSERT( areSame(40.04/(4*model.default_pop_size*1001), model.mutation_rate()) );
     CPPUNIT_ASSERT( areSame(1.24/(4*model.default_pop_size*1000), model.recombination_rate()) );
@@ -84,6 +84,7 @@ class TestParam : public CppUnit::TestCase {
                       "-n", "2", "0.3", "-eN", "1.1", "0.75", "-en", "2", "3", "0.1", "-eG", "1.5", "2", "-M", "5.0" };
     CPPUNIT_ASSERT_NO_THROW( Param(27, argv6).parse(model) ); 
     model.finalize();
+    //std::cout << model << std::endl;
     model.resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame(model.default_pop_size, model.population_size(0)) );
@@ -98,8 +99,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 1.5 * 4 * model.default_pop_size, model.getCurrentTime() );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)(0.75*model.default_pop_size), (size_t)model.population_size(0) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)(0.75*model.default_pop_size), (size_t)model.population_size(1) );
+    CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(0) );
+    CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)(0.10*model.default_pop_size), (size_t)model.population_size(2) );
     CPPUNIT_ASSERT_EQUAL( 2.0, model.growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 2.0, model.growth_rate(1) );

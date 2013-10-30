@@ -492,17 +492,70 @@ void Model::updateTotalMigRates(const size_t &position) {
 
 void Model::finalize() {
   fillVectorList(mig_rates_list_, default_mig_rate);
-  fillVectorList(pop_sizes_list_, default_pop_size);
   fillVectorList(growth_rates_list_, default_growth_rate);
+  calcPopSizes();
 
   for (size_t j = 0; j < mig_rates_list_.size(); ++j) {
     if (mig_rates_list_.at(j) == NULL) continue;
     updateTotalMigRates(j);
   } 
-  
+
   check();
 }
 
+void Model::calcPopSizes() {
+  if (pop_sizes_list_.at(0) == NULL) addPopulationSizes(0, default_pop_size); 
+
+  size_t last_growth = -1;
+  size_t last_pop_size = 0;
+  double duration = -1;
+
+  for (size_t i = 0; i < change_times_.size(); ++i) {
+    if (pop_sizes_list_.at(i) == NULL && growth_rates_list_.at(i) == NULL) {
+      // Pop sizes do not change at this time
+      continue;
+    }
+
+    if (pop_sizes_list_.at(i) == NULL && last_growth == -1) { 
+      // The first growth event also does not change the pop sizes 
+      last_growth = i;
+      continue;
+    }
+
+    // Make sure we always have a pop sizes vector in the remaining cases
+    if (pop_sizes_list_.at(i) == NULL) {
+      addPopulationSizes(change_times_.at(i), nan("value to replace"));
+      assert(pop_sizes_list_.at(i) == NULL); 
+    }
+
+    // Calculate the effective duration of a growth period if it ends here 
+    if (last_growth != -1) {  
+      duration = change_times_.at(i) - change_times_.at(std::max(last_pop_size, last_growth));
+      duration /= 4*this->default_pop_size;
+    }
+
+    // Calculate the population sizes: 
+    for (size_t pop = 0; pop < population_number(); ++pop) {
+      // If the user explicitly gave a value => always use this value
+      if ( !std::isnan(pop_sizes_list_.at(i)->at(pop)) ) continue; 
+      
+      // Else copy the last value we had...
+      if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
+        pop_sizes_list_.at(i)->at(pop) = default_pop_size;
+      else
+        pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
+
+      // ... and scale it if there was growth 
+      if (last_growth != -1) {  
+        pop_sizes_list_.at(i)->at(pop) *=  
+          std::exp(-1*(growth_rates_list_.at(last_growth)->at(pop)) * duration);
+      }
+    }
+
+    last_pop_size = i;
+    if (growth_rates_list_.at(i) != NULL) last_growth = i;
+  } 
+}
 
 void Model::check() {
   // Sufficient sample size?

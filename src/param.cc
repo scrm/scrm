@@ -249,7 +249,6 @@ void Param::parse(Model &model) {
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
 
-
     ++argc_i;
   }
 
