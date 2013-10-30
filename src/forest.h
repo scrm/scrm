@@ -182,8 +182,7 @@ class Forest
 
   void updateAbove(Node* node, 
                    bool above_local_root = false,
-                   const bool &recursive = true,
-                   const bool &local_only = false);
+                   const bool &recursive = true);
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);

@@ -82,10 +82,11 @@ Node* Forest::cut(const TreePoint &cut_point) {
   nodes()->add(new_leaf, cut_point.base_node());
 
   // Update all local nodes above.
-  updateAbove(parent, false, true, true);
+  updateAbove(parent, false, true);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
   //The new "root" of the newly formed tree
+  cut_point.base_node()->make_local();
   updateAbove(cut_point.base_node(), false, false);
   Node* new_root = new Node(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
@@ -113,7 +114,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 /**
  * Function to update the invariants (local, samples_below, length_below) 
  * of a 'node' and all of its (grand-)parents. Also sets local_root_ if it
- * encounters it. 
+ * encounters it. Never makes non-local nodes local, only the other way round.
  *
  *  \param node       The node at which the functions starts updating the
  *                    invariants. Then updates it's parent and the parents
@@ -123,15 +124,9 @@ Node* Forest::cut(const TreePoint &cut_point) {
  *                    this.
  *  \param recursive  If false, only the given node is updated, but not its parent.
  *                    Default true.
- *  \param dont_localize If true, the function does not set non-local nodes local.
- *                    Needed for updating the tree above the 'left_over' above
- *                    a recombination.
  */
-// Think this function should not make any non-local local, because we may
-// ignore postponed recombinations this way. Will investigate this further. 
-// -Paul
 void Forest::updateAbove(Node* node, bool above_local_root, 
-                         const bool &recursive, const bool &dont_localize) {
+                         const bool &recursive) {
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -141,7 +136,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
       set_primary_root(node);
       return;
     }
-    if ( recursive ) updateAbove(node->parent(), true, true, dont_localize);
+    if ( recursive ) updateAbove(node->parent(), true, true);
     return;
   }
 
@@ -182,7 +177,6 @@ void Forest::updateAbove(Node* node, bool above_local_root,
     if ( node->is_root() ) set_primary_root(node);
     above_local_root = true;
   }
-  else if ( (!node->local()) && !dont_localize ) node->make_local();
 
   // If nothing changed, we also don't need to update the tree further above...
   if (samples_below == node->samples_below() && 
@@ -196,7 +190,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
 
   // Go further up if possible
   if ( recursive && !node->is_root() ) {
-    updateAbove(node->parent(), above_local_root, recursive, dont_localize);
+    updateAbove(node->parent(), above_local_root, recursive);
   }
 }
 
@@ -211,6 +205,7 @@ void Forest::buildInitialTree() {
   dout << "* Adding first node... ";
   Node* first_node = new Node(model().sample_time(1), 1);
   first_node->set_population(model().sample_population(1));
+  first_node->make_nonlocal(1);
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
@@ -403,12 +398,16 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[0] != 0 || states_[1] != 0 );
     assert( states_[0] != 1 || active_node(0)->is_root() );
     assert( states_[1] != 1 || active_node(1)->is_root() );
-    //assert( states_[0] != 1 || active_node(0)->local() );
-    //assert( states_[1] != 1 || active_node(1)->local() );
     assert( states_[0] == 1 || active_node(0)->parent_height() >= tmp_event_.time() );
     assert( states_[1] == 1 || active_node(1)->parent_height() >= tmp_event_.time() );
     assert( states_[0] != 2 || !active_node(0)->local() );
     assert( states_[1] != 2 || !active_node(1)->local() );
+
+    assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
+            active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
+    assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
+            active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
+
     assert( checkContemporaries(*ti) );
 
     // Sample the time at which the next thing happens
@@ -487,32 +486,6 @@ void Forest::calcRates(const TimeInterval &ti) {
   rates_[2] = 0.0;
   active_nodes_timelines_[0] = 0;
   active_nodes_timelines_[1] = 0;
-
-  /*! \todo remove the next a few lines*/
-  //std::cout<<"states_[0] = "<<states_[0]<<std::endl; //DEBUG
-  //std::cout<<"states_[1] = "<<states_[1]<<std::endl; //DEBUG
-
-  //std::cout<<"states_[0] address = "<<&states_[0]<<std::endl; //DEBUG
-  //std::cout<<"states_[1] address = "<<&states_[1]<<std::endl; //DEBUG
-
-  //std::cout<<"active_node(0) = "<< active_node(0)<<std::endl; //DEBUG
-  //std::cout<<"active_node(0)->population() = "<<active_node(0)->population()<<std::endl; //DEBUG
-
-  //std::cout<<"active_node(1) = "<< active_node(1)<<std::endl; //DEBUG
-  //std::cout<<"active_node(1)->population() = "<<active_node(1)->population()<<std::endl; //DEBUG
-
-  //std::cout<<"active_nodes_timelines_ = "<<active_nodes_timelines_<<std::endl; //DEBUG
-  //std::cout<<"	active_nodes_timelines_[0] address = "<<&active_nodes_timelines_[0]<<std::endl; //DEBUG
-  //std::cout<<"	active_nodes_timelines_[1] address = "<<&active_nodes_timelines_[1]<<std::endl; //DEBUG
-
-  //std::cout<<"rates_ = "<<rates_<<std::endl; //DEBUG
-  //std::cout<<"	rates_[0] address = "<<&rates_[0]<<std::endl; //DEBUG
-  //std::cout<<"	rates_[1] address = "<<&rates_[1]<<std::endl; //DEBUG
-  //std::cout<<"	rates_[2] address = "<<&rates_[2]<<std::endl; //DEBUG
-
-  //std::cout<<std::setw(35)<<"ti address "<<&ti<<std::endl; //DEBUG
-  //std::cout<<"model() "<< &model()<<std::endl; //DEBUG
-
 
   // Set rate of first node
   if (states_[0] == 1) {
@@ -771,6 +744,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->parent()->change_child(target, new_node);
 
   // And update
+  coal_node->make_local();
   updateAbove(coal_node, false, false); 
   // Update coal_node ONLY
   // Updating the new_node will always activate it, but there may still be
@@ -783,12 +757,9 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     // a recombining node, then we are done.
     if ( getOtherNode()->parent() == getEventNode() ) {
       dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
+      getOtherNode()->make_local();
       updateAbove(getOtherNode(), false, false);
       updateAbove(getOtherNode()->parent());
-
-      //We don't need to update the other nodes "last_update", as it is active
-      //by now...
-      assert ( getOtherNode()->local() );
       coalescence_finished_ = true;
       return;
     }
@@ -834,10 +805,14 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
   dout << "* * Both nodes coalesced together" << std::endl;
   dout << "* * Implementing..." << std::flush;
+
   Node* new_root = NULL;
   assert( root_1 != NULL );
   assert( root_2 != NULL );
   assert( root_1->population() == root_2->population() );
+
+  root_1->make_local();
+  root_2->make_local();
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
@@ -968,9 +943,8 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
  */
 Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval) {
   if ( node->parent_height() == time_interval.end_height() ) {
+    node->make_local();
     updateAbove(node, false, false);
-    // Again, we don't need to mark the node as updated, as it becomes local
-    assert( node->local() );
     return node->parent();
   }
   return node;

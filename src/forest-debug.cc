@@ -152,17 +152,19 @@ bool Forest::checkInvariants(Node const* node) const {
     bool okay = 1;
 
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
-      if ( (*it)->height() > this->local_root()->height() ) return(okay);
-      okay *= checkInvariants(*it);
+      if ( (*it)->height() > local_root()->height()) {
+        if (!(*it)->local()) continue;
+        dout << "Node " << *it << " is above the local root and local!" << std::endl;
+        okay = 0;  
+      } else {
+        okay *= checkInvariants(*it);
+      }
     }
     return(okay);
   }
 
   size_t samples_below = node->in_sample();
   double length_below = 0;
-
-  // Allow non-local roots of have false invariants
-  //if ( node->is_root() && !node->local() ) return true;
 
   if (node->first_child() != NULL) {
     samples_below += node->first_child()->samples_below();
@@ -189,6 +191,11 @@ bool Forest::checkInvariants(Node const* node) const {
     return false;
   }
 
+  if ( (samples_below == 0 || samples_below == sample_size()) && node->local() ) {
+    dout << "Node " << node << " is local but should be non-local" << std::endl;
+    return false;
+  }
+
   return true;
 }
 
@@ -205,8 +212,8 @@ bool Forest::checkLeafsOnLocalTree(Node const* node) const {
     }
     return(all_on_tree);
   }
-  if ( !node->is_root() ) return( checkLeafsOnLocalTree(node->parent()) );
-  return( node == this->primary_root() );
+  if ( node->local() ) return( checkLeafsOnLocalTree(node->parent()) );
+  return( node == this->local_root() );
 }
 
 
