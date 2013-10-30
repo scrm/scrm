@@ -73,10 +73,10 @@ int main(int argc, char *argv[]){
 
       // Optionally output the TMRCA of the initial coalescent tree in a file
       //if (user_para.tmrca_bool()){
-        //std::ofstream tmrca_file;
-        //tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-        //tmrca_file << forest.local_root()->height() <<"\n";  
-        //tmrca_file.close();	
+      //std::ofstream tmrca_file;
+      //tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
+      //tmrca_file << forest.local_root()->height() <<"\n";  
+      //tmrca_file.close();	
       //}
 
       // Just output a single tree if the recombination rate is 0
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]){
         do {
           previous_recombination_event = ceil(forest.current_base());
           next_recombination_event = ceil(forest.next_base());
-          next_event = min(1+model.loci_length(), next_recombination_event);    // add 1 since we start at base 1.0
+          next_event = min(model.loci_length(), next_recombination_event);
           distance_between_events = next_event - previous_recombination_event;
 
           // Obtain string representation of current tree
@@ -109,11 +109,11 @@ int main(int argc, char *argv[]){
             previous_genealogy = forest.writeTree(forest.local_root());
           }
           tmrca = forest.tmrca();
-		  tot_bl = forest.tot();
+          tot_bl = forest.tot();
 
-		/*! \todo Keep? */
+          /*! \todo Keep? */
           //std::cerr << i << " " << forest.local_root()->height() / ( 4 * forest.model().default_pop_size )  
-                    //<< " " << forest.local_tree_length() / ( 4 * forest.model().default_pop_size )<< std::endl;
+          //<< " " << forest.local_tree_length() / ( 4 * forest.model().default_pop_size )<< std::endl;
 
           // Sample next genealogy
           forest.sampleNextGenealogy();
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]){
           seg_data_array.append_new_seg_data(&forest);
 
           // Store current local tree and distance between recombinations in tree buffer
-          if (user_para.tree_bool) {
+          if (user_para.tree_bool && distance_between_events > 0) {
             tree_buffer << "[" << distance_between_events << "]" << previous_genealogy << ";\n";
           }
 
@@ -135,9 +135,9 @@ int main(int argc, char *argv[]){
         *output << tree_buffer.str();
       }
 
-	  if (user_para.tmrca_bool){
-		*output << "time:\t"<<tmrca<< "\t"<<tot_bl <<"\n";  
-	  }
+      if (user_para.tmrca_bool){
+        *output << "time:\t"<<tmrca<< "\t"<<tot_bl <<"\n";  
+      }
 
       *output << seg_data_array;
 
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]){
       //delete forest;
 
     }
-    
+
     if (user_para.log_bool){          
       std::ofstream log_file;
       log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
