@@ -140,10 +140,6 @@ int main(int argc, char *argv[]){
       }
 
       *output << seg_data_array;
-
-      //delete seg_data_array;
-      //delete forest;
-
     }
 
     if (user_para.log_bool){          

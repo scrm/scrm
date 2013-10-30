@@ -144,14 +144,13 @@ class Forest
   bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
 
-  //Tree printing
+  //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
   int countLinesRight(Node const* node) const;
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree();
   bool printTree_cout();
-
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -173,15 +172,9 @@ class Forest
   Node * tracking_local_node(Node * node); 
 
   //derived class from Forest
-
   virtual void initialize_recomb_coalescent(const double rec_height);
   virtual void initialize_event(double start_time);
   virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state);
-
-  //virtual void record_coalevent(const TimeInterval & current_event, double end_time);
-  //virtual void record_recombevent(const TimeInterval & current_event, double end_time);
-  //virtual void record_migevent(const TimeInterval & current_event, double end_time);
-  //virtual void clear_initial_coalevent();
 
  private:
   //Operations on the Tree
