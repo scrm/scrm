@@ -403,6 +403,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[0] != 0 || states_[1] != 0 );
     assert( states_[0] != 1 || active_node(0)->is_root() );
     assert( states_[1] != 1 || active_node(1)->is_root() );
+    //assert( states_[0] != 1 || active_node(0)->local() );
+    //assert( states_[1] != 1 || active_node(1)->local() );
     assert( states_[0] == 1 || active_node(0)->parent_height() >= tmp_event_.time() );
     assert( states_[1] == 1 || active_node(1)->parent_height() >= tmp_event_.time() );
     assert( states_[0] != 2 || !active_node(0)->local() );
@@ -449,9 +451,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isPwCoalescence() ) {
       // Record this  interval (coalescent)
       this->record_event((*ti),tmp_event_.time(), 1);
-      //this->record_coalevent((*ti),tmp_event_.time());
-      //this->initialize_event((*ti), tmp_event_.time());    
-      //this->record_coalevent();
       implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
@@ -459,9 +458,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isRecombination() ) {
       // Record this  interval (recombination)
       this->record_event((*ti),tmp_event_.time(), 2);
-      //this->record_recombevent((*ti),tmp_event_.time());
-      //this->initialize_event((*ti), tmp_event_.time());    
-      //this->record_recombevent();
       this->implementRecombination(tmp_event_, ti);
       continue;
     }
@@ -476,9 +472,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isCoalescence() ) {
       // Record this  interval (coalescent)
       this->record_event((*ti),tmp_event_.time(), 1);
-      //this->record_coalevent((*ti),tmp_event_.time());
-      //this->initialize_event((*ti), tmp_event_.time());    
-      //this->record_coalevent();
       this->implementCoalescence(tmp_event_, ti);
       if (coalescence_finished_) return;
 
@@ -748,6 +741,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   // Look if we can reuse the root that coalesced as new node
   if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
     new_node = coal_node;
+    new_node->make_local(); /*! \todo assert that coalescing nodes are local? */
     coal_node = coal_node->first_child();
     nodes()->move(new_node, event.time());
   } else {
@@ -777,8 +771,8 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->parent()->change_child(target, new_node);
 
   // And update
-  updateAbove(coal_node, false, false); // Update coal_node ONLY
-  // updateAbove(new_node, false, false); 
+  updateAbove(coal_node, false, false); 
+  // Update coal_node ONLY
   // Updating the new_node will always activate it, but there may still be
   // unimplemented recombinations above
 
