@@ -500,7 +500,7 @@ void Model::finalize() {
     updateTotalMigRates(j);
   } 
 
-  //check();
+  check();
 }
 
 void Model::calcPopSizes() {
