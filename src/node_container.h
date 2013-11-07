@@ -28,6 +28,8 @@
 #include <cfloat>
 #include <cassert>
 #include <iostream>
+#include <map>
+#include <algorithm>
 
 #include "node.h"
 #ifndef NDEBUG
@@ -44,7 +46,14 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-  ~NodeContainer();
+  ~NodeContainer() { clear(); };
+
+  NodeContainer& operator=(NodeContainer nc) {
+   swap(*this, nc);  
+   return(*this);
+  };
+
+  NodeContainer(const NodeContainer &nc);
     
   NodeIterator iterator(); 
   NodeIterator iterator(Node* node);
@@ -60,14 +69,13 @@ class NodeContainer {
 
   Node* at(size_t nr) const; 
   Node const* get(size_t nr) const { return at(nr); }; 
-  Node * get_copy(size_t nr)  { return at(nr); }; 
 
   Node* first() const { return first_node_; };
   Node* last() const { return last_node_; };
   
   size_t size() const { return size_; };  
   bool sorted() const; 
-  void print() const;
+  bool print() const;
 
 #ifdef UNITTEST
   friend class TestNodeContainer;
@@ -77,6 +85,7 @@ class NodeContainer {
   friend class ReverseConstNodeIterator;
 
  private:
+  friend void swap(NodeContainer& first, NodeContainer& second);
   //const std::vector<Node*> nodes() const { return nodes_; }
 
   void add_before(Node* add, Node* next_node);

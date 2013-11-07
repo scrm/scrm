@@ -48,6 +48,7 @@ void Node::init(double height, size_t label) {
   this->set_previous(NULL);
   this->set_next(NULL);
 }
+  
 
 void Node::change_child(Node* from, Node* to) {
   if ( this->first_child() == from )

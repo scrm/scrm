@@ -30,6 +30,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCut );
   CPPUNIT_TEST( testImplementRecombination ); 
   CPPUNIT_TEST( testPrintTree );
+  CPPUNIT_TEST( testCopyConstructor );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -631,6 +632,21 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( 69000 <= n5 && n5 <= 71000 ); // expected 70000 
   }
 
+  void testCopyConstructor() {
+    forest->createScaledExampleTree();
+
+    Forest forest2 = Forest(*forest);
+
+    CPPUNIT_ASSERT( forest2.model_ == forest->model_ );
+    for (auto it = forest2.nodes()->iterator(); it.good(); ++it) {
+      CPPUNIT_ASSERT( (*it)->label() <= 4 );
+      CPPUNIT_ASSERT( (*it)->parent() != NULL || (*it)->first_child() != NULL );
+    }
+
+    CPPUNIT_ASSERT( forest2.checkTree() );
+    CPPUNIT_ASSERT( forest2.checkLeafsOnLocalTree() );
+    CPPUNIT_ASSERT( forest2.checkInvariants() );
+  }
 };
 
 

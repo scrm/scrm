@@ -18,6 +18,7 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testReverseIterator );
   CPPUNIT_TEST( testRemove );
   CPPUNIT_TEST( testMove );
+  CPPUNIT_TEST( testCopyConstructor );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -29,9 +30,9 @@ class TestNodeContainer : public CppUnit::TestCase {
 
  public:
   void setUp() {
-    node1 = new Node(1);
-    node2 = new Node(2);
-    node3 = new Node(3);
+    node1 = new Node(1, 1);
+    node2 = new Node(2, 2);
+    node3 = new Node(3, 0);
     nc = NodeContainer();
     nc.add(node1);
     nc.add(node2);
@@ -209,6 +210,16 @@ class TestNodeContainer : public CppUnit::TestCase {
     ++it; CPPUNIT_ASSERT( it.height() == 2 );
     ++it; CPPUNIT_ASSERT( it.height() == 3 );
     ++it; CPPUNIT_ASSERT( it.height() == FLT_MAX );
+  }
+
+  void testCopyConstructor() {
+    NodeContainer nc2 = NodeContainer(nc);
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, nc2.size() );
+    CPPUNIT_ASSERT( nc2.sorted() );
+    CPPUNIT_ASSERT( nc2.unsorted_node_ == NULL );
+    for (auto it = nc.iterator(); it.good(); ++it) {
+      CPPUNIT_ASSERT( (*it)->label() <= 2 );
+    }
   }
 };
 

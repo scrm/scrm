@@ -33,6 +33,31 @@ NodeContainer::NodeContainer() {
   size_ = 0;
 };
 
+NodeContainer::NodeContainer(const NodeContainer &nc) {
+  size_ = 0;
+  set_first(NULL);
+  set_last(NULL);
+
+  std::map<Node const*, Node*> node_mapping;  
+  node_mapping[NULL] == NULL;
+
+
+  for (auto it = nc.iterator(); it.good(); ++it) {
+    Node *node = new Node(**it);
+    node_mapping[*it] = node;
+    add(node);
+  }
+
+  assert( this->sorted() );
+
+  for (auto it = iterator(); it.good(); ++it) {
+    if (!(*it)->is_root()) (*it)->set_parent(node_mapping[(*it)->parent()]);
+    (*it)->set_first_child(node_mapping[(*it)->first_child()]);
+    (*it)->set_second_child(node_mapping[(*it)->second_child()]);
+  }
+
+  unsorted_node_ = node_mapping[nc.unsorted_node_];
+};
 
 /*******************************************************
  * Management of Nodes
@@ -172,10 +197,6 @@ void NodeContainer::clear() {
   set_last(NULL);
 }
 
-NodeContainer::~NodeContainer() {
-  clear();
-}
-
 void NodeContainer::add_before(Node* add, Node* next_node){
   //std::cout << "Adding: " << add << " after " << after << std::endl;
   add->set_next(next_node);
@@ -220,10 +241,22 @@ bool NodeContainer::sorted() const {
 }
 
 
-void NodeContainer::print() const {
+bool NodeContainer::print() const {
   //std::cout << "NodeContainer with " << this->size() << " Nodes" << std::endl;
   for ( ConstNodeIterator it = this->iterator(); it.good(); ++it ) {
-    std::cout << *it << ": Prev " << (*it)->previous() 
-                     << " Next " <<  (*it)->next() << std::endl;
+    std::cout << *it << ": ";
+    if (*it != first()) std::cout << "Prev " << (*it)->previous(); 
+    if (*it != last()) std::cout << " Next " << (*it)->next(); 
+    std::cout << std::endl;
   }
+  return true;
+}
+
+
+void swap(NodeContainer& first, NodeContainer& second) {
+  using std::swap;
+  swap(first.first_node_, second.first_node_);
+  swap(first.last_node_, second.last_node_);
+  swap(first.size_, second.size_);
+  swap(first.unsorted_node_, second.unsorted_node_);
 }
