@@ -52,11 +52,12 @@ class Node
   friend class TestForest;
   friend class TestNode;
 #endif
-  //size_t index; // this is the index of the node in the node container...
+  size_t index; // this is the index of the node in the node container...
   
   Node();
   Node(double height);
   Node(double height, size_t label);
+  Node(const Node* node);
 
   ~Node();
 
@@ -147,6 +148,8 @@ class Node
 
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
+
+  bool mutation_state; // mutation state X = false denote homozygous site, X = true denote hetrozygous site
 
  private:
   void init(double heigh=-1, size_t label=0);
