@@ -214,16 +214,14 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
 // contemporaries. Maybe we could optimize this, but this may not be easy.
 void TimeIntervalIterator::removeFromContemporaries(Node* node) {
   //std::cout << "Removing " << node << std::endl;
-  std::vector<Node*>::iterator it;
-  for (it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
-    //std::cout << *it << " == " << node << " ?" << std::endl;
+  std::vector<Node*>::iterator end = contemporaries_.end();
+  for (auto it = contemporaries_.begin(); it != end; ++it) {
     if ( *it == node ) {
       contemporaries_.erase(it);
       pop_counts_.at(node->population()) -= 1;
       return;
     }
   }
-  //throw std::logic_error("Trying to delete noexisting node from contemporaries");
 }
 
 /** 

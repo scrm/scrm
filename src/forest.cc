@@ -1137,11 +1137,3 @@ std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
     return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
   }
 }
-
-void Forest::initialize_recomb_coalescent(const double rec_height){};
-void Forest::initialize_event(double start_time){};
-void Forest::record_event(const TimeInterval & current_event, double end_time, size_t event_state){};
-//void Forest::record_coalevent(const TimeInterval & current_event, double end_time){};
-//void Forest::record_recombevent(const TimeInterval & current_event, double end_time){};
-//void Forest::record_migevent(const TimeInterval & current_event, double end_time){};
-//void Forest::clear_initial_coalevent(){};

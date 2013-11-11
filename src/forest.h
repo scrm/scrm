@@ -47,7 +47,6 @@
 
 #include <vector>
 #include <valarray>
-#include <map>
 #include <iomanip>
 #include <stdexcept>
 #include <cfloat>
@@ -173,9 +172,9 @@ class Forest
   Node * tracking_local_node(Node * node); 
 
   //derived class from Forest
-  virtual void initialize_recomb_coalescent(const double rec_height);
-  virtual void initialize_event(double start_time);
-  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state);
+  virtual void initialize_recomb_coalescent(const double rec_height) {};
+  virtual void initialize_event(double start_time) {};
+  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state) {};
 
  private:
   //Operations on the Tree
