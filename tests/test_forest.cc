@@ -274,7 +274,8 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( 4900 < count && count < 5100 );
     CPPUNIT_ASSERT( 3900 < count2 && count2 < 4100 );
 
-    // Test coalescence with recombination 
+
+    // Coalescence and Recombination 
     // active_node 0: Pop 1, 2 Contemporaries => Coal rate: 2 / 2 * Ne = 1/Ne 
     // active_node 1: Pop 1, Recombination    => Rec rate: 10 Bases * 0.4 / 4Ne = 1/Ne    
     // => 50% Recombination, 50% Coalescence 
@@ -285,7 +286,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->active_node(1)->make_nonlocal(10);
     forest2->writable_model()->resetTime(); // set migration to 0
     forest2->calcRates(*tii);
-    
+
     count = 0;
     for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
@@ -294,10 +295,49 @@ class TestForest : public CppUnit::TestCase {
     };
     //std::cout << count << std::endl;
     CPPUNIT_ASSERT( 4900 < count && count < 5100 );
-    
+
+    // Other way round
+    Node* tmp = forest2->active_node(1);
+    forest2->set_active_node(1, forest2->active_node(0));
+    forest2->set_active_node(0, tmp);
+    forest2->states_[0] = 2;
+    forest2->states_[1] = 1;
+    forest2->calcRates(*tii);
+
+    count = 0;
+    for (size_t i = 0; i < 10000; ++i) {
+      forest2->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isCoalescence() || event.isRecombination() );
+      count += event.isRecombination();
+    };
+    //std::cout << std::endl << count << std::endl;
+    CPPUNIT_ASSERT( 4900 < count && count < 5100 ); // True with >95%
+
+
+    // Double recombination
+    // => 1/3 active_node 0
+    //    2/3 active_node 1
+    forest2->states_[0] = 2;
+    forest2->states_[1] = 2;
+    forest2->active_node(0)->make_nonlocal(15);
+    forest2->active_node(1)->make_nonlocal(10);
+    forest2->calcRates(*tii);
+
+    count = 0;
+    for (size_t i = 0; i < 15000; ++i) {
+      forest2->sampleEventType(0.5, 0, *tii, event);
+      CPPUNIT_ASSERT( event.isRecombination() );
+      count += (event.node() == forest2->active_node(0));
+    };
+    //std::cout << count/15000 << std::endl;
+    CPPUNIT_ASSERT( 4880 < count && count < 5120 ); // True with >96%
+
+
     // Recombination with Rate 0
     // active_node 1: Up to date = rec rate = 0;
     // => always coalescence
+    forest2->states_[0] = 1;
+    forest2->active_node(0)->make_local();
     forest2->active_node(1)->set_last_update(20);
     forest2->calcRates(*tii);
     for (size_t i = 0; i < 1000; ++i) {
