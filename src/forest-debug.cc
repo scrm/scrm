@@ -51,7 +51,7 @@ void Forest::createExampleTree() {
   Node* root = new Node(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
-  //this->set_primary_root(root);
+  this->set_primary_root(root);
 
   // Add a non-local tree
   Node* nl_node = new Node(4); 
@@ -72,6 +72,7 @@ void Forest::createExampleTree() {
 
   this->set_current_base(5);  
   this->set_sample_size(4);
+
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
 }

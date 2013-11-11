@@ -24,10 +24,11 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testSelectFirstTime );
   CPPUNIT_TEST( testSampleEventType );
   CPPUNIT_TEST( testSampleEvent );
-  CPPUNIT_TEST( testBuildInitialTree ); 
-  CPPUNIT_TEST( testCoalescenceWithStructure ); 
   CPPUNIT_TEST( testGetNodeState ); 
   CPPUNIT_TEST( testCut );
+  CPPUNIT_TEST( testImplementCoalescence );
+  CPPUNIT_TEST( testBuildInitialTree ); 
+  CPPUNIT_TEST( testCoalescenceWithStructure ); 
   CPPUNIT_TEST( testImplementRecombination ); 
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST( testCopyConstructor );
@@ -601,6 +602,41 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !single_branch->local() );
     CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
     CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
+  }
+
+  void testImplementCoalescence() {
+    for (size_t i=0; i<100; ++i) {
+      forest->createExampleTree(); 
+      forest->set_current_base(17);
+
+      Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
+      TimeIntervalIterator tii(forest, new_root, false);
+      forest->set_active_node(0, new_root);
+      forest->set_active_node(1, forest->local_root());
+
+      forest->states_[0] = 1;
+      forest->states_[1] = 0;
+
+      forest->tmp_event_ = Event(2.0);
+      forest->tmp_event_.setToCoalescence(new_root, 0);
+
+      forest->implementCoalescence(forest->tmp_event_, tii);
+
+      CPPUNIT_ASSERT( forest->active_node(0) == new_root );
+      CPPUNIT_ASSERT( new_root->parent_height() == 3 ||
+                     new_root->parent_height() == 10 );
+
+      if ( !new_root->local() ) {
+        CPPUNIT_ASSERT( new_root->numberOfChildren() == 2 );
+        CPPUNIT_ASSERT( !(new_root->first_child()->local() && new_root->second_child()->local()) ); 
+        Node* child = new_root->first_child();
+        if (!new_root->second_child()->local()) child = new_root->second_child();
+        CPPUNIT_ASSERT( child->last_update() == 17 );
+        CPPUNIT_ASSERT( child->length_below() == 0 );
+
+        CPPUNIT_ASSERT( new_root->last_update() == 17 );
+      }
+    }
   }
 
   void testSamplePoint() {
