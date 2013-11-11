@@ -112,14 +112,17 @@ Node* Forest::cut(const TreePoint &cut_point) {
   updateAbove(parent, false, true);
   dout << "* * New leaf of local tree: " << new_leaf << std::endl;
 
-  //The new "root" of the newly formed tree
+  // The node below the recombination point becomes local in all possible cases
+  // (if it already isn't...)
   cut_point.base_node()->make_local();
-  updateAbove(cut_point.base_node(), false, false);
+
+  // The new "root" of the newly formed tree
   Node* new_root = new Node(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
 
+  // Set invariants of new root
   new_root->set_length_below(cut_point.base_node()->length_below() + 
                              cut_point.base_node()->height_above() );
   new_root->set_samples_below(cut_point.base_node()->samples_below() );
@@ -593,7 +596,6 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
   if (time_line == 2) return event.setToCoalescence(active_node(1), 1);
 
   double sample = random_generator()->sample() * rates_[time_line];
-  //std::cout << "Sample: " << sample << std::endl;
 
   for (size_t i = 0; i < 2; ++i) {
     // Only Nodes in state 1 or 2 can do something
@@ -602,7 +604,6 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
     // Coalescence can occur on all time lines  
     if (states_[i] == 1 && active_nodes_timelines_[i] == time_line) {
       sample -= calcCoalescenceRate(active_node(i)->population(), ti);
-      //std::cout << i << ":" << "Sample after coalescence:" << sample << std::endl;
       if (sample <= 0.0) return event.setToCoalescence(active_node(i), i); 
     }
 
@@ -619,7 +620,6 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
     // Migration
     assert( states_[i] == 1 );
     if ( sample < model().total_migration_rate(active_node(i)->population()) ) {
-      //std::cout << i << ":" << "Migrating" << sample << std::endl;
       for ( size_t j = 0; j < model().population_number(); ++j) {
         sample -= model().migration_rate(active_node(i)->population(), j);
         if ( sample <= 0.0 ) return event.setToMigration(active_node(i), i, j);
@@ -630,13 +630,9 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
   }
 
   // If we are here, than we should have sampled a pw coalescence...
-  if (! (states_[0] == 1 && states_[1] == 1 ))
-    throw std::logic_error("Rates wrong!1");  
-  if (! (active_nodes_[0]->population() == active_nodes_[1]->population() ))
-    throw std::logic_error("Rates wrong!2");  
-  if( sample > calcPwCoalescenceRate(active_nodes_[0]->population()) ) {
-    throw std::logic_error("Rates wrong!3");  
-  };
+  assert( states_[0] == 1 && states_[1] == 1 );
+  assert( active_nodes_[0]->population() == active_nodes_[1]->population() );
+  assert( sample <= calcPwCoalescenceRate(active_nodes_[0]->population()) );  
   return event.setToPwCoalescence();
 }
 
@@ -786,9 +782,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   // And update
   coal_node->make_local();
   updateAbove(coal_node, false, false); 
-  // Update coal_node ONLY
-  // Updating the new_node will always activate it, but there may still be
-  // unimplemented recombinations above
 
   set_active_node(event.active_node_nr(), new_node);
 
@@ -799,7 +792,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
       dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
       getOtherNode()->make_local();
       updateAbove(getOtherNode(), false, false);
-      updateAbove(getOtherNode()->parent());
+      updateAbove(getEventNode());
       coalescence_finished_ = true;
       return;
     }
@@ -901,7 +894,6 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
   TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
   set_active_node(event.active_node_nr(), cut(event_point));
-  updateAbove(event.node(), false, false); // Make the branch below the rec local
 
   ti.recalculateInterval();
 
