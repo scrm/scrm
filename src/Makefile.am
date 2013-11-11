@@ -3,7 +3,7 @@ PROG = SCRM
 
 scrm_CXXFLAGS= -DNDEBUG -std=c++0x
 scrm_dbg_CXXFLAGS= -std=c++0x
-scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
+scrm_prof_CXXFLAGS= -pg -DNDEBUG -fno-inline -std=c++0x
 
 
 normal_src = \

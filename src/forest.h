@@ -52,6 +52,7 @@
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
+#include <sstream> // This is required by Forest::writeTree, ostringstream
 #include <boost/assign/std/vector.hpp>
 
 #include "node.h"
@@ -194,6 +195,7 @@ class Forest
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
+  void implementNoEvent(const TimeInterval &ti, bool &coalescence_finished);
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
