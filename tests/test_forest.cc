@@ -19,7 +19,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST( testCalcRate );
-  CPPUNIT_TEST( testIsPrunable );
+  CPPUNIT_TEST( testNodeIsOld );
   CPPUNIT_TEST( testPrune );
   CPPUNIT_TEST( testSelectFirstTime );
   CPPUNIT_TEST( testSampleEventType );
@@ -416,81 +416,43 @@ class TestForest : public CppUnit::TestCase {
     }
   }
 
-  void testIsPrunable() {
-    forest->writable_model()->set_exact_window_length(5);
+  void testNodeIsOld() {
+    forest->writable_model()->set_exact_window_length(-1);
     forest->set_current_base(15);
-    // Node 6 and 7 are old in this setting, but only node 6 is external and can
-    // be pruned.
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(0)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(1)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(2)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(3)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(4)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(5)) );
-    CPPUNIT_ASSERT(  forest->isPrunable(forest->getNodes()->get(6)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(7)) );
-    CPPUNIT_ASSERT( !forest->isPrunable(forest->getNodes()->get(8)) );
-
-    // Orphaned nodes should be pruned
-    Node* orphaned = new Node(12);
-    orphaned->make_nonlocal(5);
-    forest->nodes()->add(orphaned);
-    CPPUNIT_ASSERT( forest->isPrunable(orphaned) );
-
-    // Orphaned active not should not occur, but we wont prune them for safety
-    // in case they do...
-    // Node* orphaned2 = new Node(14, true);
-    // forest->nodes()->add(orphaned2);
-    // CPPUNIT_ASSERT( !forest->isPrunable(orphaned2) );
-
-    // In-Between Nodes should be pruned, iff they are of same age
-    Node *parent = new Node(20), 
-         *inbetween1 = new Node(19), 
-         *inbetween2 = new Node(18), 
-         *child = new Node(17);
-
-    parent->make_nonlocal(15);
-    inbetween1->make_nonlocal(15);
-    inbetween2->make_nonlocal(13);
-    child->make_nonlocal(13);
-
-    forest->nodes()->add(parent);
-    forest->nodes()->add(inbetween1);
-    forest->nodes()->add(inbetween2);
-    forest->nodes()->add(child);
     
-    parent->set_first_child(inbetween1);
-    inbetween1->set_first_child(inbetween2);
-    inbetween2->set_first_child(child);
-    child->set_parent(inbetween2);
-    inbetween2->set_parent(inbetween1);
-    inbetween1->set_parent(parent);
-    
-    CPPUNIT_ASSERT( !forest->isPrunable(parent) );
-    CPPUNIT_ASSERT( !forest->isPrunable(inbetween1) );
-    CPPUNIT_ASSERT(  forest->isPrunable(inbetween2) );
-    CPPUNIT_ASSERT( !forest->isPrunable(child) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
 
-    // Local in-between nodes
-    parent->make_local();
-    inbetween1->make_local();
-    inbetween2->make_local();
-    child->make_local();
-    CPPUNIT_ASSERT( !forest->isPrunable(parent) );
-    CPPUNIT_ASSERT(  forest->isPrunable(inbetween1) );
-    CPPUNIT_ASSERT(  forest->isPrunable(inbetween2) );
-    CPPUNIT_ASSERT( !forest->isPrunable(child) );
+    forest->writable_model()->set_exact_window_length(5);
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
+    CPPUNIT_ASSERT( forest->nodeIsOld(forest->nodes()->at(6)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
   }
 
   void testPrune() {
     // Old node
     forest->writable_model()->set_exact_window_length(5);
     forest->set_current_base(15);
-    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(0)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(1)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(2)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(3)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(4)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(5)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(7)) );
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(8)) );
+
+    CPPUNIT_ASSERT( forest->pruneNodeIfNeeded(forest->nodes()->at(6)) );
     CPPUNIT_ASSERT( forest->nodes()->size() == 8);
     CPPUNIT_ASSERT( forest->checkTree() );
+
     // Orphaned node
-    forest->prune( forest->nodes()->at(6) );
+    CPPUNIT_ASSERT( forest->pruneNodeIfNeeded(forest->nodes()->at(6)) );
     CPPUNIT_ASSERT( forest->nodes()->size() == 7);
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
 
@@ -516,13 +478,16 @@ class TestForest : public CppUnit::TestCase {
     inbetween2->set_parent(inbetween1);
     inbetween1->set_parent(parent);
 
-    forest->prune(inbetween2);
+    CPPUNIT_ASSERT( forest->pruneNodeIfNeeded(inbetween2) );
     CPPUNIT_ASSERT( child->parent() == inbetween1 );
     CPPUNIT_ASSERT( inbetween1->parent() == parent );
     CPPUNIT_ASSERT( parent->is_root() );
     CPPUNIT_ASSERT( parent->first_child() == inbetween1 );
     CPPUNIT_ASSERT( inbetween1->first_child() == child );
     CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
+
+    forest->nodes()->at(0)->set_parent(NULL);
+    CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(0)) );
   }
 
   void testBuildInitialTree() {

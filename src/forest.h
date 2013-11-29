@@ -204,12 +204,15 @@ class Forest
   // Pruning
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
+    if ( node->is_root() ) return false;
     return (this->current_base() - node->last_update() > model().exact_window_length());
   }
 
-  void pruneLocalRoot();
-  bool isPrunable(Node const* node) const;
-  void prune(Node* node); 
+  bool nodeIsActive(Node const* node) const {
+    return (node == active_node(0) || node == active_node(1));
+  }
+
+  bool pruneNodeIfNeeded(Node* node);
 
 
   // Calculation of Rates

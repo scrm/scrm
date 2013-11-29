@@ -51,8 +51,13 @@ void Node::init(double height, size_t label) {
   
 
 void Node::change_child(Node* from, Node* to) {
-  if ( this->first_child() == from )
-    this->set_first_child(to);
+  if ( this->first_child() == from ) {
+    if (to != NULL) this->set_first_child(to);
+    else {
+      set_first_child(second_child());
+      set_second_child(NULL);
+    }
+  }
   else if ( this->second_child() == from )
     this->set_second_child(to);
   else throw std::invalid_argument("Can't find child node to replace");

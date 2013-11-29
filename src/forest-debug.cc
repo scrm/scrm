@@ -364,6 +364,7 @@ bool Forest::printTree() {
         if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
         else dout << *position << "(" << (*position)->first_child()->population()
                   << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) dout << "old ";
       }
     }
     dout << std::endl;

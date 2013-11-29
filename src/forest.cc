@@ -371,10 +371,10 @@ void Forest::sampleNextGenealogy() {
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
-  assert( this->printTree() );
   assert( this->checkLeafsOnLocalTree() );
-  assert( this->printNodes() );
   assert( this->checkTree() );
+  assert( this->printTree() );
+  assert( this->printNodes() );
 
   this->sampleNextBase();
 }
@@ -986,116 +986,46 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 }
 
 
-/**
- * Test if a branch above a given node can be pruned, i.e. removed from the
- * forest.
- *
- * Currently, there are three types of nodes that will be pruned:
- * 1) orphaned roots: roots with no children, i.e. a tree consisting just of one
- * node. This single node trees are created when all other nodes on the tree are
- * pruned.
- * 2) in-between nodes: nodes that artificially split a single branch into two
- * parts. Are created if the former other child of the node is pruned.
- * 3) old nodes: If specified, non-local nodes that have not been updated for a
- * while can be pruned to keep the tree from exploding in size.
- * 
- * Gets called from the TimeIntervalIterator when creating time intervals.
- *
- * \param node The node to be examined for pruning
- * 
- * \param return TRUE iff the node can be pruned
- */
-bool Forest::isPrunable(Node const* node) const {
-  assert ( node != NULL );
-  if ( model().exact_window_length() == -1 ) return false;
-  if ( node->is_migrating() ) return false;
-  
-  if ( node == local_root() ) {
-    if (nodeIsOld(node) && !node->is_root()) return true;
-    return false;
+bool Forest::pruneNodeIfNeeded(Node* node) {
+  assert( node != NULL );
+  if (node->in_sample()) return false;
+
+  // Old nodes have to go, no matter what
+  if (nodeIsOld(node)) {
+    dout << "* * * PRUNING: Removing branch above " << node << " from tree (old)" << std::endl;
+    assert(!node->is_root());
+    assert(!node->is_migrating());
+
+    node->parent()->change_child(node, NULL);
+    if (node->numberOfChildren() == 0) nodes()->remove(node); 
+    else node->set_parent(NULL);
+    return true;
+  } 
+
+  // Orphaned nodes must go too
+  else if (node->is_root() && node->numberOfChildren() == 0) {
+    dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+    nodes()->remove(node);
+    return true; 
   }
 
-  switch ( node->numberOfChildren()) {
-    case 2: return false;
+  // Unneeded nodes 
+  else if ((!node->is_root()) && node->numberOfChildren() == 1) {
+    dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
+    assert(!node->is_migrating());
+    assert(node->first_child()->last_update() == node->last_update());
+    assert(node->first_child()->local() == node->local());
 
-    case 1:
-            // in-between branches (= 1 child, 1 parent (=not root), updated at same time)
-            if ( (!node->is_root()) &&
-                node->last_update() == node->first_child()->last_update() ) return true;
-            return false;
-
-    case 0:
-            // remove orphaned roots
-            if ( node->is_root() ) return true;  
-
-            // remove old external nodes
-            if ( nodeIsOld(node) ) return true;
-            return false;
-  }
-  assert(0);
-  return false; 
-}
-
-
-/**
- * Remove a prunable node from the tree.
- *
- * This function perform the actual pruning. See isPunable for details about
- * pruning.
- *
- * Gets called from the TimeIntervalIterator when creating time intervals.
- *
- * \param node The node to be pruned.
- */
-void Forest::prune(Node *node) {
-  assert( isPrunable(node) );
-  assert( !node->in_sample() );
-
-  /* Possible Cases:
-   * + Local root => Do nothing (nodes above should be delete soon)
-   * + Orphaned root => just delete 
-   * + In-between node => relink and delete
-   * + Old branch => unset in parent and delete 
-   * */
-
-  if ( node == local_root() ) {
-    dout << "* * * PRUNING: Removing everything above local root" << std::endl;  
-    pruneLocalRoot();
-    return;
-  }
-
-  dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
-
-  // In-between node
-  if ( node->numberOfChildren() == 1 ) {
-    dout << "* * * PRUNING: Reason: Unneeded Node" << std::endl;
     Node* child = node->first_child();
     child->set_parent( node->parent() );
     node->parent()->change_child(node, child); 
-  } 
-
-  // External branch 
-  else if ( !node->is_root() ) {
-    dout << "* * * PRUNING: Reason: Old external branch" << std::endl;
-    node->parent()->remove_child(node);
+    nodes()->remove(node);
+    return true;
   }
 
-  // And delete
-  nodes()->remove(node);
+  return false;
 }
 
-void Forest::pruneLocalRoot() {
-  assert( isPrunable(local_root()) );
-  assert( !local_root()->is_root() );
-  
-  NodeIterator it = NodeIterator(local_root()->parent());
-  while ( it.good() ) {
-    dout << "* * * PRUNING: Removing node " << *it << " from tree" << std::endl;
-    assert( nodeIsOld(*it) ); 
-    nodes()->remove(it++);
-  }
-  local_root()->set_parent(NULL);
-}
 
 bool areSame(const double &a, const double &b, const double &epsilon) {
   // from Knuths "The art of computer programming"
