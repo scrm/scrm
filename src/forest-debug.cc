@@ -585,6 +585,12 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
       return 0;
     }
 
+    if ( (!(*it)->local()) && 
+         this->current_base() - (*it)->last_update() > model().exact_window_length() ) { 
+      dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+      return 0;
+    }
+
     for (size_t i = 0; i < 2; ++i) {
       if ( *it == active_node(i) && states_[i] == 1 ) {
         dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
