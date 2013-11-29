@@ -15,7 +15,7 @@ nsam=2
 #mst=(10 20 50 100)
 
 #msNsample=(3)
-msr=(100)
+msr=(10)
 mst=(10)
 
 
@@ -62,7 +62,7 @@ for t in "${mst[@]}"
 			rm first_scrm${tmrca}_file
 			rm last_scrm${tmrca}_file
 		
-			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -l 0 -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T -l 100 | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				#grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
