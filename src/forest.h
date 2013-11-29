@@ -202,8 +202,14 @@ class Forest
   void implementFixedTimeEvent(TimeIntervalIterator &ti);
 
   // Pruning
+  bool nodeIsOld(Node const* node) const {
+    if ( node->local() ) return false;
+    return (this->current_base() - node->last_update() > model().exact_window_length());
+  }
+
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
+
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;

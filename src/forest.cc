@@ -1022,10 +1022,7 @@ bool Forest::isPrunable(Node const* node) const {
             if ( node->is_root() ) return true;  
 
             // remove old external nodes
-            if ( (!node->local()) && 
-                this->current_base() - node->last_update() > model().exact_window_length() ) { 
-              return true;
-            }
+            if ( nodeIsOld(node) ) return true;
             return false;
   }
   assert(0);
