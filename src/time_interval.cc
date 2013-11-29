@@ -165,10 +165,9 @@ void TimeIntervalIterator::next() {
     ++node_iterator_;
 
     // Pruning
-    while ( forest_->model().exact_window_length() != -1 && 
-            node_iterator_.good() && 
-            forest_->isPrunable(*node_iterator_) ) {
-      forest_->prune(node_iterator_++);
+    while ( node_iterator_.good() && forest_->isPrunable(*node_iterator_) ) {
+      if (*node_iterator_ == forest_->local_root()) forest_->prune(*node_iterator_);
+      else forest_->prune(node_iterator_++);
     }
   }
 

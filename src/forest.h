@@ -207,6 +207,7 @@ class Forest
     return (this->current_base() - node->last_update() > model().exact_window_length());
   }
 
+  void pruneLocalRoot();
   bool isPrunable(Node const* node) const;
   void prune(Node* node); 
 

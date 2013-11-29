@@ -1005,8 +1005,12 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 bool Forest::isPrunable(Node const* node) const {
   assert ( node != NULL );
   if ( model().exact_window_length() == -1 ) return false;
-  if ( node == local_root() ) return false;
   if ( node->is_migrating() ) return false;
+  
+  if ( node == local_root() ) {
+    if (nodeIsOld(node) && !node->is_root()) return true;
+    return false;
+  }
 
   switch ( node->numberOfChildren()) {
     case 2: return false;
@@ -1042,16 +1046,22 @@ bool Forest::isPrunable(Node const* node) const {
  */
 void Forest::prune(Node *node) {
   assert( isPrunable(node) );
-  assert( ! (node->is_root() && node->local()) );
   assert( !node->in_sample() );
 
-  dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
-
   /* Possible Cases:
+   * + Local root => Do nothing (nodes above should be delete soon)
    * + Orphaned root => just delete 
    * + In-between node => relink and delete
    * + Old branch => unset in parent and delete 
    * */
+
+  if ( node == local_root() ) {
+    dout << "* * * PRUNING: Removing everything above local root" << std::endl;  
+    pruneLocalRoot();
+    return;
+  }
+
+  dout << "* * * PRUNING: Removing node " << node << " from tree" << std::endl;
 
   // In-between node
   if ( node->numberOfChildren() == 1 ) {
@@ -1069,6 +1079,19 @@ void Forest::prune(Node *node) {
 
   // And delete
   nodes()->remove(node);
+}
+
+void Forest::pruneLocalRoot() {
+  assert( isPrunable(local_root()) );
+  assert( !local_root()->is_root() );
+  
+  NodeIterator it = NodeIterator(local_root()->parent());
+  while ( it.good() ) {
+    dout << "* * * PRUNING: Removing node " << *it << " from tree" << std::endl;
+    assert( nodeIsOld(*it) ); 
+    nodes()->remove(it++);
+  }
+  local_root()->set_parent(NULL);
 }
 
 bool areSame(const double &a, const double &b, const double &epsilon) {
