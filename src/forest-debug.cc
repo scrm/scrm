@@ -51,7 +51,7 @@ void Forest::createExampleTree() {
   Node* root = new Node(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
-  //this->set_primary_root(root);
+  this->set_primary_root(root);
 
   // Add a non-local tree
   Node* nl_node = new Node(4); 
@@ -72,6 +72,7 @@ void Forest::createExampleTree() {
 
   this->set_current_base(5);  
   this->set_sample_size(4);
+
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
 }
@@ -363,6 +364,7 @@ bool Forest::printTree() {
         if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
         else dout << *position << "(" << (*position)->first_child()->population()
                   << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) dout << "old ";
       }
     }
     dout << std::endl;
@@ -582,6 +584,18 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
     if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
       dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
       return 0;
+    }
+
+    if ( nodeIsOld(*it) ) { 
+      if ( *it == local_root() ) {
+        if ( !(*it)->is_root() ) {
+          dout << "Branch above local root should be pruned but is not" << std::endl;
+          return 0;
+        }
+      } else {
+        dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+        return 0;
+      }
     }
 
     for (size_t i = 0; i < 2; ++i) {

@@ -126,6 +126,7 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 
 // If we prune, then also prune nodes at the top of the tree
 TimeIntervalIterator::~TimeIntervalIterator() {
+  /* DOES NOT WORK WITH NEW PRUNING, BUT MAYBE ALSO NOT NEEDED 
   if (!pruning_) return;
 
   Node *node;
@@ -134,6 +135,7 @@ TimeIntervalIterator::~TimeIntervalIterator() {
     ++node_iterator_; 
     if ( forest_->isPrunable(node) ) forest_->prune(node);
   }
+  */
 }
 
 
@@ -161,15 +163,13 @@ void TimeIntervalIterator::next() {
   if ( start_height >= node_iterator_.height() ) {
     updateContemporaries(*node_iterator_);
 
+    // Pruning
+    while ( !(*node_iterator_)->is_last() ) {
+      if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
+    }
+
     // Move node iterator forwards
     ++node_iterator_;
-
-    // Pruning
-    while ( forest_->model().exact_window_length() != -1 && 
-            node_iterator_.good() && 
-            forest_->isPrunable(*node_iterator_) ) {
-      forest_->prune(node_iterator_++);
-    }
   }
 
   double next_model_change_ = forest_->model().getNextTime();
@@ -214,16 +214,14 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
 // contemporaries. Maybe we could optimize this, but this may not be easy.
 void TimeIntervalIterator::removeFromContemporaries(Node* node) {
   //std::cout << "Removing " << node << std::endl;
-  std::vector<Node*>::iterator it;
-  for (it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
-    //std::cout << *it << " == " << node << " ?" << std::endl;
+  std::vector<Node*>::iterator end = contemporaries_.end();
+  for (auto it = contemporaries_.begin(); it != end; ++it) {
     if ( *it == node ) {
       contemporaries_.erase(it);
       pop_counts_.at(node->population()) -= 1;
       return;
     }
   }
-  //throw std::logic_error("Trying to delete noexisting node from contemporaries");
 }
 
 /** 
@@ -238,25 +236,27 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
   if (contemporaries_.size() > 0) contemporaries_.clear();
 
   NodeIterator node_iterator = forest_->nodes()->iterator();
+  Node* child;
+
   while( *node_iterator != node ) {
     if ( ! node_iterator.good() )
       throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
-    if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
-      // If we prune an internal note that would have been a contemporary,
-      // it's child will become a contemporary after pruning.
-      if ((*node_iterator)->numberOfChildren() == 1 && 
-          (*node_iterator)->parent_height() > node->height() ) {
-        this->addToContemporaries((*node_iterator)->first_child() );
-      }
-
-      forest_->prune(node_iterator++);
-      continue;
-    }
+    assert( !forest_->pruneNodeIfNeeded(*node_iterator) );
 
     if ( (*node_iterator)->parent_height() > node->height() )
       this->addToContemporaries(*node_iterator);
-    
+
+    while ( !(*node_iterator_)->is_last() ) {
+      child = (*node_iterator)->next()->first_child();
+      if (!forest_->pruneNodeIfNeeded((*node_iterator)->next())) break;
+
+      // If the removed node would have need an contemporary, maybe it children
+      // are now contemporaries because there new parent is highter. 
+      // This can only happen if the node has only one child.
+      if ( child != NULL && child->parent_height() > node->height() ) 
+        this->addToContemporaries(child);
+    }
     ++node_iterator; 
   };
 }

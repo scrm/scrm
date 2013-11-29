@@ -47,11 +47,11 @@
 
 #include <vector>
 #include <valarray>
-#include <map>
 #include <iomanip>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
+#include <sstream> // This is required by Forest::writeTree, ostringstream
 #include <boost/assign/std/vector.hpp>
 
 #include "node.h"
@@ -172,9 +172,9 @@ class Forest
   Node * tracking_local_node(Node * node); 
 
   //derived class from Forest
-  virtual void initialize_recomb_coalescent(const double rec_height);
-  virtual void initialize_event(double start_time);
-  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state);
+  virtual void initialize_recomb_coalescent(const double rec_height) {};
+  virtual void initialize_event(double start_time) {};
+  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state) {};
 
  private:
   //Operations on the Tree
@@ -194,6 +194,7 @@ class Forest
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
+  void implementNoEvent(const TimeInterval &ti, bool &coalescence_finished);
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
@@ -201,8 +202,18 @@ class Forest
   void implementFixedTimeEvent(TimeIntervalIterator &ti);
 
   // Pruning
-  bool isPrunable(Node const* node) const;
-  void prune(Node* node); 
+  bool nodeIsOld(Node const* node) const {
+    if ( node->local() ) return false;
+    if ( node->is_root() ) return false;
+    return (this->current_base() - node->last_update() > model().exact_window_length());
+  }
+
+  bool nodeIsActive(Node const* node) const {
+    return (node == active_node(0) || node == active_node(1));
+  }
+
+  bool pruneNodeIfNeeded(Node* node);
+
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
