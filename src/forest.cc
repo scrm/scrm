@@ -114,6 +114,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 
   // The node below the recombination point becomes local in all possible cases
   // (if it already isn't...)
+  updateAbove(cut_point.base_node(), false, false);
   cut_point.base_node()->make_local();
 
   // The new "root" of the newly formed tree
@@ -124,7 +125,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 
   // Set invariants of new root
   new_root->set_length_below(cut_point.base_node()->length_below() + 
-                             cut_point.base_node()->height_above() );
+                             cut_point.relative_height() );
   new_root->set_samples_below(cut_point.base_node()->samples_below() );
 
   nodes()->add(new_root, new_leaf);
@@ -483,6 +484,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
       // Record this  interval (coalescent)
       this->record_event((*ti),tmp_event_.time(), 1);
       this->implementCoalescence(tmp_event_, ti);
+      assert( checkInvariants(tmp_event_.node()) );
       if (coalescence_finished_) return;
 
       assert( this->printTree() );
@@ -750,9 +752,10 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   // Look if we can reuse the root that coalesced as new node
   if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
     new_node = coal_node;
-    new_node->make_local(); /*! \todo assert that coalescing nodes are local? */
+    new_node->make_local();
     coal_node = coal_node->first_child();
     nodes()->move(new_node, event.time());
+    updateAbove(new_node, false, false);
   } else {
     new_node = new Node(event.time());
     new_node->change_child(NULL, coal_node);
