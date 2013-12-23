@@ -405,7 +405,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << std::endl;
 
-    // Assert that we don't accidentaly jump backwards in time 
+    // Assert that we don't accidentally jump in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
 
     // Update States & Rates (see their declaration for explanation); 
@@ -463,26 +463,26 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
       // Record this  interval (coalescent)
-      this->record_event((*ti),tmp_event_.time(), 1);
+      this->record_event((*ti), tmp_event_.time(), 1);
       this->implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
 
     else if ( tmp_event_.isRecombination() ) {
       // Record this  interval (recombination)
-      this->record_event((*ti),tmp_event_.time(), 2);
+      this->record_event((*ti), tmp_event_.time(), 2);
       this->implementRecombination(tmp_event_, ti);
     }
 
     else if ( tmp_event_.isMigration() ) {
       // Record this  interval (migration)
-      this->record_event((*ti),tmp_event_.time(), 3);
+      this->record_event((*ti), tmp_event_.time(), 3);
       this->implementMigration(tmp_event_, ti);
     }
 
     else if ( tmp_event_.isCoalescence() ) {
       // Record this  interval (coalescent)
-      this->record_event((*ti),tmp_event_.time(), 1);
+      this->record_event((*ti), tmp_event_.time(), 1);
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
       if (coalescence_finished_) return;
@@ -591,9 +591,9 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("And event with rate 0 has happend!");
+  if ( rates_[time_line] == 0.0 ) throw std::logic_error("And event with rate 0 has happened!");
 
-  // Situation where it is clear what happend:
+  // Situation where it is clear what happened:
   if (time == -1) return;
   if (time_line == 2) return event.setToCoalescence(active_node(1), 1);
 
@@ -817,7 +817,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   }
 
   if (active_node(0) == active_node(1)) {
-    dout << "* * * Coalescend into other Active Node. Done." << std::endl;
+    dout << "* * * Coalesced into other Active Node. Done." << std::endl;
     updateAbove(getEventNode()); 
     coalescence_finished_ = true;
     return;
