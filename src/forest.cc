@@ -193,7 +193,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   }
   assert( length_below >= 0 );
 
-  // Update wether the node is local or not 
+  // Update whether the node is local or not 
   if (samples_below == 0) {
     if ( node->local() ) node->make_nonlocal(current_base());
   }
@@ -293,7 +293,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 
     node = this->local_root();
     length_left = random_generator()->sample() * local_tree_length();
-    assert( length_left < local_tree_length() );
+    assert( 0 < length_left && length_left < local_tree_length() );
   }
 
   assert( node->local() || node == this->local_root() );
@@ -364,7 +364,7 @@ void Forest::sampleNextGenealogy() {
 
   dout << "* Cutting subtree below recombination " << std::endl;
   this->cut(rec_point);
-
+  assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
   this->initialize_recomb_coalescent(rec_point.height());
