@@ -74,6 +74,28 @@ Forest::Forest(const Forest &current_forest) {
 	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
+Forest::Forest(Forest * current_forest) { 
+	this->set_model(current_forest->model_);
+  this->set_random_generator(current_forest->random_generator());
+	this->set_sample_size(current_forest->sample_size());
+	this->set_current_base(current_forest->current_base());
+	this->set_prune_countdown(current_forest->prune_countdown());
+	this->set_pruning(current_forest->pruning());
+
+  nodes_ = NodeContainer(*current_forest->getNodes());
+
+  for (auto it = nodes()->iterator(); it.good(); ++it) {
+    updateAbove(*it, false, false);
+  }
+
+	dout<<"  #################### check copied forest ###############"<<std::endl;
+	assert(this->printTree());
+  assert(this->printNodes());
+	assert(this->checkTree());
+  assert(this->checkLeafsOnLocalTree() );
+	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
+}
+
 
 
 /** 

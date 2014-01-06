@@ -112,6 +112,9 @@ class Node
   
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
+  
+  void set_mutation_state(bool state){mutation_state_ = state;}
+  bool mutation_state() const { return mutation_state_ ; }
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
@@ -147,7 +150,7 @@ class Node
 
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
-
+	
  private:
   void init(double heigh=-1, size_t label=0);
   void set_last_update(const double &position) { last_update_ = position; }; 
@@ -165,6 +168,7 @@ class Node
 
   Node* next_;
   Node* previous_;
+	bool mutation_state_;
 
   //The tree structure
   Node *parent_;

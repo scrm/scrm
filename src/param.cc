@@ -259,7 +259,7 @@ void Param::parse(Model &model) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
-  model.finalize();
+  //model.finalize();
   model.resetTime();
 }
 

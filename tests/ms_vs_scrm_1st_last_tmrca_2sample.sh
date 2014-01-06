@@ -5,7 +5,7 @@ mkdir test-first-last
 cd test-first-last
 
 
-seqlen=100000
+seqlen=3
 
 rep=100000
 
@@ -16,7 +16,7 @@ nsam=2
 
 #msNsample=(3)
 msr=(10)
-mst=(10)
+mst=(1)
 
 
 ## compare TMRCA
@@ -62,7 +62,7 @@ for t in "${mst[@]}"
 			rm first_scrm${tmrca}_file
 			rm last_scrm${tmrca}_file
 		
-			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T -l 100 | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				#grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
