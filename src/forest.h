@@ -110,6 +110,7 @@ class Forest
   void set_current_base(const double &base) { current_base_ = base; }
 
   double next_base() const {return next_base_;}
+  void set_next_base(const double &base){next_base_ = base;}
   void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
   } 

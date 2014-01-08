@@ -57,6 +57,7 @@ Forest::Forest(const Forest &current_forest) {
   this->set_random_generator(current_forest.random_generator());
 	this->set_sample_size(current_forest.sample_size());
 	this->set_current_base(current_forest.current_base());
+	this->set_next_base((current_forest.next_base()));
 	this->set_prune_countdown(current_forest.prune_countdown());
 	this->set_pruning(current_forest.pruning());
 
@@ -79,6 +80,7 @@ Forest::Forest(Forest * current_forest) {
   this->set_random_generator(current_forest->random_generator());
 	this->set_sample_size(current_forest->sample_size());
 	this->set_current_base(current_forest->current_base());
+	this->set_next_base((current_forest->next_base()));
 	this->set_prune_countdown(current_forest->prune_countdown());
 	this->set_pruning(current_forest->pruning());
 
