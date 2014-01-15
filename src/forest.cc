@@ -286,6 +286,7 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
+/**
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
@@ -306,7 +307,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
       return TreePoint(node, length_left, true);
     }
 
-    length_left = length_left - node->height_above();
+    length_left -= node->height_above();
     assert( length_left >= 0 );
   }
 
@@ -329,6 +330,17 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
   else 
     return samplePoint(node->second_child(), length_left - tmp);
 }
+*/
+TreePoint Forest::samplePoint(Node* node, double length_left) {
+ length_left = random_generator()->sample() * local_tree_length();  
+ for (auto ni = nodes()->iterator(); ni.good(); ++ni) {
+   if (!(*ni)->local()) continue;
+   if (length_left < (*ni)->height_above()) return TreePoint(*ni, length_left, true);
+   else length_left -= (*ni)->height_above();
+ }
+ assert(0);
+}
+
 
 
 /** 
