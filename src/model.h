@@ -46,12 +46,12 @@ class Model
 {
   public:
 #ifdef UNITTEST
-  friend class TestModel;
-  friend class TestTimeInterval;
+   friend class TestModel;
+   friend class TestTimeInterval;
 #endif
   
-  friend class Param;
-  friend std::ostream& operator<< (std::ostream& stream, const Model& model);
+   friend class Param;
+   friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
    Model(size_t sample_size);
@@ -200,14 +200,11 @@ class Model
     return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
    }
 
-
-
-   void set_mutation_rate(double rate, /*! \todo CHECK Units in per generation per base, Paul suggested to use per generation per locus, as the
-locus length might change after the rate is read in from command line */
+   void set_mutation_rate(double rate,
                           const bool &per_locus = false, 
                           const bool &scaled = false);
 
-   void set_recombination_rate(double rate, /*! \todo CHECK Units in per generation per base */
+   void set_recombination_rate(double rate,
                                const size_t &loci_length, 
                                const bool &per_locus = false, 
                                const bool &scaled = false);

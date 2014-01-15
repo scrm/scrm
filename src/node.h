@@ -76,10 +76,13 @@ class Node
 
   bool local() const { return (last_update_ == 0); }
 
-  void make_local() { last_update_ = 0; }
+  void make_local() { 
+    if (!local()) dout << "AAA Making " << this << " local (last-update before:" << last_update() << ")" << std::endl;
+    last_update_ = 0; 
+  }
   void make_nonlocal(const double &current_base) { 
     assert( this->local() ); 
-    //std::cout << "AAA Making " << this << " non-local " << current_base << std::endl;
+    dout << "AAA Making " << this << " non-local with last_update " << current_base << std::endl;
     set_last_update(current_base);
   }
 

@@ -25,8 +25,6 @@
 
 void Param::init(){
   this->random_seed=-1;
-  //this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
-  //this->recomb_rate_persite=0;
   this->log_bool = false;
   this->tree_bool = false;
   this->log_NAME = "scrm.log";
