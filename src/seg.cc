@@ -114,9 +114,9 @@ void Forest::traversal(Node *node, std::valarray<int> &haplotype){
     traversal(node->first_child(), haplotype);
   }
   else if (node->first_child()->local() && node->second_child()->local()){
-    Node *left = tracking_local_node(node->first_child());
+    Node *left = trackLocalNode(node->first_child());
     traversal(left, haplotype);
-    Node *right = tracking_local_node(node->second_child());
+    Node *right = trackLocalNode(node->second_child());
     traversal(right, haplotype);
   }
   else if (!node->first_child()->local() ){

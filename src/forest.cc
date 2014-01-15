@@ -1051,53 +1051,59 @@ bool areSame(const double &a, const double &b, const double &epsilon) {
   return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }
 
-Node * Forest::tracking_local_node(Node * node){ /*! \todo use node->samples_below(), and move it under the forest class*/
+
+/**
+ * @brief Goes down in the tree as long as we are on the same "local branch"
+ *
+ * In the ARG, there are many bifurcations were a non-local branch splits from
+ * the local tree. If we only print the local tree, we can ignore them. This
+ * functions goes down in the tree, until it hit a true bifurcation of the local
+ * tree.
+ *
+ * @param node The node we are following downwards
+ *
+ * @return The next true local bifurcation
+ */
+Node* Forest::trackLocalNode(Node *node){ 
   assert( node->local() );
-  dout << node << std::endl;
-  if (node->in_sample()){
-    dout<<" is tip node, it is local, return."<<std::endl;
-    return node;
-  }
+  if (node->numberOfChildren() == 0) return node;
+  if (node->numberOfChildren() == 1) return trackLocalNode(node->first_child());
 
-  assert( node->first_child() != NULL );
-  if ( node->second_child() == NULL ){
-    return this->tracking_local_node(node->first_child());
-  }
+  assert( node->numberOfChildren() == 2 );
+  assert( node->first_child()->local() || node->second_child()->local() );
 
-  else if (node->first_child()->local() && node->second_child()->local()){
-    dout<< " is an internal local node, return"<<std::endl;
-    return node;
+  if ( node->first_child()->local() ) {
+    if (node->second_child()->local()) return node;
+    else return trackLocalNode(node->first_child()); 
   }
-
-  else if (!node->first_child()->local() ){ 
-    assert( node->second_child()->local() );
-    dout<< "is internal node with one non-local branch" << std::endl;
-    return this->tracking_local_node(node->second_child());
-  }
-
-  else{
-    assert( node->first_child()->local() );
-    dout<< "is internal node with one non-local branch" << std::endl;
-    return this->tracking_local_node(node->first_child());
-  }
+  else return trackLocalNode(node->second_child());
 }
 
 
-std::string Forest::writeTree(Node * node /*!< Root of the subtree string*/){
-  if(node->in_sample()){ // real tip node
+/**
+ * @brief Prints a part of the tree in newick format
+ *
+ * @param node The root of the subtree that will be printed
+ *
+ * @return A part of the tree in newick format
+ */
+std::string Forest::writeTree(Node * node) {
+  if(node->in_sample()){
     std::ostringstream label_strm;
     label_strm<<node->label();
     return label_strm.str();
   }
   else{
-    Node *left = this->tracking_local_node(node->first_child());
-    double t1=node->height()- left->height();
+    Node *left = this->trackLocalNode(node->first_child());
+    double t1 = node->height() - left->height();
     std::ostringstream t1_strm;
-    t1_strm << t1 / 4 / this->model_->default_pop_size;
-    Node *right = this->tracking_local_node(node->second_child());
-    double t2=node->height()- right->height();
+    t1_strm << t1 / 4 / this->model().default_pop_size;
+
+    Node *right = this->trackLocalNode(node->second_child());
+    double t2 = node->height() - right->height();
     std::ostringstream t2_strm;
     t2_strm << t2 / 4 / this->model_->default_pop_size;
+
     return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
   }
 }

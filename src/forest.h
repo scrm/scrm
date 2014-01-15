@@ -169,7 +169,7 @@ class Forest
   std::ostream &generateSegData(std::ostream &output, int total_mut);
   TreePoint samplePoint(Node* node = NULL, double length_left = -1);
 
-  Node * tracking_local_node(Node * node); 
+  Node* trackLocalNode(Node *node); 
 
   //derived class from Forest
   virtual void initialize_recomb_coalescent(const double rec_height) {};
