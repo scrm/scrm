@@ -749,14 +749,21 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   Node* new_node;
 
-  // Look if we can reuse the root that coalesced as new node
+
+  // ---------------------------------------------
+  // Actually implement the coalescence
+  // ---------------------------------------------
+
+  // Look if we can reuse the root that coalesced for marking the point of 
+  // coalescence
   if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
+    assert( coal_node->local() );
     new_node = coal_node;
-    new_node->make_local();
     coal_node = coal_node->first_child();
     nodes()->move(new_node, event.time());
     updateAbove(new_node, false, false);
   } else {
+    // If not, create a new node
     new_node = new Node(event.time());
     new_node->change_child(NULL, coal_node);
     coal_node->set_parent(new_node);
@@ -764,9 +771,9 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   }
 
   // Now we have:
-  // target = Node in the target tree under the coalescence
-  // coal_node =  Root of the coalescing tree 
-  // new_node =   New parent of both other nodes
+  // target:    Node in the target tree under the coalescence
+  // coal_node: Root of the coalescing tree 
+  // new_node:  New parent of 'target' and 'coal_node'
 
   // Update new_node
   new_node->set_population(coal_node->population());
@@ -788,9 +795,14 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   set_active_node(event.active_node_nr(), new_node);
 
+
+  // ---------------------------------------------
+  // Check if are can stop.
+  // ---------------------------------------------
+
   if ( getOtherNodesState() == 2 ) {
     // If the coalescing node coalesced into the branch directly above 
-    // a recombining node, then we are done.
+    // a recombining node, we are done.
     if ( getOtherNode()->parent() == getEventNode() ) {
       dout << "* * * Recombining Node moved into coalesced node. Done." << std::endl;
       getOtherNode()->make_local();
@@ -804,20 +816,15 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     // have to care about marking it as updated.
   }
 
-  // Check if are can stop.
-  if ( getEventNode()->local() ) {
-    // Only one node should be active if there are still local nodes at the
-    // current height. Hence we are done if so.
-    assert( getOtherNodesState() == 0 );
+  if ( target->local() ) {
+    // Only active_node(0) can coalescence into local nodes. active_node(1) is 
+    // at least the local root and hence above all local nodes. 
+    // If active_node(0) coalescences into the local tree, there are no more
+    // active nodes and we are done. 
+    assert( event.active_node_nr() == 0 );
+    assert( states_[1] == 0 );
 
     dout << "* * * We hit the local tree. Done." << std::endl;
-    updateAbove(getEventNode()); 
-    coalescence_finished_ = true;
-    return;
-  }
-
-  if (active_node(0) == active_node(1)) {
-    dout << "* * * Coalesced into other Active Node. Done." << std::endl;
     updateAbove(getEventNode()); 
     coalescence_finished_ = true;
     return;
