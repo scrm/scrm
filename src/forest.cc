@@ -452,7 +452,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     if (states_[0] == 1 && states_[1] == 1) rate += calcPwCoalescenceRate(active_node(0)->population());
     if (states_[0] == 2) rate += calcRecombinationRate(active_node(0));
     if (states_[1] == 2) rate += calcRecombinationRate(active_node(1));
-    std::cout << rates_[0] << " " << rate << std::endl;
     assert( rate == rates_[0] );
 
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||

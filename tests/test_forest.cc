@@ -270,7 +270,6 @@ class TestForest : public CppUnit::TestCase {
       count += event.isMigration();
       count2 += event.isCoalescence();
     };
-    //std::cout << count << " " << count2 << std::endl;
     CPPUNIT_ASSERT( 4900 < count && count < 5100 );
     CPPUNIT_ASSERT( 3900 < count2 && count2 < 4100 );
 
@@ -288,13 +287,12 @@ class TestForest : public CppUnit::TestCase {
     forest2->calcRates(*tii);
 
     count = 0;
-    for (size_t i = 0; i < 10000; ++i) {
+    for (size_t i = 0; i < 100000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() || event.isRecombination() );
       count += event.isRecombination();
     };
-    //std::cout << count << std::endl;
-    CPPUNIT_ASSERT( 4900 < count && count < 5100 );
+    CPPUNIT_ASSERT( 49500 < count && count < 50500 );
 
     // Other way round
     Node* tmp = forest2->active_node(1);
@@ -305,13 +303,12 @@ class TestForest : public CppUnit::TestCase {
     forest2->calcRates(*tii);
 
     count = 0;
-    for (size_t i = 0; i < 10000; ++i) {
+    for (size_t i = 0; i < 100000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() || event.isRecombination() );
       count += event.isRecombination();
     };
-    //std::cout << std::endl << count << std::endl;
-    CPPUNIT_ASSERT( 4900 < count && count < 5100 ); // True with >95%
+    CPPUNIT_ASSERT( 49500 < count && count < 50500 ); // True with >95%
 
 
     // Double recombination
@@ -329,7 +326,6 @@ class TestForest : public CppUnit::TestCase {
       CPPUNIT_ASSERT( event.isRecombination() );
       count += (event.node() == forest2->active_node(0));
     };
-    //std::cout << count/15000 << std::endl;
     CPPUNIT_ASSERT( 4880 < count && count < 5120 ); // True with >96%
 
 
@@ -508,9 +504,6 @@ class TestForest : public CppUnit::TestCase {
     Forest frst = Forest(model, rg);
     frst.buildInitialTree();
 
-    //std::cout << endl;
-    //frst.printTree_cout();
-
     CPPUNIT_ASSERT_EQUAL(true, frst.checkTree());
 
     CPPUNIT_ASSERT_EQUAL(0.0, frst.nodes()->at(0)->height());
@@ -603,7 +596,6 @@ class TestForest : public CppUnit::TestCase {
     if( forest->nodes()->at(9) == forest->active_node(0) ) 
       single_branch = forest->nodes()->at(10);
 
-    //forest->printTree_cout();
     CPPUNIT_ASSERT( !single_branch->local() );
     CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
     CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
