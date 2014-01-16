@@ -22,8 +22,6 @@
 
 #include "forest.h"
 
-
-
 /******************************************************************
  * Constructors & Initialization
  *****************************************************************/
@@ -137,6 +135,8 @@ Node* Forest::cut(const TreePoint &cut_point) {
   assert( this->checkInvariants(parent) );
   assert( this->checkInvariants(new_leaf) );
   assert( this->checkInvariants(new_root) );
+  assert( new_leaf->height() == cut_point.height() );
+  assert( new_root->height() == cut_point.height() );
 
   return(new_root);
 }
@@ -444,6 +444,16 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[1] == 1 || active_node(1)->parent_height() >= tmp_event_.time() );
     assert( states_[0] != 2 || !active_node(0)->local() );
     assert( states_[1] != 2 || !active_node(1)->local() );
+    
+    // Remove we non-local branches bug is fixed
+    double rate = 0;
+    if (states_[0] == 1) rate += calcCoalescenceRate(active_node(0)->population(), *ti);
+    if (states_[1] == 1) rate += calcCoalescenceRate(active_node(1)->population(), *ti);
+    if (states_[0] == 1 && states_[1] == 1) rate += calcPwCoalescenceRate(active_node(0)->population());
+    if (states_[0] == 2) rate += calcRecombinationRate(active_node(0));
+    if (states_[1] == 2) rate += calcRecombinationRate(active_node(1));
+    std::cout << rates_[0] << " " << rate << std::endl;
+    assert( rate == rates_[0] );
 
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
             active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
@@ -460,11 +470,17 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
-      // Record this  interval (nothing)
+      // Record this interval (nothing)
       if (rates_[0]>0 || rates_[1]>0 || rates_[2]>0){
         this->record_event((*ti),(*ti).end_height(), 4);
       }
       else{ /*! \todo CHECK THIS ELSE, CASE 5 IS NOT NECESSARY ?? recombination above the root??? */
+        //
+        // Yes, all rates 0 can occur, e.g. after coalescence into a branch that
+        // just became non-local at this position. Why is there a difference between nothing
+        // happened when something could have happened, and nothing happened
+        // because nothing could? I'm not sure what you mean with "recombination
+        // above the root" - Paul 
         this->record_event((*ti),(*ti).end_height(), 5);
       }
       
@@ -910,6 +926,9 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
   dout << " done" << std::endl;
 
   assert( this->local_root()->height() == time );
+  assert( root_1->local() );
+  assert( root_2->local() );
+  assert( !new_root->local() );
 }
 
 
