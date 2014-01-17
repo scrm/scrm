@@ -45,6 +45,9 @@ class Param {
   bool seg_bool() const { return seg_bool_; }
   void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
 
+  size_t random_seed() const { return random_seed_; }
+  void set_random_seed(const int seed ){ this->random_seed_ = seed; }
+
   // Other methods
   void init();
   void log_param();
@@ -55,7 +58,7 @@ class Param {
   void print_param();
 
   // Member variables
-  size_t random_seed;
+  
   bool tree_bool;
   bool tmrca_bool;
   bool log_bool;
@@ -80,6 +83,7 @@ class Param {
   int argc_i;
   char * const* argv_;
   bool seg_bool_;
+  size_t random_seed_;
   bool directly_called_;
 };
 

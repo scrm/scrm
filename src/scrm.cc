@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed);
+    MersenneTwister rg = MersenneTwister(user_para.random_seed());
 
     // Organize output
     std::ostream *output = &std::cout;

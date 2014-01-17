@@ -24,7 +24,7 @@
 #include "param.h"
 
 void Param::init(){
-  this->random_seed=-1;
+  this->set_random_seed(-1);
   //this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
   //this->recomb_rate_persite=0;
   this->log_bool = false;
@@ -242,7 +242,7 @@ void Param::parse(Model &model) {
 
     else if (argv_i == "-seed"){
       nextArg(argv_i);
-      random_seed = readInput<size_t>(argv_[argc_i]);
+      this->set_random_seed( readInput<size_t>(argv_[argc_i]) );
     }
 
     else if (directly_called_){
@@ -273,7 +273,7 @@ void Param::log_param(){
   //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
   std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
   log_file<<"scrm parameters: \n";
-  log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
+  log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed()<< "\n";
   log_file.close();
 }		
 
