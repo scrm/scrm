@@ -609,7 +609,9 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
   // Chech if all contemporaries are in contemporaries() 
   for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
     if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
-      if ( *ni == active_node(0) || *ni == active_node(1) ) continue;
+      if ( *ni == active_node(0) && states_[0] == 1 ) continue; 
+      if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
+      
       bool found = false;
       for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
         if ( *it == *ni ) {

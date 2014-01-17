@@ -205,7 +205,7 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
       this->removeFromContemporaries(current_node->second_child());
   }
 
-  if ( ! current_node->is_root() ) 
+  if ( !current_node->is_root() ) 
     this->addToContemporaries(current_node);
 }
 

@@ -808,6 +808,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->set_parent(target->parent());
   if (!target->local()) {
     new_node->make_nonlocal(target->last_update());
+    tii.addToContemporaries(new_node);
   } else {
     new_node->make_local();
   }
