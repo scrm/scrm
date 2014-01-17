@@ -86,6 +86,7 @@ class Forest
   Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
+  Forest(Forest *current_forest);
   virtual ~Forest() {};
 
   //Getters & Setters
@@ -109,6 +110,7 @@ class Forest
   void set_current_base(const double &base) { current_base_ = base; }
 
   double next_base() const {return next_base_;}
+  void set_next_base(const double &base){next_base_ = base;}
   void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
   } 
@@ -282,7 +284,7 @@ class Forest
   Node* active_nodes_[2];
   Event  tmp_event_;
   size_t tmp_event_line_;
-  double tmp_event_time_;
+  double tmp_event_time_ = -1;  // Set initial value, to stop valgrind from complaining about uninitialized variables
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];

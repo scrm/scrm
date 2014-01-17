@@ -7,7 +7,7 @@ cd test-tmrca-last
 
 seqlen=100000
 
-rep=100000
+rep=10000
 
 
 #echo -e "rm(list=ls());
@@ -22,13 +22,13 @@ rep=100000
 	#}" > compute_moments.r
 
 #msNsample=(2 3 4 7 10 20)
-msNsample=(2 4)
-msr=(10 20 50 100)
-mst=(10 20 50 100)
+#msNsample=(2 4)
+#msr=(10 20 50 100)
+#mst=(10 20 50 100)
 
-#msNsample=(3)
-#msr=(10)
-#mst=(10)
+msNsample=(6)
+msr=(10)
+mst=(10)
 
 
 ## compare TMRCA
@@ -77,7 +77,7 @@ for t in "${mst[@]}"
 			bl=${prefix}bl
 			tmrca=${prefix}tmrca
 			#segrecomb=${prefix}segRecomb
-
+			rm msTrees
 			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
@@ -87,8 +87,8 @@ for t in "${mst[@]}"
 				hybrid-Lambda -gt msTrees -bl ms${bl}
 				find . -name "xx*" -print0 | xargs -0 rm
 				
-				
-			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			rm 	scrmTrees
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T -l 100 | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
@@ -132,7 +132,7 @@ format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",format(test\$statistic,digits=4),format(test\$p.value,scientific = TRUE), 
 sep=\"\t\"),file=\"${compareBL}\",append=TRUE);cat(\"\n\",file=\"${compareBL}\",append=TRUE);" > dummy.r
 			R CMD BATCH dummy.r
-			rm scrm${tmrca} scrm${bl} ms${tmrca} ms${bl}
+			#rm scrm${tmrca} scrm${bl} ms${tmrca} ms${bl}
 			done
 		done
 	done
