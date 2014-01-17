@@ -132,6 +132,7 @@ class Forest
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
 
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
@@ -169,9 +170,8 @@ class Forest
   std::valarray<int> find_haplotypes(Node *node); 
   void traversal(Node *node, std::valarray <int>&haplotype);
   std::ostream &generateSegData(std::ostream &output, int total_mut);
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
 
-  Node * tracking_local_node(Node * node); 
+  Node* trackLocalNode(Node *node); 
 
   //derived class from Forest
   virtual void initialize_recomb_coalescent(const double rec_height) {};
@@ -188,11 +188,8 @@ class Forest
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);
-  //making samplePoint public
-  //TreePoint samplePoint(Node* node = NULL, double length_left = -1);
   size_t getNodeState(Node const *node, const double &current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
-
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
@@ -226,6 +223,7 @@ class Forest
   }
 
   double calcRecombinationRate(Node const* node) const {
+    assert( !node->local() );
     return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   }
 
