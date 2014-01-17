@@ -286,7 +286,7 @@ class Forest
   Node* active_nodes_[2];
   Event  tmp_event_;
   size_t tmp_event_line_;
-  double tmp_event_time_;
+  double tmp_event_time_ = -1;  // Set initial value, to stop valgrind from complaining about uninitialized variables
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];
