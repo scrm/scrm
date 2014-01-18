@@ -47,6 +47,7 @@ void Node::init(double height, size_t label) {
   this->set_first_child(NULL);
   this->set_previous(NULL);
   this->set_next(NULL);
+  this->set_mutation_state(NULL);
 }
   
 
