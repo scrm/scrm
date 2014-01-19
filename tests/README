@@ -3,7 +3,7 @@ Testing files for comparing statistics between ms output and scrm ouput
 CHECKING THE INITIAL TREE
 	
 * Checking -T option
-(GOOD Sep19) ##############################################
+(In process 19Jan14) ##############################################
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -11,7 +11,7 @@ CHECKING THE INITIAL TREE
 		test-tmrca/compareTMRCA
 		test-tmrca/*.pdf
 		
-(GOOD Sep19) ##############################################
+(In process 19Jan14) ##############################################
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -73,33 +73,52 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 * Checking growth rate, -eg option
 (TO COME)##############################################
 
+
 WITH RECOMBINATION
 
 	
-	##############################################
+(In process 18Jan14)	##############################################
 	Compare TMRCA
-		./ms_vs_scrm-tmrca-wit-recomb.sh
+	Compare total branch length
+
+	./ms_vs_scrm-tmrca-wit-recomb.sh
 	
 	Output file:
+        test-tmrca-recomb/compareTMRCA-RECOMB
+        test-tmrca-recomb/compareBL-RECOMB
+        test-tmrca-recomb/*pdf
 	
-	##############################################
-	Compare total branch length
 	
-	##############################################
+(In process 18Jan14, need to check 19Jan14)	##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg_wit_recomb.sh 
 	
+    Output file:
+        test-seg-recomb/compareSEG-RECOMB 
+        test-seg-recomb/*pdf
+        
 	##############################################
 	Compare spectrum
-	
+	Compare the Spectrum of the segregating sites, frequencies of observing a k mutation...
+ (In process 18Jan14, need to check 19Jan14)   ./spectrum.sh
+
+    ./spectrum-wit-recomb.sh
+    
+    Output file:
+        test-spectrum/compareSPEC
+
+test-spectrum-recomb/    
 	
 	
 RECOMBINATION ONLY
 	
-	##############################################
+(GOOD 18Jan14)	##############################################
 	Compare number of recombination
 	./ms_vs_scrm-recomb.sh
 	
+    Output file:
+        test-recomb/compareRECOMB
+        test-recomb/*pdf
 	
 	
 	##############################################

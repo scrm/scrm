@@ -9,8 +9,8 @@ rm *pdf
 
 msr=(11 21 10 50 100)
 mst=(10 20 50 100 10)
-msr=(100)
-mst=(25)
+#msr=(100)
+#mst=(25)
 
 rep=100000
 seqlen=100000
@@ -37,7 +37,7 @@ for t in "${mst[@]}"
 		source(\"../fun_src.r\");
 		msdata=read.table(\"ms${nseg}\")\$V1;
 		scrmdata=read.table(\"scrm${nseg}\")\$V1;
-			ee=ee_seg(${nsam},${r});
+			ee=ee_seg(${nsam},${t});
 			sdv=sd_seg_recomb(${nsam},${t},${r});
 			datamax=max(msdata,scrmdata);
 		mstable=table(factor(msdata,levels=1:datamax))

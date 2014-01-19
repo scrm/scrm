@@ -4,16 +4,16 @@
 ###########################
 #!!!!! need to check is there a formula for the theoretical probability????
 
+mkdir test-spectrum
+cd test-spectrum
 
-
-mst=(10 20)
+mst=(10 20 50 100 10)
 
 msNsample=(3 7 10)
 
-mst=(10)
-msNsample=(3)
+#msNsample=(3)
 
-rep=100000
+rep=10000
 #npop=20000
 
 compareSPEC=compareSPEC
@@ -49,12 +49,13 @@ END {
 		cat mscolsumsOld | tr '\n' ',' > mscolsums
 	
 		rm scrmcolsum*  
-		find . -name "xx*" -print0 | xargs -0 rm
+		find . -name "yy*" -print0 | xargs -0 rm
 	
-		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
-		for file in $(seq 1 1 ${rep})
+		scrm ${nsam} ${rep} -t ${t} | tail -n +4 | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="yy"++d} f{print > f} '
+		
+        for file in $(seq 1 1 ${rep})
 				do 
-				sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '
+				sed '/\/\//d' yy${file} | sed 's/.\{1\}/& /g' | awk '
 { for(i=1;i<=NF;++i) t[i]+=$i
   if(n<NF)n=NF
 } 
@@ -94,6 +95,8 @@ cat(\"\n\",file=\"${compareSPEC}\",append=TRUE);
 		}
 		" > dummy.r
 		R CMD BATCH dummy.r
+        find . -name "xx*" -print0 | xargs -0 rm
+        find . -name "yy*" -print0 | xargs -0 rm
 		#rm ms${out} ms${nseg} scrm${out} scrm${nseg}
 		done
 	done
