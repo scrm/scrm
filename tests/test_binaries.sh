@@ -10,7 +10,6 @@
 
 function debug_call {
   for i in `seq 1 100`; do
-      echo "Executing \"./src/scrm_dbg $@ -seed $i\" "
     ./src/scrm_dbg $@ -seed $i > /dev/null 
     if [ $? -ne 0 ]; then
       echo "Executing \"./src/scrm_dbg $@ -seed $i\" failed."
@@ -54,3 +53,7 @@ debug_call 5 2 -r 20 200 -I 2 3 2 1.2 -l 25 || exit 1
 echo "Testing Split..."
 debug_call 5 5 -r 20 200 -I 2 3 2 0.4 -ej 1.1 2 1 -l 25  || exit 1
 debug_call 6 2 -r 20 200 -I 3 2 2 2 1.5 -ej 0.2 2 1 -ej 0.25 3 1 -l 25 || exit 1
+
+echo "Testing Growth..."
+debug_call 5 20 -r 20 200 -G 0.5 -l 25  || exit 1
+debug_call 5 10 -r 2 200 -G -2.5 -eG 1 0.0 -l 25  || exit 1
