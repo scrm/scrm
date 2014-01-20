@@ -362,8 +362,8 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
    else length_left -= (*ni)->height_above();
  }
  assert(0);
- */
 }
+*/
 
 
 

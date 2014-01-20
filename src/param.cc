@@ -120,6 +120,14 @@ void Param::parse(Model &model) {
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model.addSampleSizes(0.0, sample_size);
+      try {
+        nextArg(argv_i);
+        model.addSymmetricMigration(0.0, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
+      } catch (std::invalid_argument e) {
+        --argc_i;
+      } catch (boost::bad_lexical_cast e) {
+        --argc_i;
+      }
     }
 
     // Add samples at arbitrary times
