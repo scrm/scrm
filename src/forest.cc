@@ -207,10 +207,6 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   size_t samples_below = node->in_sample();
   if (l_child != NULL) samples_below = l_child->samples_below();
   if (h_child != NULL) samples_below += h_child->samples_below();
-  dout << node << " " << node->in_sample() << " "; 
-  if (l_child != NULL) dout << l_child->samples_below() << " ";
-  if (h_child != NULL) dout << h_child->samples_below();
-  dout << std::endl;
   assert( samples_below <= this->sample_size() );
 
   double length_below = 0.0;
@@ -527,7 +523,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isMigration() ) {
       // Record this  interval (migration)
       this->record_event((*ti), tmp_event_.time(), 3);
-      this->implementMigration(tmp_event_, ti);
+      this->implementMigration(tmp_event_, true, ti);
       assert( this->printTree() );
     }
 
@@ -967,7 +963,7 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
 }
 
 
-void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
+void Forest::implementMigration(const Event &event, const bool &recalculate, TimeIntervalIterator &ti) {
   dout << "* * Implementing migration event... " << std::flush;
   assert( event.node()->is_root() );
 
@@ -1000,7 +996,7 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
     event.node()->make_local();
   }
   // And recalculate the interval
-  ti.recalculateInterval();
+  if (recalculate) ti.recalculateInterval();
   dout << "done." << std::endl;
 
   assert( event.node()->local() );
@@ -1018,10 +1014,11 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
       if (prob == 1.0 || prob <= random_generator()->sample() ) {
         tmp_event_ = Event((*ti).start_height());
         tmp_event_.setToMigration(active_node(i), i, j);
-        implementMigration(tmp_event_, ti);
+        implementMigration(tmp_event_, false, ti);
       }
     }
   }
+  assert( printTree() );
 }
 
 /** 

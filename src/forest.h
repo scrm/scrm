@@ -197,7 +197,7 @@ class Forest
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
-  void implementMigration(const Event &event, TimeIntervalIterator &tii);
+  void implementMigration(const Event &event, const bool &recalculate, TimeIntervalIterator &tii);
   void implementFixedTimeEvent(TimeIntervalIterator &ti);
 
   // Pruning

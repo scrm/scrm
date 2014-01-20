@@ -606,7 +606,7 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
     }
   }
 
-  // Chech if all contemporaries are in contemporaries() 
+  // Check if all contemporaries are in contemporaries() 
   for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
     if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
       if ( *ni == active_node(0) && states_[0] == 1 ) continue; 
@@ -621,6 +621,7 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
       } 
       if (!found) { 
         dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
+        dout << ti.start_height() << " " << ti.end_height() << std::endl;
         return 0;
       }
     }
