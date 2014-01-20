@@ -43,5 +43,12 @@ debug_call 4 10 -r 5 100 -T || exit 4
 debug_call 6 10 -r 1 100 -t 5 || exit 5 
 
 echo "Testing Pruning..."
-debug_call 10 10 -r 10 500 -l 10 || exit 7 
-debug_call 3 10 -r 10 500 -l 0 || exit 6 
+debug_call 10 10 -r 10 500 -l 10 || exit 6
+debug_call 3 10 -r 10 500 -l 0 || exit 7
+
+echo "Testing Migration..."
+debug_call 10 10 -r 50 500 -I 2 5 5 0.5 -l 100 || exit 8
+debug_call 10 10 -r 50 500 -I 2 5 5 -M 1.7 -l 100  || exit 9
+
+echo "Testing Split..."
+debug_call 10 10 -r 50 500 -I 2 5 5 0.5 -ej 1.0 2 1 -l 100 || exit 10
