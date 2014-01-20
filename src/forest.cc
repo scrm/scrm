@@ -185,6 +185,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
  */
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive) {
+
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -206,6 +207,10 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   size_t samples_below = node->in_sample();
   if (l_child != NULL) samples_below = l_child->samples_below();
   if (h_child != NULL) samples_below += h_child->samples_below();
+  dout << node << " " << node->in_sample() << " "; 
+  if (l_child != NULL) dout << l_child->samples_below() << " ";
+  if (h_child != NULL) dout << h_child->samples_below();
+  dout << std::endl;
   assert( samples_below <= this->sample_size() );
 
   double length_below = 0.0;
@@ -523,6 +528,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
       // Record this  interval (migration)
       this->record_event((*ti), tmp_event_.time(), 3);
       this->implementMigration(tmp_event_, ti);
+      assert( this->printTree() );
     }
 
     else if ( tmp_event_.isCoalescence() ) {
@@ -975,7 +981,7 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   }
   else {
     // Otherwise create a new node that marks the migration event
-    Node* mig_node = new Node(event.time(), true);
+    Node* mig_node = new Node(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
@@ -989,10 +995,15 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
     // And set it active
     this->set_active_node(event.active_node_nr(), mig_node);
     assert(mig_node->is_migrating());
+
+    // And make the event node local
+    event.node()->make_local();
   }
   // And recalculate the interval
   ti.recalculateInterval();
   dout << "done." << std::endl;
+
+  assert( event.node()->local() );
 }
 
 
@@ -1054,7 +1065,11 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
 
     node->parent()->change_child(node, NULL);
     if (node->numberOfChildren() == 0) nodes()->remove(node); 
-    else node->set_parent(NULL);
+    else { 
+      Node* parent = node->parent();
+      node->set_parent(NULL);
+      updateAbove(parent, false, true);
+    }
     return true;
   } 
 
@@ -1066,7 +1081,9 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
   }
 
   // Unneeded nodes 
-  else if ((!node->is_root()) && node->numberOfChildren() == 1) {
+  else if ((!node->is_root()) && 
+           node->numberOfChildren() == 1 &&
+           !node->is_migrating()) {
     dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
     assert(!node->is_migrating());
     assert(node->first_child()->last_update() == node->last_update());
