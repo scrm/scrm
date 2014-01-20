@@ -39,8 +39,7 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
   set_last(NULL);
 
   std::map<Node const*, Node*> node_mapping;  
-  node_mapping[NULL] == NULL;
-
+  node_mapping[NULL] = NULL;
 
   for (auto it = nc.iterator(); it.good(); ++it) {
     Node *node = new Node(**it);
