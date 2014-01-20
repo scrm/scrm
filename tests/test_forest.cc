@@ -499,7 +499,7 @@ class TestForest : public CppUnit::TestCase {
     model->addSampleSizes(1.0, sample_sizes);
 
     std::vector<double> mig_rates(9, 1.0);
-    model->addMigrationRates(2.0, mig_rates);
+    model->addMigrationRates(2.0, mig_rates, true, true);
 
     Forest frst = Forest(model, rg);
     frst.buildInitialTree();
@@ -532,7 +532,7 @@ class TestForest : public CppUnit::TestCase {
     model->addSampleSizes(1.0, sample_sizes);
 
     std::vector<double> mig_rates(9, 1.0);
-    model->addMigrationRates(2.0, mig_rates);
+    model->addMigrationRates(2.0, mig_rates, true, true);
 
     Forest frst = Forest(model, rg);
     frst.buildInitialTree();
