@@ -43,6 +43,9 @@ void Forest::initialize(Model* model,
   this->set_current_base(1);
   this->prune_countdown_ = model->prune_interval();
   this->set_sample_size(0);
+
+  tmp_event_time_ = -1;
+  tmp_event_line_ = -1;
 }
 
 /**
