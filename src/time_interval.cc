@@ -165,6 +165,8 @@ void TimeIntervalIterator::next() {
 
     // Pruning
     while ( !(*node_iterator_)->is_last() ) {
+      // Prunes the next node BEFORE node_iterator_ gets there, 
+      // and does there not invalidate it.
       if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
     }
 

@@ -120,6 +120,7 @@ void Param::parse(Model &model) {
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model.addSampleSizes(0.0, sample_size);
+      // there might or might not follow a symmetric migration rate
       try {
         nextArg(argv_i);
         model.addSymmetricMigration(0.0, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
