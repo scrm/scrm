@@ -313,7 +313,6 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
-/**
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
@@ -357,7 +356,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
   else 
     return samplePoint(node->second_child(), length_left - tmp);
 }
-*/
+/* Alternative inefficient implementation
 TreePoint Forest::samplePoint(Node* node, double length_left) {
  length_left = random_generator()->sample() * local_tree_length();  
  for (auto ni = nodes()->iterator(); ni.good(); ++ni) {
@@ -367,6 +366,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  }
  assert(0);
 }
+*/
 
 
 
@@ -472,15 +472,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[0] != 2 || !active_node(0)->local() );
     assert( states_[1] != 2 || !active_node(1)->local() );
     
-    // Remove we non-local branches bug is fixed
-    double rate = 0;
-    if (states_[0] == 1) rate += calcCoalescenceRate(active_node(0)->population(), *ti);
-    if (states_[1] == 1) rate += calcCoalescenceRate(active_node(1)->population(), *ti);
-    if (states_[0] == 1 && states_[1] == 1) rate += calcPwCoalescenceRate(active_node(0)->population());
-    if (states_[0] == 2) rate += calcRecombinationRate(active_node(0));
-    if (states_[1] == 2) rate += calcRecombinationRate(active_node(1));
-    assert( rate == rates_[0] );
-
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
             active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
