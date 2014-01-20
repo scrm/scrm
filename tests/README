@@ -29,7 +29,7 @@ CHECKING THE INITIAL TREE
 		test-seg/*.pdf
 
 * Checking segregating sites data
-(progress 19Jan14) ##############################################
+(progress 19Jan14, need to check!!!!) ##############################################
 	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
 	./ms_vs_scrm_SEG_samplestats.sh
 	
@@ -49,7 +49,7 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 		test-mig/*.pdf
 			
 * Checking the population structure, -eN option
-(progress 19Jan14) ##############################################
+(Good 19Jan14) ##############################################
 	Compare TMRCA and total branch length, and segregating sites for Population structure
 	./ms_vs_scrm_pop_struct.sh 
 
