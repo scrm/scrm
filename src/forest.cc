@@ -748,6 +748,8 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  *    coalescence has finished. 
  */
 void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished) {
+  if (ti.end_height() == FLT_MAX) 
+    throw std::logic_error("Lines did not coalescence. If you use an negative growth parameter (population rapidly declining forward in time), you need to set it to a non-negative value at some time.");
   if (states_[0] == 2) {
     set_active_node(0, possiblyMoveUpwards(active_node(0), ti));
     if (active_node(0)->local()) {
