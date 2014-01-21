@@ -12,9 +12,9 @@ unittests:
 	./tests/unit_tests 
 
 algorithmtests:
-	cd tests; make algorithmtests
+	cd tests; make algorithm_tests
 	./tests/algorithm_tests 
 
-travis-test: unittests algorithm_tests
+travis-test: unittests algorithmtests
 	cd src; make scrm scrm_dbg
 	./tests/test_binaries.sh
