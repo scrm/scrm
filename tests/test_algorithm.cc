@@ -134,21 +134,11 @@ class TestAlgorithm : public CppUnit::TestCase {
       tmrca[4] += forest.local_root()->height() / ( 4 * model->default_pop_size );
       tree_length[4] += forest.local_tree_length() / ( 4 * model->default_pop_size );
     }
-    tmrca[0] /= reps;          // Expectation: 0.9 
-    tmrca[1] /= reps;          // Expectation: 0.9 
-    tmrca[2] /= reps;          // Expectation: 0.9 
-    tmrca[3] /= reps;          // Expectation: 0.9 
-    tmrca[4] /= reps;          // Expectation: 0.9 
-    tree_length[0] /= reps;    // Expectation: 2.84 
-    tree_length[1] /= reps;    // Expectation: 2.84 
-    tree_length[2] /= reps;    // Expectation: 2.84 
-    tree_length[3] /= reps;    // Expectation: 2.84 
-    tree_length[4] /= reps;    // Expectation: 2.84 
-
-    std::cout << std::endl; 
 
     for (int i = 0; i < 5; ++i) {
-      std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
+      tmrca[i] /= reps;          // Expectation: 0.9 
+      tree_length[i] /= reps;    // Expectation: 2.84 
+      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
       CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
       CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.88 );
     }
