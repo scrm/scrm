@@ -247,7 +247,7 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
       if (!forest_->pruneNodeIfNeeded((*node_iterator)->next())) break;
 
       // If the removed node would have need an contemporary, maybe it children
-      // are now contemporaries because there new parent is highter. 
+      // are now contemporaries because there new parent is higher. 
       // This can only happen if the node has only one child.
       if ( child != NULL && child->parent_height() > node->height() ) 
         this->addToContemporaries(child);

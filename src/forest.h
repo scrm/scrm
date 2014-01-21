@@ -204,7 +204,7 @@ class Forest
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    return (this->current_base() - node->last_update() > model().exact_window_length());
+    return (current_base() - node->last_update() > model().exact_window_length());
   }
 
   bool nodeIsActive(Node const* node) const {

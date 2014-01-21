@@ -1053,6 +1053,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 
 bool Forest::pruneNodeIfNeeded(Node* node) {
   assert( node != NULL );
+  if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
 
   // Old nodes have to go, no matter what

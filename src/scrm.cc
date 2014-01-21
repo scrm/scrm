@@ -55,15 +55,17 @@ int main(int argc, char *argv[]){
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
+    double tmrca, tot_bl;
+
+    // Set up a buffer to hold the tree representations
+    std::ostringstream tree_buffer;
+
     // Loop over the independent samples
     for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
 
       // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
 
-      // Set up a buffer to hold the tree representations
-      std::ostringstream tree_buffer;
-      double tmrca, tot_bl;
       // Now set up the ARG, and sample the initial tree
       Forest forest = Forest(&model, &rg);
       forest.buildInitialTree();
