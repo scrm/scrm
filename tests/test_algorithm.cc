@@ -134,7 +134,8 @@ class TestAlgorithm : public CppUnit::TestCase {
       Forest forest = Forest(model, rg);
       forest.buildInitialTree();
 
-      for (size_t j = 1; j <= 5; j++) {
+      for (size_t j = 1; j <= 5; ++j) {
+        std::cout << j << std::endl;
         while (forest.next_base() < j*5) {
           forest.sampleNextGenealogy();
         }
