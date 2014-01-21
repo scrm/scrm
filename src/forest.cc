@@ -393,7 +393,6 @@ void Forest::sampleNextGenealogy() {
     }
     --prune_countdown_;
   }
-  if (pruning_) dout << "We will prune the complete tree this time" << std::endl;
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
@@ -955,7 +954,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 
 
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
-  TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
+  TreePoint event_point = TreePoint(event.node(), event.time(), false);
   set_active_node(event.active_node_nr(), cut(event_point));
 
   ti.recalculateInterval();

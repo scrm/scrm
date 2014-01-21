@@ -111,13 +111,8 @@ int main(int argc, char *argv[]){
           tmrca = forest.tmrca();
           tot_bl = forest.tot();
 
-          /*! \todo Keep? */
-          //std::cerr << i << " " << forest.local_root()->height() / ( 4 * forest.model().default_pop_size )  
-          //<< " " << forest.local_tree_length() / ( 4 * forest.model().default_pop_size )<< std::endl;
-
           // Sample next genealogy
           forest.sampleNextGenealogy();
-          //++i;
 
           // Sample and store segregating sites data
           seg_data_array.append_new_seg_data(&forest);
