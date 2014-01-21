@@ -14,6 +14,8 @@ class TestAlgorithm : public CppUnit::TestCase {
 
 	CPPUNIT_TEST( testInitialTree );
 	CPPUNIT_TEST( testTreeAfterRecombination );
+	CPPUNIT_TEST( testTreeWithPruning );
+	CPPUNIT_TEST( testTreeWithFullPruning );
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -101,38 +103,73 @@ class TestAlgorithm : public CppUnit::TestCase {
 
     for (size_t i = 0; i < reps; ++i) {
       Forest forest = Forest(model, rg);
-
-      int j = 0;
       forest.buildInitialTree();
-      while (forest.next_base() < 5) {
-        forest.sampleNextGenealogy();
-      }
-      tmrca[0] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length[0] += forest.local_tree_length() / ( 4 * model->default_pop_size );
 
-      while (forest.next_base() < 10) {
-        forest.sampleNextGenealogy();
+      for (size_t j = 1; j <= 5; j++) {
+        while (forest.next_base() < j*5) {
+          forest.sampleNextGenealogy();
+        }
+        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
       }
-      tmrca[1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length[1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    }
 
-      while (forest.next_base() < 15) {
-        forest.sampleNextGenealogy();
-      }
-      tmrca[2] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length[2] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    for (int i = 0; i < 5; ++i) {
+      tmrca[i] /= reps;          // Expectation: 0.9 
+      tree_length[i] /= reps;    // Expectation: 2.84 
+      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
+      CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
+      CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.88 );
+    }
+  }
 
-      while (forest.next_base() < 20) {
-        forest.sampleNextGenealogy();
-      }
-      tmrca[3] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length[3] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+  void testTreeWithPruning() {
+    double tmrca[5] = { 0 };
+    double tree_length[5] = { 0 };
+    size_t reps = 10000;
 
-      while (forest.next_base() < 25) {
-        forest.sampleNextGenealogy();
+    model->set_exact_window_length(5);
+
+    for (size_t i = 0; i < reps; ++i) {
+      Forest forest = Forest(model, rg);
+      forest.buildInitialTree();
+
+      for (size_t j = 1; j <= 5; j++) {
+        while (forest.next_base() < j*5) {
+          forest.sampleNextGenealogy();
+        }
+        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
       }
-      tmrca[4] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length[4] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    }
+
+    for (int i = 0; i < 5; ++i) {
+      tmrca[i] /= reps;          // Expectation: 0.9 
+      tree_length[i] /= reps;    // Expectation: 2.84 
+      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
+      CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
+      CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.88 );
+    }
+  }
+
+  void testTreeWithFullPruning() {
+    double tmrca[5] = { 0 };
+    double tree_length[5] = { 0 };
+    size_t reps = 10000;
+
+    model->set_exact_window_length(0);
+
+    for (size_t i = 0; i < reps; ++i) {
+      Forest forest = Forest(model, rg);
+      forest.buildInitialTree();
+
+      for (size_t j = 1; j <= 5; j++) {
+        while (forest.next_base() < j*5) {
+          forest.sampleNextGenealogy();
+        }
+        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
+        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
+      }
     }
 
     for (int i = 0; i < 5; ++i) {
