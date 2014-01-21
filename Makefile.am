@@ -12,7 +12,7 @@ unittests:
 	./tests/unit_tests 
 
 algorithmtests:
-	cd tests; make algorithm_tests
+	cd tests; make algorithmtests
 	./tests/algorithm_tests 
 
 travis-test: unittests algorithm_tests
