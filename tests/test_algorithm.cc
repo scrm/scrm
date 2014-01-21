@@ -135,9 +135,8 @@ class TestAlgorithm : public CppUnit::TestCase {
       forest.buildInitialTree();
 
       for (size_t j = 1; j <= 5; ++j) {
-        std::cout << j << std::endl;
         while (forest.next_base() < j*5) {
-          forest.sampleNextGenealogy();
+          //forest.sampleNextGenealogy();
         }
         tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
         tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
