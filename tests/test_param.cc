@@ -171,9 +171,9 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
 
-    // -esme
+    // -es
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-                      "-esme", "1.6", "2", "1", "0.5", "-esme", "1.6", "1", "2", "0.1", "-M", "5.0" };
+                      "-es", "1.6", "2", "1", "0.5", "-es", "1.6", "1", "2", "0.1", "-M", "5.0" };
     CPPUNIT_ASSERT_NO_THROW( Param(21, argv5).parse(model); );
     model.resetTime();
     model.increaseTime();

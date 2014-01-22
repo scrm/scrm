@@ -207,7 +207,7 @@ void Param::parse(Model &model) {
       model.addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
     }
 
-    else if (argv_i == "-esme") {
+    else if (argv_i == "-es") {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>() - 1;
       size_t sink_pop = readNextInput<size_t>() - 1;
