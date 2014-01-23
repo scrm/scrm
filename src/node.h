@@ -171,12 +171,13 @@ class Node
 
   Node* next_;
   Node* previous_;
-	bool mutation_state_;
 
   //The tree structure
   Node *parent_;
   Node *first_child_;
   Node *second_child_;
+  
+  bool mutation_state_;
 };
 
 inline bool Node::is_migrating() const { 

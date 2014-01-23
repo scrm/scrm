@@ -74,26 +74,34 @@ Forest::Forest(const Forest &current_forest) {
 }
 
 Forest::Forest(Forest * current_forest) { 
-	this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-	this->set_sample_size(current_forest->sample_size());
-	this->set_current_base(current_forest->current_base());
-	this->set_next_base((current_forest->next_base()));
-	this->set_prune_countdown(current_forest->prune_countdown());
-	this->set_pruning(current_forest->pruning());
+  this->set_current_base(current_forest->current_base());
+  this->set_next_base((current_forest->next_base()));
+  this->set_sample_size(current_forest->sample_size());
+  this->set_prune_countdown(current_forest->prune_countdown());
+  this->set_pruning(current_forest->pruning());
 
-  nodes_ = NodeContainer(*current_forest->getNodes());
+  this->set_model(current_forest->model_);
+  this->set_random_generator(current_forest->random_generator());
+
+  this->nodes_ = NodeContainer(*current_forest->getNodes());
 
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
 
-	dout<<"  #################### check copied forest ###############"<<std::endl;
-	assert(this->printTree());
-  assert(this->printNodes());
-	assert(this->checkTree());
+  this->tmp_event_line_ = 0;
+  this->tmp_event_time_ = -1;  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  this->coalescence_finished_ = true;
+  
+  
+  dout<<"  #################### check copied forest ###############"<<std::endl;
+  
+  //assert(this->printTree());
+  //assert(this->printNodes());
+  assert(this->checkTree());
   assert(this->checkLeafsOnLocalTree() );
-	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
+  
+  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
 

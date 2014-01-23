@@ -37,6 +37,9 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
   size_ = 0;
   set_first(NULL);
   set_last(NULL);
+  this->unsorted_node_ = NULL;
+  this->last_node_ = NULL;
+  this->first_node_ = NULL;
 
   std::map<Node const*, Node*> node_mapping;  
   node_mapping[NULL] == NULL;
@@ -47,7 +50,7 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
     node_mapping[*it] = node;
     add(node);
   }
-
+//exit(1);
   assert( this->sorted() );
 
   for (auto it = iterator(); it.good(); ++it) {
