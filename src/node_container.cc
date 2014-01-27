@@ -50,7 +50,6 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
     node_mapping[*it] = node;
     add(node);
   }
-//exit(1);
   assert( this->sorted() );
 
   for (auto it = iterator(); it.good(); ++it) {
@@ -201,7 +200,6 @@ void NodeContainer::clear() {
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){
-  //std::cout << "Adding: " << add << " after " << after << std::endl;
   add->set_next(next_node);
   add->set_previous(next_node->previous());
 
