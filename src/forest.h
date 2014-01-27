@@ -197,14 +197,14 @@ class Forest
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
   void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
-  void implementMigration(const Event &event, TimeIntervalIterator &tii);
+  void implementMigration(const Event &event, const bool &recalculate, TimeIntervalIterator &tii);
   void implementFixedTimeEvent(TimeIntervalIterator &ti);
 
   // Pruning
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    return (this->current_base() - node->last_update() > model().exact_window_length());
+    return (current_base() - node->last_update() > model().exact_window_length());
   }
 
   bool nodeIsActive(Node const* node) const {
@@ -284,7 +284,7 @@ class Forest
   Node* active_nodes_[2];
   Event  tmp_event_;
   size_t tmp_event_line_;
-  double tmp_event_time_ = -1;  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  double tmp_event_time_;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];

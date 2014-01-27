@@ -122,6 +122,15 @@ void Param::parse(Model &model) {
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
       model.addSampleSizes(0.0, sample_size);
+      // there might or might not follow a symmetric migration rate
+      try {
+        nextArg(argv_i);
+        model.addSymmetricMigration(0.0, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
+      } catch (std::invalid_argument e) {
+        --argc_i;
+      } catch (boost::bad_lexical_cast e) {
+        --argc_i;
+      }
     }
 
     // Add samples at arbitrary times
@@ -200,7 +209,7 @@ void Param::parse(Model &model) {
       model.addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
     }
 
-    else if (argv_i == "-esme") {
+    else if (argv_i == "-es") {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>() - 1;
       size_t sink_pop = readNextInput<size_t>() - 1;

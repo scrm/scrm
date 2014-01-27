@@ -110,11 +110,6 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->contemporaries_.reserve(forest_->sample_size());
   this->searchContemporariesOfNode(start_node);
   
-  /*! \todo remove the next a few lines*/
-  //std::cout<<std::setw(35)<<"start_node "<<start_node<<std::endl; //DEBUG
-  //std::cout<<std::setw(35)<<"start_node address "<<&start_node<<std::endl; //DEBUG
-  //std::cout<<std::setw(35)<<"this->contemporaries_ address "<<&this->contemporaries_<<std::endl;//DEBUG
-  
   // Skip through model changes
   while ( forest_->model().getNextTime() <= start_node->height() ) { 
     forest_->writable_model()->increaseTime();
@@ -124,18 +119,16 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 }
 
 
-// If we prune, then also prune nodes at the top of the tree
+// If sometimes also prune nodes at the top of the tree
 TimeIntervalIterator::~TimeIntervalIterator() {
-  /* DOES NOT WORK WITH NEW PRUNING, BUT MAYBE ALSO NOT NEEDED 
   if (!pruning_) return;
+  if (!node_iterator_.good()) return;
 
-  Node *node;
-  while (node_iterator_.good()) {
-    node = *node_iterator_;
-    ++node_iterator_; 
-    if ( forest_->isPrunable(node) ) forest_->prune(node);
+  while ( !(*node_iterator_)->is_last() ) {
+    // Prunes the next node BEFORE node_iterator_ gets there, 
+    // and does therefor not invalidate it.
+    if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) ++node_iterator_;
   }
-  */
 }
 
 
@@ -165,6 +158,8 @@ void TimeIntervalIterator::next() {
 
     // Pruning
     while ( !(*node_iterator_)->is_last() ) {
+      // Prunes the next node BEFORE node_iterator_ gets there, 
+      // and does there not invalidate it.
       if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
     }
 
@@ -252,7 +247,7 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
       if (!forest_->pruneNodeIfNeeded((*node_iterator)->next())) break;
 
       // If the removed node would have need an contemporary, maybe it children
-      // are now contemporaries because there new parent is highter. 
+      // are now contemporaries because there new parent is higher. 
       // This can only happen if the node has only one child.
       if ( child != NULL && child->parent_height() > node->height() ) 
         this->addToContemporaries(child);

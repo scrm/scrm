@@ -528,7 +528,7 @@ void Model::calcPopSizes() {
     // Make sure we always have a pop sizes vector in the remaining cases
     if (pop_sizes_list_.at(i) == NULL) {
       addPopulationSizes(change_times_.at(i), nan("value to replace"));
-      assert(pop_sizes_list_.at(i) == NULL); 
+      assert(pop_sizes_list_.at(i) != NULL); 
     }
 
     // Calculate the effective duration of a growth period if it ends here 

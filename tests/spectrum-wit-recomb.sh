@@ -4,17 +4,15 @@
 ###########################
 #!!!!! need to check is there a formula for the theoretical probability????
 
+mkdir test-spectrum-recomb
+cd test-spectrum-recomb
 
-
-mst=(10 20)
+msr=(11 21 10 50 100)
+mst=(10 20 50 100 10)
 
 msNsample=(3 7 10)
 
-msr=(10)
-mst=(10)
-#msNsample=(3)
-
-rep=10000
+rep=100
 seqlen=100000
 
 compareSPEC=compareSPEC
@@ -55,7 +53,7 @@ for r in "${msr[@]}"
 			
 			
 		
-			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4  | sed '/segsites/d' | sed '/Positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} | tail -n +4  | sed '/segsites/d' | sed '/positions/d' | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 					do 
 					sed '/\/\//d' xx${file} | sed 's/.\{1\}/& /g' | awk '

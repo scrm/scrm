@@ -7,8 +7,7 @@ rm *pdf
 
 msr=(10 20 10 50)
 msNsample=(2 3 7 10 20)
-#msr=(20)
-#msNsample=(3)
+
 rep=100000
 seqlen=100000
 

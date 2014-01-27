@@ -8,9 +8,13 @@ CXXFLAGS= -I/opt/local/include
 LDFLAGS= -L/opt/local/lib
 
 unittests:
-	cd tests; make tests
-	./tests/tests 
+	cd tests; make unit_tests
+	./tests/unit_tests 
 
-travis-test: unittests
+algorithmtests:
+	cd tests; make algorithm_tests
+	./tests/algorithm_tests 
+
+travis-test: unittests algorithmtests
 	cd src; make scrm scrm_dbg
 	./tests/test_binaries.sh

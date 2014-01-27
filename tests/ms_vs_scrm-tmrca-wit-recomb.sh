@@ -34,6 +34,7 @@ mst=(10 20 50 100 10)
 compareTMRCA=compareTMRCA-RECOMB
 rm ${compareTMRCA}
 
+## compare total branch length
 compareBL=compareBL-RECOMB
 rm ${compareBL}
 

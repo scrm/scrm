@@ -43,6 +43,9 @@ void Forest::initialize(Model* model,
   this->set_current_base(1);
   this->prune_countdown_ = model->prune_interval();
   this->set_sample_size(0);
+
+  tmp_event_time_ = -1;
+  tmp_event_line_ = -1;
 }
 
 /**
@@ -190,6 +193,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
  */
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive) {
+
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -318,7 +322,6 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
-/**
 TreePoint Forest::samplePoint(Node* node, double length_left) {
   if (node == NULL) {
     // Called without arguments => initialization
@@ -362,7 +365,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
   else 
     return samplePoint(node->second_child(), length_left - tmp);
 }
-*/
+/* Alternative inefficient implementation
 TreePoint Forest::samplePoint(Node* node, double length_left) {
  length_left = random_generator()->sample() * local_tree_length();  
  for (auto ni = nodes()->iterator(); ni.good(); ++ni) {
@@ -372,6 +375,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  }
  assert(0);
 }
+*/
 
 
 
@@ -397,7 +401,6 @@ void Forest::sampleNextGenealogy() {
     }
     --prune_countdown_;
   }
-  if (pruning_) dout << "We will prune the complete tree this time" << std::endl;
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
@@ -477,15 +480,6 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( states_[0] != 2 || !active_node(0)->local() );
     assert( states_[1] != 2 || !active_node(1)->local() );
     
-    // Remove we non-local branches bug is fixed
-    double rate = 0;
-    if (states_[0] == 1) rate += calcCoalescenceRate(active_node(0)->population(), *ti);
-    if (states_[1] == 1) rate += calcCoalescenceRate(active_node(1)->population(), *ti);
-    if (states_[0] == 1 && states_[1] == 1) rate += calcPwCoalescenceRate(active_node(0)->population());
-    if (states_[0] == 2) rate += calcRecombinationRate(active_node(0));
-    if (states_[1] == 2) rate += calcRecombinationRate(active_node(1));
-    assert( rate == rates_[0] );
-
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
             active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
@@ -536,7 +530,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     else if ( tmp_event_.isMigration() ) {
       // Record this  interval (migration)
       this->record_event((*ti), tmp_event_.time(), 3);
-      this->implementMigration(tmp_event_, ti);
+      this->implementMigration(tmp_event_, true, ti);
+      assert( this->printTree() );
     }
 
     else if ( tmp_event_.isCoalescence() ) {
@@ -760,6 +755,8 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  *    coalescence has finished. 
  */
 void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished) {
+  if (ti.end_height() == FLT_MAX) 
+    throw std::logic_error("Lines did not coalescence. If you use an negative growth parameter (population rapidly declining forward in time), you need to set it to a non-negative value at some time.");
   if (states_[0] == 2) {
     set_active_node(0, possiblyMoveUpwards(active_node(0), ti));
     if (active_node(0)->local()) {
@@ -965,7 +962,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &ti
 
 
 void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti) {
-  TreePoint event_point = TreePoint(event.node(), event.time(), false); //XXX beauty this up
+  TreePoint event_point = TreePoint(event.node(), event.time(), false);
   set_active_node(event.active_node_nr(), cut(event_point));
 
   ti.recalculateInterval();
@@ -975,7 +972,7 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
 }
 
 
-void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
+void Forest::implementMigration(const Event &event, const bool &recalculate, TimeIntervalIterator &ti) {
   dout << "* * Implementing migration event... " << std::flush;
   assert( event.node()->is_root() );
 
@@ -989,7 +986,7 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
   }
   else {
     // Otherwise create a new node that marks the migration event
-    Node* mig_node = new Node(event.time(), true);
+    Node* mig_node = new Node(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
@@ -1003,10 +1000,15 @@ void Forest::implementMigration(const Event &event, TimeIntervalIterator &ti) {
     // And set it active
     this->set_active_node(event.active_node_nr(), mig_node);
     assert(mig_node->is_migrating());
+
+    // And make the event node local
+    event.node()->make_local();
   }
   // And recalculate the interval
-  ti.recalculateInterval();
+  if (recalculate) ti.recalculateInterval();
   dout << "done." << std::endl;
+
+  assert( event.node()->local() );
 }
 
 
@@ -1021,10 +1023,11 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
       if (prob == 1.0 || prob <= random_generator()->sample() ) {
         tmp_event_ = Event((*ti).start_height());
         tmp_event_.setToMigration(active_node(i), i, j);
-        implementMigration(tmp_event_, ti);
+        implementMigration(tmp_event_, false, ti);
       }
     }
   }
+  assert( printTree() );
 }
 
 /** 
@@ -1058,6 +1061,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 
 bool Forest::pruneNodeIfNeeded(Node* node) {
   assert( node != NULL );
+  if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
 
   // Old nodes have to go, no matter what
@@ -1068,7 +1072,11 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
 
     node->parent()->change_child(node, NULL);
     if (node->numberOfChildren() == 0) nodes()->remove(node); 
-    else node->set_parent(NULL);
+    else { 
+      Node* parent = node->parent();
+      node->set_parent(NULL);
+      updateAbove(parent, false, true);
+    }
     return true;
   } 
 
@@ -1080,7 +1088,9 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
   }
 
   // Unneeded nodes 
-  else if ((!node->is_root()) && node->numberOfChildren() == 1) {
+  else if ((!node->is_root()) && 
+           node->numberOfChildren() == 1 &&
+           !node->is_migrating()) {
     dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
     assert(!node->is_migrating());
     assert(node->first_child()->last_update() == node->last_update());
