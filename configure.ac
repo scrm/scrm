@@ -4,14 +4,12 @@ dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
 #AC_CONFIG_HEADER([config.h])
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_INSTALL
 AC_PREREQ
 AC_CANONICAL_HOST
 
 # Checks for programs.
-#AC_PROG_CC
-AC_PROG_CXX
 AC_PROG_RANLIB
 
 # Checks for libraries
@@ -37,10 +35,13 @@ AC_CANONICAL_HOST
 # specifically based on the host
 case $host_os in
   darwin* )
+    AC_PROG_CXX([clang])
+    export CXX=clang++
     export CXXFLAGS=-I/opt/local/include
     AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
+    AC_PROG_CXX
     AC_CHECK_HEADERS([boost/assign/std/vector.hpp boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
     ;;
     #compile on cluster 3, ./configure CXXFLAGS=-I/usr/local/boost

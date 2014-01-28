@@ -19,11 +19,11 @@ unit_tests_SOURCES = test_forest.cc test_model.cc test_node.cc test_node_contain
 algorithm_tests_SOURCES = test_runner.cc test_algorithm.cc $(scrm_SOURCES)
 
 
-unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x
-algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x
+unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
+algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 
-unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
-algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
+unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl -stdlib=libc++ #link the cppunit unittest library in mac, cppunit was installed via macports
+algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl -stdlib=libc++  #link the cppunit unittest library in mac, cppunit was installed via macports
 
 include_HEADERS = ../src/forest.h ../src/model.h ../src/node.h ../src/node_container.h ../src/time_interval.h\
 				  ../src/tree_point.h ../src/param.h ../src/seg.h
