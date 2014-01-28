@@ -37,6 +37,9 @@
 
 class Param {
  public:
+ #ifdef UNITTEST
+  friend class TestParam;
+ #endif
   // Constructors
   Param() : argc_(0), argv_(NULL) { };
   Param(int argc, char *argv[], bool directly_called=true) : argc_(argc), argv_(argv) , directly_called_(directly_called) { }
