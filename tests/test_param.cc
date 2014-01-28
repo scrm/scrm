@@ -35,7 +35,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(1.24/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed );
+    CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed() );
     CPPUNIT_ASSERT_EQUAL( false, pars.tree_bool );
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
