@@ -7,7 +7,7 @@ cd test-mig-popsize
 rm -rf *pdf
 
 
-rep=100000
+rep=10000
 
 ## compare TMRCA
 compareMIG=compareMIG
