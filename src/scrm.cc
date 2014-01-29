@@ -46,11 +46,6 @@ int main(int argc, char *argv[]){
 
     // Organize output
     std::ostream *output = &std::cout;
-    if (user_para.log_bool) {
-      std::ofstream log_file;
-      log_file.open(user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      output = &log_file; 
-    }
 
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
@@ -72,14 +67,6 @@ int main(int argc, char *argv[]){
 
       // Set up a buffer to hold the data for segregating sites
       SegDataContainer seg_data_array = SegDataContainer(&user_para, &forest);
-
-      // Optionally output the TMRCA of the initial coalescent tree in a file
-      //if (user_para.tmrca_bool()){
-      //std::ofstream tmrca_file;
-      //tmrca_file.open (user_para.tmrca_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      //tmrca_file << forest.local_root()->height() <<"\n";  
-      //tmrca_file.close();	
-      //}
 
       // Just output a single tree if the recombination rate is 0
       if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
@@ -139,12 +126,6 @@ int main(int argc, char *argv[]){
       *output << seg_data_array;
     }
 
-    if (user_para.log_bool){          
-      std::ofstream log_file;
-      log_file.open (user_para.log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-      log_file << "Trees are saved in: " << user_para.tree_NAME << "\n";
-      log_file.close();
-    }
   }
   catch (const exception &e)
   {

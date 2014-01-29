@@ -53,7 +53,6 @@ class Param {
 
   // Other methods
   void init();
-  void log_param();
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
@@ -64,11 +63,9 @@ class Param {
   
   bool tree_bool;
   bool tmrca_bool;
-  bool log_bool;
 
   std::string tree_NAME;
   std::string tmrca_NAME;
-  std::string log_NAME;
 
   template<class T>
   T readNextInput() {

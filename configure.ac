@@ -4,6 +4,9 @@ dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
 #AC_CONFIG_HEADER([config.h])
 
+m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
+AM_SILENT_RULES([yes])
+
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_INSTALL
 AC_PREREQ
@@ -37,7 +40,7 @@ case $host_os in
   darwin* )
     AC_PROG_CXX([clang])
     export CXX=clang++
-    export CXXFLAGS=-I/opt/local/include
+    export CXXFLAGS=-I/opt/local/include -stdlib=libc++ 
     AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
