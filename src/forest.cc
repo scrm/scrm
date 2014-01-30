@@ -383,6 +383,7 @@ void Forest::sampleNextGenealogy() {
   this->set_current_base(next_base_);
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
+  assert( this->current_base() <= this->model().loci_length() );
 
   // Check if we prune while building the genealogy
   pruning_ = false;
