@@ -493,50 +493,61 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
+    // calculate the opportunities for the three event types (coalescence, recombination, migration)
+    // 'opportunity' is the number x such that exp( -rate * x ) is the probability of no event.
+    double coal_opportunity = 0.0;
+    double recomb_opportunity = 0.0;
+    double migr_opportunity = 0.0;
+
+    for (int i=0; i<2; i++) {
+      if (states_[i] == 2) {
+	// node i is tracing a non-local branch; opportunities for recombination
+	recomb_opportunity += this->calcRecombinationOpportunity( active_node(i), (*ti).length() );
+      }
+      if (states_[i] == 1) {
+	// node i is tracing out a new branch; opportunities for coalescences and migration
+	coal_opportunity = (*ti).numberOfContemporaries( active_node(i)->population() ) * (*ti).length();
+	migr_opportunity = (*ti).length();
+      }
+    }
+    // only coalescences into contemporaries were considered; pairwise coalescence between active nodes could also occur
+    if ((states_[0] == 1) && (states_[1] == 1) && (active_node(0)->population() == active_node(1)->population() ) ) {
+      coal_opportunity += (*ti).length();
+    }
+
+   // store the opportunity and any event that may have happened
+    if (coal_opportunity > 0) {
+      this->record_event( coal_opportunity, (tmp_event_.isCoalescence() || tmp_event_isPwCoalescence()) ? COAL_EVENT : COAL_NOEVENT );
+    }
+    if (recomb_opportunity > 0) {
+      this->record_event( recomb_opportunity, tmp_event_.isRecombination() ? REC_EVENT : REC_NOEVENT );
+    }
+    if (migr_opportunity > 0) {
+      this->record_event( migr_opportunity, tmp_event_.isMigration() ? MIGR_EVENT : MIGR_NOEVENT );
+    }
+
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
-      // Record this interval (nothing)
-      if (rates_[0]>0 || rates_[1]>0 || rates_[2]>0){
-        this->record_event((*ti),(*ti).end_height(), 4);
-      }
-      else{ /*! \todo CHECK THIS ELSE, CASE 5 IS NOT NECESSARY ?? recombination above the root??? */
-        //
-        // Yes, all rates 0 can occur, e.g. after coalescence into a branch that
-        // just became non-local at this position. Why is there a difference between nothing
-        // happened when something could have happened, and nothing happened
-        // because nothing could? I'm not sure what you mean with "recombination
-        // above the root" - Paul 
-        this->record_event((*ti),(*ti).end_height(), 5);
-      }
-      
       this->implementNoEvent(*ti, coalescence_finished_);
       if (coalescence_finished_) return;
     }
 
     // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
-      // Record this  interval (coalescent)
-      this->record_event((*ti), tmp_event_.time(), 1);
       this->implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
       return;
     }
 
     else if ( tmp_event_.isRecombination() ) {
-      // Record this  interval (recombination)
-      this->record_event((*ti), tmp_event_.time(), 2);
       this->implementRecombination(tmp_event_, ti);
     }
 
     else if ( tmp_event_.isMigration() ) {
-      // Record this  interval (migration)
-      this->record_event((*ti), tmp_event_.time(), 3);
       this->implementMigration(tmp_event_, true, ti);
       assert( this->printTree() );
     }
 
     else if ( tmp_event_.isCoalescence() ) {
-      // Record this  interval (coalescent)
-      this->record_event((*ti), tmp_event_.time(), 1);
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
       if (coalescence_finished_) return;
