@@ -307,7 +307,7 @@ bool Forest::printTree() {
   double start_height = 0, 
          end_height = getNodes()->get(0)->height();
 
-  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); 1) {
+  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
@@ -381,7 +381,7 @@ bool Forest::printTree_cout() {
   double start_height = 0, 
          end_height = getNodes()->get(0)->height();
 
-  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); 1) {
+  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
