@@ -113,7 +113,12 @@ class Forest
   void set_next_base(const double &base){next_base_ = base;}
   void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
+    if (next_base_ > model().loci_length()) next_base_ = model().loci_length();
   } 
+
+  size_t calcSegmentLength() const {
+    return ceil(next_base()) - ceil(current_base());
+  }
 
   double local_tree_length() const { return local_root()->length_below(); }
 
