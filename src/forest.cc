@@ -388,6 +388,8 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
+  double recomb_opportunity_x = this->next_base_ - this->current_base_;
+
   this->set_current_base(next_base_);
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
@@ -415,7 +417,10 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
-  this->initialize_recomb_coalescent(rec_point.height());
+// record recombination event
+  double opportunity_y = this -> local_tree_length();
+  this->record_event( rec_point.height(), recomb_opportunity_x, opportunity_y, REC_EVENT );
+  
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
@@ -448,7 +453,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   assert ( start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
-    this->initialize_event((*ti).start_height());
+    //this->initialize_event((*ti).start_height());
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << std::endl;
@@ -494,38 +499,43 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    // calculate the opportunities for the three event types (coalescence, recombination, migration)
-    // 'opportunity' is the number x such that exp( -rate * x ) is the probability of no event.
-    double coal_opportunity = 0.0;
-    double recomb_opportunity = 0.0;
-    double migr_opportunity = 0.0;
+    double coal_opportunity_x = 0.0;
+    double recomb_opportunity_x = 0.0;
+    double migr_opportunity_x = 0.0;
 
     for (int i=0; i<2; i++) {
       if (states_[i] == 2) {
-	// node i is tracing a non-local branch; opportunities for recombination
-	recomb_opportunity += this->calcRecombinationOpportunity( active_node(i), (*ti).length() );
+        // node i is tracing a non-local branch; opportunities for recombination
+        recomb_opportunity_x += this->current_base() - active_node(i)->last_update();
       }
       if (states_[i] == 1) {
-	// node i is tracing out a new branch; opportunities for coalescences and migration
-	coal_opportunity = (*ti).numberOfContemporaries( active_node(i)->population() ) * (*ti).length();
-	migr_opportunity = (*ti).length();
+        // node i is tracing out a new branch; opportunities for coalescences and migration
+        coal_opportunity_x = (*ti).numberOfContemporaries( active_node(i)->population() ) ;
+        migr_opportunity_x += 1;
       }
     }
+
     // only coalescences into contemporaries were considered; pairwise coalescence between active nodes could also occur
     if ((states_[0] == 1) && (states_[1] == 1) && (active_node(0)->population() == active_node(1)->population() ) ) {
-      coal_opportunity += (*ti).length();
+      //coal_opportunity_x += 1;
+      coal_opportunity_x = 1;
+    }
+    dout<< " coal_opportunity_x = " <<coal_opportunity_x<<endl;
+    
+    double opportunity_y = min(tmp_event_.time(), (*ti).end_height()) - (*ti).start_height();
+    dout<< " opportunity_y = " <<opportunity_y<<endl;
+    
+    if (coal_opportunity_x > 0) {
+      this->record_event( (*ti).start_height(), coal_opportunity_x, opportunity_y, (tmp_event_.isCoalescence() || tmp_event_.isPwCoalescence()) ? COAL_EVENT : COAL_NOEVENT );
     }
 
-   // store the opportunity and any event that may have happened
-    if (coal_opportunity > 0) {
-      this->record_event( coal_opportunity, (tmp_event_.isCoalescence() || tmp_event_isPwCoalescence()) ? COAL_EVENT : COAL_NOEVENT );
+    if (migr_opportunity_x > 0) {
+      this->record_event( (*ti).start_height(), migr_opportunity_x, opportunity_y, tmp_event_.isMigration() ? MIGR_EVENT : MIGR_NOEVENT );
     }
-    if (recomb_opportunity > 0) {
-      this->record_event( recomb_opportunity, tmp_event_.isRecombination() ? REC_EVENT : REC_NOEVENT );
+    if (recomb_opportunity_x > 0) {
+      this->record_event( (*ti).start_height(), recomb_opportunity_x, opportunity_y, tmp_event_.isRecombination() ? REC_EVENT : REC_NOEVENT );
     }
-    if (migr_opportunity > 0) {
-      this->record_event( migr_opportunity, tmp_event_.isMigration() ? MIGR_EVENT : MIGR_NOEVENT );
-    }
+
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
