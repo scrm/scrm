@@ -419,7 +419,8 @@ void Forest::sampleNextGenealogy() {
 
 // record recombination event
   double opportunity_y = this -> local_tree_length();
-  this->record_event( rec_point.height(), recomb_opportunity_x, opportunity_y, REC_EVENT );
+  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
+  this->record_event( rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
   
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
@@ -499,41 +500,48 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    double coal_opportunity_x = 0.0;
-    double recomb_opportunity_x = 0.0;
-    double migr_opportunity_x = 0.0;
+    double coal_opportunity = 0.0;
+    double recomb_opportunity = 0.0;
+    double migr_opportunity = 0.0;
+
+    
+
+    double opportunity_y = tmp_event_.isNoEvent() ? (*ti).length() : (tmp_event_.time() - (*ti).start_height());
 
     for (int i=0; i<2; i++) {
       if (states_[i] == 2) {
         // node i is tracing a non-local branch; opportunities for recombination
-        recomb_opportunity_x += this->current_base() - active_node(i)->last_update();
+        recomb_opportunity += ( this->current_base() - active_node(i)->last_update() ) * opportunity_y;
       }
       if (states_[i] == 1) {
         // node i is tracing out a new branch; opportunities for coalescences and migration
-        coal_opportunity_x = (*ti).numberOfContemporaries( active_node(i)->population() ) ;
-        migr_opportunity_x += 1;
+        coal_opportunity = (*ti).numberOfContemporaries( active_node(i)->population() ) * opportunity_y;
+        migr_opportunity += opportunity_y;
       }
     }
 
     // only coalescences into contemporaries were considered; pairwise coalescence between active nodes could also occur
     if ((states_[0] == 1) && (states_[1] == 1) && (active_node(0)->population() == active_node(1)->population() ) ) {
       //coal_opportunity_x += 1;
-      coal_opportunity_x = 1;
+      coal_opportunity = opportunity_y;
     }
-    dout<< " coal_opportunity_x = " <<coal_opportunity_x<<endl;
+    dout<< " coal_opportunity = " <<coal_opportunity<<endl;
     
-    double opportunity_y = min(tmp_event_.time(), (*ti).end_height()) - (*ti).start_height();
     dout<< " opportunity_y = " <<opportunity_y<<endl;
     
-    if (coal_opportunity_x > 0) {
-      this->record_event( (*ti).start_height(), coal_opportunity_x, opportunity_y, (tmp_event_.isCoalescence() || tmp_event_.isPwCoalescence()) ? COAL_EVENT : COAL_NOEVENT );
+    if (coal_opportunity > 0) {
+      dout << " record coalescent (not) event " << std::endl;
+      this->record_event( (*ti).start_height(), (*ti).start_height() + opportunity_y, coal_opportunity, (tmp_event_.isCoalescence() || tmp_event_.isPwCoalescence()) ? COAL_EVENT : COAL_NOEVENT );
     }
 
-    if (migr_opportunity_x > 0) {
-      this->record_event( (*ti).start_height(), migr_opportunity_x, opportunity_y, tmp_event_.isMigration() ? MIGR_EVENT : MIGR_NOEVENT );
+    if (migr_opportunity > 0) {
+      dout << " record migration (not) event " << std::endl;
+      this->record_event( (*ti).start_height(), (*ti).start_height() + opportunity_y, migr_opportunity, tmp_event_.isMigration() ? MIGR_EVENT : MIGR_NOEVENT );
     }
-    if (recomb_opportunity_x > 0) {
-      this->record_event( (*ti).start_height(), recomb_opportunity_x, opportunity_y, tmp_event_.isRecombination() ? REC_EVENT : REC_NOEVENT );
+    
+    if (recomb_opportunity > 0) {
+      dout <<" recomb_opportunity_x = " << recomb_opportunity << " record recombination (not) event " << std::endl;
+      this->record_event( (*ti).start_height(), (*ti).start_height() + opportunity_y, recomb_opportunity, tmp_event_.isRecombination() ? REC_EVENT : REC_NOEVENT );
     }
 
 

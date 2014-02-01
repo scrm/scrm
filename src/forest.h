@@ -180,10 +180,7 @@ class Forest
   Node* trackLocalNode(Node *node); 
 
   //derived class from Forest
-  //virtual void initialize_recomb_coalescent(const double rec_height) {};
-  //virtual void initialize_event(double start_time) {};
-  //virtual void record_event(double opportunity, eventCode event_code) {};
-  virtual void record_event(double start_time, double opportunity_x, double opportunity_y, eventCode event_code){};
+  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
 
  private:
   //Operations on the Tree
