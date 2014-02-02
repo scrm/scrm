@@ -181,7 +181,8 @@ class Forest
 
   //derived class from Forest
   virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
-
+  virtual void record_all_event(TimeInterval &ti){};
+  
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
