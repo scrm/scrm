@@ -80,7 +80,7 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
-
+  friend class ForestState;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
@@ -181,7 +181,7 @@ class Forest
 
   //derived class from Forest
   virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
-  virtual void record_all_event(TimeInterval &ti){};
+  virtual void record_all_event( TimeInterval const &ti){};
   
  private:
   //Operations on the Tree

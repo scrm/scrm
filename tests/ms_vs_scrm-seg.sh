@@ -7,12 +7,12 @@ cd test-seg
 rm *pdf
 
 mst=(10 20 50 100)
-msNsample=(2 3 7 10)
+msNsample=(3 7 10)
 
 #mst=(10)
-#msNsample=(3)
+#msNsample=(2)
 
-rep=100000
+rep=10000
 #npop=20000
 
 ## compare number of segregating sites

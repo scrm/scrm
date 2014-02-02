@@ -500,6 +500,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
+    this->record_all_event(*ti);
     //double coal_opportunity = 0.0;
     //double recomb_opportunity = 0.0;
     //double migr_opportunity = 0.0;
