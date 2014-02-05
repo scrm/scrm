@@ -261,6 +261,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
  */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
+  this->set_current_base(0.0);
 
   dout << "* Adding first node... ";
   Node* first_node = new Node(model().sample_time(1), 1);

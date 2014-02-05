@@ -492,6 +492,8 @@ class TestForest : public CppUnit::TestCase {
       Forest frst = Forest(model, rg);
       frst.buildInitialTree();
       CPPUNIT_ASSERT_EQUAL(true, frst.checkTree());
+      CPPUNIT_ASSERT( frst.current_base() == 0.0 );
+      CPPUNIT_ASSERT( frst.next_base() > 0.0 );
     }
 
     delete model;

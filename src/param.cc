@@ -32,6 +32,7 @@ void Param::init(){
   this->set_seg_bool(true);
   this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
+  this->finite_sites = true;
 }
 
 
@@ -237,13 +238,16 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Output 
     // ------------------------------------------------------------------
-    else if (argv_i == "-T"){
-      //treefile = argv_[++argc_i];
+    else if (argv_i == "-T" || argv_i == "-Tfs"){
       tree_bool = true;
     }
 
+    else if (argv_i == "-Tifs"){
+      tree_bool = true;
+      finite_sites = false;
+    }
+
     else if (argv_i == "-L"){
-      //treefile = argv_[++argc_i];
       tmrca_bool = true;
     }
 

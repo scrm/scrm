@@ -94,12 +94,11 @@ int main(int argc, char *argv[]){
       // Start main loop, if the recombination rate is nonzero
       if (model.recombination_rate() > 0.0){
 
-      while (forest.next_base() < model.loci_length()) { 
-          // Obtain string representation of current tree
-          string previous_genealogy;
-          if (user_para.tree_bool) { 
-            previous_genealogy = forest.writeTree(forest.local_root());
-          }
+        if (user_para.tree_bool && forest.calcSegmentLength(user_para.finite_sites) > 0) {
+          tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" << forest.writeTree(forest.local_root()) << ";\n";
+        }
+
+        while (forest.current_base() < model.loci_length()) { 
           tmrca = forest.tmrca();
           tot_bl = forest.tot();
 
@@ -111,7 +110,8 @@ int main(int argc, char *argv[]){
 
           // Store current local tree and distance between recombinations in tree buffer
           if (user_para.tree_bool && forest.calcSegmentLength() > 0) {
-            tree_buffer << "[" << forest.calcSegmentLength() << "]" << previous_genealogy << ";\n";
+            tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" 
+                        << forest.writeTree(forest.local_root()) << ";\n";
           }
         }
 

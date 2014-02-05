@@ -111,13 +111,25 @@ class Forest
 
   double next_base() const {return next_base_;}
   void set_next_base(const double &base){next_base_ = base;}
+
   void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
     if (next_base_ > model().loci_length()) next_base_ = model().loci_length();
   } 
 
-  size_t calcSegmentLength() const {
-    return ceil(next_base()) - ceil(current_base());
+  /**
+   * @brief Returns the length of the sequence for with the current tree is
+   * valid
+   *
+   * @param finite_sites If 'true', the length is measured in number of bases
+   * (e.g. integer sequence positions) for which the tree is valid. Otherwise,
+   * the length is measured real valued number on a continuous chromosome.  
+   *
+   * @return The length of the current segment (see above for its unit)
+   */
+  double calcSegmentLength(bool finite_sites = true) const {
+    if (finite_sites) return ceil(next_base()) - ceil(current_base());
+    else return next_base() - current_base();
   }
 
   double local_tree_length() const { return local_root()->length_below(); }
