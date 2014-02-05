@@ -84,3 +84,4 @@ tests/tests.trs
 tests/algorithm_tests
 tests/unit_tests
 stuff
+.dirstamp
