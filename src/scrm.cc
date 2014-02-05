@@ -122,10 +122,14 @@ int main(int argc, char *argv[]){
 
       if (user_para.tree_bool) {
         *output << tree_buffer.str();
+        tree_buffer.str("");
+        tree_buffer.clear();
       }
 
       if (user_para.tmrca_bool){
         *output << time_buffer.str();  
+        time_buffer.str("");
+        time_buffer.clear();
       }
 
       *output << seg_data_array;
