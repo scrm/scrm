@@ -64,6 +64,7 @@
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
+#include "summary_statistics/summary_statistic.h"
 
 class TimeInterval;
 class TimeIntervalIterator;
