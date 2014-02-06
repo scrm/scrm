@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    MersenneTwister rg = MersenneTwister(user_para.random_seed);
 
     // Organize output
     std::ostream *output = &std::cout;
@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
 
     // Set up a buffer to hold the tree representations
     std::ostringstream tree_buffer;
+    std::ostringstream time_buffer;
 
     // Loop over the independent samples
     for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
@@ -70,26 +71,24 @@ int main(int argc, char *argv[]){
 
       // Just output a single tree if the recombination rate is 0
       if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
-        tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
-        //tree_buffer << writeTree_new(forest.local_root(), forest.model().default_pop_size) << ";\n";
+        if (user_para.tree_bool) tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
         seg_data_array.append_new_seg_data(&forest);
-        tmrca = forest.tmrca();
-        tot_bl = forest.tot();
+        if (user_para.tmrca_bool) time_buffer << "time:\t"<<forest.tmrca()<< " \t"<<forest.tot() <<"\n";  
       }
 
       int i = 0;
       // Start main loop, if the recombination rate is nonzero
       if (model.recombination_rate() > 0.0){
 
-      while (forest.next_base() < model.loci_length()) { 
-          // Obtain string representation of current tree
-          string previous_genealogy;
-          if (user_para.tree_bool) { 
-            previous_genealogy = forest.writeTree(forest.local_root());
+        if (forest.calcSegmentLength(user_para.finite_sites) > 0) {
+          if (user_para.tree_bool) {
+            tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" 
+                << forest.writeTree(forest.local_root()) << ";\n";
           }
-          tmrca = forest.tmrca();
-          tot_bl = forest.tot();
+          if (user_para.tmrca_bool) time_buffer << "time:\t"<<forest.tmrca()<< " \t"<<forest.tot() <<"\n";  
+        }
 
+        while (forest.current_base() < model.loci_length()) { 
           // Sample next genealogy
           forest.sampleNextGenealogy();
 
@@ -97,8 +96,12 @@ int main(int argc, char *argv[]){
           seg_data_array.append_new_seg_data(&forest);
 
           // Store current local tree and distance between recombinations in tree buffer
-          if (user_para.tree_bool && forest.calcSegmentLength() > 0) {
-            tree_buffer << "[" << forest.calcSegmentLength() << "]" << previous_genealogy << ";\n";
+          if (forest.calcSegmentLength(user_para.finite_sites) > 0) {
+            if (user_para.tree_bool) {
+              tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" 
+                  << forest.writeTree(forest.local_root()) << ";\n";
+            }
+            if (user_para.tmrca_bool) time_buffer << "time:\t"<<forest.tmrca()<< " \t"<<forest.tot() <<"\n";  
           }
         }
 
@@ -106,10 +109,14 @@ int main(int argc, char *argv[]){
 
       if (user_para.tree_bool) {
         *output << tree_buffer.str();
+        tree_buffer.str("");
+        tree_buffer.clear();
       }
 
       if (user_para.tmrca_bool){
-        *output << "time:\t"<<tmrca<< "\t"<<tot_bl <<"\n";  
+        *output << time_buffer.str();  
+        time_buffer.str("");
+        time_buffer.clear();
       }
 
       *output << seg_data_array;

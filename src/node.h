@@ -74,11 +74,11 @@ class Node
   size_t population() const { return population_; }
   void set_population(const size_t &pop) { population_ = pop; }
 
-  bool local() const { return (last_update_ == 0); }
+  bool local() const { return (last_update_ == -1); }
 
   void make_local() { 
     //if (!local()) dout << "AAA Making " << this << " local (last-update before:" << last_update() << ")" << std::endl;
-    last_update_ = 0; 
+    last_update_ = -1; 
   }
   void make_nonlocal(const double &current_base) { 
     assert( this->local() ); 

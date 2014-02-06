@@ -14,6 +14,7 @@ class TestParam : public CppUnit::TestCase {
 
   CPPUNIT_TEST( testParse );
   CPPUNIT_TEST( testParseMigrationOptions );
+  CPPUNIT_TEST( testParseOutputOptions );
   CPPUNIT_TEST( testParseGrowthOptions );
   CPPUNIT_TEST( testReadInput );
   
@@ -35,7 +36,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(1.24/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed );
     CPPUNIT_ASSERT_EQUAL( false, pars.tree_bool );
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
@@ -193,6 +194,26 @@ class TestParam : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0, 1) );
     CPPUNIT_ASSERT_EQUAL( 1.3/(4*model.default_pop_size), model.migration_rate(1, 0) );
+  }
+
+  void testParseOutputOptions() {
+    char *argv[] = { "scrm", "20", "10", "-T" };
+    Param pars = Param(4, argv);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( pars.finite_sites );
+
+    char *argv2[] = { "scrm", "20", "10", "-Tfs" };
+    pars = Param(4, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( pars.finite_sites );
+
+    char *argv3[] = { "scrm", "20", "10", "-Tifs" };
+    pars = Param(4, argv3);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( !pars.finite_sites );
   }
 
   void testReadInput() {

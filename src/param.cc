@@ -24,12 +24,12 @@
 #include "param.h"
 
 void Param::init(){
-  this->set_random_seed(-1);
-  //this->rho=0;	//double, in ms, rho = 4 * npop * recomb_rate_persite * (nsites-1)
-  //this->recomb_rate_persite=0;
+  this->random_seed = -1;
   this->tree_bool = false;
   this->set_seg_bool(true);
   this->tmrca_bool = false;
+  this->tmrca_NAME = "scrm.tmrcafile";
+  this->finite_sites = true;
 }
 
 
@@ -234,8 +234,13 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Output 
     // ------------------------------------------------------------------
-    else if (argv_i == "-T"){
+    else if (argv_i == "-T" || argv_i == "-Tfs"){
       tree_bool = true;
+    }
+
+    else if (argv_i == "-Tifs"){
+      tree_bool = true;
+      finite_sites = false;
     }
 
     else if (argv_i == "-L"){
@@ -244,7 +249,7 @@ void Param::parse(Model &model) {
 
     else if (argv_i == "-seed"){
       nextArg(argv_i);
-      this->set_random_seed( readInput<size_t>(argv_[argc_i]) );
+      random_seed = readInput<size_t>(argv_[argc_i]);
     }
 
     else if (directly_called_){

@@ -54,13 +54,13 @@ void Forest::initialize(Model* model,
  * @param current_forest Forest that needs to be duplicated
  */
 Forest::Forest(const Forest &current_forest) { 
-	this->set_model(current_forest.model_);
+  this->set_model(current_forest.model_);
   this->set_random_generator(current_forest.random_generator());
-	this->set_sample_size(current_forest.sample_size());
-	this->set_current_base(current_forest.current_base());
-	this->set_next_base((current_forest.next_base()));
-	this->set_prune_countdown(current_forest.prune_countdown());
-	this->set_pruning(current_forest.pruning());
+  this->set_sample_size(current_forest.sample_size());
+  this->set_current_base(current_forest.current_base());
+  this->set_next_base((current_forest.next_base()));
+  this->set_prune_countdown(current_forest.prune_countdown());
+  this->set_pruning(current_forest.pruning());
 
   nodes_ = NodeContainer(*current_forest.getNodes());
 
@@ -68,23 +68,22 @@ Forest::Forest(const Forest &current_forest) {
     updateAbove(*it, false, false);
   }
 
-	dout<<"  #################### check copied forest ###############"<<std::endl;
-	assert(this->printTree());
+  dout<<"  #################### check copied forest ###############"<<std::endl;
+  assert(this->printTree());
   assert(this->printNodes());
-	assert(this->checkTree());
+  assert(this->checkTree());
   assert(this->checkLeafsOnLocalTree() );
-	dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
+  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
 Forest::Forest(Forest * current_forest) { 
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-  this->set_sample_size(current_forest->sample_size());
-  this->set_prune_countdown(current_forest->prune_countdown());
-  this->set_pruning(current_forest->pruning());
-
   this->set_model(current_forest->model_);
   this->set_random_generator(current_forest->random_generator());
+  this->set_sample_size(current_forest->sample_size());
+  this->set_current_base(current_forest->current_base());
+  this->set_next_base((current_forest->next_base()));
+  this->set_prune_countdown(current_forest->prune_countdown());
+  this->set_pruning(current_forest->pruning());
 
   this->nodes_ = NodeContainer(*current_forest->getNodes());
 
@@ -269,11 +268,11 @@ void Forest::updateAbove(Node* node, bool above_local_root,
  */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
+  this->set_current_base(0.0);
 
   dout << "* Adding first node... ";
   Node* first_node = new Node(model().sample_time(1), 1);
   first_node->set_population(model().sample_population(1));
-  //first_node->make_nonlocal(1);
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
@@ -298,6 +297,7 @@ void Forest::buildInitialTree() {
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
   }
+
   this->sampleNextBase();
 }
 

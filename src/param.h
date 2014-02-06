@@ -48,11 +48,9 @@ class Param {
   bool seg_bool() const { return seg_bool_; }
   void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
 
-  size_t random_seed() const { return random_seed_; }
-  void set_random_seed(const int seed ){ this->random_seed_ = seed; }
-
   // Other methods
   void init();
+
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
@@ -60,9 +58,10 @@ class Param {
   void print_param();
 
   // Member variables
-  
+  size_t random_seed;  
   bool tree_bool;
   bool tmrca_bool;
+  bool finite_sites;
 
   std::string tree_NAME;
   std::string tmrca_NAME;
@@ -79,11 +78,10 @@ class Param {
   }
 
  private:
-  const int argc_;
+    int argc_;
   int argc_i;
   char * const* argv_;
   bool seg_bool_;
-  size_t random_seed_;
   bool directly_called_;
 };
 
