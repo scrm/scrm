@@ -7,7 +7,7 @@ cd test-tmrca-recomb-Tifs
 
 seqlen=100000
 
-rep=1000
+rep=100000
 
 
 echo -e "rm(list=ls());

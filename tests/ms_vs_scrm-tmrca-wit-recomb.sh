@@ -7,7 +7,7 @@ cd test-tmrca-recomb
 
 seqlen=100000
 
-rep=10000
+rep=100000
 
 
 echo -e "rm(list=ls());
