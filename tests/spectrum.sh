@@ -11,9 +11,9 @@ mst=(10 20 50 100 10)
 
 msNsample=(3 7 10)
 
-#msNsample=(3)
+msNsample=(3)
 
-rep=10000
+rep=1000
 #npop=20000
 
 compareSPEC=compareSPEC
