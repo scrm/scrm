@@ -12,7 +12,7 @@ mst=(10 20 50 100 10)
 
 msNsample=(3 7 10)
 
-rep=100
+rep=10000
 seqlen=100000
 
 compareSPEC=compareSPEC
