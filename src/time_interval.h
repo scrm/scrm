@@ -34,6 +34,8 @@ class TimeInterval {
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
+  friend class TestForestState;
+  friend class Forest;
 #endif
 
   TimeInterval();

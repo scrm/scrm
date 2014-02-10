@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #Compare summary statistics of ms and scrm for TMRCA with recombination events
-mkdir test-tmrca-recomb
-cd test-tmrca-recomb
+mkdir test-tmrca-recomb-Tifs
+cd test-tmrca-recomb-Tifs
 
 
 seqlen=100000
@@ -65,7 +65,7 @@ for t in "${mst[@]}"
 			out=${prefix}out
 			segrecomb=${prefix}segRecomb
 
-			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -Tifs | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				grep ";" xx${file} | sed -e 's/\[.*\]//g' > xxTrees
@@ -80,7 +80,7 @@ for t in "${mst[@]}"
 				mv bl_moments ms_bl_moments
 				
 				
-			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			scrm ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -Tifs | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				grep ";" xx${file} | sed -e 's/\[.*\]//g' > xxTrees

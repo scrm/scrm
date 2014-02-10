@@ -67,6 +67,7 @@
 
 class TimeInterval;
 class TimeIntervalIterator;
+enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
 
 class Forest
 {
@@ -79,7 +80,7 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
-
+  friend class ForestState;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
@@ -191,10 +192,9 @@ class Forest
   Node* trackLocalNode(Node *node); 
 
   //derived class from Forest
-  virtual void initialize_recomb_coalescent(const double rec_height) {};
-  virtual void initialize_event(double start_time) {};
-  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state) {};
-
+  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
+  virtual void record_all_event( TimeInterval const &ti){};
+  
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
@@ -243,6 +243,11 @@ class Forest
     assert( !node->local() );
     return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   }
+
+  //double calcRecombinationOpportunity(Node const* node, double time ) const {
+    //assert( !node->local() );
+    //return ( time * (this->current_base() - node->last_update()) );
+  //}
 
   void calcRates(const TimeInterval &ti);
 
