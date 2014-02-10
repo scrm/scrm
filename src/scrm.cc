@@ -68,11 +68,11 @@ int main(int argc, char *argv[]){
 
       // Set up a buffer to hold the data for segregating sites
       SegDataContainer seg_data_array = SegDataContainer(&user_para, &forest);
+      seg_data_array.append_new_seg_data(&forest);
 
       // Just output a single tree if the recombination rate is 0
       if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
         if (user_para.tree_bool) tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
-        seg_data_array.append_new_seg_data(&forest);
         if (user_para.tmrca_bool) time_buffer << "time:\t"<<forest.tmrca()<< " \t"<<forest.tot() <<"\n";  
       }
 
