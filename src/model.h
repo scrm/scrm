@@ -51,6 +51,7 @@ class Model
 #endif
   
    friend class Param;
+   friend class CountModel;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
