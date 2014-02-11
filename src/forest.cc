@@ -189,9 +189,11 @@ Node* Forest::cut(const TreePoint &cut_point) {
  *                    this.
  *  \param recursive  If false, only the given node is updated, but not its parent.
  *                    Default true.
+ *  \param invariants_only If true, it only updates the nodes invariants, but
+ *                    does not make nodes non-local and change the local root.
  */
 void Forest::updateAbove(Node* node, bool above_local_root, 
-                         const bool &recursive) {
+                         const bool &recursive, const bool &invariants_only) {
 
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
@@ -229,19 +231,21 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   assert( length_below >= 0 );
 
   // Update whether the node is local or not 
-  if (samples_below == 0) {
-    if ( node->local() ) node->make_nonlocal(current_base());
-  }
-  else if ( samples_below == sample_size() ) {
-    if ( node->local() ) node->make_nonlocal(current_base());
-
-    // Are we the local root?
-    if (node->numberOfChildren() == 2 && 
-        l_child->samples_below() > 0 && h_child->samples_below() > 0) {
-      set_local_root(node);
+  if (!invariants_only) {
+    if (samples_below == 0) {
+      if ( node->local() ) node->make_nonlocal(current_base());
     }
-    if ( node->is_root() ) set_primary_root(node);
-    above_local_root = true;
+    else if ( samples_below == sample_size() ) {
+      if ( node->local() ) node->make_nonlocal(current_base());
+
+      // Are we the local root?
+      if (node->numberOfChildren() == 2 && 
+          l_child->samples_below() > 0 && h_child->samples_below() > 0) {
+        set_local_root(node);
+      }
+      if ( node->is_root() ) set_primary_root(node);
+      above_local_root = true;
+    }
   }
 
   // If nothing changed, we also don't need to update the tree further above...
@@ -256,7 +260,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
 
   // Go further up if possible
   if ( recursive && !node->is_root() ) {
-    updateAbove(node->parent(), above_local_root, recursive);
+    updateAbove(node->parent(), above_local_root, recursive, invariants_only);
   }
 }
 
@@ -492,7 +496,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
             active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
-    assert( states_[1] == 0 || active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
+    assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
     assert( checkContemporaries(*ti) );
@@ -1109,7 +1113,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
     else { 
       Node* parent = node->parent();
       node->set_parent(NULL);
-      updateAbove(parent, false, true);
+      updateAbove(parent, false, true, true);
     }
     return true;
   } 
