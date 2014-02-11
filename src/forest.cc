@@ -461,6 +461,9 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
 
     // Assert that we don't accidentally jump in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
+    // Assert that there really are nodes at interval start & end
+    assert( checkForNodeAtHeight((*ti).start_height()) );
+    assert( (*ti).end_height() == FLT_MAX || checkForNodeAtHeight((*ti).end_height()) );
 
     // Update States & Rates (see their declaration for explanation); 
     states_[0] = getNodeState(active_node(0), (*ti).start_height());
@@ -489,7 +492,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     
     assert( active_node(0)->first_child() == NULL  || active_node(0)->first_child()->local() ||
             active_node(0)->second_child() == NULL || active_node(0)->second_child()->local() );
-    assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
+    assert( states_[1] == 0 || active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
     assert( checkContemporaries(*ti) );

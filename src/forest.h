@@ -164,6 +164,7 @@ class Forest
   bool checkNodeProperties() const;
   bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
+  bool checkForNodeAtHeight(const double &height) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
