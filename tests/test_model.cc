@@ -396,6 +396,11 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( model.finalize(), std::invalid_argument );
     model.addMigrationRate(10, 0, 1, 5.0);
     CPPUNIT_ASSERT_NO_THROW( model.finalize() );
+
+    model = Model(3);
+    model.set_population_number(2);
+    model.addSingleMigrationEvent(1, 0, 1, 1);
+    CPPUNIT_ASSERT_NO_THROW( model.check() );
   } 
 
   void testCopyConstructor() {
