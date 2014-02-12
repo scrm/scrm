@@ -574,6 +574,14 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
 
+bool Forest::checkForNodeAtHeight(const double &height) const {
+  for (auto it = getNodes()->iterator(); it.good(); ++it) {
+    if ((*it)->height() == height) return true;
+    if ((*it)->height() > height) return false;
+  }
+  return false;
+}
+
 // Checks if all nodes in contemporaries are contempoaries.
 bool Forest::checkContemporaries(const TimeInterval &ti) const {
   // Check if all nodes in contemporaries() are contemporaries

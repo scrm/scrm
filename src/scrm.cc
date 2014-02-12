@@ -119,7 +119,15 @@ int main(int argc, char *argv[]){
         time_buffer.clear();
       }
 
+
       *output << seg_data_array;
+      
+      if (user_para.output_jsfs) {
+        *output << "SFS:";
+        vector<int> sfs = seg_data_array.calcSiteFrequencies(); 
+        for (auto pos = sfs.begin(); pos != sfs.end(); ++pos) *output << " " << *pos;
+        *output << std::endl;
+      }
     }
 
   }

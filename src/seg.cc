@@ -99,6 +99,15 @@ std::valarray <int> Forest::find_haplotypes(Node *node){
   return haplotype;
 }
 
+vector<int> SegDataContainer::calcSiteFrequencies() const {
+  vector<int> sfs(forest_->model().sample_size(), 0);
+  for (auto it = seg_datas_.begin(); it != seg_datas_.end(); ++it) { 
+    for (auto it2 = (*it)->haplotypes.begin(); it2 != (*it)->haplotypes.end(); ++it2) {
+      sfs.at((*it2).sum() - 1) += 1; 
+    }
+  }
+  return(sfs);
+} 
 
 void Forest::traversal(Node *node, std::valarray<int> &haplotype){
   //std::cout << "start " << node << std::endl;

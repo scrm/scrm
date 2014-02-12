@@ -54,6 +54,7 @@ class SegDataContainer {
   int nsam() const { return forest_->model().sample_size(); };
 
   void append_new_seg_data(Forest *forest);
+  vector<int> calcSiteFrequencies() const;
 
  private:
   vector <SegDataBlock*> seg_datas_;
