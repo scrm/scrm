@@ -30,6 +30,7 @@ void Param::init(){
   this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
   this->finite_sites = true;
+  this->output_jsfs = false;
 }
 
 
@@ -245,6 +246,10 @@ void Param::parse(Model &model) {
 
     else if (argv_i == "-L"){
       tmrca_bool = true;
+    }
+
+    else if (argv_i == "-oSFS"){
+      output_jsfs = true;
     }
 
     else if (argv_i == "-seed"){

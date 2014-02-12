@@ -444,6 +444,7 @@ void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop
   }
 
   single_mig_probs_list_.at(position)->at(getMigMatrixIndex(source_pop, sink_pop)) = fraction; 
+  this->has_migration_ = true;
 } 
 
 
@@ -566,7 +567,7 @@ void Model::check() {
 
   // Structure without migration?
   if (population_number() > 1 && !has_migration())
-    throw std::invalid_argument("Model has multiple population but no migration. Coalescence impossible"); 
+    throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible"); 
 }
 
 

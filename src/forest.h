@@ -164,6 +164,7 @@ class Forest
   bool checkNodeProperties() const;
   bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
+  bool checkForNodeAtHeight(const double &height) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -201,7 +202,8 @@ class Forest
 
   void updateAbove(Node* node, 
                    bool above_local_root = false,
-                   const bool &recursive = true);
+                   const bool &recursive = true,
+                   const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);
