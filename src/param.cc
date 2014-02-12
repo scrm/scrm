@@ -262,7 +262,7 @@ void Param::parse(Model &model) {
   if (model.sample_size() == 0) {
     model.addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   } 
-  else if (model.sample_size() != sample_size) {
+  else if (model.sample_size() != sample_size && directly_called_) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
