@@ -7,7 +7,7 @@ cd test-tmrca-recomb-Tifs
 
 seqlen=100000
 
-rep=100000
+rep=1000
 
 
 echo -e "rm(list=ls());
@@ -65,7 +65,7 @@ for t in "${mst[@]}"
 			out=${prefix}out
 			segrecomb=${prefix}segRecomb
 
-			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -Tifs | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
+			ms ${nsam} ${rep} -t ${t} -r ${r} ${seqlen} -T | tail -n +4 | gawk '/^\/\//{f="xx"++d} f{print > f} '
 			for file in $(seq 1 1 ${rep})
 				do 
 				grep ";" xx${file} | sed -e 's/\[.*\]//g' > xxTrees

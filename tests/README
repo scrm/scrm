@@ -91,7 +91,7 @@ WITH RECOMBINATION
         test-tmrca-recomb/*pdf
 	
 	
-(In process 18Jan14, need to check 19Jan14)	##############################################
+(Good Feb 10)	##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg_wit_recomb.sh 
     

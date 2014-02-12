@@ -31,6 +31,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testImplementRecombination ); 
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST( testCopyConstructor );
+  CPPUNIT_TEST( testCheckForNodeAtHeight );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -634,6 +635,21 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest2.checkTree() );
     CPPUNIT_ASSERT( forest2.checkLeafsOnLocalTree() );
     CPPUNIT_ASSERT( forest2.checkInvariants() );
+  }
+
+  void testCheckForNodeAtHeight() {
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 0.0 ) );
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 1.0 ) );
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 3.0 ) );
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 4.0 ) );
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 6.0 ) );
+    CPPUNIT_ASSERT( forest->checkForNodeAtHeight( 10.0 ) );
+
+    CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 0.5 ) );
+    CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 1.5 ) );
+    CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 2.0 ) );
+    CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 9.0 ) );
+    CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 20.0 ) );
   }
 };
 
