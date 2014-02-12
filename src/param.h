@@ -62,6 +62,7 @@ class Param {
   bool tree_bool;
   bool tmrca_bool;
   bool finite_sites;
+  bool output_jsfs;
 
   std::string tree_NAME;
   std::string tmrca_NAME;
@@ -78,7 +79,7 @@ class Param {
   }
 
  private:
-    int argc_;
+  int argc_;
   int argc_i;
   char * const* argv_;
   bool seg_bool_;
