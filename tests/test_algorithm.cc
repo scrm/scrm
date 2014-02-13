@@ -119,7 +119,7 @@ class TestAlgorithm : public CppUnit::TestCase {
       tree_length[i] /= reps;    // Expectation: 2.84 
       //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
       CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
-      CPPUNIT_ASSERT( 2.80 <= tree_length[i] && tree_length[i] <= 2.88 );
+      CPPUNIT_ASSERT( 2.78 <= tree_length[i] && tree_length[i] <= 2.88 );
     }
   }
 

@@ -37,6 +37,9 @@
 
 class Param {
  public:
+ #ifdef UNITTEST
+  friend class TestParam;
+ #endif
   // Constructors
   Param() : argc_(0), argv_(NULL) { };
   Param(int argc, char *argv[], bool directly_called=true) : argc_(argc), argv_(argv) , directly_called_(directly_called) { }
@@ -47,7 +50,7 @@ class Param {
 
   // Other methods
   void init();
-  void log_param();
+
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
@@ -55,14 +58,14 @@ class Param {
   void print_param();
 
   // Member variables
-  size_t random_seed;
+  size_t random_seed;  
   bool tree_bool;
   bool tmrca_bool;
-  bool log_bool;
+  bool finite_sites;
+  bool output_jsfs;
 
   std::string tree_NAME;
   std::string tmrca_NAME;
-  std::string log_NAME;
 
   template<class T>
   T readNextInput() {
@@ -76,7 +79,7 @@ class Param {
   }
 
  private:
-  const int argc_;
+  int argc_;
   int argc_i;
   char * const* argv_;
   bool seg_bool_;

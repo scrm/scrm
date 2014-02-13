@@ -68,6 +68,7 @@
 
 class TimeInterval;
 class TimeIntervalIterator;
+enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
 
 class Forest
 {
@@ -80,7 +81,7 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
-
+  friend class ForestState;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
@@ -112,13 +113,25 @@ class Forest
 
   double next_base() const {return next_base_;}
   void set_next_base(const double &base){next_base_ = base;}
+
   void sampleNextBase() {
     next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
     if (next_base_ > model().loci_length()) next_base_ = model().loci_length();
   } 
 
-  size_t calcSegmentLength() const {
-    return ceil(next_base()) - ceil(current_base());
+  /**
+   * @brief Returns the length of the sequence for with the current tree is
+   * valid
+   *
+   * @param finite_sites If 'true', the length is measured in number of bases
+   * (e.g. integer sequence positions) for which the tree is valid. Otherwise,
+   * the length is measured real valued number on a continuous chromosome.  
+   *
+   * @return The length of the current segment (see above for its unit)
+   */
+  double calcSegmentLength(bool finite_sites = true) const {
+    if (finite_sites) return ceil(next_base()) - ceil(current_base());
+    else return next_base() - current_base();
   }
 
   double local_tree_length() const { return local_root()->length_below(); }
@@ -152,6 +165,7 @@ class Forest
   bool checkNodeProperties() const;
   bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
+  bool checkForNodeAtHeight(const double &height) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -180,17 +194,17 @@ class Forest
   Node* trackLocalNode(Node *node); 
 
   //derived class from Forest
-  virtual void initialize_recomb_coalescent(const double rec_height) {};
-  virtual void initialize_event(double start_time) {};
-  virtual void record_event(const TimeInterval & current_event, double end_time, size_t event_state) {};
-
+  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
+  virtual void record_all_event( TimeInterval const &ti){};
+  
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
   void updateAbove(Node* node, 
                    bool above_local_root = false,
-                   const bool &recursive = true);
+                   const bool &recursive = true,
+                   const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node, bool pruning);
@@ -232,6 +246,11 @@ class Forest
     assert( !node->local() );
     return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   }
+
+  //double calcRecombinationOpportunity(Node const* node, double time ) const {
+    //assert( !node->local() );
+    //return ( time * (this->current_base() - node->last_update()) );
+  //}
 
   void calcRates(const TimeInterval &ti);
 

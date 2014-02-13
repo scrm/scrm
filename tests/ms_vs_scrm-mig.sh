@@ -7,7 +7,7 @@ cd test-mig
 rm *pdf
 
 
-rep=100000
+rep=10000
 
 ## compare TMRCA
 compareMIG=compareMIG
@@ -124,9 +124,13 @@ sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\
 
 
 foo(){
+    cut -f 2 mstime > mstmrca
+	cut -f 2 scrmtime > scrmtmrca
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
 
+    cut -f 3 mstime > msbl
+	cut -f 3 scrmtime > scrmbl
 	echo "BL" > figuretitle
 	R CMD BATCH bl.r
 
@@ -160,19 +164,14 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T  > msout
-scrm 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T > scrmout
+ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L > msout
+scrm 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo
 
@@ -182,19 +181,14 @@ foo
 echo "2groups6sam5sam_mig_x_10_5_x" > current_case
 rm ms* scrm*
 	
-ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 10.0 5.0 x -T > msout
-scrm 4 ${rep} -t ${theta} -I 2 2 2 -ma x 10.0 5.0 x -T > scrmout
+ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 10.0 5.0 x -T -L > msout
+scrm 4 ${rep} -t ${theta} -I 2 2 2 -ma x 10.0 5.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo
 
@@ -205,19 +199,14 @@ foo
 echo "3groups10sam4sam1sam_mig_sym10" > current_case
 rm ms* scrm*
 	
-ms 15 ${rep} -t ${theta} -I 3 10 4 1 10.0 -T > msout
-scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T > scrmout
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 10.0 -T -L > msout
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo
 
@@ -228,19 +217,14 @@ echo "3groups10sam4sam1sam_mig_offdiag5" > current_case
 rm ms* scrm*
 
 	
-ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T > msout
-scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T > scrmout
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T -L > msout
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo
 
@@ -253,18 +237,13 @@ echo "3groups10sam4sam1sam_mig_x123x456x" > current_case
 
 rm ms* scrm*
 	
-ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T > msout
-scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T > scrmout
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T -L > msout
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo

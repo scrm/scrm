@@ -14,6 +14,7 @@ class TestParam : public CppUnit::TestCase {
 
   CPPUNIT_TEST( testParse );
   CPPUNIT_TEST( testParseMigrationOptions );
+  CPPUNIT_TEST( testParseOutputOptions );
   CPPUNIT_TEST( testParseGrowthOptions );
   CPPUNIT_TEST( testReadInput );
   
@@ -193,6 +194,26 @@ class TestParam : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0, 1) );
     CPPUNIT_ASSERT_EQUAL( 1.3/(4*model.default_pop_size), model.migration_rate(1, 0) );
+  }
+
+  void testParseOutputOptions() {
+    char *argv[] = { "scrm", "20", "10", "-T" };
+    Param pars = Param(4, argv);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( pars.finite_sites );
+
+    char *argv2[] = { "scrm", "20", "10", "-Tfs" };
+    pars = Param(4, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( pars.finite_sites );
+
+    char *argv3[] = { "scrm", "20", "10", "-Tifs" };
+    pars = Param(4, argv3);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
+    CPPUNIT_ASSERT( pars.tree_bool );
+    CPPUNIT_ASSERT( !pars.finite_sites );
   }
 
   void testReadInput() {

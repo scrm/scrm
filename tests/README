@@ -29,7 +29,7 @@ CHECKING THE INITIAL TREE
 		test-seg/*.pdf
 
 * Checking segregating sites data
-(progress 19Jan14, need to check!!!!) ##############################################
+(Good 27Jan14) ##############################################
 	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
 	./ms_vs_scrm_SEG_samplestats.sh
 	
@@ -40,7 +40,7 @@ CHECKING THE INITIAL TREE
 CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 
 * Checking -ma option	
-(progress 19Jan14) ##############################################
+(Good 28Jan14) ##############################################
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig.sh
 	
@@ -57,8 +57,10 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 		test-POP/comparePop
 		test-POP/*.pdf
 
+NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 1 and 2 in the experiment would not work as the sample sizes are only 2
+
 * Checking -ma option with -eN option
-(GOOD Sep19) ##############################################
+(Good 28Jan14) ##############################################
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig-popsize.sh 
 	
@@ -77,7 +79,7 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 WITH RECOMBINATION
 
 	
-(In process 18Jan14)	##############################################
+(Good 27Jan14)	##############################################
 	Compare TMRCA
 	Compare total branch length
 
@@ -89,18 +91,21 @@ WITH RECOMBINATION
         test-tmrca-recomb/*pdf
 	
 	
-(In process 18Jan14, need to check 19Jan14)	##############################################
+(Good Feb 10)	##############################################
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg_wit_recomb.sh 
-	
+    
     Output file:
         test-seg-recomb/compareSEG-RECOMB 
         test-seg-recomb/*pdf
+
+NOTE: for most of the cases, there is no significant difference on number of segreating sites. However, if there are only two lineages. The frequncy of few mutations differ.    
         
 	##############################################
 	Compare spectrum
 	Compare the Spectrum of the segregating sites, frequencies of observing a k mutation...
- (In process 18Jan14, need to check 19Jan14)   ./spectrum.sh
+ (In process 18Jan14, need to check 19Jan14)   
+    ./spectrum.sh
 
     ./spectrum-wit-recomb.sh
     

@@ -24,14 +24,13 @@
 #include "param.h"
 
 void Param::init(){
-  this->random_seed=-1;
-  this->log_bool = false;
+  this->random_seed = -1;
   this->tree_bool = false;
-  this->log_NAME = "scrm.log";
-  this->tree_NAME = "scrm.treefile";
   this->set_seg_bool(true);
   this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
+  this->finite_sites = true;
+  this->output_jsfs = false;
 }
 
 
@@ -75,7 +74,6 @@ void Param::parse(Model &model) {
   this->init();
 
   while( argc_i < argc_ ){
-    //std::cout << argv_[argc_i] << std::endl;
     std::string argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
@@ -237,14 +235,21 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Output 
     // ------------------------------------------------------------------
-    else if (argv_i == "-T"){
-      //treefile = argv_[++argc_i];
+    else if (argv_i == "-T" || argv_i == "-Tfs"){
       tree_bool = true;
     }
 
+    else if (argv_i == "-Tifs"){
+      tree_bool = true;
+      finite_sites = false;
+    }
+
     else if (argv_i == "-L"){
-      //treefile = argv_[++argc_i];
       tmrca_bool = true;
+    }
+
+    else if (argv_i == "-oSFS"){
+      output_jsfs = true;
     }
 
     else if (argv_i == "-seed"){
@@ -266,7 +271,9 @@ void Param::parse(Model &model) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
 
-  model.finalize();
+  if (directly_called_){
+    model.finalize();
+  }
   model.resetTime();
 }
 
@@ -274,16 +281,6 @@ void Param::parse(Model &model) {
 
 void Param::print_param(){
 }	
-
-void Param::log_param(){
-  //std::ofstream log_file;
-  //log_file.open (log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  std::ofstream log_file(this->log_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  log_file<<"scrm parameters: \n";
-  log_file<<std::setw(10)<<"seed:"<<" "<<std::setw(10)<<random_seed<< "\n";
-  log_file.close();
-}		
-
 
 void print_options(){
   std::cout << "  Options (ms-compatible):" << std::endl;
@@ -299,8 +296,6 @@ void print_options(){
   std::cout<<std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
   //std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
   //    <<"User define the length of the exact window."<<std::endl;
-  //std::cout<<std::setw(20)<<"-log [LOGFILE]"<<"  --  "<< "User specify the log file name, scrm.log by default."<<std::endl;
-  //std::cout<<std::setw(20)<<"-T myTREEFILE"<<"  --  "<< "User specify the tree file name, TREEFILE by default."<<std::endl;
   std::cout<<std::endl;
 }
 
@@ -314,17 +309,11 @@ void print_help(){
 
 void print_example(){	
   std::cout<<"Examples:"<<std::endl;
-  std::cout<<"./scrm 3 1"<<std::endl;
-  std::cout<<"./scrm 6 3 -t 10 -r 40 -npop 20000 "<<std::endl;
-  std::cout<<"./scrm 5 3 -t 20 -r 30 -npop 10000 -seed 1314 -log"<<std::endl;
-  std::cout<<"./scrm 6 1 -t 30 -r 40 10000 -nsites 2000 -log"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 25 -r 30 -nsites 10000 -log LOGFILE"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 40 -r 40 -log LOGFILE -T mytree"<<std::endl;
+  std::cout<<"./scrm 3 1 -t 10"<<std::endl;
+  std::cout<<"./scrm 6 3 -t 10 -r 40 20000 "<<std::endl;
+  std::cout<<"./scrm 5 3 -t 20 -r 30 10000 -seed 1314 "<<std::endl;
+  std::cout<<"./scrm 6 1 -t 30 -r 40 10000 "<<std::endl;
+  std::cout<<"./scrm 6 2 -t 25 -r 30 100000"<<std::endl;
+  std::cout<<"./scrm 6 2 -t 40 -r 40 100000 -T "<<std::endl;
 }
 
-void appending_log_file(std::string log_file_NAME,std::string log_file_input /*! Information added*/){
-  std::ofstream log_file;
-  log_file.open (log_file_NAME.c_str(), std::ios::out | std::ios::app | std::ios::binary); 
-  log_file << log_file_input << "\n";
-  log_file.close();
-}
