@@ -14,7 +14,7 @@ scrm_SOURCES = 	../src/forest.h ../src/model.h ../src/node.h ../src/node_contain
 
 unit_tests_SOURCES = test_forest.cc test_model.cc test_node.cc test_node_container.cc\
 			   	test_runner.cc test_time_interval.cc test_fastfunc.cc test_param.cc\
-				test_random_generator.cc test_seg.cc $(scrm_SOURCES)
+				test_random_generator.cc test_seg.cc test_summary_statistics.cc $(scrm_SOURCES)
 
 algorithm_tests_SOURCES = test_runner.cc test_algorithm.cc $(scrm_SOURCES)
 

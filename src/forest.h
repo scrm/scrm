@@ -181,9 +181,11 @@ class Forest
 
   //printing tree
   std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
-  double tmrca(){/*! TMRCA in unit of 4N0 */
+
+  double tmrca() const {/*! TMRCA in unit of 4N0 */
 	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
-  double tot(){/*! Total branch length in unit of 4N0 */
+
+  double tot() const {/*! Total branch length in unit of 4N0 */
 	  return this->local_root_->length_below() / this->model_->default_pop_size / 4;}
 
   //segegrating sites
@@ -196,6 +198,11 @@ class Forest
   //derived class from Forest
   virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
   virtual void record_all_event( TimeInterval const &ti){};
+
+  // Calc & Print Summary Statistics
+  void calcSegmentSumStats() const;
+  void printSegmentSumStats(ostream &output) const;
+  void printLocusSumStats(ostream &output) const;
   
  private:
   //Operations on the Tree

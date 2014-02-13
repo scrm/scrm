@@ -20,21 +20,28 @@
 
 */
 
-#ifndef scrm_src_summary_statistic_summary_statistic
-#define scrm_src_summary_statistic_summary_statistic
+#ifndef scrm_src_summary_statistic_tmrca
+#define scrm_src_summary_statistic_tmrca
 
+#include <sstream>
 #include <iostream>
-#include <ostream>
 
-class Forest;
+#include "summary_statistic.h"
+#include "../forest.h"
 
-class SummaryStatistic 
+class TMRCA : public SummaryStatistic
 {
  public:
+   TMRCA() {};
+
    //Virtual methods
-   virtual void calculate(const Forest &forest) =0;
-   virtual void printSegmentOutput(std::ostream &output) =0;
-   virtual void printLocusOutput(std::ostream &output) =0;
+   void calculate(const Forest &forest);
+   void printSegmentOutput(std::ostream &output) {};
+   void printLocusOutput(std::ostream &output);
+
+ private:
+   std::ostringstream output_buffer_;
+
 };
 
 #endif

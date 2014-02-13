@@ -17,24 +17,17 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
-#ifndef scrm_src_summary_statistic_summary_statistic
-#define scrm_src_summary_statistic_summary_statistic
+#include "tmrca.h"
 
-#include <iostream>
-#include <ostream>
+void TMRCA::calculate(const Forest &forest) {
+  if (!forest.calcSegmentLength(forest.model().finite_sites()) > 0) return;
+  output_buffer_ << "time:\t" << forest.tmrca() << " \t" <<forest.tot() << "\n";  
+}
 
-class Forest;
-
-class SummaryStatistic 
-{
- public:
-   //Virtual methods
-   virtual void calculate(const Forest &forest) =0;
-   virtual void printSegmentOutput(std::ostream &output) =0;
-   virtual void printLocusOutput(std::ostream &output) =0;
+void TMRCA::printLocusOutput(std::ostream &output) {
+  output << output_buffer_.str();  
+  output_buffer_.str("");
+  output_buffer_.clear();
 };
-
-#endif

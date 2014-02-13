@@ -242,10 +242,11 @@ void Param::parse(Model &model) {
     else if (argv_i == "-Tifs"){
       tree_bool = true;
       finite_sites = false;
+      model.set_finite_sites(false);
     }
 
     else if (argv_i == "-L"){
-      tmrca_bool = true;
+      model.addSummaryStatistic(new TMRCA());
     }
 
     else if (argv_i == "-oSFS"){

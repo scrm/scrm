@@ -303,6 +303,7 @@ void Forest::buildInitialTree() {
   }
 
   this->sampleNextBase();
+  this->calcSegmentSumStats();
 }
 
 
@@ -435,6 +436,7 @@ void Forest::sampleNextGenealogy() {
   assert( this->printNodes() );
 
   this->sampleNextBase();
+  this->calcSegmentSumStats();
 }
 
 
@@ -1201,5 +1203,23 @@ std::string Forest::writeTree(Node * node) {
     t2_strm << t2 / 4 / this->model_->default_pop_size;
 
     return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
+  }
+}
+
+void Forest::calcSegmentSumStats() const {
+  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+    model().getSummaryStatistic(i)->calculate(*this);
+  }
+}
+
+void Forest::printSegmentSumStats(ostream &output) const {
+  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+    model().getSummaryStatistic(i)->printSegmentOutput(output);
+  }
+}
+
+void Forest::printLocusSumStats(ostream &output) const {
+  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+    model().getSummaryStatistic(i)->printLocusOutput(output);
   }
 }

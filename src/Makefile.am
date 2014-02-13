@@ -19,7 +19,8 @@ scrm.cc \
 random/random_generator.cc random/random_generator.h  \
 random/mersenne_twister.cc random/mersenne_twister.h  \
 random/fastfunc.cc         random/fastfunc.h \
-summary_statistics/summary_statistic.h
+summary_statistics/summary_statistic.h \
+summary_statistics/tmrca.cc summary_statistics/tmrca.h
  
 debug_src = random/constant_generator.cc random/constant_generator.h \
 			forest-debug.cc 
@@ -32,4 +33,4 @@ scrm_prof_SOURCES = $(normal_src)
 
 include_HEADERS = seg.h forest.h model.h node.h node_container.h time_interval.h tree_point.h \
 	          random/mersenne_twister.h random/random_generator.h \
-			  summary_statistics/summary_statistic.h
+			  summary_statistics/summary_statistic.h summary_statistics/tmrca.h
