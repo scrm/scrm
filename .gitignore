@@ -33,9 +33,9 @@ tests/test-*
 tests/bad-tests/
 tests/good-tests/
 tests/*working*
-src/scrm
-src/scrm_dbg
-src/scrm_prof
+scrm
+scrm_dbg
+scrm_prof
 
 # automake
 Makefile
@@ -81,7 +81,7 @@ reference/
 compile
 test-driver
 tests/tests.trs
-tests/algorithm_tests
-tests/unit_tests
+algorithm_tests
+unit_tests
 stuff
 .dirstamp
