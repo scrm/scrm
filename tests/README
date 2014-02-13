@@ -69,8 +69,13 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 		test-mig-popsize/*.pdf
 
 * Checking the sub population structure, -en, and -ej options
-(TO COME)##############################################
-
+(GOOD 13Feb14)##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration
+    ./ms_vs_scrm_subpop_struct.sh
+    
+    Output file:
+        test-SUBPOP/compareSubPop
+        test-SUBPOP/*pdf
 
 * Checking growth rate, -eg option
 (TO COME)##############################################

@@ -113,11 +113,16 @@ sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\
 
 #format(ee,digits=4),format(sdv,digits=4),\"|\",
 foo(){
+    cut -f 2 mstime > mstmrca
+	cut -f 2 scrmtime > scrmtmrca
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
 
+    cut -f 3 mstime > msbl
+	cut -f 3 scrmtime > scrmbl
 	echo "BL" > figuretitle
 	R CMD BATCH bl.r
+
 
 	cut -f 6 ms_stats > msdata
 	cut -f 6 scrm_stats > scrmdata
@@ -143,117 +148,52 @@ foo(){
 #case 1 
 echo "10_samples_case1" > current_case
 rm ms* scrm*
-ms 10 ${rep} -t ${theta} -I 2 2 8 -T -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 > msout
-scrm 10 ${rep} -t ${theta} -I 2 2 8 -T -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 > scrmout
-
+ms 10 ${rep} -t ${theta} -I 2 2 8 -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 -T -L > msout
+scrm 10 ${rep} -t ${theta} -I 2 2 8 -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 -T -L > scrmout
 
 
 cat msout | sample_stats > ms_stats
-cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
-
+cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat scrmout | grep "time:" >  scrmtime
 
 foo
 
-##case 2
-#echo "2_samples_case2" > current_case
-#rm ms* scrm*
-#ms 2 ${rep} -t ${theta} -eN .5 0.01 -T > msout
-#scrm 2 ${rep} -t ${theta} -eN .5 0.01  -T > scrmout
+#case 4
+#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate 5
 
-#cat msout | sample_stats > ms_stats
-#cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-#hybrid-Lambda -gt msTrees -tmrca mstmrca
-#hybrid-Lambda -gt msTrees -bl msbl
+echo "3groups10sam4sam1sam_mig_offdiag5" > current_case
+rm ms* scrm*
 
+	
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -eN 0.8 15 -ej .7 2 1 -ej 1 3 1 -T -L > msout
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -eN 0.8 15 -ej .7 2 1 -ej 1 3 1 -T -L > scrmout
 
-#cat scrmout | sample_stats > scrm_stats
-#cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-#hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-#hybrid-Lambda -gt scrmTrees -bl scrmbl
+cat msout | sample_stats > ms_stats
+cat msout | grep "time:" > mstime
 
-#foo
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep "time:" >  scrmtime
 
-
-###case 3
-
-#echo "5_samples" > current_case
-#rm ms* scrm*
-
-#ms 5 ${rep} -t ${theta} -eN 0.5 10.0 -T > msout
-#scrm 5 ${rep} -t ${theta} -eN 0.5 10.0 -T > scrmout
-
-#cat msout | sample_stats > ms_stats
-#cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-#hybrid-Lambda -gt msTrees -tmrca mstmrca
-#hybrid-Lambda -gt msTrees -bl msbl
+foo
 
 
-#cat scrmout | sample_stats > scrm_stats
-#cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-#hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-#hybrid-Lambda -gt scrmTrees -bl scrmbl
 
-#foo
+#case 5
+#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate matrix on manual page 5
 
-##case 4
-#echo "4_samples" > current_case
-#rm ms* scrm*
+echo "3groups10sam4sam1sam_mig_x123x456x" > current_case
 
-#ms 4 ${rep} -t ${theta} -eN 0.8 15  -T > msout
-#scrm 4 ${rep} -t ${theta} -eN 0.8 15  -T > scrmout
+rm ms* scrm*
+	
+ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -eN 1 .1 -eN 3 10 -ej .7 2 1 -ej 4 3 1 -T -L > msout
+scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -eN 1 .1 -eN 3 10 -ej .7 2 1 -ej 4 3 1 -T -L > scrmout
 
-#cat msout | sample_stats > ms_stats
-#cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-#hybrid-Lambda -gt msTrees -tmrca mstmrca
-#hybrid-Lambda -gt msTrees -bl msbl
+cat msout | sample_stats > ms_stats
+cat msout | grep "time:" > mstime
 
+cat scrmout | sample_stats > scrm_stats
+cat scrmout | grep "time:" >  scrmtime
 
-#cat scrmout | sample_stats > scrm_stats
-#cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-#hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-#hybrid-Lambda -gt scrmTrees -bl scrmbl
-
-#foo
-
-##case 5
-#echo "6_samples_case1" > current_case
-#rm ms* scrm*
-#ms 6 ${rep} -t ${theta} -eN 1 .1 -eN 3 10 -T > msout
-#scrm 6 ${rep} -t ${theta} -eN 1 .1 -eN 3 10  -T > scrmout
-#cat msout | sample_stats > ms_stats
-#cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-#hybrid-Lambda -gt msTrees -tmrca mstmrca
-#hybrid-Lambda -gt msTrees -bl msbl
-
-
-#cat scrmout | sample_stats > scrm_stats
-#cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-#hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-#hybrid-Lambda -gt scrmTrees -bl scrmbl
-
-#foo
-
-##case 6
-#echo "6_samples_case2" > current_case
-#rm ms* scrm*
-#ms 6 ${rep} -t ${theta}  -eN .3 10 -T > msout
-#scrm 6 ${rep} -t ${theta}  -eN .3 10  -T > scrmout
-#cat msout | sample_stats > ms_stats
-#cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-#hybrid-Lambda -gt msTrees -tmrca mstmrca
-#hybrid-Lambda -gt msTrees -bl msbl
-
-
-#cat scrmout | sample_stats > scrm_stats
-#cat scrmout | grep ";" | sed -e 's/\[.*\]//g' > scrmTrees
-#hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-#hybrid-Lambda -gt scrmTrees -bl scrmbl
-
-#foo
+foo
