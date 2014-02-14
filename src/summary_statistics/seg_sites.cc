@@ -45,6 +45,9 @@ void SegSites::printLocusOutput(std::ostream &output) {
     }
     output <<"\n";
   }
+
+  positions_.clear();
+  haplotypes_.clear();
 };
 
 std::valarray<bool> SegSites::getHaplotypes(TreePoint mutation, const Forest &forest) {
