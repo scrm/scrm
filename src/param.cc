@@ -26,8 +26,6 @@
 void Param::init(){
   this->random_seed = -1;
   this->tree_bool = false;
-  this->set_seg_bool(true);
-  this->tmrca_bool = false;
   this->tmrca_NAME = "scrm.tmrcafile";
   this->finite_sites = true;
   this->output_jsfs = false;
@@ -89,6 +87,7 @@ void Param::parse(Model &model) {
     else if (argv_i == "-t") {
       nextArg(argv_i);
       model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
+      model.addSummaryStatistic(new SegSites());
     }
 
     else if (argv_i == "-s"){

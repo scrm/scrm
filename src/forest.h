@@ -151,7 +151,7 @@ class Forest
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
@@ -190,10 +190,10 @@ class Forest
 
   //segegrating sites
   std::valarray<int> find_haplotypes(Node *node); 
-  void traversal(Node *node, std::valarray <int>&haplotype);
+  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
   std::ostream &generateSegData(std::ostream &output, int total_mut);
 
-  Node* trackLocalNode(Node *node); 
+  Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
   virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};

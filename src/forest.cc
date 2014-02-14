@@ -327,7 +327,7 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
-TreePoint Forest::samplePoint(Node* node, double length_left) {
+TreePoint Forest::samplePoint(Node* node, double length_left) const {
   if (node == NULL) {
     // Called without arguments => initialization
     assert( this->checkTreeLength() );
@@ -1162,7 +1162,7 @@ bool areSame(const double &a, const double &b, const double &epsilon) {
  *
  * @return The next true local bifurcation
  */
-Node* Forest::trackLocalNode(Node *node){ 
+Node* Forest::trackLocalNode(Node *node) const { 
   assert( node->local() );
   if (node->numberOfChildren() == 0) return node;
   if (node->numberOfChildren() == 1) return trackLocalNode(node->first_child());
@@ -1222,4 +1222,30 @@ void Forest::printLocusSumStats(ostream &output) const {
   for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
+}
+
+void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
+  //std::cout << "start " << node << std::endl;
+  if (node->in_sample()){
+    haplotype[node->label()-1]=1;
+  }
+  else if (node->second_child() == NULL) {
+    traversal(node->first_child(), haplotype);
+  }
+  else if (node->first_child()->local() && node->second_child()->local()){
+    Node *left = trackLocalNode(node->first_child());
+    traversal(left, haplotype);
+    Node *right = trackLocalNode(node->second_child());
+    traversal(right, haplotype);
+  }
+  else if (!node->first_child()->local() ){
+    traversal(node->second_child(), haplotype);
+  }
+  else if (!node->second_child()->local()) {
+    traversal(node->first_child(), haplotype);
+  }
+  else {
+    assert( 0 );
+  }
+  //std::cout << "end" << std::endl;
 }

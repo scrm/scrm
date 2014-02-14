@@ -22,8 +22,8 @@
 
 #include <iostream>
 #include <ctime>
+
 #include "forest.h"
-#include "seg.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 #include "random/constant_generator.h"
@@ -66,10 +66,6 @@ int main(int argc, char *argv[]){
       forest.buildInitialTree();
       forest.printSegmentSumStats(*output);
 
-      // Set up a buffer to hold the data for segregating sites
-      SegDataContainer seg_data_array = SegDataContainer(&user_para, &forest);
-      seg_data_array.append_new_seg_data(&forest);
-
       // Just output a single tree if the recombination rate is 0
       if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
         if (user_para.tree_bool) tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
@@ -91,9 +87,6 @@ int main(int argc, char *argv[]){
           forest.sampleNextGenealogy();
           forest.printSegmentSumStats(*output);
 
-          // Sample and store segregating sites data
-          seg_data_array.append_new_seg_data(&forest);
-
           // Store current local tree and distance between recombinations in tree buffer
           if (forest.calcSegmentLength(user_para.finite_sites) > 0) {
             if (user_para.tree_bool) {
@@ -112,15 +105,6 @@ int main(int argc, char *argv[]){
       }
 
       forest.printLocusSumStats(*output);
-
-      *output << seg_data_array;
-      
-      if (user_para.output_jsfs) {
-        *output << "SFS:";
-        vector<int> sfs = seg_data_array.calcSiteFrequencies(); 
-        for (auto pos = sfs.begin(); pos != sfs.end(); ++pos) *output << " " << *pos;
-        *output << std::endl;
-      }
     }
 
   }

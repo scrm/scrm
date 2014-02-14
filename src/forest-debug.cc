@@ -37,6 +37,11 @@ void Forest::createExampleTree() {
   Node* leaf3 = new Node(0, 3);
   Node* leaf4 = new Node(0, 4);
 
+  leaf1->set_label(1);
+  leaf2->set_label(2);
+  leaf3->set_label(3);
+  leaf4->set_label(4);
+
   this->nodes()->add(leaf1);
   this->nodes()->add(leaf2);
   this->nodes()->add(leaf3);
@@ -71,6 +76,7 @@ void Forest::createExampleTree() {
   updateAbove(leaf4);
 
   this->set_current_base(5);  
+  this->set_next_base(105);
   this->set_sample_size(4);
 
   assert( this->checkTreeLength() );

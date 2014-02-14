@@ -37,6 +37,7 @@
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
 #include "summary_statistics/tmrca.h"
+#include "summary_statistics/seg_sites.h"
 
 class Param {
  public:
