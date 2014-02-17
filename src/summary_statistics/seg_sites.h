@@ -34,7 +34,7 @@
 class SegSites : public SummaryStatistic
 {
  public:
-  SegSites() {};
+  SegSites() { set_position(0.0); };
 
 #ifdef UNITTEST
   friend class TestSummaryStatistics;
@@ -47,11 +47,24 @@ class SegSites : public SummaryStatistic
 
   size_t countMutations() const { return positions_.size(); };
 
+  double position() const { return position_; };
+  std::valarray<bool> const* getHaplotype(const size_t &mutation) const {
+    return &(haplotypes_.at(mutation));
+  }
+
  private:
   std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
+  void clear() { 
+    positions_.clear();
+    haplotypes_.clear();  
+    set_position(0.0);
+  };
 
   std::vector<double> positions_;
   std::vector<std::valarray<bool>> haplotypes_;	
+
+  void set_position(const double &position) { position_ = position; };
+  double position_;
 };
 
 #endif

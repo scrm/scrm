@@ -331,8 +331,13 @@ class Model
    std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {
      return summary_statistics_.at(i);
    }
+
    void addSummaryStatistic(SummaryStatistic* sum_stat) {
      summary_statistics_.push_back(std::shared_ptr<SummaryStatistic>(sum_stat));
+   }
+
+   void addSummaryStatistic(std::shared_ptr<SummaryStatistic> sum_stat) {
+     summary_statistics_.push_back(sum_stat);
    }
 
   private:

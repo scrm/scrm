@@ -23,10 +23,10 @@
 #include <iostream>
 #include <ctime>
 
+#include "param.h"
 #include "forest.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
-#include "random/constant_generator.h"
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){

@@ -60,6 +60,13 @@ void Param::parse(Model &model) {
   size_t sample_size = 0;
   double time = 0;
 
+  // Placeholders for summary statistics.
+  // Statistics are added only after all parameters are parse, so that they will
+  // be added in the correct order.
+  std::shared_ptr<SegSites> seg_sites = NULL;
+  bool tmrca = false,
+       sfs = false; 
+
   if ( argc_ == 0 ) return;
   if (directly_called_){
     argc_i=0;
@@ -87,7 +94,7 @@ void Param::parse(Model &model) {
     else if (argv_i == "-t") {
       nextArg(argv_i);
       model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
-      model.addSummaryStatistic(new SegSites());
+      seg_sites = shared_ptr<SegSites>(new SegSites());
     }
 
     else if (argv_i == "-s"){
@@ -245,11 +252,11 @@ void Param::parse(Model &model) {
     }
 
     else if (argv_i == "-L"){
-      model.addSummaryStatistic(new TMRCA());
+      tmrca = true;
     }
 
     else if (argv_i == "-oSFS"){
-      output_jsfs = true;
+      sfs = true;
     }
 
     else if (argv_i == "-seed"){
@@ -269,6 +276,14 @@ void Param::parse(Model &model) {
   } 
   else if (model.sample_size() != sample_size) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
+  }
+
+  // Add summary statistics in order of their output
+  if (tmrca) model.addSummaryStatistic(new TMRCA());
+  if (seg_sites != NULL) model.addSummaryStatistic(shared_ptr<SummaryStatistic>(seg_sites));
+  if (sfs) {
+    if (seg_sites == NULL) seg_sites = shared_ptr<SegSites>(new SegSites());
+    model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
   }
 
   if (directly_called_){

@@ -22,17 +22,14 @@ travis-test: unittests algorithmtests scrm scrm_dbg
 	./tests/test_binaries.sh
 
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
-		   src/model.cc src/tree_point.cc \
-		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
-		   src/model.h src/tree_point.h
+		   src/model.cc src/tree_point.cc
 
-random_src = src/random/random_generator.cc src/random/random_generator.h  \
-			 src/random/mersenne_twister.cc src/random/mersenne_twister.h  \
-			 src/random/fastfunc.cc         src/random/fastfunc.h
+random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
+			 src/random/fastfunc.cc 
 
-sumstat_src = src/summary_statistics/summary_statistic.h \
-			  src/summary_statistics/tmrca.cc src/summary_statistics/tmrca.h \
-			  src/summary_statistics/seg_sites.cc src/summary_statistics/seg_sites.h
+sumstat_src = src/summary_statistics/tmrca.cc \
+			  src/summary_statistics/seg_sites.cc \
+			  src/summary_statistics/frequency_spectrum.cc
  
 scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 

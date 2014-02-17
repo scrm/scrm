@@ -22,6 +22,11 @@
 #include "seg_sites.h"
 
 void SegSites::calculate(const Forest &forest) {
+  if (forest.current_base() == 0.0) clear();
+  if (position() == forest.next_base()) return;
+  if (position() != forest.current_base()) 
+    throw std::logic_error("Problem simulating seg_sites: Did we skip a forest segment?");
+
   double position_at = forest.current_base();
   position_at += forest.random_generator()->sampleExpo(forest.local_tree_length() * forest.model().mutation_rate());
 
@@ -31,7 +36,10 @@ void SegSites::calculate(const Forest &forest) {
     positions_.push_back(position_at / forest.model().loci_length());
     position_at += forest.random_generator()->sampleExpo(forest.local_tree_length() * forest.model().mutation_rate());
   }	
+
+  set_position(forest.next_base());
 }
+
 
 void SegSites::printLocusOutput(std::ostream &output) {
   output << "segsites: "<< countMutations() << std::endl;
@@ -45,10 +53,8 @@ void SegSites::printLocusOutput(std::ostream &output) {
     }
     output <<"\n";
   }
-
-  positions_.clear();
-  haplotypes_.clear();
 };
+
 
 std::valarray<bool> SegSites::getHaplotypes(TreePoint mutation, const Forest &forest) {
   std::valarray<bool> haplotype(forest.model().sample_size());

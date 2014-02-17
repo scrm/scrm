@@ -33,11 +33,13 @@
 #include <stdio.h>
 #include <stdexcept>
 #include <boost/lexical_cast.hpp> 
+#include <memory>
 
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
 #include "summary_statistics/tmrca.h"
 #include "summary_statistics/seg_sites.h"
+#include "summary_statistics/frequency_spectrum.h"
 
 class Param {
  public:
