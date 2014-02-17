@@ -1178,33 +1178,6 @@ Node* Forest::trackLocalNode(Node *node) const {
 }
 
 
-/**
- * @brief Prints a part of the tree in newick format
- *
- * @param node The root of the subtree that will be printed
- *
- * @return A part of the tree in newick format
- */
-std::string Forest::writeTree(Node * node) {
-  if(node->in_sample()){
-    std::ostringstream label_strm;
-    label_strm<<node->label();
-    return label_strm.str();
-  }
-  else{
-    Node *left = this->trackLocalNode(node->first_child());
-    double t1 = node->height() - left->height();
-    std::ostringstream t1_strm;
-    t1_strm << t1 / 4 / this->model().default_pop_size;
-
-    Node *right = this->trackLocalNode(node->second_child());
-    double t2 = node->height() - right->height();
-    std::ostringstream t2_strm;
-    t2_strm << t2 / 4 / this->model_->default_pop_size;
-
-    return "("+this->writeTree(left)+":"+t1_strm.str()+","+ this->writeTree(right)+":"+t2_strm.str() +")";
-  }
-}
 
 void Forest::calcSegmentSumStats() const {
   for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {

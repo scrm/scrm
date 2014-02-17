@@ -43,7 +43,7 @@ debug_call 4 10 -r 5 100 -T || exit 1
 debug_call 6 10 -r 1 100 -t 5 || exit 1
 
 echo "Testing Pruning..."
-debug_call 10 10 -r 10 500 -l 10 -oSFS || exit 1
+debug_call 10 10 -r 10 500 -l 10 -t 5 -oSFS || exit 1
 debug_call 3 10 -r 10 500 -l 0 -t 5 -oSFS || exit 1
 
 echo "Testing Migration..."

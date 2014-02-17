@@ -37,7 +37,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed );
-    CPPUNIT_ASSERT_EQUAL( false, pars.tree_bool );
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(model), std::invalid_argument ); 
@@ -53,7 +52,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(4), (double)0.0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(17), (double)0.0 );
-    CPPUNIT_ASSERT_EQUAL( true, pars2.tree_bool );
 
     char *argv32[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "5.0", "-T"};
     CPPUNIT_ASSERT_NO_THROW( Param(12, argv32).parse(model) ); 
@@ -66,7 +64,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
-    CPPUNIT_ASSERT_EQUAL( true, pars2.tree_bool );
 
     char *argv33[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "5.0"};
     CPPUNIT_ASSERT_NO_THROW( Param(11, argv33).parse(model) ); 
@@ -198,22 +195,42 @@ class TestParam : public CppUnit::TestCase {
 
   void testParseOutputOptions() {
     char *argv[] = { "scrm", "20", "10", "-T" };
-    Param pars = Param(4, argv);
-    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
-    CPPUNIT_ASSERT( pars.tree_bool );
-    CPPUNIT_ASSERT( pars.finite_sites );
+    CPPUNIT_ASSERT_NO_THROW( Param(4, argv).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
+    CPPUNIT_ASSERT( model.finite_sites() );
 
     char *argv2[] = { "scrm", "20", "10", "-Tfs" };
-    pars = Param(4, argv2);
-    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
-    CPPUNIT_ASSERT( pars.tree_bool );
-    CPPUNIT_ASSERT( pars.finite_sites );
+    CPPUNIT_ASSERT_NO_THROW( Param(4, argv2).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
+    CPPUNIT_ASSERT( model.finite_sites() );
 
     char *argv3[] = { "scrm", "20", "10", "-Tifs" };
-    pars = Param(4, argv3);
-    CPPUNIT_ASSERT_NO_THROW( pars.parse(model); );
-    CPPUNIT_ASSERT( pars.tree_bool );
-    CPPUNIT_ASSERT( !pars.finite_sites );
+    CPPUNIT_ASSERT_NO_THROW( Param(4, argv3).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
+    CPPUNIT_ASSERT( !model.finite_sites() );
+
+    char *argv4[] = { "scrm", "20", "10", "-t", "5" };
+    CPPUNIT_ASSERT_NO_THROW( Param(5, argv4).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
+
+    char *argv5[] = { "scrm", "20", "10", "-L" };
+    CPPUNIT_ASSERT_NO_THROW( Param(4, argv5).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
+
+    char *argv6[] = { "scrm", "20", "10", "-oSFS" };
+    CPPUNIT_ASSERT_THROW( Param(4, argv6).parse(model), std::invalid_argument ); 
+
+    char *argv7[] = { "scrm", "20", "10", "-oSFS", "-t", "5" };
+    CPPUNIT_ASSERT_NO_THROW( Param(6, argv7).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 2 );
+
+    char *argv8[] = { "scrm", "20", "10", "-oSFS", "-t", "5", "-L" };
+    CPPUNIT_ASSERT_NO_THROW( Param(7, argv8).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 3 );
+
+    char *argv9[] = { "scrm", "20", "10", "-oSFS", "-t", "5", "-L", "-T" };
+    CPPUNIT_ASSERT_NO_THROW( Param(8, argv9).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 4 );
   }
 
   void testReadInput() {

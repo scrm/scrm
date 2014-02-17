@@ -66,42 +66,15 @@ int main(int argc, char *argv[]){
       forest.buildInitialTree();
       forest.printSegmentSumStats(*output);
 
-      // Just output a single tree if the recombination rate is 0
-      if (model.mutation_exact_number() == -1 && model.recombination_rate() == 0.0){	
-        if (user_para.tree_bool) tree_buffer << forest.writeTree(forest.local_root()) << ";\n";
-      }
-
-      int i = 0;
       // Start main loop, if the recombination rate is nonzero
       if (model.recombination_rate() > 0.0){
-
-        if (forest.calcSegmentLength(user_para.finite_sites) > 0) {
-          if (user_para.tree_bool) {
-            tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" 
-                << forest.writeTree(forest.local_root()) << ";\n";
-          }
-        }
 
         while (forest.next_base() < model.loci_length()) { 
           // Sample next genealogy
           forest.sampleNextGenealogy();
           forest.printSegmentSumStats(*output);
 
-          // Store current local tree and distance between recombinations in tree buffer
-          if (forest.calcSegmentLength(user_para.finite_sites) > 0) {
-            if (user_para.tree_bool) {
-              tree_buffer << "[" << forest.calcSegmentLength(user_para.finite_sites) << "]" 
-                  << forest.writeTree(forest.local_root()) << ";\n";
-            }
-          }
         }
-
-      }
-
-      if (user_para.tree_bool) {
-        *output << tree_buffer.str();
-        tree_buffer.str("");
-        tree_buffer.clear();
       }
 
       forest.printLocusSumStats(*output);

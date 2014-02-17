@@ -51,6 +51,7 @@ class Model
 #ifdef UNITTEST
    friend class TestModel;
    friend class TestTimeInterval;
+   friend class TestParam;
 #endif
   
    friend class Param;

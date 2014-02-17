@@ -180,8 +180,6 @@ class Forest
   NodeContainer *nodes() { return &(this->nodes_); }
 
   //printing tree
-  std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
-
   double tmrca() const {/*! TMRCA in unit of 4N0 */
 	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
 

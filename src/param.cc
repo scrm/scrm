@@ -25,10 +25,6 @@
 
 void Param::init(){
   this->random_seed = -1;
-  this->tree_bool = false;
-  this->tmrca_NAME = "scrm.tmrcafile";
-  this->finite_sites = true;
-  this->output_jsfs = false;
 }
 
 
@@ -65,6 +61,7 @@ void Param::parse(Model &model) {
   // be added in the correct order.
   std::shared_ptr<SegSites> seg_sites = NULL;
   bool tmrca = false,
+       trees = false,
        sfs = false; 
 
   if ( argc_ == 0 ) return;
@@ -242,12 +239,11 @@ void Param::parse(Model &model) {
     // Output 
     // ------------------------------------------------------------------
     else if (argv_i == "-T" || argv_i == "-Tfs"){
-      tree_bool = true;
+      trees = true;
     }
 
     else if (argv_i == "-Tifs"){
-      tree_bool = true;
-      finite_sites = false;
+      trees = true;
       model.set_finite_sites(false);
     }
 
@@ -279,10 +275,12 @@ void Param::parse(Model &model) {
   }
 
   // Add summary statistics in order of their output
+  if (trees) model.addSummaryStatistic(new NewickTree());
   if (tmrca) model.addSummaryStatistic(new TMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(shared_ptr<SummaryStatistic>(seg_sites));
   if (sfs) {
-    if (seg_sites == NULL) seg_sites = shared_ptr<SegSites>(new SegSites());
+    if (seg_sites == NULL) 
+    throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
     model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
   }
 

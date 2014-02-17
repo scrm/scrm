@@ -40,6 +40,7 @@
 #include "summary_statistics/tmrca.h"
 #include "summary_statistics/seg_sites.h"
 #include "summary_statistics/frequency_spectrum.h"
+#include "summary_statistics/newick_tree.h"
 
 class Param {
  public:
@@ -66,13 +67,6 @@ class Param {
 
   // Member variables
   size_t random_seed;  
-  bool tree_bool;
-  bool tmrca_bool;
-  bool finite_sites;
-  bool output_jsfs;
-
-  std::string tree_NAME;
-  std::string tmrca_NAME;
 
   template<class T>
   T readNextInput() {

@@ -29,7 +29,8 @@ random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
 
 sumstat_src = src/summary_statistics/tmrca.cc \
 			  src/summary_statistics/seg_sites.cc \
-			  src/summary_statistics/frequency_spectrum.cc
+			  src/summary_statistics/frequency_spectrum.cc \
+			  src/summary_statistics/newick_tree.cc
  
 scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 
