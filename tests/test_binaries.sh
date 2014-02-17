@@ -10,7 +10,7 @@
 
 function debug_call {
   for i in `seq 1 100`; do
-    ./src/scrm_dbg $@ -seed $i > /dev/null 
+    ./scrm_dbg $@ -seed $i > /dev/null 
     if [ $? -ne 0 ]; then
       echo "Executing \"./src/scrm_dbg $@ -seed $i\" failed."
       exit 1
@@ -20,7 +20,7 @@ function debug_call {
 
 function normal_call {
   for i in `seq 1 100`; do
-    loci=`./src/scrm $@ -seed $i | grep -c "//"`
+    loci=`./scrm $@ -seed $i | grep -c "//"`
     if [ $loci -ne $2 ]; then
       echo "Executing \"./src/scrm $@ -seed $i\" failed."
       exit 1
@@ -43,8 +43,8 @@ debug_call 4 10 -r 5 100 -T || exit 1
 debug_call 6 10 -r 1 100 -t 5 || exit 1
 
 echo "Testing Pruning..."
-debug_call 10 10 -r 10 500 -l 10 || exit 1
-debug_call 3 10 -r 10 500 -l 0 || exit 1
+debug_call 10 10 -r 10 500 -l 10 -t 5 -oSFS || exit 1
+debug_call 3 10 -r 10 500 -l 0 -t 5 -oSFS || exit 1
 
 echo "Testing Migration..."
 debug_call 5 2 -r 5 100 -I 2 3 2 1.2 || exit 1
@@ -52,8 +52,8 @@ debug_call 5 2 -r 20 200 -I 2 3 2 1.2 -l 25 || exit 1
 
 echo "Testing Split..."
 debug_call 5 5 -r 20 200 -I 2 3 2 0.4 -ej 1.1 2 1 -l 25  || exit 1
-debug_call 6 2 -r 20 200 -I 3 2 2 2 1.5 -ej 0.2 2 1 -ej 0.25 3 1 -l 25 || exit 1
+debug_call 6 2 -r 20 200 -I 3 2 2 2 -ej 0.2 2 1 -ej 0.25 3 1 -l 25 || exit 1
 
 echo "Testing Growth..."
-debug_call 5 20 -r 20 200 -G 0.5 -l 25  || exit 1
+debug_call 5 20 -r 20 200 -G 0.5 -l 25 || exit 1
 debug_call 5 10 -r 2 200 -G -2.5 -eG 1 0.0 -l 25  || exit 1

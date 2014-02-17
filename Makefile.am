@@ -1,20 +1,58 @@
-SUBDIRS = src doc tests 
+SUBDIRS = doc
 include aminclude.am 
 EXTRA_DIST = oldMakefile bootstrap doc/manual.pdf acinclude.m4 tests/*sh tests/*r
+bin_PROGRAMS = scrm 
+
+TESTS = unit_tests algorithm_tests 
+check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
+PROG = SCRM
 
 #DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
-CXXFLAGS= -I/opt/local/include
-LDFLAGS= -L/opt/local/lib
+#CXXFLAGS= -I/opt/local/include
+#LDFLAGS= -L/opt/local/lib
 
-unittests:
-	cd tests; make unit_tests
-	./tests/unit_tests 
+unittests: unit_tests
+	./unit_tests 
 
-algorithmtests:
-	cd tests; make algorithm_tests
-	./tests/algorithm_tests 
+algorithmtests: algorithm_tests
+	./algorithm_tests 
 
-travis-test: unittests algorithmtests
-	cd src; make scrm scrm_dbg
+travis-test: unittests algorithmtests scrm scrm_dbg
 	./tests/test_binaries.sh
+
+nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
+		   src/model.cc src/tree_point.cc
+
+random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
+			 src/random/fastfunc.cc 
+
+sumstat_src = src/summary_statistics/tmrca.cc \
+			  src/summary_statistics/seg_sites.cc \
+			  src/summary_statistics/frequency_spectrum.cc \
+			  src/summary_statistics/newick_tree.cc
+ 
+scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
+
+debug_src = src/random/constant_generator.cc src/random/constant_generator.h \
+			src/forest-debug.cc 
+
+unit_test_src = tests/test_forest.cc tests/test_model.cc tests/test_node.cc tests/test_node_container.cc\
+			   	tests/test_runner.cc tests/test_time_interval.cc tests/test_fastfunc.cc tests/test_param.cc\
+				tests/test_random_generator.cc tests/test_summary_statistics.cc 
+
+alg_test_src = tests/test_runner.cc tests/test_algorithm.cc 
+
+scrm_SOURCES = $(scrm_src) src/scrm.cc
+scrm_dbg_SOURCES = $(scrm_src) $(debug_src) src/scrm.cc
+scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
+unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
+algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
+ 
+scrm_CXXFLAGS= -DNDEBUG -std=c++0x
+scrm_dbg_CXXFLAGS= -std=c++0x
+scrm_prof_CXXFLAGS= -pg -DNDEBUG -fno-inline -std=c++0x
+unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
+algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
+unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
+algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports

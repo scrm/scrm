@@ -39,6 +39,9 @@
 #include <stdexcept>
 #include <cassert>
 #include <cmath>
+#include <memory>
+
+#include "summary_statistics/summary_statistic.h"
 
 class Param;
 
@@ -48,6 +51,7 @@ class Model
 #ifdef UNITTEST
    friend class TestModel;
    friend class TestTimeInterval;
+   friend class TestParam;
 #endif
   
    friend class Param;
@@ -110,6 +114,13 @@ class Model
     */
    size_t mutation_exact_number() const { return mutation_exact_number_; };
 
+   /**
+    * @brief Whether recombinations can occur only on finitely many sites, or
+    * everywhere along the sequence.
+    *
+    * @return A bool indicating the finite sites status of the model.
+    */
+   bool finite_sites() const { return finite_sites_; };
 
    /**
     * @brief Getter for the current growth rate of a subpopulation
@@ -244,6 +255,8 @@ class Model
     if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
    }
 
+   void set_finite_sites(const bool &finite_sites) { finite_sites_ = finite_sites; };
+
    void resetTime() { 
      current_pop_sizes_ = pop_sizes_list_.at(0);
      current_growth_rates_ = growth_rates_list_.at(0);
@@ -314,6 +327,21 @@ class Model
    void check();
    void reset();
 
+   const size_t getSummaryStatisticNumber() const {
+     return summary_statistics_.size(); 
+   }
+   std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {
+     return summary_statistics_.at(i);
+   }
+
+   void addSummaryStatistic(SummaryStatistic* sum_stat) {
+     summary_statistics_.push_back(std::shared_ptr<SummaryStatistic>(sum_stat));
+   }
+
+   void addSummaryStatistic(std::shared_ptr<SummaryStatistic> sum_stat) {
+     summary_statistics_.push_back(sum_stat);
+   }
+
   private:
 
    size_t addChangeTime(double time, const bool &scaled = false);
@@ -339,7 +367,8 @@ class Model
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
   void calcPopSizes();
 
-  std::vector<std::vector<double>*> copyVectorList(const std::vector<std::vector<double>*> &source);
+  template <typename T>
+  std::vector<T*> copyVectorList(const std::vector<T*> &source);
 
   friend void swap(Model& first, Model& second);
 
@@ -376,6 +405,10 @@ class Model
 
    size_t exact_window_length_;
    size_t prune_interval_;
+
+   bool finite_sites_;
+
+   std::vector<std::shared_ptr<SummaryStatistic>> summary_statistics_;
 };
 
 

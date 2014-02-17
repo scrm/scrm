@@ -6,8 +6,10 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
+
 #include "../src/model.h"
 #include "../src/forest.h"
+#include "../src/summary_statistics/tmrca.h"
 
 class TestModel : public CppUnit::TestCase {
 
@@ -33,6 +35,7 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testHasFixedTimeEvent );
   CPPUNIT_TEST( testCheck );
   CPPUNIT_TEST( testPopSizeAfterGrowth );
+  CPPUNIT_TEST( testAddSummaryStatistic );
 
 
 
@@ -517,8 +520,15 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame( model.default_pop_size, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( 500.0, model.population_size(1) ) );
   }
-};
 
+  void testAddSummaryStatistic() {
+    Model model = Model(5);
+    CPPUNIT_ASSERT(model.getSummaryStatisticNumber() == 0); 
+    model.addSummaryStatistic(new TMRCA());
+    CPPUNIT_ASSERT(model.getSummaryStatisticNumber() == 1); 
+    CPPUNIT_ASSERT( model.getSummaryStatistic(0) != NULL );
+  }
+};
 
 //Uncomment this to activate the test
 CPPUNIT_TEST_SUITE_REGISTRATION( TestModel );

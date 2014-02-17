@@ -71,7 +71,9 @@ Model::Model(const Model& model) {
   growth_rates_list_ = copyVectorList(model.growth_rates_list_);
   mig_rates_list_ = copyVectorList(model.mig_rates_list_);
   total_mig_rates_list_ = copyVectorList(model.total_mig_rates_list_);
-  single_mig_probs_list_ = copyVectorList(single_mig_probs_list_);
+  single_mig_probs_list_ = copyVectorList(model.single_mig_probs_list_);
+
+  summary_statistics_ = std::vector<std::shared_ptr<SummaryStatistic>>(model.summary_statistics_);
 
   // Pointers
   current_time_idx_ = model.current_time_idx_; 
@@ -113,6 +115,7 @@ void Model::init() {
   this->set_prune_interval(10);
 
   this->mutation_exact_number_ = -1;
+  this->set_finite_sites(true);
 
   this->resetTime();
 }
@@ -589,16 +592,16 @@ void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const
 }
 
 
-
-std::vector<std::vector<double>*> Model::copyVectorList(const std::vector<std::vector<double>*> &source) {
-  auto copy = std::vector<std::vector<double>*>();
+template <typename T>
+std::vector<T*> Model::copyVectorList(const std::vector<T*> &source) {
+  auto copy = std::vector<T*>();
 
   for (size_t j = 0; j < source.size(); ++j) {
     if (source.at(j) == NULL) { 
       copy.push_back(NULL);
       continue;
     }
-    copy.push_back(new std::vector<double>(*source.at(j)));
+    copy.push_back(new T(*source.at(j)));
   }
 
   return copy;
@@ -634,6 +637,9 @@ void swap(Model& first, Model& second) {
   swap(first.mig_rates_list_, second.mig_rates_list_);
   swap(first.total_mig_rates_list_, second.total_mig_rates_list_);
   swap(first.single_mig_probs_list_, second.single_mig_probs_list_);
+
+  // Pointer lists
+  swap(first.summary_statistics_, second.summary_statistics_);
 
   // Pointers
   swap(first.current_time_idx_, second.current_time_idx_); 

@@ -109,28 +109,3 @@ vector<int> SegDataContainer::calcSiteFrequencies() const {
   return(sfs);
 } 
 
-void Forest::traversal(Node *node, std::valarray<int> &haplotype){
-  //std::cout << "start " << node << std::endl;
-  if (node->in_sample()){
-    haplotype[node->label()-1]=1;
-  }
-  else if (node->second_child() == NULL) {
-    traversal(node->first_child(), haplotype);
-  }
-  else if (node->first_child()->local() && node->second_child()->local()){
-    Node *left = trackLocalNode(node->first_child());
-    traversal(left, haplotype);
-    Node *right = trackLocalNode(node->second_child());
-    traversal(right, haplotype);
-  }
-  else if (!node->first_child()->local() ){
-    traversal(node->second_child(), haplotype);
-  }
-  else if (!node->second_child()->local()) {
-    traversal(node->first_child(), haplotype);
-  }
-  else {
-    assert( 0 );
-  }
-  //std::cout << "end" << std::endl;
-}

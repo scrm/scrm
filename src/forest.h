@@ -57,13 +57,14 @@
 #include "node.h"
 #include "event.h"
 #include "model.h"
-#include "param.h"
+// #include "param.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
+#include "summary_statistics/summary_statistic.h"
 
 class TimeInterval;
 class TimeIntervalIterator;
@@ -150,7 +151,7 @@ class Forest
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
-  TreePoint samplePoint(Node* node = NULL, double length_left = -1);
+  TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
@@ -179,22 +180,27 @@ class Forest
   NodeContainer *nodes() { return &(this->nodes_); }
 
   //printing tree
-  std::string writeTree(Node * node); /*!< Extract Newick formatted string of the genealogy.*/
-  double tmrca(){/*! TMRCA in unit of 4N0 */
+  double tmrca() const {/*! TMRCA in unit of 4N0 */
 	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
-  double tot(){/*! Total branch length in unit of 4N0 */
+
+  double tot() const {/*! Total branch length in unit of 4N0 */
 	  return this->local_root_->length_below() / this->model_->default_pop_size / 4;}
 
   //segegrating sites
   std::valarray<int> find_haplotypes(Node *node); 
-  void traversal(Node *node, std::valarray <int>&haplotype);
+  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
   std::ostream &generateSegData(std::ostream &output, int total_mut);
 
-  Node* trackLocalNode(Node *node); 
+  Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
   virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
   virtual void record_all_event( TimeInterval const &ti){};
+
+  // Calc & Print Summary Statistics
+  void calcSegmentSumStats() const;
+  void printSegmentSumStats(ostream &output) const;
+  void printLocusSumStats(ostream &output) const;
   
  private:
   //Operations on the Tree

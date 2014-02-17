@@ -7,6 +7,7 @@
 #include "../src/random/constant_generator.h"
 #include "../src/random/mersenne_twister.h"
 #include "../src/event.h"
+#include "../src/summary_statistics/tmrca.h"
 
 class TestForest : public CppUnit::TestCase {
 
@@ -32,6 +33,9 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST( testCopyConstructor );
   CPPUNIT_TEST( testCheckForNodeAtHeight );
+  CPPUNIT_TEST( testCalcSegmentSummaryStatistics );
+  CPPUNIT_TEST( testPrintLocusSumStats );
+  CPPUNIT_TEST( testTraversal );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -650,6 +654,48 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 2.0 ) );
     CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 9.0 ) );
     CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 20.0 ) );
+  }
+
+  void testCalcSegmentSummaryStatistics() {
+    ostringstream output;
+    forest->calcSegmentSumStats();
+    forest->printSegmentSumStats(output);
+    CPPUNIT_ASSERT( output.str() == "" );
+
+    forest->writable_model()->addSummaryStatistic(new TMRCA());
+    forest->calcSegmentSumStats();
+    forest->printSegmentSumStats(output);
+    CPPUNIT_ASSERT( output.str() == "" );
+  }
+
+  void testPrintLocusSumStats() {
+    ostringstream output;
+    forest->printLocusSumStats(output);
+
+    forest->writable_model()->addSummaryStatistic(new TMRCA());
+    forest->calcSegmentSumStats();
+    forest->printSegmentSumStats(output);
+    CPPUNIT_ASSERT( output.str() == "" );
+    forest->printLocusSumStats(output);
+    CPPUNIT_ASSERT( output.str() != "" );
+  }
+
+  void testTraversal() {
+    std::valarray <bool>haplotype(4);
+    //traversal(forest->nodes()->at(4), haplotype);
+    forest->traversal(forest->nodes()->at(4), haplotype);
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
+
+    haplotype *= 0;
+    //traversal(forest->nodes()->at(5), haplotype);
+    forest->traversal(forest->nodes()->at(5), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[3] );
   }
 };
 

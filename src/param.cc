@@ -25,12 +25,6 @@
 
 void Param::init(){
   this->random_seed = -1;
-  this->tree_bool = false;
-  this->set_seg_bool(true);
-  this->tmrca_bool = false;
-  this->tmrca_NAME = "scrm.tmrcafile";
-  this->finite_sites = true;
-  this->output_jsfs = false;
 }
 
 
@@ -62,6 +56,14 @@ void Param::parse(Model &model) {
   size_t sample_size = 0;
   double time = 0;
 
+  // Placeholders for summary statistics.
+  // Statistics are added only after all parameters are parse, so that they will
+  // be added in the correct order.
+  std::shared_ptr<SegSites> seg_sites = NULL;
+  bool tmrca = false,
+       trees = false,
+       sfs = false; 
+
   if ( argc_ == 0 ) return;
   if (directly_called_){
     argc_i=0;
@@ -89,6 +91,7 @@ void Param::parse(Model &model) {
     else if (argv_i == "-t") {
       nextArg(argv_i);
       model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
+      seg_sites = shared_ptr<SegSites>(new SegSites());
     }
 
     else if (argv_i == "-s"){
@@ -236,20 +239,20 @@ void Param::parse(Model &model) {
     // Output 
     // ------------------------------------------------------------------
     else if (argv_i == "-T" || argv_i == "-Tfs"){
-      tree_bool = true;
+      trees = true;
     }
 
     else if (argv_i == "-Tifs"){
-      tree_bool = true;
-      finite_sites = false;
+      trees = true;
+      model.set_finite_sites(false);
     }
 
     else if (argv_i == "-L"){
-      tmrca_bool = true;
+      tmrca = true;
     }
 
     else if (argv_i == "-oSFS"){
-      output_jsfs = true;
+      sfs = true;
     }
 
     else if (argv_i == "-seed"){
@@ -269,6 +272,16 @@ void Param::parse(Model &model) {
   } 
   else if (model.sample_size() != sample_size && directly_called_) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
+  }
+
+  // Add summary statistics in order of their output
+  if (trees) model.addSummaryStatistic(new NewickTree());
+  if (tmrca) model.addSummaryStatistic(new TMRCA());
+  if (seg_sites != NULL) model.addSummaryStatistic(shared_ptr<SummaryStatistic>(seg_sites));
+  if (sfs) {
+    if (seg_sites == NULL) 
+    throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
+    model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
   }
 
   if (directly_called_){
