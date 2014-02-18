@@ -91,7 +91,9 @@ void Param::parse(Model &model) {
     else if (argv_i == "-t") {
       nextArg(argv_i);
       model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
-      seg_sites = shared_ptr<SegSites>(new SegSites());
+      if (directly_called_){
+        seg_sites = shared_ptr<SegSites>(new SegSites());
+      }
     }
 
     else if (argv_i == "-s"){

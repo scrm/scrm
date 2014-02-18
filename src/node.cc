@@ -38,9 +38,6 @@ void Node::init(double height, size_t label) {
 
   this->set_height(height);
   this->set_label(label);
-
-//  this->set_last_update(0);
-//  this->set_population(0);
   
   if (label == 0) this->set_samples_below(1);
   else this->set_samples_below(0);
@@ -53,7 +50,8 @@ void Node::init(double height, size_t label) {
   this->set_second_child(NULL);
   this->set_first_child(NULL);
   
-  this->set_mutation_state(NULL);
+  //this->set_mutation_state(NULL);
+  this->set_mutation_state(false);
 }
   
 
