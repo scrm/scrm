@@ -194,7 +194,7 @@ class Forest
   Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
-  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
+  virtual void record_event(size_t pop_i, double start_time, double end_time, double opportunity, eventCode event_code){};
   virtual void record_all_event( TimeInterval const &ti){};
 
   // Calc & Print Summary Statistics
