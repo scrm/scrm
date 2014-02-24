@@ -1,6 +1,6 @@
 SUBDIRS = doc
 include aminclude.am 
-EXTRA_DIST = bootstrap doc/manual.pdf acinclude.m4 tests/*sh tests/*r
+EXTRA_DIST = bootstrap doc/manual.pdf acinclude.m4
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
@@ -22,26 +22,36 @@ travis-test: unittests algorithmtests scrm scrm_dbg
 	./tests/test_binaries.sh
 
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
-		   src/model.cc src/tree_point.cc
+		   src/model.cc src/tree_point.cc \
+		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
+		   src/model.h src/tree_point.h src/event.h
 
 random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
-			 src/random/fastfunc.cc 
+			 src/random/fastfunc.cc \
+			 src/random/random_generator.h src/random/mersenne_twister.h \
+			 src/random/fastfunc.h 
 
 sumstat_src = src/summary_statistics/tmrca.cc \
 			  src/summary_statistics/seg_sites.cc \
 			  src/summary_statistics/frequency_spectrum.cc \
-			  src/summary_statistics/newick_tree.cc
+			  src/summary_statistics/newick_tree.cc \
+			  src/summary_statistics/tmrca.h \
+			  src/summary_statistics/seg_sites.h \
+			  src/summary_statistics/frequency_spectrum.h \
+			  src/summary_statistics/newick_tree.h \
+			  src/summary_statistics/summary_statistic.h
  
 scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 
 debug_src = src/random/constant_generator.cc src/random/constant_generator.h \
-			src/forest-debug.cc 
+			src/forest-debug.cc src/random/constant_generator.h
 
 unit_test_src = tests/test_forest.cc tests/test_model.cc tests/test_node.cc tests/test_node_container.cc\
 			   	tests/test_runner.cc tests/test_time_interval.cc tests/test_fastfunc.cc tests/test_param.cc\
 				tests/test_random_generator.cc tests/test_summary_statistics.cc 
 
 alg_test_src = tests/test_runner.cc tests/test_algorithm.cc 
+
 
 scrm_SOURCES = $(scrm_src) src/scrm.cc
 scrm_dbg_SOURCES = $(scrm_src) $(debug_src) src/scrm.cc

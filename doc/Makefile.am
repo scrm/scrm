@@ -17,6 +17,6 @@ $(MANPDF): $(srcdir)/$(MANTEXSRC)
 endif
 #dist_doc_DATA = $(docfiles)
 
-EXTRA_DIST = manual.pdf 
+EXTRA_DIST = manual.pdf manual.tex 
 
 #SUBDIRS =
