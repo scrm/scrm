@@ -1,6 +1,6 @@
 SUBDIRS = doc
 include aminclude.am 
-EXTRA_DIST = oldMakefile bootstrap doc/manual.pdf acinclude.m4 tests/*sh tests/*r
+EXTRA_DIST = bootstrap doc/manual.pdf acinclude.m4 tests/*sh tests/*r
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
