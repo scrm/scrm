@@ -1,4 +1,4 @@
-/*
+  /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
  * Copyright (C) 2013 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
@@ -91,8 +91,9 @@ Forest::Forest(Forest * current_forest) {
     updateAbove(*it, false, false);
   }
 
+  // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_line_ = 0;
-  this->tmp_event_time_ = -1;  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
   
   
@@ -275,8 +276,8 @@ void Forest::buildInitialTree() {
   this->set_current_base(0.0);
 
   dout << "* Adding first node... ";
-  Node* first_node = new Node(model().sample_time(1), 1);
-  first_node->set_population(model().sample_population(1));
+  Node* first_node = new Node(model().sample_time(0), 1);
+  first_node->set_population(model().sample_population(0));
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
@@ -457,7 +458,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
 
-  assert ( start_node->height() <= active_node(1)->height() );
+  // This assertion needs an exception for building the initial tree
+  assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
     //this->initialize_event((*ti).start_height());

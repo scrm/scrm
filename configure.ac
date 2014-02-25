@@ -1,4 +1,4 @@
-AC_INIT([scrm],esyscmd([sh -c "date \"+%Y%m%d\" | tr -d '\n'"]),[https://github.com/paulstaab/scrm/issues])
+AC_INIT([scrm], [0.9.1],[https://github.com/paulstaab/scrm/issues])
 #AC_INIT([scrm],[beta],[staab@biologie.uni-muenchen.de])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])

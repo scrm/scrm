@@ -143,7 +143,7 @@ void Param::parse(Model &model) {
         nextArg(argv_i);
         sample_size.push_back(readInput<size_t>(argv_[argc_i]));
       }
-      model.addSampleSizes(time, sample_size);
+      model.addSampleSizes(time, sample_size, true);
     }
 
     // ------------------------------------------------------------------

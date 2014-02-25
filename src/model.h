@@ -305,7 +305,8 @@ class Model
    void addGrowthRate(const double &time, const size_t &population, 
                       const double &growth_rates, const bool &time_scaled = false);
 
-   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes);
+   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
+                       const bool &scaled = false);
 
    // functions to add Migration
    void addMigrationRates(double time, const std::vector<double> &mig_rates,

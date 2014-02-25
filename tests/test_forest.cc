@@ -491,17 +491,43 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testBuildInitialTree() {
-    Model* model = new Model(5);
+    Model model = Model(5);
 
     for (size_t i = 0; i < 100; ++i) {
-      Forest frst = Forest(model, rg);
+      Forest frst = Forest(&model, rg);
       frst.buildInitialTree();
       CPPUNIT_ASSERT_EQUAL(true, frst.checkTree());
       CPPUNIT_ASSERT( frst.current_base() == 0.0 );
       CPPUNIT_ASSERT( frst.next_base() > 0.0 );
     }
 
-    delete model;
+    model = Model(2);
+    model.set_population_number(2);
+    model.addSampleSizes(0.0, std::vector<size_t>(2, 1)); 
+    model.addSymmetricMigration(0.0, 5.0, true, true);
+    model.finalize();
+    Forest frst = Forest(&model, rg);
+    CPPUNIT_ASSERT_NO_THROW( frst.buildInitialTree() );
+    CPPUNIT_ASSERT_EQUAL( true, frst.checkTree() );
+    CPPUNIT_ASSERT( frst.nodes()->at(0)->population() != frst.nodes()->at(1)->population() );
+
+    model = Model(0);
+    model.set_population_number(2);
+    std::vector<size_t> sample_size(2, 1);
+    sample_size.at(1) = 0;
+    model.addSampleSizes(0.0, sample_size); 
+    sample_size.at(0) = 0;
+    sample_size.at(1) = 1;
+    model.addSampleSizes(1.0, sample_size); 
+    model.addSymmetricMigration(0.0, 5.0, true, true);
+    model.finalize();
+    frst = Forest(&model, rg);
+    CPPUNIT_ASSERT_NO_THROW( frst.buildInitialTree() );
+    CPPUNIT_ASSERT_EQUAL( true, frst.checkTree() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, frst.nodes()->at(0)->population() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, frst.nodes()->at(1)->population() );
+    CPPUNIT_ASSERT_EQUAL( 0.0, frst.nodes()->at(0)->height() );
+    CPPUNIT_ASSERT_EQUAL( 1.0, frst.nodes()->at(1)->height() );
   }
 
   void testCut() {

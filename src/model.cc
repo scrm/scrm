@@ -177,7 +177,9 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 }
 
 
-void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes) {
+void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes, const bool &scaled) {
+  if (scaled) time *= 4 * default_pop_size;
+
   for (size_t pop = 0; pop < samples_sizes.size(); ++pop) {
     for (size_t i = 0; i < samples_sizes.at(pop); ++i) {
       sample_populations_.push_back(pop);

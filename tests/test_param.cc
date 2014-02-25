@@ -77,12 +77,18 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
 
+    char *argv34[] = { "scrm", "2", "1", "-t", "3.74", "-I", "2", "1", "1", "5.0"};
+    CPPUNIT_ASSERT_NO_THROW( Param(10, argv34).parse(model) ); 
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, model.population_number() );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(0), (size_t)0 );
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(1), (size_t)1 );
+
     char *argv4[] = { "scrm", "23", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-eI", "12.3", "2", "0", "1" , "-M", "5.0" };
     CPPUNIT_ASSERT_NO_THROW( Param(17, argv4).parse(model) ); 
     CPPUNIT_ASSERT_EQUAL( model.sample_population(20), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(22), (size_t)2 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(20), (double)12.3 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(22), (double)12.3 );
+    CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(20) );
+    CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(22) );
    
     // -N & -eN 
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", 
