@@ -121,6 +121,28 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.sample_population(2), (size_t)0 ); 
     CPPUNIT_ASSERT_EQUAL( model.sample_time(1), (double)0.0 ); 
 
+    model = Model(0);
+    model.set_population_number(3);
+    model.addSampleSizes(0.0, std::vector<size_t>(3,1));
+    CPPUNIT_ASSERT_EQUAL( model.sample_size(), (size_t)3 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(0), (size_t)0 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(1), (size_t)1 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_population(2), (size_t)2 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(0), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(1), (double)0.0 ); 
+    CPPUNIT_ASSERT_EQUAL( model.sample_time(2), (double)0.0 ); 
+
+    std::vector<size_t> sample_size;
+    sample_size.push_back(0);
+    sample_size.push_back(0);
+    sample_size.push_back(2);
+    model.addSampleSizes(1.0, sample_size);
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, model.sample_size() ); 
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, model.sample_population(3) ); 
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, model.sample_population(4) ); 
+    CPPUNIT_ASSERT_EQUAL( 1.0, model.sample_time(3) ); 
+    CPPUNIT_ASSERT_EQUAL( 1.0, model.sample_time(4) ); 
+
     Model model2 = Model();
     std::vector<size_t> sample_sizes;
     sample_sizes.push_back(5);
