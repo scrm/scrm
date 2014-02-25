@@ -458,7 +458,8 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
   tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
 
-  assert ( start_node->height() <= active_node(1)->height() );
+  // This assertion needs an exception for building the initial tree
+  assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node, pruning); ti.good(); ++ti) {
     //this->initialize_event((*ti).start_height());

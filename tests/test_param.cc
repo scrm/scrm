@@ -87,8 +87,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( Param(17, argv4).parse(model) ); 
     CPPUNIT_ASSERT_EQUAL( model.sample_population(20), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(22), (size_t)2 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(20), (double)12.3 );
-    CPPUNIT_ASSERT_EQUAL( model.sample_time(22), (double)12.3 );
+    CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(20) );
+    CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(22) );
    
     // -N & -eN 
     char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", 
