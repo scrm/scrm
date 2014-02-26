@@ -302,7 +302,6 @@ void Forest::buildInitialTree() {
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
   }
-
   this->sampleNextBase();
   this->calcSegmentSumStats();
 }
@@ -394,7 +393,10 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
+
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
+  double opportunity_y = this -> local_tree_length();
+  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
 
   this->set_current_base(next_base_);
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
@@ -424,10 +426,8 @@ void Forest::sampleNextGenealogy() {
   assert( this->printTree() );
 
 // record recombination event
-  double opportunity_y = this -> local_tree_length();
-  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
   this->record_event(rec_point.base_node()->population(), size_t(-1), rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
-  
+
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
 
@@ -1200,7 +1200,6 @@ void Forest::printLocusSumStats(ostream &output) const {
 }
 
 void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
-  //std::cout << "start " << node << std::endl;
   if (node->in_sample()){
     haplotype[node->label()-1]=1;
   }
