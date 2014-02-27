@@ -8,6 +8,9 @@ rm *pdf
 
 
 rep=100000
+seqlen=100000
+#msr=(10 20 10 50)
+r=10
 
 ## compare TMRCA
 compareMIG=compareMIG
@@ -164,8 +167,8 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -I 2 1 1 5.0 -T -L > msout
-scrm 2 ${rep} -t ${theta} -I 2 1 1 -ma x 5.0 5.0 x -T -L > scrmout
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen} -I 2 1 1 5.0 -T -L > msout
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep "time:" > mstime
@@ -182,8 +185,8 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -I 2 1 1 5.0 -T -L > msout
-scrm 2 ${rep} -t ${theta} -I 2 1 1 5.0 -T -L > scrmout
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > msout
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep "time:" > mstime
@@ -201,8 +204,8 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > msout
-scrm 2 ${rep} -t ${theta} -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > scrmout
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > msout
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep "time:" > mstime
@@ -219,8 +222,8 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > msout
-scrm 2 ${rep} -t ${theta} -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > scrmout
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > msout
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep "time:" > mstime
