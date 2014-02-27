@@ -47,6 +47,15 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 	Output file:
 		test-mig/compareMIG  
 		test-mig/*.pdf
+        
+(Good 27Feb 14) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
+	./ms_vs_scrm-mig_more.sh
+	
+	Output file:
+		test-mig/compareMIG  
+		test-mig/*.pdf
+        
 			
 * Checking the population structure, -eN option
 (Good 19Jan14) ##############################################
@@ -105,6 +114,26 @@ WITH RECOMBINATION
         test-seg-recomb/*pdf
 
 NOTE: for most of the cases, there is no significant difference on number of segreating sites. However, if there are only two lineages. The frequncy of few mutations differ.    
+
+
+* Checking -ma option with -r option
+(Good 27Feb14) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration
+	./ms_vs_scrm-mig_recomb.sh
+	
+	Output file:
+		test-mig/compareMIG  
+		test-mig/*.pdf
+        
+(Good 27Feb14) ##############################################
+	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
+	./ms_vs_scrm-mig_more_recomb.sh
+	
+	Output file:
+		test-mig-pair/compareMIG  
+		test-mig-pair/*.pdf
+        
+
         
 	##############################################
 	Compare spectrum
