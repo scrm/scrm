@@ -1,19 +1,33 @@
 #!/bin/bash
 
-mkdir test-SUBPOP
-cd test-SUBPOP
+#Compare summary statistics of ms and scrm for migration
+
+mkdir test-mig-pair
+cd test-mig-pair
 rm *pdf
 
 
-rep=100000
+rep=10000
+seqlen=100000
+#msr=(10 20 10 50)
+r=10
 
-## compare population sturture for a single population data
-comparePop=compareSubPop
+## compare TMRCA
+compareMIG=compareMIG
 rm ${comparePop}
 
+
+#rm ${compareTMRCA}
+#rm ${compareBL}
+#echo -e "compare TMRCA for ${rep} replicates 
+#\t|\t ms \t\t|\t scrm\t\t|\tKS test
+#Case\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareTMRCA}
+
+#echo -e "compare BL for ${rep} replicates 
+#\t|\t ms \t\t|\t scrm\t\t|\tKS test
+#Case\t|\tmean\tstdv\t|\tmean\tstdv \t|\tstats\tp-value" >${compareBL}
+
 theta=10
-
-
 
 		echo "rm(list=ls());
 		#source(\"../fun_src.r\");
@@ -49,7 +63,7 @@ format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"||\",
 format(combined_scrm_ms_test\$statistic,digits=4),format(combined_scrm_ms_test\$p.value,scientific = TRUE),\"||\",
 format(combined_ms_scrm_test\$statistic,digits=4),format(combined_ms_scrm_test\$p.value,scientific = TRUE),
-sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);
+sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\",append=TRUE);
 " > chisq.r
 
 echo "rm(list=ls());
@@ -71,7 +85,7 @@ dev.off();
 cat(paste(currentcase, figuretitle , \"\n\",\"|\",
 format(mean(msdata),scientific = TRUE),format(sd(msdata),scientific = TRUE),\"||\",
 format(mean(scrmdata),scientific = TRUE),format(sd(scrmdata),scientific = TRUE),\"|\",format(test\$statistic,scientific = TRUE),format(test\$p.value,scientific = TRUE), 
-sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > ks.r
+sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\",append=TRUE);" > ks.r
 
 echo "rm(list=ls());
 #source(\"../fun_src.r\");
@@ -91,7 +105,7 @@ dev.off();
 cat(paste(currentcase,figuretitle , \"\n\",\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
-sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > tmrca.r
+sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\",append=TRUE);" > tmrca.r
 
 echo "rm(list=ls());
 #source(\"../fun_src.r\");
@@ -109,20 +123,19 @@ dev.off();
 cat(paste(currentcase,figuretitle , \"\n\",\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
 format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
-sep=\"\t\"),file=\"${comparePop}\",append=TRUE);cat(\"\n\",file=\"${comparePop}\",append=TRUE);" > bl.r
+sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\",append=TRUE);" > bl.r
 
-#format(ee,digits=4),format(sdv,digits=4),\"|\",
+
 foo(){
-    cut -f 2 mstime > mstmrca
-	cut -f 2 scrmtime > scrmtmrca
+    #cut -f 2 mstime > mstmrca
+	#cut -f 2 scrmtime > scrmtmrca
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
 
-    cut -f 3 mstime > msbl
-	cut -f 3 scrmtime > scrmbl
+    #cut -f 3 mstime > msbl
+	#cut -f 3 scrmtime > scrmbl
 	echo "BL" > figuretitle
 	R CMD BATCH bl.r
-
 
 	cut -f 6 ms_stats > msdata
 	cut -f 6 scrm_stats > scrmdata
@@ -144,56 +157,109 @@ foo(){
 	echo "H" > figuretitle
 	R CMD BATCH chisq.r
 	}
-
+	
+mstime(){
+    cat msout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> msTrees
+        done
+        hybrid-Lambda -gt msTrees -tmrca mstmrca
+        hybrid-Lambda -gt msTrees -bl msbl
+        find . -name "xx*" -print0 | xargs -0 rm    
+    }	
+    
+scrmtime(){
+    cat scrmout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
+        done
+        hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+        hybrid-Lambda -gt scrmTrees -bl scrmbl
+        find . -name "xx*" -print0 | xargs -0 rm    
+    }	
+	
+	
 #case 1 
-echo "10_samples_case1" > current_case
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case1_mig5" > current_case
 rm ms* scrm*
-ms 10 ${rep} -t ${theta} -I 2 2 8 -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 -T -L > msout
-scrm 10 ${rep} -t ${theta} -I 2 2 8 -eN 0.4 10.01 -eN 1 0.01 -en 0.25 2 0.2 -ej 3 2 1 -T -L > scrmout
 
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen} -I 2 1 1 5.0 -T > msout
+mstime 
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T  > scrmout
+scrmtime
 
 cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+#cat scrmout | grep "time:" >  scrmtime
 
 foo
 
-#case 4
-#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate 5
-
-echo "3groups10sam4sam1sam_mig_offdiag5" > current_case
+#case 2
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case2_mig5" > current_case
 rm ms* scrm*
 
-	
-ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -eN 0.8 15 -ej .7 2 1 -ej 1 3 1 -T -L > msout
-scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 5.0 5.0 5.0 x 5.0 5.0 5.0 x -eN 0.8 15 -ej .7 2 1 -ej 1 3 1 -T -L > scrmout
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T > msout
+mstime
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
+scrmtime
+
 
 cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+#cat scrmout | grep "time:" >  scrmtime
 
 foo
 
 
-
-#case 5
-#3 sub population, 10 samples from subpopulation 1, and 4 samples from subpopulation 2, and 1 sample from the third with rate matrix on manual page 5
-
-echo "3groups10sam4sam1sam_mig_x123x456x" > current_case
-
+#case 3
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case3_mig5" > current_case
 rm ms* scrm*
-	
-ms 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -eN 1 .1 -eN 3 10 -ej .7 2 1 -ej 4 3 1 -T -L > msout
-scrm 15 ${rep} -t ${theta} -I 3 10 4 1 -ma x 1.0 2.0 3.0 x 4.0 5.0 6.0 x -eN 1 .1 -eN 3 10 -ej .7 2 1 -ej 4 3 1 -T -L > scrmout
+
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T > msout
+mstime
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T -L > scrmout
+scrmtime
 
 cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+#cat scrmout | grep "time:" >  scrmtime
 
 foo
+
+#case 3
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case4_mig5" > current_case
+rm ms* scrm*
+
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T > msout
+mstime
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T -L > scrmout
+scrmtime
+
+cat msout | sample_stats > ms_stats
+
+cat scrmout | sample_stats > scrm_stats
+#cat scrmout | grep "time:" >  scrmtime
+
+foo
+
