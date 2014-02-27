@@ -5,7 +5,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <valarray>
-#include "../src/seg.h"
 #include "../src/forest.h"
 
 class TestAlgorithm : public CppUnit::TestCase {
