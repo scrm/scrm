@@ -59,7 +59,7 @@ void Param::parse(Model &model) {
   // Placeholders for summary statistics.
   // Statistics are added only after all parameters are parse, so that they will
   // be added in the correct order.
-  std::shared_ptr<SegSites> seg_sites = NULL;
+  SegSites* seg_sites = NULL;
   bool tmrca = false,
        trees = false,
        sfs = false; 
@@ -92,7 +92,8 @@ void Param::parse(Model &model) {
       nextArg(argv_i);
       model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
       if (directly_called_){
-        seg_sites = shared_ptr<SegSites>(new SegSites());
+        //seg_sites = shared_ptr<SegSites>(new SegSites());
+        seg_sites = new SegSites();
       }
     }
 
@@ -279,10 +280,10 @@ void Param::parse(Model &model) {
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
   if (tmrca) model.addSummaryStatistic(new TMRCA());
-  if (seg_sites != NULL) model.addSummaryStatistic(shared_ptr<SummaryStatistic>(seg_sites));
+  if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
     if (seg_sites == NULL) 
-    throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
+      throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
     model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
   }
 

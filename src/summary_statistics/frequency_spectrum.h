@@ -35,7 +35,7 @@
 class FrequencySpectrum : public SummaryStatistic
 {
  public:
-   FrequencySpectrum(std::shared_ptr<SegSites> seg_sites, const Model &model) : seg_sites_(seg_sites), model_(model) { };
+   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites), model_(model) { };
 
    //Virtual methods
    void calculate(const Forest &forest);
@@ -43,7 +43,7 @@ class FrequencySpectrum : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   const std::shared_ptr<SegSites> seg_sites_;
+   SegSites* const seg_sites_;
    const Model &model_;
 };
 
