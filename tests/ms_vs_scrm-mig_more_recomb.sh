@@ -7,7 +7,7 @@ cd test-mig-pair
 rm *pdf
 
 
-rep=100
+rep=10000
 seqlen=100000
 #msr=(10 20 10 50)
 r=10
@@ -191,7 +191,7 @@ rm ms* scrm*
 ms 2 ${rep} -t ${theta} -r ${r} ${seqlen} -I 2 1 1 5.0 -T > msout
 mstime 
 
-scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T > scrmout
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T  > scrmout
 scrmtime
 
 cat msout | sample_stats > ms_stats
@@ -201,65 +201,65 @@ cat scrmout | sample_stats > scrm_stats
 
 foo
 
-##case 2
-##2 sub population, 1 sample from each subpopulation, mutation rate is 5
-#echo "2groups1sam1sam_case2_mig5" > current_case
-#rm ms* scrm*
+#case 2
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case2_mig5" > current_case
+rm ms* scrm*
 
-##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T > msout
-#mstime
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T > msout
+mstime
 
-#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
-#scrmtime
-
-
-#cat msout | sample_stats > ms_stats
-
-#cat scrmout | sample_stats > scrm_stats
-##cat scrmout | grep "time:" >  scrmtime
-
-#foo
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
+scrmtime
 
 
-##case 3
-##2 sub population, 1 sample from each subpopulation, mutation rate is 5
-#echo "2groups1sam1sam_case3_mig5" > current_case
-#rm ms* scrm*
+cat msout | sample_stats > ms_stats
 
-##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+cat scrmout | sample_stats > scrm_stats
+#cat scrmout | grep "time:" >  scrmtime
 
-#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T > msout
-#mstime
+foo
 
-#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T -L > scrmout
-#scrmtime
 
-#cat msout | sample_stats > ms_stats
+#case 3
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case3_mig5" > current_case
+rm ms* scrm*
 
-#cat scrmout | sample_stats > scrm_stats
-##cat scrmout | grep "time:" >  scrmtime
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-#foo
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T > msout
+mstime
 
-##case 3
-##2 sub population, 1 sample from each subpopulation, mutation rate is 5
-#echo "2groups1sam1sam_case4_mig5" > current_case
-#rm ms* scrm*
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T -L > scrmout
+scrmtime
 
-##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+cat msout | sample_stats > ms_stats
 
-#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T > msout
-#mstime
+cat scrmout | sample_stats > scrm_stats
+#cat scrmout | grep "time:" >  scrmtime
 
-#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T -L > scrmout
-#scrmtime
+foo
 
-#cat msout | sample_stats > ms_stats
+#case 3
+#2 sub population, 1 sample from each subpopulation, mutation rate is 5
+echo "2groups1sam1sam_case4_mig5" > current_case
+rm ms* scrm*
 
-#cat scrmout | sample_stats > scrm_stats
-##cat scrmout | grep "time:" >  scrmtime
+#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-#foo
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T > msout
+mstime
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T -L > scrmout
+scrmtime
+
+cat msout | sample_stats > ms_stats
+
+cat scrmout | sample_stats > scrm_stats
+#cat scrmout | grep "time:" >  scrmtime
+
+foo
 
