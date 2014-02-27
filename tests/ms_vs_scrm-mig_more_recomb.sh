@@ -2,12 +2,12 @@
 
 #Compare summary statistics of ms and scrm for migration
 
-mkdir test-mig
-cd test-mig
+mkdir test-mig-pair
+cd test-mig-pair
 rm *pdf
 
 
-rep=100000
+rep=100
 seqlen=100000
 #msr=(10 20 10 50)
 r=10
@@ -127,13 +127,13 @@ sep=\"\t\"),file=\"${compareMIG}\",append=TRUE);cat(\"\n\",file=\"${compareMIG}\
 
 
 foo(){
-    cut -f 2 mstime > mstmrca
-	cut -f 2 scrmtime > scrmtmrca
+    #cut -f 2 mstime > mstmrca
+	#cut -f 2 scrmtime > scrmtmrca
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
 
-    cut -f 3 mstime > msbl
-	cut -f 3 scrmtime > scrmbl
+    #cut -f 3 mstime > msbl
+	#cut -f 3 scrmtime > scrmbl
 	echo "BL" > figuretitle
 	R CMD BATCH bl.r
 
@@ -158,6 +158,27 @@ foo(){
 	R CMD BATCH chisq.r
 	}
 	
+mstime(){
+    cat msout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> msTrees
+        done
+        hybrid-Lambda -gt msTrees -tmrca mstmrca
+        hybrid-Lambda -gt msTrees -bl msbl
+        find . -name "xx*" -print0 | xargs -0 rm    
+    }	
+    
+scrmtime(){
+    cat scrmout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
+        done
+        hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
+        hybrid-Lambda -gt scrmTrees -bl scrmbl
+        find . -name "xx*" -print0 | xargs -0 rm    
+    }	
 	
 	
 #case 1 
@@ -167,69 +188,78 @@ rm ms* scrm*
 
 #ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -r ${r} ${seqlen} -I 2 1 1 5.0 -T -L > msout
-scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T -L > scrmout
+ms 2 ${rep} -t ${theta} -r ${r} ${seqlen} -I 2 1 1 5.0 -T > msout
+mstime 
+
+scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5.0 5.0 x -T > scrmout
+scrmtime
 
 cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
 
 cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+#cat scrmout | grep "time:" >  scrmtime
 
 foo
 
-#case 2
-#2 sub population, 1 sample from each subpopulation, mutation rate is 5
-echo "2groups1sam1sam_case2_mig5" > current_case
-rm ms* scrm*
+##case 2
+##2 sub population, 1 sample from each subpopulation, mutation rate is 5
+#echo "2groups1sam1sam_case2_mig5" > current_case
+#rm ms* scrm*
 
-#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > msout
-scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
+#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T > msout
+#mstime
 
-cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
-
-cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
-
-foo
+#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 5.0 -T -L > scrmout
+#scrmtime
 
 
-#case 3
-#2 sub population, 1 sample from each subpopulation, mutation rate is 5
-echo "2groups1sam1sam_case3_mig5" > current_case
-rm ms* scrm*
+#cat msout | sample_stats > ms_stats
 
-#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+#cat scrmout | sample_stats > scrm_stats
+##cat scrmout | grep "time:" >  scrmtime
 
-ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > msout
-scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 2.0 2 1 -T -L > scrmout
+#foo
 
-cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
 
-cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+##case 3
+##2 sub population, 1 sample from each subpopulation, mutation rate is 5
+#echo "2groups1sam1sam_case3_mig5" > current_case
+#rm ms* scrm*
 
-foo
+##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 
-#case 3
-#2 sub population, 1 sample from each subpopulation, mutation rate is 5
-echo "2groups1sam1sam_case4_mig5" > current_case
-rm ms* scrm*
+#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T > msout
+#mstime
 
-#ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 5 0 x -ej 0.5 2 1 -T -L > scrmout
+#scrmtime
 
-ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > msout
-scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 2.0 2 1 -T -L > scrmout
+#cat msout | sample_stats > ms_stats
 
-cat msout | sample_stats > ms_stats
-cat msout | grep "time:" > mstime
+#cat scrmout | sample_stats > scrm_stats
+##cat scrmout | grep "time:" >  scrmtime
 
-cat scrmout | sample_stats > scrm_stats
-cat scrmout | grep "time:" >  scrmtime
+#foo
 
-foo
+##case 3
+##2 sub population, 1 sample from each subpopulation, mutation rate is 5
+#echo "2groups1sam1sam_case4_mig5" > current_case
+#rm ms* scrm*
+
+##ms 4 ${rep} -t ${theta} -I 2 2 2 -ma x 5.0 5.0 x -T | tail -n +4 | grep -v "//" | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
+
+#ms 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T > msout
+#mstime
+
+#scrm 2 ${rep} -t ${theta} -r ${r} ${seqlen}  -I 2 1 1 -ma x 0 5 x -ej 0.5 2 1 -T -L > scrmout
+#scrmtime
+
+#cat msout | sample_stats > ms_stats
+
+#cat scrmout | sample_stats > scrm_stats
+##cat scrmout | grep "time:" >  scrmtime
+
+#foo
 
