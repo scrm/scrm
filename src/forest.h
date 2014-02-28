@@ -180,11 +180,15 @@ class Forest
   NodeContainer *nodes() { return &(this->nodes_); }
 
   //printing tree
-  double tmrca() const {/*! TMRCA in unit of 4N0 */
-	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
+  double getTMRCA(const bool &scaled = false) const {
+    if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
+    else return local_root()->height();
+  }
 
-  double tot() const {/*! Total branch length in unit of 4N0 */
-	  return this->local_root_->length_below() / this->model_->default_pop_size / 4;}
+  double getLocalTreeLength(const bool &scaled = false) const {
+    if (scaled) return local_root()->length_below() / (4 * this->model_->default_pop_size);
+    else return local_root()->length_below();
+  }
 
   //segegrating sites
   std::valarray<int> find_haplotypes(Node *node); 
