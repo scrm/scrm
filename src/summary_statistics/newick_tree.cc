@@ -24,10 +24,11 @@
 void NewickTree::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {
     output_buffer_ << generateTree(forest.local_root(), forest) << ";\n";  
+  } else {
+    if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
+    output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
+                   << generateTree(forest.local_root(), forest) << ";\n";  
   }
-  if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-  output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
-                 << generateTree(forest.local_root(), forest) << ";\n";  
 }
 
 void NewickTree::printLocusOutput(std::ostream &output) {
