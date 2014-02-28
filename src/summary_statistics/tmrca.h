@@ -33,6 +33,7 @@ class TMRCA : public SummaryStatistic
 {
  public:
    TMRCA() {};
+   ~TMRCA() {};
 
    //Virtual methods
    void calculate(const Forest &forest);

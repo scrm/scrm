@@ -33,6 +33,7 @@ class NewickTree : public SummaryStatistic
 {
  public:
    NewickTree() {};
+   ~NewickTree() {};
 
    //Virtual methods
    void calculate(const Forest &forest);

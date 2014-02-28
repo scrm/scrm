@@ -31,6 +31,8 @@ class Forest;
 class SummaryStatistic 
 {
  public:
+   virtual ~SummaryStatistic() {};
+
    //Virtual methods
    virtual void calculate(const Forest &forest) =0;
    virtual void printSegmentOutput(std::ostream &output) =0;

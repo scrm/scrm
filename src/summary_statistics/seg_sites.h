@@ -34,7 +34,8 @@
 class SegSites : public SummaryStatistic
 {
  public:
-  SegSites() { set_position(0.0); };
+  SegSites() { set_position(0.0); }
+  ~SegSites() {}
 
 #ifdef UNITTEST
   friend class TestSummaryStatistics;

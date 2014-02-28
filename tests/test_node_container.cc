@@ -209,7 +209,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( it.height() == 1 );
     ++it; CPPUNIT_ASSERT( it.height() == 2 );
     ++it; CPPUNIT_ASSERT( it.height() == 3 );
-    ++it; CPPUNIT_ASSERT( it.height() == FLT_MAX );
+    ++it; CPPUNIT_ASSERT( it.height() == DBL_MAX );
   }
 
   void testCopyConstructor() {

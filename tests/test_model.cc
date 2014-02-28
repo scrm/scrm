@@ -312,7 +312,7 @@ class TestModel : public CppUnit::TestCase {
 
   void testGetNextTime() {
     Model model = Model(7);
-    CPPUNIT_ASSERT( model.getNextTime() == FLT_MAX );
+    CPPUNIT_ASSERT( model.getNextTime() == DBL_MAX );
 
     model.addGrowthRates(1.0, std::vector<double>(1, 1.5));
     model.addGrowthRates(2.0, std::vector<double>(1, 1));
@@ -321,7 +321,7 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.0, model.getNextTime() );
     model.increaseTime();
-    CPPUNIT_ASSERT( model.getNextTime() == FLT_MAX );
+    CPPUNIT_ASSERT( model.getNextTime() == DBL_MAX );
   }
 
   void testGetters() {
@@ -545,10 +545,9 @@ class TestModel : public CppUnit::TestCase {
 
   void testAddSummaryStatistic() {
     Model model = Model(5);
-    CPPUNIT_ASSERT(model.getSummaryStatisticNumber() == 0); 
+    CPPUNIT_ASSERT(model.countSummaryStatistics() == 0); 
     model.addSummaryStatistic(new TMRCA());
-    CPPUNIT_ASSERT(model.getSummaryStatisticNumber() == 1); 
-    CPPUNIT_ASSERT( model.getSummaryStatistic(0) != NULL );
+    CPPUNIT_ASSERT(model.countSummaryStatistics() == 1); 
   }
 };
 
