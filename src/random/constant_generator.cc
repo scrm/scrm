@@ -23,7 +23,7 @@
 #include "constant_generator.h"
 
 ConstantGenerator::ConstantGenerator() {}
-ConstantGenerator::ConstantGenerator(int seed) {}
+ConstantGenerator::ConstantGenerator(int seed) { (void)seed; }
 ConstantGenerator::~ConstantGenerator(){}
 
 double ConstantGenerator::sample() { return(0.5); }

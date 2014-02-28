@@ -44,6 +44,7 @@
 #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>
 #include <valarray>
@@ -198,8 +199,13 @@ class Forest
   Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
-  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code){};
-  virtual void record_all_event( TimeInterval const &ti){};
+  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code) {
+    (void)start_time; (void)end_time; (void) opportunity; (void)event_code;  
+  }
+  virtual void record_all_event(TimeInterval const &ti) {
+    (void) ti; 
+  }
+
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;

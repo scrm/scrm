@@ -28,7 +28,7 @@
 
 Forest::Forest() {
   this->initialize();
-};
+}
 
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
@@ -794,7 +794,7 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
  *    coalescence has finished. 
  */
 void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished) {
-  if (ti.end_height() == FLT_MAX) 
+  if (ti.end_height() == DBL_MAX) 
     throw std::logic_error("Lines did not coalescence. If you use an negative growth parameter (population rapidly declining forward in time), you need to set it to a non-negative value at some time.");
   if (states_[0] == 2) {
     set_active_node(0, possiblyMoveUpwards(active_node(0), ti));
@@ -1182,19 +1182,19 @@ Node* Forest::trackLocalNode(Node *node) const {
 
 
 void Forest::calcSegmentSumStats() const {
-  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
 void Forest::printSegmentSumStats(ostream &output) const {
-  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printSegmentOutput(output);
   }
 }
 
 void Forest::printLocusSumStats(ostream &output) const {
-  for (size_t i = 0; i < model().getSummaryStatisticNumber(); ++i) {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
 }

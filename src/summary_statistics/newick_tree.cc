@@ -35,7 +35,7 @@ void NewickTree::printLocusOutput(std::ostream &output) {
   output << output_buffer_.str();  
   output_buffer_.str("");
   output_buffer_.clear();
-};
+}
 
 /**
  * @brief Prints a part of the tree in newick format

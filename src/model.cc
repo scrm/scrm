@@ -493,7 +493,7 @@ void Model::updateTotalMigRates(const size_t &position) {
     }
     if (mig_rates->at(i) > 0) has_migration_ = true;
   }
-}; 
+}
 
 
 void Model::finalize() {

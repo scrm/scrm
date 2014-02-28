@@ -90,7 +90,7 @@ TimeIntervalIterator::TimeIntervalIterator() {
   this->node_iterator_ = forest_->nodes()->iterator();
   this->good_ = true;
   this->inside_node_ = NULL;
-};
+}
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
@@ -140,7 +140,7 @@ void TimeIntervalIterator::next() {
     return;
   }
 
-  if (current_time_ == FLT_MAX) {
+  if (current_time_ == DBL_MAX) {
     good_ = false;
     return;
   }

@@ -31,7 +31,7 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
-};
+}
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
   size_ = 0;
@@ -58,7 +58,7 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
   }
 
   unsorted_node_ = node_mapping[nc.unsorted_node_];
-};
+}
 
 /*******************************************************
  * Management of Nodes
@@ -130,7 +130,7 @@ void NodeContainer::add(Node* node, Node* after_node) {
   // And add the node;
   this->add_before(node, current);
   assert( this->sorted() );
-};
+}
 
 
 void NodeContainer::remove(Node *node, const bool &del) {
@@ -181,7 +181,7 @@ void NodeContainer::move(Node *node, const double &new_height) {
   node->set_height(new_height);
   this->add(node, current);
   assert( this->sorted() );
-};
+}
 
 
 // Removes all nodes;

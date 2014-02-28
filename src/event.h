@@ -101,6 +101,6 @@ inline std::ostream& operator<< (std::ostream& stream, const Event& event) {
                                         << " into pop " << event.mig_pop();
   else if (event.isRecombination()) stream << "Recombination of Node " << event.node();
   return stream;
-};
+}
 
 #endif

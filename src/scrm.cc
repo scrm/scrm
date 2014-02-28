@@ -50,8 +50,6 @@ int main(int argc, char *argv[]){
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
-    double tmrca, tot_bl;
-
     // Set up a buffer to hold the tree representations
     std::ostringstream tree_buffer;
 

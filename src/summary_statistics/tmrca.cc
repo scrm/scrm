@@ -30,4 +30,4 @@ void TMRCA::printLocusOutput(std::ostream &output) {
   output << output_buffer_.str();  
   output_buffer_.str("");
   output_buffer_.clear();
-};
+}

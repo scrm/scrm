@@ -59,8 +59,8 @@ scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
 unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
 algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
  
-scrm_CXXFLAGS= -DNDEBUG -std=c++0x
-scrm_dbg_CXXFLAGS= -std=c++0x
+scrm_CXXFLAGS= -DNDEBUG -std=c++0x -Wall -Wextra -pedantic
+scrm_dbg_CXXFLAGS= -std=c++0x -Wall -Wextra -pedantic
 scrm_prof_CXXFLAGS= -pg -DNDEBUG -fno-inline -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
