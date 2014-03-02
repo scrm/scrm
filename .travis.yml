@@ -7,6 +7,9 @@ env:
     secure: PNca+nOQXvtjAzGpPJ7DeXXyrq0yRbE5nn3rOA3QIc3a9xcWSJcDriEuhObj8oPBXPCrk88huXImv76KR2NjK5vg0/7tK0r8k1BD20Xt5JXfYwHDLjq0xcrBfbQISsfbksPVdKxDqFJtAolMOYxArHHN6ZPCkqLzca8GUGGhHF0=
 script:
 - make scrm scrm_dbg
+- make unittests
+- make algorithmtests
+- ./tests/test_binaries.sh
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libboost-all-dev libcppunit-dev

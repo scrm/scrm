@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Determine if the current commit is tagged
-# tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
+tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
 
 # Assert that we only do this once
 [ "${CXX:='g++'}" == "g++" ] || exit 0
@@ -13,13 +13,13 @@ sudo apt-get install --no-install-recommends \
   texlive-latex-recommended texlive-latex-extra texinfo lmodern
 
 # If it is, build the .tar.gz
-echo "\nBuilding release $tag..."
+echo "Building release $tag..."
 CXXFLAGS="-O3" ./bootstrap
 make distcheck || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Configure git and make the repo use https-auth
-echo "\nSetting up git..."
+echo "Setting up git..."
 git config --global user.email "${GH_EMAIL}"
 git config --global user.name "${GH_NAME}"
 git remote rm origin
@@ -42,7 +42,7 @@ sha512sum scrm-current.tar.gz > scrm-current.tar.gz.sha512
 git add scrm-current.*
 
 # And push everything to GitHub
-echo "\nPushing to GibHub..."
+echo "Pushing to GibHub..."
 git commit -m "Add release $tag"
 git push -q origin gh-pages
 echo "Done"

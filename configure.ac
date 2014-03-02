@@ -73,7 +73,7 @@ esac
 
 
 # Checks for the std=c++0x option
-AX_CXX_COMPILE_STDCXX_0X
+#AX_CXX_COMPILE_STDCXX_0X
 
 # Checks for the std=c++11 option
 #AX_CXX_COMPILE_STDCXX_11([ext|noext],[mandatory|optional])
