@@ -9,7 +9,7 @@ make distcheck
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Copy the generated .tar.gz to the gh-pages branch
-git checkout --track origin/gh-pahes
+git checkout --track origin/gh-pages
 mv $release releases/
 git add releases/$release
 git commit -m "Add release $tag"
