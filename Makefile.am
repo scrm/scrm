@@ -1,6 +1,6 @@
 SUBDIRS = doc
-include aminclude.am 
-EXTRA_DIST = bootstrap doc/manual.pdf acinclude.m4
+include m4/aminclude.am 
+EXTRA_DIST = bootstrap doc/manual.pdf m4/*
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
@@ -11,9 +11,6 @@ PROG = SCRM
 distdir = $(PACKAGE)-$(VERSION)
 #CXXFLAGS= -I/opt/local/include
 #LDFLAGS= -L/opt/local/lib
-
-doc/manual.pdf: doc/manual.tex
-	cd doc; make manual.pdf
 
 unittests: unit_tests
 	./unit_tests 
@@ -62,8 +59,8 @@ scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
 unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
 algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
  
-scrm_CXXFLAGS= -DNDEBUG -std=c++0x -Wall -Wextra -pedantic
-scrm_dbg_CXXFLAGS= -std=c++0x -Wall -Wextra -pedantic
+scrm_CXXFLAGS= -DNDEBUG -std=c++0x
+scrm_dbg_CXXFLAGS= -std=c++0x
 scrm_prof_CXXFLAGS= -pg -DNDEBUG -fno-inline -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 

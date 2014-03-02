@@ -23,10 +23,6 @@ AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L/opt/local/lib)
 # Checks for header files for scrm.
 AC_HEADER_STDC
 AC_LANG(C++) 
-#AC_CHECK_HEADERS([cassert cstddef cfloat stdexcept iostream vector map iomanip fstream ctime cmath boost/assign/std/vector.hpp boost/random.hpp])
-#AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],AC_MSG_WARN([User define 'boost' location. e.g. CXXFLAGS=-I/opt/local/include]))
-#AC_CHECK_HEADERS([boost/random.hpp boost/assign/std/vector.hpp],[],CXXFLAGS=-I../opt/local/include)
-
 
 
 #
@@ -40,11 +36,25 @@ case $host_os in
   darwin* )
     AC_PROG_CXX([clang])
     export CXX=clang++
-    export CXXFLAGS=-I/opt/local/include -stdlib=libc++ 
+    export CXXFLAGS=-I/opt/local/include
     AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
     AC_PROG_CXX
+    # Checks for the compiler viersion
+    GCC_VERSION_MAJOR=$(g++ -dumpversion | cut -d'.' -f1)
+    GCC_VERSION_MINOR=$(g++ -dumpversion | cut -d'.' -f2)
+    
+    if test "$GCC_VERSION_MAJOR" -ge 4
+    then
+        if test "$GCC_VERSION_MINOR" -lt 6
+        then
+            AC_MSG_ERROR([Require g++ compiler 4.6+])
+        fi
+    else
+        AC_MSG_ERROR([Require g++ compiler 4.6+])
+    fi 
+
     AC_CHECK_HEADERS([boost/assign/std/vector.hpp boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
     ;;
     #compile on cluster 3, ./configure CXXFLAGS=-I/usr/local/boost
@@ -61,26 +71,13 @@ esac
 #AM_CONDITIONAL([LINUX_HOST], test $host_os = linux)
 
 
-# Checks for the compiler viersion
-GCC_VERSION_MAJOR=$(g++ -dumpversion | cut -d'.' -f1)
-GCC_VERSION_MINOR=$(g++ -dumpversion | cut -d'.' -f2)
-
-if test "$GCC_VERSION_MAJOR" -ge 4
-then
-	if test "$GCC_VERSION_MINOR" -lt 6
-	then
-		AC_MSG_ERROR([Require g++ compiler 4.6+])
-	fi
-else
-	AC_MSG_ERROR([Require g++ compiler 4.6+])
-fi 
 
 # Checks for the std=c++0x option
 AX_CXX_COMPILE_STDCXX_0X
 
 # Checks for the std=c++11 option
 #AX_CXX_COMPILE_STDCXX_11([ext|noext],[mandatory|optional])
-AX_CXX_COMPILE_STDCXX_11()
+#AX_CXX_COMPILE_STDCXX_11()
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
