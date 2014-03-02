@@ -16,5 +16,4 @@ before_install:
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
 after_success:
-- sudo apt-get install --no-install-recommends texlive-base texlive-latex-base texlive-generic-recommended texlive-fonts-recommended texlive-fonts-extra texlive-extra-utils texlive-latex-recommended texlive-latex-extra texinfo lmodern
 - ./.travis/deploy.sh
