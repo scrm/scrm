@@ -53,7 +53,7 @@ void SegSites::printLocusOutput(std::ostream &output) {
     }
     output <<"\n";
   }
-};
+}
 
 
 std::valarray<bool> SegSites::getHaplotypes(TreePoint mutation, const Forest &forest) {

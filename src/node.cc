@@ -27,10 +27,10 @@
 #include<iostream>
 
 
-Node::Node() { init(); };
-Node::Node(double height) { init(height); };
-Node::Node(double height, size_t label) { init(height, label); };
-Node::~Node() {};
+Node::Node() { init(); }
+Node::Node(double height) { init(height); }
+Node::Node(double height, size_t label) { init(height, label); }
+Node::~Node() {}
 
 void Node::init(double height, size_t label) {
   this->set_last_update(-1);

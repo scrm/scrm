@@ -44,6 +44,7 @@
 #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>
 #include <valarray>
@@ -180,11 +181,15 @@ class Forest
   NodeContainer *nodes() { return &(this->nodes_); }
 
   //printing tree
-  double tmrca() const {/*! TMRCA in unit of 4N0 */
-	  return this->local_root_->height() / this->model_->default_pop_size / 4;}
+  double getTMRCA(const bool &scaled = false) const {
+    if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
+    else return local_root()->height();
+  }
 
-  double tot() const {/*! Total branch length in unit of 4N0 */
-	  return this->local_root_->length_below() / this->model_->default_pop_size / 4;}
+  double getLocalTreeLength(const bool &scaled = false) const {
+    if (scaled) return local_root()->length_below() / (4 * this->model_->default_pop_size);
+    else return local_root()->length_below();
+  }
 
   //segegrating sites
   std::valarray<int> find_haplotypes(Node *node); 
@@ -194,8 +199,17 @@ class Forest
   Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
-  virtual void record_event(size_t pop_i, size_t mig_pop, double start_time, double end_time, double opportunity, eventCode event_code){};
-  virtual void record_all_event( TimeInterval const &ti){};
+  virtual void record_event(size_t pop_i, size_t mig_pop, double start_time, double end_time, double opportunity, eventCode event_code){
+    (void)pop_i;
+    (void)mig_pop;
+    (void)start_time;
+    (void)end_time;
+    (void)opportunity;
+    (void)event_code;  
+  }
+  virtual void record_all_event( TimeInterval const &ti){
+    (void) ti;   
+  }
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;

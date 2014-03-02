@@ -73,7 +73,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     
     TimeIntervalIterator it6(forest, forest->nodes()->at(8));
     CPPUNIT_ASSERT( (*it6).start_height() == 10 );
-    CPPUNIT_ASSERT( (*it6).end_height() == FLT_MAX );
+    CPPUNIT_ASSERT( (*it6).end_height() == DBL_MAX );
     CPPUNIT_ASSERT( (*it6).numberOfContemporaries() == 0 );
   }
 
@@ -110,7 +110,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 10 );
-    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX );
+    CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX );
     CPPUNIT_ASSERT( (*it).numberOfContemporaries() == 0 );
     CPPUNIT_ASSERT( it.good() );
   
@@ -267,7 +267,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 1000 ); 
     CPPUNIT_ASSERT_NO_THROW( ++it );
     CPPUNIT_ASSERT( (*it).start_height() == 1000 ); 
-    CPPUNIT_ASSERT( (*it).end_height() == FLT_MAX ); 
+    CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX ); 
   }
 };
 

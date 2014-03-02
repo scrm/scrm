@@ -30,6 +30,7 @@
 
 #ifndef scrm_src_model
 #define scrm_src_model
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <cstddef>
 #include <vector>
@@ -244,7 +245,7 @@ class Model
    
    double getCurrentTime() const { return change_times_.at(current_time_idx_); }
    double getNextTime() const { 
-    if ( current_time_idx_ + 1 >= change_times_.size() ) return FLT_MAX;
+    if ( current_time_idx_ + 1 >= change_times_.size() ) return DBL_MAX;
     else return change_times_.at(current_time_idx_ + 1);
    }
 
@@ -328,7 +329,7 @@ class Model
    void check();
    void reset();
 
-   const size_t getSummaryStatisticNumber() const {
+   size_t countSummaryStatistics() const {
      return summary_statistics_.size(); 
    }
    std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {

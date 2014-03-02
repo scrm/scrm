@@ -38,4 +38,4 @@ void FrequencySpectrum::printLocusOutput(std::ostream &output) {
     sfs.at(haplotype - 1) += 1; 
   }
   output << "SFS: " << sfs << std::endl;
-};
+}

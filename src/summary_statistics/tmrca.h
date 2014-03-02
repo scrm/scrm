@@ -33,10 +33,11 @@ class TMRCA : public SummaryStatistic
 {
  public:
    TMRCA() {};
+   ~TMRCA() {};
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) {};
+   void printSegmentOutput(std::ostream &output) { (void)output; }
    void printLocusOutput(std::ostream &output);
 
  private:

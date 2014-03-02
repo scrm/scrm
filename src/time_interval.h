@@ -120,5 +120,5 @@ class TimeIntervalIterator {
   Node* inside_node_;
 };
 
-inline const Forest &TimeInterval::forest() const { return tii_->forest(); };
+inline const Forest &TimeInterval::forest() const { return tii_->forest(); }
 #endif

@@ -148,7 +148,7 @@ class NodeIterator {
 
   double height() const {
     if ( good() ) return current_node_->height();
-    else return FLT_MAX;
+    else return DBL_MAX;
   }
   
 #ifdef UNITTEST
@@ -208,7 +208,7 @@ class ConstNodeIterator {
 
   double height() const {
     if ( good() ) return current_node_->height();
-    else return FLT_MAX;
+    else return DBL_MAX;
   }
 
  private:
@@ -257,10 +257,10 @@ class ReverseConstNodeIterator {
 }; 
 
 
-inline NodeIterator NodeContainer::iterator() { return NodeIterator(*this); }; 
-inline NodeIterator NodeContainer::iterator(Node* node) { return NodeIterator(node); };
-inline ConstNodeIterator NodeContainer::iterator() const { return ConstNodeIterator(*this); };
-inline ConstNodeIterator NodeContainer::iterator(Node* node) const { return ConstNodeIterator(node); };
-inline ReverseConstNodeIterator NodeContainer::reverse_iterator() const { return ReverseConstNodeIterator(*this); };
-inline ReverseConstNodeIterator NodeContainer::reverse_iterator(Node* node) const {return ReverseConstNodeIterator(node); };
+inline NodeIterator NodeContainer::iterator() { return NodeIterator(*this); }
+inline NodeIterator NodeContainer::iterator(Node* node) { return NodeIterator(node); }
+inline ConstNodeIterator NodeContainer::iterator() const { return ConstNodeIterator(*this); }
+inline ConstNodeIterator NodeContainer::iterator(Node* node) const { return ConstNodeIterator(node); }
+inline ReverseConstNodeIterator NodeContainer::reverse_iterator() const { return ReverseConstNodeIterator(*this); }
+inline ReverseConstNodeIterator NodeContainer::reverse_iterator(Node* node) const {return ReverseConstNodeIterator(node); }
 #endif

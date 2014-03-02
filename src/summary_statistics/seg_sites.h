@@ -34,7 +34,8 @@
 class SegSites : public SummaryStatistic
 {
  public:
-  SegSites() { set_position(0.0); };
+  SegSites() { set_position(0.0); }
+  ~SegSites() {}
 
 #ifdef UNITTEST
   friend class TestSummaryStatistics;
@@ -42,7 +43,7 @@ class SegSites : public SummaryStatistic
 
   //Virtual methods
   void calculate(const Forest &forest);
-  void printSegmentOutput(std::ostream &output) {};
+  void printSegmentOutput(std::ostream &output) { (void)output; }
   void printLocusOutput(std::ostream &output);
 
   size_t countMutations() const { return positions_.size(); };
