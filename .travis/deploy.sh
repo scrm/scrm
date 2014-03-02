@@ -13,12 +13,13 @@ sudo apt-get install --no-install-recommends \
   texlive-latex-recommended texlive-latex-extra texinfo lmodern
 
 # If it is, build the .tar.gz
-echo "Building release $tag..."
+echo "\nBuilding release $tag..."
 CXXFLAGS="-O3" ./bootstrap
 make distcheck || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Configure git and make the repo use https-auth
+echo "\nSetting up git..."
 git config --global user.email "${GH_EMAIL}"
 git config --global user.name "${GH_NAME}"
 git remote rm origin
@@ -41,5 +42,7 @@ sha512sum scrm-current.tar.gz > scrm-current.tar.gz.sha512
 git add scrm-current.*
 
 # And push everything to GitHub
+echo "\nPushing to GibHub..."
 git commit -m "Add release $tag"
-git push origin gh-pages
+git push -q origin gh-pages
+echo "Done"
