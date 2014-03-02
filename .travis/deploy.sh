@@ -5,7 +5,7 @@ tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
 
 # If it is, build the .tar.gz
 echo "Building release $tag..."
-make distcheck
+make distcheck || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Copy the generated .tar.gz to the gh-pages branch
