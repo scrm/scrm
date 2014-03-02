@@ -1,5 +1,5 @@
 SUBDIRS = doc
-include m4/aminclude.am 
+include m4/aminclude.am m4/*m4 
 EXTRA_DIST = bootstrap doc/manual.pdf m4/*
 bin_PROGRAMS = scrm 
 
