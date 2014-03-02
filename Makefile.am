@@ -1,6 +1,6 @@
 SUBDIRS = doc
-include aminclude.am 
-EXTRA_DIST = bootstrap doc/manual.pdf acinclude.m4
+include m4/aminclude.am 
+EXTRA_DIST = bootstrap doc/manual.pdf m4/*
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
