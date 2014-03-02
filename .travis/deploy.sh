@@ -23,7 +23,8 @@ git config --global user.email "${GH_EMAIL}"
 git config --global user.name "${GH_NAME}"
 git remote rm origin
 git remote add origin "https://${GH_TOKEN}@github.com/paulstaab/scrm"
-git checkout --track origin/gh-pages
+git fetch origin gh-pages
+git checkout gh-pages
 
 # Copy tar.gz into releases folder and generate hashsums
 mv $release releases/
