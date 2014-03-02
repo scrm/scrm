@@ -13,7 +13,12 @@ make distcheck || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Copy the generated .tar.gz to the gh-pages branch
+git config --global user.email "${GH_EMAIL}"
+git config --global user.name "${GH_NAME}"
+git remote rm origin
+git remote add origin "https://${GH_TOKEN}@github.com/paulstaab/scrm"
 git checkout --track origin/gh-pages
+
 mv $release releases/
 cd releases
 md5sum $release > $release.md5

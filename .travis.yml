@@ -10,9 +10,5 @@ before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libboost-all-dev libcppunit-dev
 after_success:
-- git config --global user.email "${GH_EMAIL}"
-- git config --global user.name "${GH_NAME}"
-- cd scrm; 
-  git remote rm origin;
-  git remote add origin "https://${GH_TOKEN}@github.com/paulstaab/scrm"
-- cd scrm; .travis/deploy.sh
+- ls -l; cd paulstaab/scrm
+- ./.travis/deploy.sh
