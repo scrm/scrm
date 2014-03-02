@@ -5,10 +5,10 @@ compiler:
 env:
   global:
     secure: JkEkyj21IHXBNLlhB1+XtBbkefEAmJuyMs8UDrUtQz4cV/Y9hiDLfI/c9bOZ72jT+dYbTDQM4cwrTXBZxGcKHYI7PrW+PHNHBZAZm0GKgBvQz7pzQXtqympSznsWUh0NkpDicRFI9fmpfSoEPn2SOCZ9EaV0h9DT+WDCnA08oYk=
-script: CXXFLAGS='-O3' ./bootstrap && make travis-test
+script: #CXXFLAGS='-O3' ./bootstrap && make travis-test
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libboost-all-dev libcppunit-dev
 after_success:
-- ls -l; cd paulstaab/scrm
+- sudo apt-get install --no-install-recommends texlive-base texlive-latex-base texlive-generic-recommended texlive-fonts-recommended texlive-fonts-extra texlive-extra-utils texlive-latex-recommended texlive-latex-extra texinfo lmodern
 - ./.travis/deploy.sh
