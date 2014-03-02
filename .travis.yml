@@ -5,7 +5,7 @@ compiler:
 env:
   global:
     secure: JkEkyj21IHXBNLlhB1+XtBbkefEAmJuyMs8UDrUtQz4cV/Y9hiDLfI/c9bOZ72jT+dYbTDQM4cwrTXBZxGcKHYI7PrW+PHNHBZAZm0GKgBvQz7pzQXtqympSznsWUh0NkpDicRFI9fmpfSoEPn2SOCZ9EaV0h9DT+WDCnA08oYk=
-script: # make travis-test
+script: make travis-test
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libboost-all-dev libcppunit-dev
