@@ -24,7 +24,7 @@
 #include "param.h"
 
 void Param::init(){
-  this->random_seed = -1;
+  this->random_seed = 0;
 }
 
 
