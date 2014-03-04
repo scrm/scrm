@@ -96,6 +96,7 @@ AC_FUNC_REALLOC
 #AC_CHECK_FUNCS([pow])
 #AC_HEADER_STDBOOL
 
+m4_include([m4/ac_doxygen.m4])
 DX_INIT_DOXYGEN(scrm, Doxyfile, html/)
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
