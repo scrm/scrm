@@ -47,11 +47,8 @@ int main(int argc, char *argv[]){
     // Organize output
     std::ostream *output = &std::cout;
 
-    *output << user_para << std::endl;
+    *output << "scrm " << VERSION << " |" << user_para << std::endl;
     *output << rg.seed() << std::endl;
-
-    // Set up a buffer to hold the tree representations
-    std::ostringstream tree_buffer;
 
     // Loop over the independent samples
     for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
