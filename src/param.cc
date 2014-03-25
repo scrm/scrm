@@ -65,11 +65,8 @@ void Param::parse(Model &model) {
        sfs = false; 
 
   if ( argc_ == 0 ) return;
-  if (directly_called_){
-    argc_i=0;
-  }
-  else{
-    argc_i=1;
+  argc_i = 0;
+  if (!directly_called_){
     std::cout<<"Indirectely called"<<std::endl;
   }
 
@@ -262,8 +259,8 @@ void Param::parse(Model &model) {
       nextArg(argv_i);
       random_seed = readInput<size_t>(argv_[argc_i]);
     }
-
-    else if (directly_called_){
+    
+    else {  
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
 
@@ -273,9 +270,13 @@ void Param::parse(Model &model) {
   if (model.sample_size() == 0) {
     model.addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   } 
-  else if (model.sample_size() != sample_size && directly_called_) {
+  //else if (model.sample_size() != sample_size && directly_called_) {
+    //throw std::invalid_argument("Sum of samples not equal to the total sample size");
+  //}
+  else if (model.sample_size() != sample_size ) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
+
 
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
@@ -287,9 +288,7 @@ void Param::parse(Model &model) {
     model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
   }
 
-  if (directly_called_){
-    model.finalize();
-  }
+  model.finalize();
   model.resetTime();
 }
 
