@@ -61,6 +61,7 @@ void Param::parse(Model &model) {
   // be added in the correct order.
   SegSites* seg_sites = NULL;
   bool tmrca = false,
+       first_last_tmrca = false,
        trees = false,
        sfs = false; 
 
@@ -255,6 +256,10 @@ void Param::parse(Model &model) {
       sfs = true;
     }
 
+    else if (argv_i == "-oFLTMRCA"){
+      first_last_tmrca = true;
+    }
+
     else if (argv_i == "-seed"){
       nextArg(argv_i);
       random_seed = readInput<size_t>(argv_[argc_i]);
@@ -277,6 +282,7 @@ void Param::parse(Model &model) {
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
   if (tmrca) model.addSummaryStatistic(new TMRCA());
+  if (first_last_tmrca) model.addSummaryStatistic(new FirstLastTMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
     if (seg_sites == NULL) 

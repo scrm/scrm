@@ -39,7 +39,9 @@ sumstat_src = src/summary_statistics/tmrca.cc \
 			  src/summary_statistics/seg_sites.h \
 			  src/summary_statistics/frequency_spectrum.h \
 			  src/summary_statistics/newick_tree.h \
-			  src/summary_statistics/summary_statistic.h
+			  src/summary_statistics/summary_statistic.h \
+			  src/summary_statistics/first_last_tmrca.cc \
+			  src/summary_statistics/first_last_tmrca.h
  
 scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 
