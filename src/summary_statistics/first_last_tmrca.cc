@@ -17,33 +17,15 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
-#ifndef scrm_src_summary_statistic_tmrca
-#define scrm_src_summary_statistic_tmrca
+#include "first_last_tmrca.h"
 
-#include <sstream>
-#include <iostream>
+void FirstLastTMRCA::calculate(const Forest &forest) {
+  if (forest.current_base() == 0.0) first_tmrca_ = forest.getTMRCA();
+  if (forest.next_base() == forest.model().loci_length()) last_tmrca_ = forest.getTMRCA(); 
+}
 
-#include "summary_statistic.h"
-#include "../forest.h"
-#pragma clang diagnostic ignored "-Wlogical-not-parentheses"
-
-class TMRCA : public SummaryStatistic
-{
- public:
-   TMRCA() {};
-   ~TMRCA() {};
-
-   //Virtual methods
-   void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
-
- private:
-   std::ostringstream output_buffer_;
-
-};
-
-#endif
+void FirstLastTMRCA::printLocusOutput(std::ostream &output) {
+  output << "FLTMRCA: " << first_tmrca_ << " " << last_tmrca_ << std::endl;
+}

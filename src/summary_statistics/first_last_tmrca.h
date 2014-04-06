@@ -20,21 +20,23 @@
 
 */
 
-#ifndef scrm_src_summary_statistic_tmrca
-#define scrm_src_summary_statistic_tmrca
+#ifndef scrm_src_summary_statistic_first_last_tmrca
+#define scrm_src_summary_statistic_first_last_tmrca
 
 #include <sstream>
 #include <iostream>
 
 #include "summary_statistic.h"
 #include "../forest.h"
-#pragma clang diagnostic ignored "-Wlogical-not-parentheses"
 
-class TMRCA : public SummaryStatistic
+class FirstLastTMRCA : public SummaryStatistic
 {
  public:
-   TMRCA() {};
-   ~TMRCA() {};
+   FirstLastTMRCA() {
+    first_tmrca_ = -1;
+    last_tmrca_ = -1; 
+   };
+   ~FirstLastTMRCA() {};
 
    //Virtual methods
    void calculate(const Forest &forest);
@@ -43,7 +45,7 @@ class TMRCA : public SummaryStatistic
 
  private:
    std::ostringstream output_buffer_;
-
+   double first_tmrca_, last_tmrca_;
 };
 
 #endif
