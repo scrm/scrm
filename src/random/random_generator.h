@@ -25,6 +25,7 @@
 
 #include <cassert>
 #include <cmath>
+#pragma clang diagnostic ignored "-Wdeprecated-register"
 #include <boost/math/distributions/poisson.hpp>
 
 #include "fastfunc.h"

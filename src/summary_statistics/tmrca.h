@@ -28,6 +28,7 @@
 
 #include "summary_statistic.h"
 #include "../forest.h"
+#pragma clang diagnostic ignored "-Wlogical-not-parentheses"
 
 class TMRCA : public SummaryStatistic
 {

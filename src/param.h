@@ -43,6 +43,9 @@
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
 
+#pragma clang diagnostic ignored "-Wdeprecated-register"
+
+
 class Param {
  public:
  #ifdef UNITTEST
