@@ -169,14 +169,14 @@ void Param::parse(Model &model) {
     else if (argv_i == "-G" || argv_i == "-eG") {
       if (argv_i == "-eG") time = readNextInput<double>();
       else time = 0.0;
-      model.addGrowthRates(time, readNextInput<double>(), true); 
+      model.addGrowthRates(time, readNextInput<double>(), true, true); 
     }
 
     else if (argv_i == "-g" || argv_i == "-eg") {
       if (argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInput<size_t>() - 1;
-      model.addGrowthRate(time, pop, readNextInput<double>(), true); 
+      model.addGrowthRate(time, pop, readNextInput<double>(), true, true); 
     }
 
     // ------------------------------------------------------------------

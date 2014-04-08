@@ -297,13 +297,16 @@ class Model
 
    // Add exponential growth
    void addGrowthRates(const double &time, const std::vector<double> &growth_rates,
-                       const bool &time_scaled = false);
+                       const bool &time_scaled = false, 
+                       const bool &rate_scaled = false);
 
    void addGrowthRates(const double &time, const double &growth_rates,
-                       const bool &time_scaled = false);
+                       const bool &time_scaled = false,
+                       const bool &rate_scaled = false);
 
    void addGrowthRate(const double &time, const size_t &population, 
-                      const double &growth_rates, const bool &time_scaled = false);
+                      double growth_rates, const bool &time_scaled = false,
+                      const bool &rate_scaled = false);
 
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
                        const bool &scaled = false);

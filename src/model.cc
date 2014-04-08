@@ -279,11 +279,16 @@ void Model::addPopulationSize(const double &time, const size_t &pop, double popu
  *    generations, or to false if the time is given in units of generations.
  */
 void Model::addGrowthRates(const double &time, const std::vector<double> &growth_rates,
-                           const bool &time_scaled) {
+                           const bool &time_scaled, const bool &rate_scaled) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
   size_t position = addChangeTime(time, time_scaled);
   std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
+  if (rate_scaled) {
+    for (auto it = growth_rates_heap->begin(); it != growth_rates_heap->end(); ++it) { 
+      *it /= 4 * default_pop_size;
+    }
+  }
   if (growth_rates_list_[position] != NULL) delete growth_rates_list_[position];    
   growth_rates_list_[position] = growth_rates_heap; 
 }
@@ -302,8 +307,8 @@ void Model::addGrowthRates(const double &time, const std::vector<double> &growth
  *    generations, or to false if the time is given in units of generations.
  */
 void Model::addGrowthRates(const double &time, const double &growth_rate,
-                           const bool &time_scaled) {
-  addGrowthRates(time, std::vector<double>(population_number(), growth_rate), time_scaled);
+                           const bool &time_scaled, const bool &rate_scaled) {
+  addGrowthRates(time, std::vector<double>(population_number(), growth_rate), time_scaled, rate_scaled);
 }
 
 
@@ -321,8 +326,9 @@ void Model::addGrowthRates(const double &time, const double &growth_rate,
  *    generations, or to false if the time is given in units of generations.
  */
 void Model::addGrowthRate(const double &time, const size_t &population, 
-                          const double &growth_rate, const bool &time_scaled) {
+                          double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
   size_t position = addChangeTime(time, time_scaled);
+  if (rate_scaled) growth_rate /= 4 * default_pop_size;
   if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace"), time_scaled); 
   growth_rates_list_.at(position)->at(population) = growth_rate;
 }
