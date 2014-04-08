@@ -484,8 +484,8 @@ class TestModel : public CppUnit::TestCase {
 
     model.increaseTime();
     model.increaseTime();
-    CPPUNIT_ASSERT( areSame( 1000*std::exp(0.5*1.5/(4*model.default_pop_size)), model.population_size(0) ) );
-    CPPUNIT_ASSERT( areSame( 1000*std::exp(-0.5*1.5/(4*model.default_pop_size)), model.population_size(1) ) );
+    CPPUNIT_ASSERT( areSame( 1000*std::exp(0.5*1.5), model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( 1000*std::exp(-0.5*1.5), model.population_size(1) ) );
     model.reset();
     
     // Growth with a pop size change in between
@@ -511,23 +511,23 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.5, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame( 500, model.population_size(0) ) );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size*std::exp(-0.5*0.5/(4*model.default_pop_size)), model.population_size(1) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size*std::exp(-0.5*0.5), model.population_size(1) ) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.5, model.getCurrentTime() );
-    double size0 = 500*std::exp(0.5*1.0/(4*model.default_pop_size));
-    double size1 = model.default_pop_size*std::exp(-0.5*1.5/(4*model.default_pop_size));
+    double size0 = 500*std::exp(0.5*1.0);
+    double size1 = model.default_pop_size*std::exp(-0.5*1.5);
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 3.0, model.getCurrentTime() );
     size0  = 500; 
-    size1 *= exp(-2*0.5/(4*model.default_pop_size));
+    size1 *= exp(-2*0.5);
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 3.5, model.getCurrentTime() );
-    size0 *= exp(0.5*0.5/(4*model.default_pop_size));
-    size1 *= exp(-2*0.5/(4*model.default_pop_size));
+    size0 *= exp(0.5*0.5);
+    size1 *= exp(-2*0.5);
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
 

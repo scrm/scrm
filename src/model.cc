@@ -543,7 +543,6 @@ void Model::calcPopSizes() {
     // Calculate the effective duration of a growth period if it ends here 
     if (last_growth != -1) {  
       duration = change_times_.at(i) - change_times_.at(std::max(last_pop_size, last_growth));
-      duration /= 4*this->default_pop_size;
     }
 
     // Calculate the population sizes: 
