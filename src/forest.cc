@@ -32,6 +32,7 @@ Forest::Forest() {
 
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
+  dout << *model << std::endl;
 }
 
 // Sets member variable to default values
