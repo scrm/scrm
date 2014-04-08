@@ -12,6 +12,7 @@ class TestAlgorithm : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( TestAlgorithm );
 
 	CPPUNIT_TEST( testInitialTree );
+	CPPUNIT_TEST( testTreeWithGrowth );
 	CPPUNIT_TEST( testTreeAfterRecombination );
 	CPPUNIT_TEST( testTreeWithPruning );
 	CPPUNIT_TEST( testTreeWithFullPruning );
@@ -178,6 +179,28 @@ class TestAlgorithm : public CppUnit::TestCase {
       CPPUNIT_ASSERT( 0.85 <= tmrca[i] && tmrca[i] <= 0.95 );
       CPPUNIT_ASSERT( 2.74 <= tree_length[i] && tree_length[i] <= 2.94 );
     }
+  }
+
+  void testTreeWithGrowth() {
+    double tmrca = 0 ;
+    double tree_length = 0;
+    size_t reps = 10000;
+
+    model->addGrowthRates(0.0, 5, true, true);
+    model->finalize();
+
+    for (size_t i = 0; i < reps; ++i) {
+      Forest forest = Forest(model, rg);
+      forest.buildInitialTree();
+      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
+      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
+    }
+
+    tmrca /= reps;          // Expectation: 0.3209 
+    tree_length /= reps;    // Expectation: 0.6727
+    std::cout << tmrca << " " << tree_length << std::endl; 
+    CPPUNIT_ASSERT( 0.30 <= tmrca && tmrca <= 0.34 );
+    CPPUNIT_ASSERT( 0.65 <= tree_length && tree_length <= 0.69 );
   }
 };
 
