@@ -96,11 +96,13 @@ def ac_TMRC_star (tree_freq, tmrca, param, delta):
     #print "seqence length = ", seqlen
     #print "i should iterate until ", n, "trees"
     T1_index = 0
-    T2_index = 0
+    T2_index = 0 # use while loop to determine the initial T2_index
+    while delta > shifted_cumfreq[T2_index]: # need to check again ...
+        T2_index += 1
     for i in range( n ):        
-        T1_index += 0 if i < cumfreq[T1_index] else 1
+        T1_index += 0 if i < cumfreq[T1_index] else 1 
         term1 = tmrca[T1_index] - T_bar
-        T2_index += 0 if i < shifted_cumfreq[T2_index] else 1
+        T2_index += 0 if i < shifted_cumfreq[T2_index] else 1 
         term2 = tmrca[T2_index] - T_bar
         #print i, T1_index, term1, T2_index, term2
         ac += term1 * term2
@@ -158,8 +160,6 @@ if __name__ == "__main__":
         use_param = parameter()
         msac = n_rep (use_param, delta = 10000, scrm = False, prefix = "msout")
         scrmac = n_rep (use_param, delta = 10000, scrm = True, prefix = "scrmout")
-        #scrmout = run_scrm ( use_param, scrm = True)
-        #scrmoutfiles = process_ms_scrm_output ( scrmout )
 
     except:
         #print "Usage: %s  <seqlen>  <position_file_name>  <psmc_input_file_prefix>" % sys.argv[0]
