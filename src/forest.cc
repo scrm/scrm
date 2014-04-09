@@ -685,7 +685,7 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("And event with rate 0 has happened!");
+  if ( rates_[time_line] == 0.0 ) throw std::logic_error("An event with rate 0 has happened!");
 
   // Situation where it is clear what happened:
   if (time == -1) return;
@@ -781,7 +781,7 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
-  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
+  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
 }
 
 /** 
