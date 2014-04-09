@@ -4,18 +4,19 @@ import pylab as pl
 import numpy as np
 import os
 import sys
+import pylab
 
 # exact_windows_length [0, 10e2, 10e3, 10e4, -1]
 
 class parameter:
-    def __init__( self, nsam = 20, replicate = 1, seqlen = 1000000, rho = 8 * 10e-10 , exact_window_length = 0 ): 
+    def __init__( self, nsam = 20, replicate = 1, seqlen = 100000, rho = 8 * 10e-10 , exact_window_length = 0 ): 
         self.nsam      = nsam
         self.replicate = replicate
         self.seqlen    = seqlen # 10e7
         #self.theta     = 7 * 10e-10 * seqlen * 4 * 10000
         self.rho       = rho * (self.seqlen-1) * 4 * 10000
         self.exact_window_length = exact_window_length
-        
+
     def define_command ( self, scrm = False ):        
         cmd = `self.nsam` + " " + `self.replicate` + " -T " + " -r " + `self.rho` + " " + `self.seqlen`
         if scrm :
@@ -41,22 +42,16 @@ def process_ms_scrm_output ( prefix ):
     return tree_freq, tmrca, first_coal
 
 
-def run_ms ( param, prefix = "msout" ):
-    ms_command = "ms " + param.define_command() + " > " + prefix
-    print ms_command        
-    os.system ( ms_command )
+def run_program ( param, scrm = False, prefix = "msout" ):
+    program = "ms" if not scrm else "scrm"
+    program += " " + param.define_command( scrm ) + " > " + prefix
+    #print ms_command        
+    os.system ( program )
+    
     return prefix
     
     
-def run_scrm ( param, prefix = "scrmout", scrm = False ):
-    scrm_command = "scrm " + param.define_command( scrm ) + " > " + prefix
-    print scrm_command        
-    os.system ( scrm_command )
-    return prefix
-    
-
 def extract_info ( outfiles ):
-
     tree_freq_file = open( outfiles[0], "r" )
     tree_freq = [ float(x) for x in tree_freq_file]
     tree_freq_file.close()
@@ -80,7 +75,7 @@ def extract_info ( outfiles ):
     return  tree_freq, tmrca, first_coal_time, clade
 
 
-def ac_TMRC_star (tree_freq, tmrca, param, delta = 100000):
+def ac_TMRC_star (tree_freq, tmrca, param, delta):
     seqlen = param.seqlen    
     T_bar = 0
     for i in range( len( tree_freq ) ):
@@ -109,11 +104,11 @@ def ac_TMRC_star (tree_freq, tmrca, param, delta = 100000):
         term2 = tmrca[T2_index] - T_bar
         #print i, T1_index, term1, T2_index, term2
         ac += term1 * term2
-    #ac /= float(n)
+    ac /= float(n)
     return ac
     
     
-def ac_clade (tree_freq, clade, param, delta = 100000):
+def ac_clade (tree_freq, clade, param, delta ):
     seqlen = param.seqlen    
    
     cumfreq = [0]
@@ -136,26 +131,33 @@ def ac_clade (tree_freq, clade, param, delta = 100000):
         term2 = clade[T2_index] 
         #print i, T1_index, term1, T2_index, term2
         ac += 1 if term1 == term2 else 0
-    #ac /= float(n)
+    ac /= float(n)
     return ac
     
     
-def one_single_rep ( param, delta = 10000, scrm = False ):
-    out = run_ms ( param )
+def one_single_rep ( param, delta, scrm, prefix ):
+    out = run_program ( param, scrm, prefix)
     outfiles = process_ms_scrm_output ( out )
     info = extract_info ( outfiles )
     
-    #print ac_TMRC_star (info[0], info[1], use_param, delta = 10000)
-    #print ac_TMRC_star (info[0], info[2], use_param, delta = 10000)
-    #print ac_clade     (info[0], info[3], use_param, delta = 10000)
     return  ac_TMRC_star (info[0], info[1], param, delta ), \
             ac_TMRC_star (info[0], info[2], param, delta ), \
             ac_clade     (info[0], info[3], param, delta )
 
+def n_rep ( param, delta, scrm , prefix, rep = 10000):
+    ac = []
+    for i in range(rep):
+        ac.append ( one_single_rep ( param, delta, scrm, prefix ) )
+    Etmrca = [ x[0] for x in ac ]
+    Efirst_coal = [ x[1] for x in ac ]
+    Eclade = [ x[2] for x in ac ]
+    return Etmrca, Efirst_coal, Eclade
+
 if __name__ == "__main__":
     try:
         use_param = parameter()
-        ac = one_single_rep (use_param)
+        msac = n_rep (use_param, delta = 10000, scrm = False, prefix = "msout")
+        scrmac = n_rep (use_param, delta = 10000, scrm = True, prefix = "scrmout")
         #scrmout = run_scrm ( use_param, scrm = True)
         #scrmoutfiles = process_ms_scrm_output ( scrmout )
 
