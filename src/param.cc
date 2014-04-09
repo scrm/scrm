@@ -152,7 +152,7 @@ void Param::parse(Model &model) {
       if (argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
       model.addPopulationSizes(time, readNextInput<double>(), true, true); 
-      model.addGrowthRates(time, 0.0, true);
+      if (time != 0.0) model.addGrowthRates(time, 0.0, true);
     }
 
     else if (argv_i == "-en" || argv_i == "-n") {
@@ -160,7 +160,7 @@ void Param::parse(Model &model) {
       else time = 0.0;
       size_t pop = readNextInput<size_t>() - 1;
       model.addPopulationSize(time, pop, readNextInput<double>(), true, true);
-      model.addGrowthRate(time, pop, 0.0, true);
+      if (time != 0.0) model.addGrowthRate(time, pop, 0.0, true);
     }
 
     // ------------------------------------------------------------------

@@ -120,7 +120,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(0.3*model.default_pop_size, model.population_size(1)) );
     CPPUNIT_ASSERT( areSame(model.default_pop_size, (size_t)model.population_size(2)) );
     CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(1) );
+    CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(1) );
     CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(2) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.1 * 4 * model.default_pop_size, model.getCurrentTime() );
