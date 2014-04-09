@@ -21,6 +21,7 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testAssignmentConstructor );
   CPPUNIT_TEST( testSetGetMutationRate );
   CPPUNIT_TEST( testSetGetRecombinationRate );
+  CPPUNIT_TEST( testGetPopulationSize );
   CPPUNIT_TEST( testAddChangeTime );
   CPPUNIT_TEST( testAddSampleSizes );
   CPPUNIT_TEST( testAddPopulationSizes );
@@ -237,6 +238,23 @@ class TestModel : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_THROW( model.addGrowthRates(1, std::vector<double>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addGrowthRates(1, std::vector<double>(3, 5)), std::logic_error );
+  }
+
+  void testGetPopulationSize() {
+    Model model = Model(2);
+    model.set_population_number(2);
+    model.addSymmetricMigration(0.0, 1);
+    model.addGrowthRates(1.0, std::vector<double>(2, 1.5));
+    model.finalize();
+    model.resetTime();
+
+    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size() ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(1) ) );
+    model.increaseTime();
+    CPPUNIT_ASSERT_EQUAL( 1.0, model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size * std::exp( -1.5 ),  model.population_size(0, 2.0) ) );
   }
 
   void testAddMigRates() {

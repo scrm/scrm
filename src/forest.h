@@ -253,10 +253,7 @@ class Forest
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
 
-  double calcPwCoalescenceRate(const size_t &pop) const {
-    // Rate a pair is 1/(2N), as N is the diploid population size
-    return ( 1.0 / ( 2.0 * this->model().population_size(pop) ) );
-  }
+  double calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
 
   double calcRecombinationRate(Node const* node) const {
     assert( !node->local() );
