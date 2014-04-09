@@ -156,8 +156,10 @@ class Model
     */
    double population_size(size_t pop = 0, double time = -1) const { 
      double pop_size;
-     if (current_pop_sizes_ == NULL) pop_size = default_pop_size;
-     else pop_size = current_pop_sizes_->at(pop);
+     if (current_pop_sizes_ == NULL) 
+       pop_size = default_pop_size;
+     else 
+       pop_size = current_pop_sizes_->at(pop);   // population size basal to this segment
 
      if (time >= 0 && growth_rate(pop) != 0.0) {
        assert( time >= getCurrentTime() && time <= getNextTime() );
