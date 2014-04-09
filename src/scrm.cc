@@ -47,7 +47,8 @@ int main(int argc, char *argv[]){
     // Organize output
     std::ostream *output = &std::cout;
 
-    *output << "scrm " << VERSION << " |" << user_para << std::endl;
+    //*output << "scrm " << VERSION << " |" << user_para << std::endl;
+    *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
     // Loop over the independent samples

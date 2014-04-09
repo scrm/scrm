@@ -86,12 +86,17 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
         test-SUBPOP/compareSubPop
         test-SUBPOP/*pdf
 
-* Checking growth rate, -eg option
+* Checking growth rate, -G, -eG, and -eg option
 (TO COME)##############################################
+    Compare TMRCA and total branch length, and segregating sites for migration
+    ./ms_vs_scrm_growth.sh 
+    
+    Output file:
+        test-GROWTH/compareGrowth
+        test-GROWTH/*pdf
 
 
 WITH RECOMBINATION
-
 	
 (Good 27Jan14)	##############################################
 	Compare TMRCA
@@ -147,6 +152,16 @@ NOTE: for most of the cases, there is no significant difference on number of seg
         test-spectrum/compareSPEC
 
 test-spectrum-recomb/    
+
+
+* Checking growth rate with recombination, -G, -eG, and -eg option
+(TO COME)##############################################
+    Compare TMRCA and total branch length, and segregating sites for migration
+    ./ms_vs_scrm_growth-recomb.sh 
+    
+    Output file:
+        test-GROWTH-recomb/compareGrowth
+        test-GROWTH-recomb/*pdf
 	
 	
 RECOMBINATION ONLY
