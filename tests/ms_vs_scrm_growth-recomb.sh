@@ -144,8 +144,8 @@ foo(){
 echo "15_samples_case1" > current_case
 rm ms* scrm*
 
-ms 15 ${rep} -t ${theta} -r ${r} ${seqlen} -eG .3 7.0 -eN 0.3 0.5 -T > msout
-scrm 15 ${rep} -t ${theta} -r ${r} ${seqlen} -eG .3 7.0 -eN 0.3 0.5 -T > scrmout
+ms 5 ${rep} -t ${theta} -r ${r} ${seqlen} -eG .3 7.0 -eN 0.3 0.5 -T > msout
+scrm 5 ${rep} -t ${theta} -r ${r} ${seqlen} -eG .3 7.0 -eN 0.3 0.5 -T > scrmout
 
 
 cat msout | sample_stats > ms_stats
@@ -162,11 +162,11 @@ hybrid-Lambda -gt scrmTrees -bl scrmbl
 foo
 
 #case 2
-echo "15_samples_case2" > current_case
+echo "5_samples_case2" > current_case
 rm ms* scrm*
 
-ms 15 ${rep} -t ${theta} -r ${r} ${seqlen} -G 6.93 -eG 0.2 0.0 -eN 0.3 0.5 -T > msout
-scrm 15 ${rep} -t ${theta} -r ${r} ${seqlen} -G 6.93 -eG 0.2 0.0 -eN 0.3 0.5 -T > scrmout
+ms 5 ${rep} -t ${theta} -r ${r} ${seqlen} -G 6.93 -eG 0.2 0.0 -eN 0.3 0.5 -T > msout
+scrm 5 ${rep} -t ${theta} -r ${r} ${seqlen} -G 6.93 -eG 0.2 0.0 -eN 0.3 0.5 -T > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees

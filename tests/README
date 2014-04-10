@@ -87,7 +87,7 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
         test-SUBPOP/*pdf
 
 * Checking growth rate, -G, -eG, and -eg option
-(TO COME)##############################################
+(GOOD 10APR14)##############################################
     Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_growth.sh 
     
