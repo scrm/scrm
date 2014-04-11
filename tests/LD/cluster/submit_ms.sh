@@ -21,7 +21,6 @@ rep=$(expr $SGE_TASK_ID )
 program=ms
 #######################
 job=${case}${program}_
-rm -r ${job}*
 
 prefix=${job}${rep}
 mkdir ${prefix}

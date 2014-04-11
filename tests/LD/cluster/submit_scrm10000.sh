@@ -22,7 +22,6 @@ program=scrm
 #######################
 
 job=${case}${program}window${exact_window_i}_
-rm -r ${job}*
 prefix=${case}${program}window${exact_window_i}_${rep}
 mkdir ${prefix}
 fileprefix=${prefix}"/"${prefix}

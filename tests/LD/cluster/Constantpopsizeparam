@@ -1,8 +1,8 @@
 case: Constantpopsize
 nsam: 6
 replicate: 10
-seqlen: 1000001
-rho: 40
+seqlen: 10000001
+rho: 4000
 job: Constantpopsizems_
 job: Constantpopsizescrmwindow100000_
 job: Constantpopsizescrmwindow50000_
