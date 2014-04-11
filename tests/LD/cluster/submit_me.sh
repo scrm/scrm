@@ -1,6 +1,12 @@
 #!/bin/bash
-#$ -cwd –V –N scrmVSms
-#$ -q short.qb
+#$ -cwd
+#$ -V
+#$ -P bsg.prjb -q short.qb
+#$ -e ErrFiles
+#$ -o OutFiles
+#$ -N redo 
+#$ -t 1-10
+#$ -j y
 
 case=Constantpopsize
 nsam=6
@@ -26,22 +32,25 @@ program=ms
 job=${case}${program}_
 echo "job: ${job}" >> ${paramfile}
 rm -r ${job}*
-for rep in $(seq 1 1 ${replicate})
-    do
-    prefix=${job}${rep}
-    mkdir ${prefix}
-    fileprefix=${prefix}"/"${prefix}
-    { time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} ${rep} ${rep} ;} 2> ${fileprefix}time.text
-    tree_file_name=${fileprefix}"Trees"
-    tree_freq_name=${fileprefix}"TreeFreq"
-    tmrca_name=${fileprefix}"Tmrca"
-    first_coal_name=${fileprefix}"FirstCoal"
-    
-    grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
-    grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
-    hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
-    hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
-    done
+
+rep=$(expr $SGE_TASK_ID )
+
+#for rep in $(seq 1 1 ${replicate})
+    #do
+prefix=${job}${rep}
+mkdir ${prefix}
+fileprefix=${prefix}"/"${prefix}
+{ time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} ${rep} ${rep} ;} 2> ${fileprefix}time.text
+tree_file_name=${fileprefix}"Trees"
+tree_freq_name=${fileprefix}"TreeFreq"
+tmrca_name=${fileprefix}"Tmrca"
+first_coal_name=${fileprefix}"FirstCoal"
+
+grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
+grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
+hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
+hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
+    #done
 
 
 program=scrm
@@ -55,22 +64,22 @@ for exact_window_i in "${exact_window[@]}"
     echo "job: ${job}" >> ${paramfile}
     rm -r ${job}*
     #rm -r ${case}${program}window${exact_window_i}_*
-    for rep in $(seq 1 1 ${replicate})
-        do
-        prefix=${case}${program}window${exact_window_i}_${rep}
-        mkdir ${prefix}
-        fileprefix=${prefix}"/"${prefix}
-        { time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} -l ${exact_window_i} ;} 2> ${fileprefix}time.text
-        tree_file_name=${fileprefix}"Trees"
-        tree_freq_name=${fileprefix}"TreeFreq"
-        tmrca_name=${fileprefix}"Tmrca"
-        first_coal_name=${fileprefix}"FirstCoal"
-        
-        grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
-        grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
-        hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
-        hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
-        done
+    #for rep in $(seq 1 1 ${replicate})
+        #do
+    prefix=${case}${program}window${exact_window_i}_${rep}
+    mkdir ${prefix}
+    fileprefix=${prefix}"/"${prefix}
+    { time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} -l ${exact_window_i} ;} 2> ${fileprefix}time.text
+    tree_file_name=${fileprefix}"Trees"
+    tree_freq_name=${fileprefix}"TreeFreq"
+    tmrca_name=${fileprefix}"Tmrca"
+    first_coal_name=${fileprefix}"FirstCoal"
+    
+    grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
+    grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
+    hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
+    hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
+        #done
     done
 
 
