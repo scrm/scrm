@@ -1,13 +1,16 @@
 #!/bin/bash
+#$ -cwd –V –N scrmVSms
+#$ -q short.qb
 
 case=Constantpopsize
 nsam=6
 replicate=1000
 seqlen=10000001
 rho=4000 # This is equal to r * seqlen * 4 * Ne, which is 1e-8 * 1e7 * 4 * 1e4
-#seqlen=1000001
-#rho=40 # This is equal to r * seqlen * 4 * Ne, which is 1e-8 * 1e7 * 4 * 1e4
 
+seqlen=1000001
+rho=40 # This is equal to r * seqlen * 4 * Ne, which is 1e-8 * 1e7 * 4 * 1e4
+replicate=10
 
 paramfile=${case}param
 echo "case: ${case}" >  ${paramfile}
