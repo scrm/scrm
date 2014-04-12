@@ -1,0 +1,12 @@
+case: Dpop
+nsam: 6
+replicate: 10
+seqlen: 10000001
+rho: 4000
+divergence: 1
+job: Constantpopsizems_
+job: Constantpopsizescrmwindow100000_
+job: Constantpopsizescrmwindow50000_
+job: Constantpopsizescrmwindow10000_
+job: Constantpopsizescrmwindow1000_
+job: Constantpopsizescrmwindow0_
