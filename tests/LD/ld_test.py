@@ -330,6 +330,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
         tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
         l.append ( tmp1 )
     pylab.xlim( [np.min(delta), np.max(delta)] )
+    pylab.title( prefix )
     pylab.xlabel(r'Distance between two sites $\delta$')
     pylab.ylabel(r'Autocorrelation $\rho$')
     pylab.legend ([ x[0] for x in l], legend, loc = 1)
@@ -376,16 +377,16 @@ if __name__ == "__main__":
     _msacD = n_rep ( _use_paramD, scrm = False, prefix = "Divergencemsout")        
     _scrmacD = n_rep ( _use_paramD, scrm = True, prefix = "Divergencescrmout") 
     
-    _use_param.exact_window_length = 1e3
+    _use_paramD.exact_window_length = 1e3
     _scrmace3D = n_rep ( _use_paramD, scrm = True, prefix = "Divergencescrme3out")        
 
-    _use_param.exact_window_length = 1e4
+    _use_paramD.exact_window_length = 1e4
     _scrmace4D = n_rep ( _use_paramD, scrm = True, prefix = "Divergencescrme4out")        
 
-    _use_param.exact_window_length = 5e4
+    _use_paramD.exact_window_length = 5e4
     _scrmac5e4D = n_rep ( _use_paramD, scrm = True, prefix = "Divergencescrm5e4out")        
 
-    _use_param.exact_window_length = 1e5
+    _use_paramD.exact_window_length = 1e5
     _scrmace5D = n_rep ( _use_paramD, scrm = True, prefix = "Divergencescrme5out")        
     
     
