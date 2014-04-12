@@ -37,4 +37,4 @@ hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
 hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
 
 outdir="/well/bsg/joezhu/"
-mv ${prefix} ${outdir}${prefix}
+mv ${prefix} ${outdir}
