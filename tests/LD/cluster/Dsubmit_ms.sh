@@ -35,3 +35,6 @@ grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
 grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
 hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
 hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
+
+outdir="/well/bsg/joezhu/"
+mv ${prefix} ${outdir}${prefix}

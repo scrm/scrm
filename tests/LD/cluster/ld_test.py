@@ -26,10 +26,13 @@ class parameter:
         self.divergence = divergence
         self.jobs = jobs
         
+        
+        delta_points = 40
         big_delta_max = 2e5
-        #small_delta_max = 1e4
-        self.big_delta = range( 0, int(big_delta_max+1), 10000 )
-        #self.small_delta = range( 0, int(small_delta_max+1), 1000 )
+        small_delta_max = 5e4
+        self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
+        #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
+        self.small_delta = np.linspace( 0, int(small_delta_max+1), delta_points )
 
     
     def printing ( self ):
@@ -296,6 +299,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
         tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
         l.append ( tmp1 )
     pylab.xlim( [np.min(delta), np.max(delta)] )
+    pylab.title( prefix + " of " + `len(delta)` + " delta points" )
     pylab.xlabel(r'Distance between two sites $\delta$')
     pylab.ylabel(r'Autocorrelation $\rho$')
     pylab.legend ([ x[0] for x in l], legend, loc = 1)
@@ -335,7 +339,7 @@ if __name__ == "__main__":
     
     ## extract TMRCA from results and plot
     #_rho = [ _msac[0], _scrmace5[0], _scrmace3[0], _scrmac[0] ]
-    myfigures ( _use_param.big_delta, [ data_i[0] for data_i in processed_data ] , "tmrca", _legend, _colors)
+    myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , "tmrca", _legend, _colors)
     myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , "tmrc", _legend, _colors)
     myfigures ( _use_param.big_delta, [ data_i[2] for data_i in processed_data ] , "clade", _legend, _colors)
     ## extract TMRC
