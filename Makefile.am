@@ -1,6 +1,6 @@
 SUBDIRS = doc
 include aminclude.am 
-EXTRA_DIST = bootstrap doc/manual.pdf m4/*
+EXTRA_DIST = bootstrap doc/manual.pdf m4/ac_doxygen.m4
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
