@@ -12,6 +12,9 @@ distdir = $(PACKAGE)-$(VERSION)
 #CXXFLAGS= -I/opt/local/include
 #LDFLAGS= -L/opt/local/lib
 
+doc/manual.pdf:
+	cd doc; make manual.pdf
+
 unittests: unit_tests
 	./unit_tests 
 
