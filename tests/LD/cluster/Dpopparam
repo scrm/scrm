@@ -1,6 +1,6 @@
 case: Dpop
 nsam: 6
-replicate: 10
+replicate: 1000
 seqlen: 10000001
 rho: 4000
 divergence: 1

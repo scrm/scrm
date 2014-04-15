@@ -27,9 +27,11 @@ class parameter:
         self.jobs = jobs
         
         
-        delta_points = 40
+        delta_points = 30
         big_delta_max = 2e5
+        #big_delta_max = 1e4
         small_delta_max = 5e4
+        #small_delta_max = big_delta_max
         self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
         #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
         self.small_delta = np.linspace( 0, int(small_delta_max+1), delta_points )
@@ -240,7 +242,7 @@ def cal_ac_clade (tree_freq, clade, delta ):
     
 
         
-def process_data ( data , delta) :
+def process_data ( data , small_delta, big_delta) :
     # compute the average Tmrca and Tmrc
     tot_tmrca = 0
     tot_tmrc = 0
@@ -260,7 +262,8 @@ def process_data ( data , delta) :
     ac_TMRC = []    
     ac_clade = []
     
-    for delta_i in delta:
+    for delta_i in big_delta:
+        print "processing delta:", delta_i
         cum_ac_TMRC = 0
         cum_var_TMRC = 0
         cum_ac_clade = 0
@@ -276,7 +279,7 @@ def process_data ( data , delta) :
         ac_clade.append( cum_ac_clade / cum_length_clade )
         
     ac_TMRCA  = []    
-    for delta_i in delta:        
+    for delta_i in small_delta:        
         cum_ac_TMRCA = 0
         cum_var_TMRCA = 0
         for d in data:
@@ -307,6 +310,29 @@ def myfigures ( delta, rho, prefix, legend, colors):
     pylab.close()
 
 
+def time_figure(accuracy, time, prefix, legend, colors):
+    #all_data = [ _msac, _scrmace5, _scrmac5e4, _scrmace4, _scrmace3,  _scrmac]
+    #x = [data_i[0][-1] for data_i in all_data ] # tmrca
+    #x = [data_i[1][-1] for data_i in all_data ] # tmrc
+    #x = [data_i[2][-1] for data_i in all_data ] # clade
+    #y = [data_i[3] for data_i in all_data]
+    x = accuracy
+    y = time
+    #pylab.plot(x[1:4],log(y[1:4]))
+    #pylab.axis([min(x), max(x), log(min(y)), log(max(y))])
+    markers = ["v", "o", "*", ">", "<", "s"]
+    pylab.title("Time vs accuracy")
+    pylab.ylabel("log(Time)")
+    pylab.xlabel("Accuracy")
+    #pylab.xlabel("rho tmrca at delta = 10000")
+    #timelegend = ['ms', 'exact window = 100000', 'exact window = 50000', 'exact window = 10000', 'exact window = 1000', 'exact window = 0']
+    myl = []
+    for i, xi in enumerate(x):
+        myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
+    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=2 )
+    pylab.savefig( prefix+"_timeVSacc.pdf")
+    pylab.close()
+
 def read_param_file ( experiment_name ):
     top_param = parameter()
     experiment_file = open( experiment_name, "r" )
@@ -323,30 +349,27 @@ def read_param_file ( experiment_name ):
     top_param.printing()
     return top_param
 
+
+
     
 if __name__ == "__main__":
     _use_param = read_param_file ( sys.argv[1] )
+    _use_param.printing()
     
     processed_data = []
     for job in _use_param.jobs:
         print job
         data = extract_all_info (job, _use_param.rep)
         #compute_averge_T (data)
-        processed_data.append( process_data (data, _use_param.big_delta) )
+        processed_data.append( process_data (data, _use_param.small_delta,  _use_param.big_delta) )
     
     _legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
     _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow"]
     
-    ## extract TMRCA from results and plot
-    #_rho = [ _msac[0], _scrmace5[0], _scrmace3[0], _scrmac[0] ]
-    myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , "tmrca", _legend, _colors)
-    myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , "tmrc", _legend, _colors)
-    myfigures ( _use_param.big_delta, [ data_i[2] for data_i in processed_data ] , "clade", _legend, _colors)
-    ## extract TMRC
-    #_rho = [ _msac[1], _scrmace5[1], _scrmace3[1], _scrmac[1] ]
-    #myfigures ( _use_param.big_delta, _rho, "tmrc", _legend, _colors)
+    myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
+    myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
+    myfigures ( _use_param.big_delta, [ data_i[2] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)
 
-    ## extract clade
-    #_rho = [ _msac[2], _scrmace5[2], _scrmace3[2], _scrmac[2] ]
-    #myfigures ( _use_param.big_delta, _rho, "clade", _legend, _colors)
- 
+    time_figure ( [ data_i[0][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
+    time_figure ( [ data_i[1][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
+    time_figure ( [ data_i[2][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)
