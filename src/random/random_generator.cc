@@ -62,6 +62,7 @@ double RandomGenerator::sampleExpoLimit(double lambda, double limit){
 // For a p ~ unif(0,1), a waiting time sample is (1/c) log[ 1 - (c/b) log p ]
 // It returns -1 if no event occurred; this can happen even if limit == +infinity (if c<0)
 double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
+  if (b == 0.0) return -1;
   assert (b>0);
   assert (limit>=0);
   // for any c, the no-event condition (t=maximum waiting time) is

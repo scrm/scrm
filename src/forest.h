@@ -116,9 +116,18 @@ class Forest
   double next_base() const {return next_base_;}
   void set_next_base(const double &base){next_base_ = base;}
 
+  // Must be called AFTER the tree was modified.
   void sampleNextBase() {
-    next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
-    if (next_base_ > model().loci_length()) next_base_ = model().loci_length();
+    double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
+                                                        model().getNextSequencePosition() - current_base_);
+    if (length == -1) {
+      // No recombination until the model changes
+      set_next_base(model().getNextSequencePosition());
+      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
+    } else {
+      // Recombination in the sequence segment
+      next_base_ = current_base_ + length;
+    }
   } 
 
   /**

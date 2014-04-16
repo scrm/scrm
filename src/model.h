@@ -255,6 +255,16 @@ class Model
     else return change_times_.at(current_time_idx_ + 1);
    }
 
+   double getCurrentSequencePosition() const { 
+    if ( current_seq_idx_ >= change_position_.size() ) return loci_length();
+    return change_position_.at(current_seq_idx_); 
+   }
+
+   double getNextSequencePosition() const { 
+    if ( current_seq_idx_ + 1 >= change_position_.size() ) return loci_length();
+    else return change_position_.at(current_seq_idx_ + 1);
+   }
+
    void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
    void set_population_number(const size_t &pop_number) { 

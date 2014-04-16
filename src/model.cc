@@ -499,9 +499,13 @@ void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop
 
 std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
-  os << "Mutation rate: " << model.mutation_rate() << std::endl;  
-  os << "Recombination rate: " << model.recombination_rate() << std::endl;  
   os << "Sample size: " << model.sample_size() << std::endl;  
+
+  for (size_t idx = 0; idx < model.change_position_.size(); ++idx) {
+    os << std::endl << "At position " << model.change_position_.at(idx) << ":" << std::endl;  
+    os << " Mutation rate: " << model.mutation_rate() << std::endl;  
+    os << " Recombination rate: " << model.recombination_rate() << std::endl;  
+  }
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
@@ -553,8 +557,8 @@ void Model::finalize() {
   } 
 
   // Fill in missing recombination rates
-  assert( mutation_rates.at(0) != -1 );
-  assert( recombination_rates.at(0) != -1 );
+  assert( mutation_rates_.at(0) != -1 );
+  assert( recombination_rates_.at(0) != -1 );
   for (size_t j = 1; j < change_position_.size(); ++j) {
     if (mutation_rates_.at(j) == -1) {
       mutation_rates_.at(j) = mutation_rates_.at(j-1);

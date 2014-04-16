@@ -36,6 +36,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCalcSegmentSummaryStatistics );
   CPPUNIT_TEST( testPrintLocusSumStats );
   CPPUNIT_TEST( testTraversal );
+  CPPUNIT_TEST( testSampleNextPosition ); 
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -723,6 +724,15 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[2] );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[3] );
+  }
+
+  void testSampleNextPosition() {
+    forest->createScaledExampleTree();
+    forest->writable_model()->setRecombinationRate(0.0);
+    forest->writable_model()->setRecombinationRate(1.0, false, false, 3);
+    forest->sampleNextBase();
+    CPPUNIT_ASSERT_EQUAL(3.0, forest->next_base());
+    CPPUNIT_ASSERT_EQUAL(1.0, forest->model().recombination_rate());
   }
 };
 
