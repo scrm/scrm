@@ -91,7 +91,7 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-t") {
       nextArg(argv_i);
-      model.set_mutation_rate(readInput<double>(argv_[argc_i]), true, true);
+      model.setMutationRate(readInput<double>(argv_[argc_i]), true, true);
       seg_sites = new SegSites();
     }
 
@@ -105,8 +105,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
       double rec_rate = readNextInput<double>();
-      size_t loci_length = readNextInput<size_t>();
-      model.set_recombination_rate(rec_rate, loci_length, true, true);
+      model.setLocusLength(readNextInput<size_t>());
+      model.setRecombinationRate(rec_rate, true, true);
     }
 
     // ------------------------------------------------------------------

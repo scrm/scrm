@@ -282,7 +282,8 @@ class TestForest : public CppUnit::TestCase {
     // active_node 0: Pop 1, 2 Contemporaries => Coal rate: 2 / 2 * Ne = 1/Ne 
     // active_node 1: Pop 1, Recombination    => Rec rate: 10 Bases * 0.4 / 4Ne = 1/Ne    
     // => 50% Recombination, 50% Coalescence 
-    forest2->writable_model()->set_recombination_rate(0.4, 101, false, true);
+    forest2->writable_model()->setLocusLength(101);
+    forest2->writable_model()->setRecombinationRate(0.4, false, true);
     forest2->set_current_base(20);
     forest2->states_[0] = 1;
     forest2->states_[1] = 2;
@@ -728,4 +729,4 @@ class TestForest : public CppUnit::TestCase {
 
 
 //Uncomment this to activate the test
-CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
+//CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
