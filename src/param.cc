@@ -54,7 +54,8 @@ void Param::nextArg(std::string option) {
 void Param::parse(Model &model) {
   model = Model();
   size_t sample_size = 0;
-  double time = 0;
+  double par_bool = 0.0;
+  double time = 0.0;
 
   // Placeholders for summary statistics.
   // Statistics are added only after all parameters are parse, so that they will
@@ -89,24 +90,31 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Mutation 
     // ------------------------------------------------------------------
-    else if (argv_i == "-t") {
-      nextArg(argv_i);
-      model.setMutationRate(readInput<double>(argv_[argc_i]), true, true);
-      seg_sites = new SegSites();
+    else if (argv_i == "-t" || argv_i == "-st") {
+      // Position
+      if (argv_i == "-st") time = readNextInput<double>(); 
+      else time = 0.0;
+
+      model.setMutationRate(readNextInput<double>(), true, true, time);
+      if (seg_sites == NULL) seg_sites = new SegSites();
     }
 
-    else if (argv_i == "-s"){
-      nextArg(argv_i);
-      model.set_mutation_exact_number(readInput<size_t>(argv_[argc_i]));
+    else if (argv_i == "-s") {
+      model.set_mutation_exact_number(readNextInput<size_t>());
     }
 
     // ------------------------------------------------------------------
     // Recombination 
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
-      double rec_rate = readNextInput<double>();
+      par_bool = readNextInput<double>();
       model.setLocusLength(readNextInput<size_t>());
-      model.setRecombinationRate(rec_rate, true, true);
+      model.setRecombinationRate(par_bool, true, true, 0.0);
+    }
+
+    else if (argv_i == "-sr") {
+      time = readNextInput<double>(); // Position
+      model.setRecombinationRate(readNextInput<double>(), true, true, time);
     }
 
     // ------------------------------------------------------------------

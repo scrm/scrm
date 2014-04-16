@@ -57,3 +57,6 @@ debug_call 6 2 -r 20 200 -I 3 2 2 2 -ej 0.2 2 1 -ej 0.25 3 1 -l 25 || exit 1
 echo "Testing Growth..."
 debug_call 5 20 -r 20 200 -G 0.5 -l 25 || exit 1
 debug_call 5 10 -r 2 200 -G -2.5 -eG 1 0.0 -l 25  || exit 1
+
+echo "Testing Variable Rates..."
+debug_call 2 1 -r 2 100 -t 5 -st 10 10 -sr 20 5 -st 30 1 -sr 40 0 -st 50 20 -T || exit 1

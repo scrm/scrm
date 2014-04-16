@@ -401,6 +401,14 @@ void Forest::sampleNextGenealogy() {
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
 
   this->set_current_base(next_base_);
+  if (current_base_ == model().getCurrentSequencePosition()) {
+    // Don't implement a recombination if we are just here because rates changed
+    dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+    this->sampleNextBase();
+    this->calcSegmentSumStats();
+    return;
+  }
+
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
@@ -427,7 +435,7 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
-// record recombination event
+  // record recombination event
   double opportunity_y = this -> local_tree_length();
   double recomb_opportunity = recomb_opportunity_x * opportunity_y;
   this->record_event( rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );

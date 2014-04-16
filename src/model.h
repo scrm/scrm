@@ -481,9 +481,10 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
  * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
  * it isn't
  */
-inline void Model::setRecombinationRate(double rate,  const bool &per_locus, 
-                                          const bool &scaled,
-                                          const double &seq_position) { 
+inline void Model::setRecombinationRate(double rate,  
+                                        const bool &per_locus, 
+                                        const bool &scaled,
+                                        const double &seq_position) { 
 
   if (rate < 0.0) throw std::invalid_argument("Recombination rate must be non-negative");
 

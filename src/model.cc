@@ -503,8 +503,8 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
 
   for (size_t idx = 0; idx < model.change_position_.size(); ++idx) {
     os << std::endl << "At position " << model.change_position_.at(idx) << ":" << std::endl;  
-    os << " Mutation rate: " << model.mutation_rate() << std::endl;  
-    os << " Recombination rate: " << model.recombination_rate() << std::endl;  
+    os << " Mutation rate: " << model.mutation_rates_.at(idx) << std::endl;  
+    os << " Recombination rate: " << model.recombination_rates_.at(idx) << std::endl;  
   }
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
@@ -563,8 +563,9 @@ void Model::finalize() {
     if (mutation_rates_.at(j) == -1) {
       mutation_rates_.at(j) = mutation_rates_.at(j-1);
     }
+
     if (recombination_rates_.at(j) == -1) {
-      recombination_rates_.at(j) = mutation_rates_.at(j-1);
+      recombination_rates_.at(j) = recombination_rates_.at(j-1);
     }
   }
 
@@ -675,6 +676,7 @@ void swap(Model& first, Model& second) {
   swap(first.default_growth_rate, second.default_growth_rate);
   swap(first.default_mig_rate, second.default_mig_rate);
 
+  swap(first.change_position_, second.change_position_);
   swap(first.mutation_rates_, second.mutation_rates_);
   swap(first.recombination_rates_, second.recombination_rates_);
 
