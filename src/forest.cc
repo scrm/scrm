@@ -200,6 +200,8 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
+  //dout << node << std::endl;
+  
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
