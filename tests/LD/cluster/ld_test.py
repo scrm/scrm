@@ -27,10 +27,10 @@ class parameter:
         self.jobs = jobs
         
         
-        delta_points = 30
+        delta_points = 20
         big_delta_max = 2e5
         #big_delta_max = 1e4
-        small_delta_max = 5e4
+        small_delta_max = 2e4
         #small_delta_max = big_delta_max
         self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
         #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
@@ -244,18 +244,19 @@ def cal_ac_clade (tree_freq, clade, delta ):
         
 def process_data ( data , small_delta, big_delta) :
     # compute the average Tmrca and Tmrc
+    #tree_freq, tmrca, first_coal_time, clade, runtime
     tot_tmrca = 0
     tot_tmrc = 0
     tot_time = 0
     tot_runtime = 0
     for d in data:
         tot_runtime += d[4]
-        for i, duration_i in enumerate( d[0] ):
-            tmrca_i = d[1][i]
-            tmrc_i = d[2][i]
-            tot_tmrca += tmrca_i
-            tot_tmrc += tmrc_i
-            tot_time += duration_i
+        for i, duration_i in enumerate( d[0] ):   # d[0] : tree_freq, duration of the tree
+            tmrca_i = d[1][i]                     # d[1] : tmrca
+            tmrc_i = d[2][i]                      # d[2] : tmrc
+            tot_time += duration_i                # d[0] : duration of the tree
+            tot_tmrca += tmrca_i * duration_i     # JOE changed from tot_tmrca += tmrca_i
+            tot_tmrc += tmrc_i * duration_i       # JOE changed from tot_tmrc += tmrc_i
     avg_tmrca = tot_tmrca / tot_time
     avg_tmrc = tot_tmrc / tot_time
     
@@ -283,7 +284,7 @@ def process_data ( data , small_delta, big_delta) :
         cum_ac_TMRCA = 0
         cum_var_TMRCA = 0
         for d in data:
-            ac, var = cal_ac_TMRC_star_2( d[0], d[1], avg_tmrc, delta_i )
+            ac, var = cal_ac_TMRC_star_2( d[0], d[1], avg_tmrca, delta_i )
             cum_ac_TMRCA += ac
             cum_var_TMRCA += var
         ac_TMRCA.append( cum_ac_TMRCA / cum_var_TMRCA )
@@ -311,27 +312,20 @@ def myfigures ( delta, rho, prefix, legend, colors):
 
 
 def time_figure(accuracy, time, prefix, legend, colors):
-    #all_data = [ _msac, _scrmace5, _scrmac5e4, _scrmace4, _scrmace3,  _scrmac]
-    #x = [data_i[0][-1] for data_i in all_data ] # tmrca
-    #x = [data_i[1][-1] for data_i in all_data ] # tmrc
-    #x = [data_i[2][-1] for data_i in all_data ] # clade
-    #y = [data_i[3] for data_i in all_data]
     x = accuracy
     y = time
-    #pylab.plot(x[1:4],log(y[1:4]))
-    #pylab.axis([min(x), max(x), log(min(y)), log(max(y))])
     markers = ["v", "o", "*", ">", "<", "s"]
     pylab.title("Time vs accuracy")
     pylab.ylabel("log(Time)")
     pylab.xlabel("Accuracy")
     #pylab.xlabel("rho tmrca at delta = 10000")
-    #timelegend = ['ms', 'exact window = 100000', 'exact window = 50000', 'exact window = 10000', 'exact window = 1000', 'exact window = 0']
     myl = []
     for i, xi in enumerate(x):
         myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
     pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=2 )
     pylab.savefig( prefix+"_timeVSacc.pdf")
     pylab.close()
+
 
 def read_param_file ( experiment_name ):
     top_param = parameter()
