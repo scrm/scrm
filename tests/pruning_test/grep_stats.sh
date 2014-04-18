@@ -4,15 +4,16 @@ source parameters
 
 foo(){
     statfile=${job}_stat
-    for i in $(seq 1 1 ${rep})
+    for i in $(seq 1 1 ${replicate})
         do
         prefix=${job}_${i}
         dir=${top_dir}"/"${prefix}
-        if -d dir
-            do
+        if [ -d ${dir} ]
+            then
             cat ${dir}"/"${prefix}stat >> ${statfile}
-            done
+	fi
         done
+
 }
 
 job=ms
