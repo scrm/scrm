@@ -4,7 +4,7 @@
 #$ -P bsg.prjb -q short.qb
 #$ -e ErrFiles
 #$ -o OutFiles
-#$ -N ms 
+#$ -N scrm 
 #$ -t 1-10000
 #$ -j y
 
