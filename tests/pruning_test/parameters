@@ -1,0 +1,21 @@
+nsam=6
+rep=10000
+seqlen=10000001
+rho=4000
+mut=8000
+
+#toy trial...
+#rep=100
+#seqlen=1000001
+#rho=400
+#mut=800
+
+top_dir="/well/bsg/joezhu/prune_test"
+
+mkdir ${top_dir}
+
+cmd="${nsam} 1 -T -t ${mut} -r ${rho} ${seqlen}"
+rep=$(expr $SGE_TASK_ID )
+
+#rep=10
+
