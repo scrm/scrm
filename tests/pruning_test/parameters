@@ -12,7 +12,6 @@ mut=8000
 
 top_dir="/well/bsg/joezhu/prune_test"
 
-mkdir ${top_dir}
 
 cmd="${nsam} 1 -T -t ${mut} -r ${rho} ${seqlen}"
 rep=$(expr $SGE_TASK_ID )
