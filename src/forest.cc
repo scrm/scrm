@@ -32,6 +32,7 @@ Forest::Forest() {
 
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
+  dout << *model << std::endl;
 }
 
 // Sets member variable to default values
@@ -552,20 +553,24 @@ void Forest::calcRates(const TimeInterval &ti) {
 
   // Set rate of first node
   if (states_[0] == 1) {
+    // coalescing or migrating
     rates_[0] += model().total_migration_rate(active_node(0)->population());
     if (model().growth_rate(active_node(0)->population()) == 0.0) 
       rates_[0] += calcCoalescenceRate(active_node(0)->population(), ti); 
     else {
+      // exponential growth -- assign this node to timeline 1
       rates_[1] += calcCoalescenceRate(active_node(0)->population(), ti);
       active_nodes_timelines_[0] = 1;
     }
   }
   else if (states_[0] == 2) {
+    // recombining
     rates_[0] += calcRecombinationRate(active_node(0));    
   }
 
   // The second node is a bit more complicated 
   if (states_[1] == 1) {
+    // coalescing or migrating
     rates_[0] += model().total_migration_rate(active_node(1)->population());
     if (model().growth_rate(active_node(1)->population()) == 0.0) {
       // No Growth => Normal time
@@ -573,27 +578,29 @@ void Forest::calcRates(const TimeInterval &ti) {
 
       if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) { 
         // Also add rates for pw coalescence
-        rates_[0] += calcPwCoalescenceRate(active_node(1)->population()); 
+        rates_[0] += calcPwCoalescenceRate(active_node(1)->population(), ti); 
       }
     }
     else {
       // Growth => we need a exponential time
       if (states_[0] == 1 && active_node(0)->population() == active_node(1)->population()) {
-        // We can use the timeline of the first node
+        // Coalescing or migrating; and we can use the timeline of the first node
         rates_[1] += calcCoalescenceRate(active_node(1)->population(), ti);
         // And must add pw coalescence again
-        rates_[1] += calcPwCoalescenceRate(active_node(1)->population()); 
+        rates_[1] += calcPwCoalescenceRate(active_node(1)->population(), ti); 
         active_nodes_timelines_[1] = 1;
       } 
       else {
-        // We need our own timeline (We are ignoring that both populations could
-        // have equal growth rates at the moment...)
+	// No chance of a pairwise coalescence, but there is growth.
+        // We might need our own timeline (This could be made more efficient if both populations have
+	//  equal growth rates, but we ignore that for the moment)
         rates_[2] += calcCoalescenceRate(active_node(1)->population(), ti);
         active_nodes_timelines_[1] = 2;
       }
     }
   }
   else if (states_[1] == 2) {
+    // recombining
     rates_[0] += calcRecombinationRate(active_node(1));
   }
 }  
@@ -641,7 +648,7 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("And event with rate 0 has happened!");
+  if ( rates_[time_line] == 0.0 ) throw std::logic_error("An event with rate 0 has happened!");
 
   // Situation where it is clear what happened:
   if (time == -1) return;
@@ -684,7 +691,7 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
   // If we are here, than we should have sampled a pw coalescence...
   assert( states_[0] == 1 && states_[1] == 1 );
   assert( active_nodes_[0]->population() == active_nodes_[1]->population() );
-  assert( sample <= calcPwCoalescenceRate(active_nodes_[0]->population()) );  
+  assert( sample <= calcPwCoalescenceRate(active_nodes_[0]->population(), ti) );  
   return event.setToPwCoalescence();
 }
 
@@ -737,8 +744,15 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
-  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop) ) );
+  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
 }
+
+
+double Forest::calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+  // Rate a pair is 1/(2N), as N is the diploid population size
+  return ( 1.0 / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
+}
+
 
 /** 
  * Even if no event occurred in a time interval, there is some stuff that we

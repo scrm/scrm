@@ -22,8 +22,8 @@
 #include "first_last_tmrca.h"
 
 void FirstLastTMRCA::calculate(const Forest &forest) {
-  if (forest.current_base() == 0.0) first_tmrca_ = forest.getTMRCA();
-  if (forest.next_base() == forest.model().loci_length()) last_tmrca_ = forest.getTMRCA(); 
+  if (forest.current_base() == 0.0) first_tmrca_ = forest.getTMRCA(true);
+  if (forest.next_base() == forest.model().loci_length()) last_tmrca_ = forest.getTMRCA(true); 
 }
 
 void FirstLastTMRCA::printLocusOutput(std::ostream &output) {

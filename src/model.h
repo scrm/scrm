@@ -145,15 +145,29 @@ class Model
     *
     * This returns the size of a population for the current time of the
     * model. Use resetTime() and increaseTime() to set the model to the time you
-    * want.
+    * want. In case of a growing population, you can use the time parameter to
+    * specify for which time of the current model stop you want to get the
+    * population size.
     * 
     * @param pop The population for which the size is returned.
+    * @param time The time inside the current model step for which to return the
+    * size. This will only make a difference if the model is growing.
     *
     * @return The size of the sub population
     */
-   double population_size(size_t pop = 0) const { 
-     if (current_pop_sizes_ == NULL) return default_pop_size;
-     return current_pop_sizes_->at(pop);
+   double population_size(size_t pop = 0, double time = -1) const { 
+     double pop_size;
+     if (current_pop_sizes_ == NULL) 
+       pop_size = default_pop_size;
+     else 
+       pop_size = current_pop_sizes_->at(pop);   // population size basal to this segment
+
+     if (time >= 0 && growth_rate(pop) != 0.0) {
+       assert( time >= getCurrentTime() && time <= getNextTime() );
+       pop_size *= std::exp( -1 * growth_rate(pop) * ( time - getCurrentTime() ) ); 
+     }
+
+     return pop_size;
    }
 
    /**
@@ -298,13 +312,16 @@ class Model
 
    // Add exponential growth
    void addGrowthRates(const double &time, const std::vector<double> &growth_rates,
-                       const bool &time_scaled = false);
+                       const bool &time_scaled = false, 
+                       const bool &rate_scaled = false);
 
    void addGrowthRates(const double &time, const double &growth_rates,
-                       const bool &time_scaled = false);
+                       const bool &time_scaled = false,
+                       const bool &rate_scaled = false);
 
    void addGrowthRate(const double &time, const size_t &population, 
-                      const double &growth_rates, const bool &time_scaled = false);
+                      double growth_rates, const bool &time_scaled = false,
+                      const bool &rate_scaled = false);
 
    void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
                        const bool &scaled = false);

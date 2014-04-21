@@ -1,0 +1,12 @@
+case: Dpop
+nsam: 6
+replicate: 1000
+seqlen: 10000001
+rho: 4000
+divergence: 1
+job: Dpopms_
+job: Dpopscrmwindow100000_
+job: Dpopscrmwindow50000_
+job: Dpopscrmwindow10000_
+job: Dpopscrmwindow1000_
+job: Dpopscrmwindow0_

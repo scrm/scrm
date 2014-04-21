@@ -3,6 +3,7 @@ Version 0.9.1
 Bug fixes:
 + Very first node in the tree was assigned to wrong population
 + The input time of "-eI" option was not scaled
++ Fixed the scaling of growth rates
 
 Version 0.9.0
 ========================
