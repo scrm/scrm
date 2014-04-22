@@ -80,7 +80,7 @@ void Param::parse(Model &model) {
       nextArg("nsam (1st option)");
       sample_size = readInput<size_t>(argv_[argc_i]);
       nextArg("howmany (2nd option)");
-      model.set_loci_number(readInput<int>(argv_[argc_i]));
+      model.set_loci_number(readInput<size_t>(argv_[argc_i]));
     }
 
     // ------------------------------------------------------------------
