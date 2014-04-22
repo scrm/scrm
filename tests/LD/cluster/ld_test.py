@@ -316,13 +316,17 @@ def time_figure(accuracy, time, prefix, legend, colors):
     y = time
     markers = ["v", "o", "*", ">", "<", "s"]
     pylab.title("Time vs accuracy")
-    pylab.ylabel("log(Time)")
+    pylab.ylabel("Time")
     pylab.xlabel("Accuracy")
     #pylab.xlabel("rho tmrca at delta = 10000")
     myl = []
     for i, xi in enumerate(x):
         myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
-    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=2 )
+    my_axes = pylab.gca()
+    yticks = my_axes.get_yticks()
+    ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
+    my_axes.set_yticklabels(ylabels)    
+    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=2, numpoints=1)
     pylab.savefig( prefix+"_timeVSacc.pdf")
     pylab.close()
 
