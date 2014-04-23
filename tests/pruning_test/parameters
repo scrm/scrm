@@ -3,7 +3,7 @@ rep=10000
 seqlen=10000001
 rho=4000
 mut=8000
-replicate=10000
+replicate=20000
 
 #toy trial...
 #rep=100

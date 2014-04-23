@@ -31,5 +31,8 @@ foo
 job=scrm
 foo
 
-job=scrmprune
+job=scrmprune50000
+foo
+
+job=scrmprune10000
 foo
