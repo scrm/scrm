@@ -5,7 +5,7 @@
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N scrmprune10000 
-#$ -t 1-10000
+#$ -t 1-20000
 #$ -j y
 
 source parameters
@@ -15,7 +15,7 @@ program=scrm
 cmd="${cmd} -l 10000"
 #######################
 
-job=${program}prune_
+job=${program}prune10000_
 
 prefix=${job}${rep}
 mkdir ${top_dir}"/"${prefix}

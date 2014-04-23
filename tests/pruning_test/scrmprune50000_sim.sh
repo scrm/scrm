@@ -4,8 +4,8 @@
 #$ -P bsg.prjb -q short.qb
 #$ -e ErrFiles
 #$ -o OutFiles
-#$ -N scrmprune 
-#$ -t 1-10000
+#$ -N scrmprune50000 
+#$ -t 1-20000
 #$ -j y
 
 source parameters
@@ -15,7 +15,7 @@ program=scrm
 cmd="${cmd} -l 50000"
 #######################
 
-job=${program}prune_
+job=${program}prune50000_
 
 prefix=${job}${rep}
 mkdir ${top_dir}"/"${prefix}
