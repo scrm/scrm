@@ -4,25 +4,25 @@
 #$ -P bsg.prjb -q short.qb
 #$ -e ErrFiles
 #$ -o OutFiles
-#$ -N ms 
-#$ -t 10001-20000
+#$ -N scrmprune10000 
+#$ -t 1-10000
 #$ -j y
 
 source parameters
 
 #######################
-program=ms
-cmd=${cmd}
+program=scrm
+cmd="${cmd} -l 10000"
 #######################
 
-job=${program}_
+job=${program}prune_
 
 prefix=${job}${rep}
 mkdir ${top_dir}"/"${prefix}
 
 fileprefix=${top_dir}"/"${prefix}"/"${prefix}
 
-{ time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} ${rep} ${rep} ;} 2> ${fileprefix}time.text
+{ time -p ${program} ${cmd} > ${fileprefix} -seed ${rep} ;} 2> ${fileprefix}time.text
 
 tree_file_name=${fileprefix}"Trees"
 tree_freq_name=${fileprefix}"TreeFreq"
