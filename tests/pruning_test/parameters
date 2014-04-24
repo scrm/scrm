@@ -1,5 +1,5 @@
 nsam=6
-rep=10000
+rep=20000
 seqlen=10000001
 rho=4000
 mut=8000

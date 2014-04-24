@@ -1,7 +1,14 @@
 #!/bin/bash
-
+#$ -cwd
+#$ -V
+#$ -P bsg.prjb -q short.qb
+#$ -e ErrFiles
+#$ -o OutFiles
+#$ -N grep_stats
+#$ -j y
 source parameters
 
+echo ${replicate}
 #replicate=100
 #top_dir="./prune_test"
 
