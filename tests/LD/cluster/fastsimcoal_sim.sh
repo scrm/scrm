@@ -32,7 +32,7 @@ infile=${prefix}.par
 outfile=${prefix}"/"${prefix}_1_true_trees.trees    
 cp ${fsc_param_file} ${infile}
 echo ${fileprefix}
-{ time -p ${program} -i ${infile} -n 1 -T --seed ${rep} > dummy ;} 2> ${fileprefix}timedummy.text
+{ time -p ${program} -i ${infile} -n 1 -T --seed ${rep} > ${prefix}dummy ;} 2> ${fileprefix}timedummy.text
 sed -e "/No/d" ${fileprefix}timedummy.text > ${fileprefix}time.text
 
 grep ");" ${outfile} | sed -e "s/tree.*pos_/\\[/g" -e "s/ = \\[&U\\] /\\]/g" > ${fileprefix}
@@ -50,7 +50,7 @@ hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_raw_name}
 hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
 ./fastsimcoal_process.py ${fileprefix} 
 
-rm ${infile} ${outfile} ${fileprefix} ${tree_file_name} ${fileprefix}timedummy.text ${tree_change_name} ${tmrca_raw_name}  
+rm ${infile} ${outfile} ${fileprefix} ${tree_file_name} ${fileprefix}timedummy.text ${tree_change_name} ${tmrca_raw_name} ${prefix}dummy
 rm -r ${prefix}
 
     
