@@ -686,10 +686,28 @@ INPUT                  = src/forest.cc \
                          src/copy_forest.cc \
                          src/seg.h \
                          src/seg.cc \
-			 src/param.cc \
-			 src/param.h \
-			 src/scrm.cc \
-			 src/doxygen_notation.txt \
+                         src/param.cc \
+                         src/param.h \
+                         src/scrm.cc \
+                         src/doxygen_notation.txt \
+                         src/random/constant_generator.cc src/random/fastfunc.cc           \
+                         src/random/mersenne_twister.cc   \
+                         src/random/random_generator.cc   \
+                         src/random/speedtest.cc \
+                         src/random/constant_generator.h \
+                         src/random/fastfunc.h           \
+                         src/random/mersenne_twister.h   \
+                         src/random/random_generator.h \
+                         src/summary_statistics/frequency_spectrum.h \
+                         src/summary_statistics/seg_sites.h          \
+                         src/summary_statistics/tmrca.h \
+                         src/summary_statistics/newick_tree.h        \
+                         src/summary_statistics/summary_statistic.h \
+                         src/summary_statistics/frequency_spectrum.cc  \
+                         src/summary_statistics/newick_tree.cc        \
+                         src/summary_statistics/seg_sites.cc          \
+                         src/summary_statistics/tmrca.cc \
+             
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
