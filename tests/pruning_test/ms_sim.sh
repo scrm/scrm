@@ -5,7 +5,7 @@
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N ms 
-#$ -t 1-10000
+#$ -t 10001-20000
 #$ -j y
 
 source parameters

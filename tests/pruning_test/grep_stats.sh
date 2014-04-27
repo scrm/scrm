@@ -1,7 +1,14 @@
 #!/bin/bash
-
+#$ -cwd
+#$ -V
+#$ -P bsg.prjb -q short.qb
+#$ -e ErrFiles
+#$ -o OutFiles
+#$ -N grep_stats
+#$ -j y
 source parameters
 
+echo ${replicate}
 #replicate=100
 #top_dir="./prune_test"
 
@@ -25,11 +32,17 @@ foo(){
 }
 
 
-job=ms
-foo
+#job=ms
+#foo
 
-job=scrm
-foo
+#job=scrm
+#foo
 
-job=scrmprune
+#job=scrmprune50000
+#foo
+
+#job=scrmprune10000
+#foo
+
+job=scrmprune0
 foo
