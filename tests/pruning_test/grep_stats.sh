@@ -32,14 +32,17 @@ foo(){
 }
 
 
-job=ms
-foo
+#job=ms
+#foo
 
-job=scrm
-foo
+#job=scrm
+#foo
 
-job=scrmprune50000
-foo
+#job=scrmprune50000
+#foo
 
-job=scrmprune10000
+#job=scrmprune10000
+#foo
+
+job=scrmprune0
 foo
