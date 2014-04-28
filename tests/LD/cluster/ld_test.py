@@ -317,7 +317,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
 def time_figure(accuracy, time, prefix, legend, colors):
     x = accuracy
     y = time
-    markers = ["v", "o", "*", ">", "<", "s"]
+    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D"]
     pylab.title("Time vs accuracy")
     pylab.ylabel("Time")
     pylab.xlabel("Accuracy")
@@ -372,7 +372,7 @@ if __name__ == "__main__":
         processed_data.append( process_data (data, _use_param.small_delta,  _use_param.big_delta) )
     
     _legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
-    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow"]
+    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow", "cyan", "magenta"]
     
     myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
     #myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)

@@ -10,8 +10,8 @@
 
 
 
-top_dir="toy_test"
-#top_dir="/well/bsg/joezhu"
+#top_dir="toy_test"
+top_dir="/well/bsg/joezhu"
 rep=$(expr $SGE_TASK_ID )
 
 case=Constantpopsize
@@ -22,8 +22,8 @@ program=fastsimcoal
 
 job=${case}${program}_
 
-for rep in $(seq 1 1 10)
-    do 
+#for rep in $(seq 1 1 10)
+    #do 
 prefix=${job}${rep}
 mkdir ${top_dir}"/"${prefix}
 fileprefix=${top_dir}"/"${prefix}"/"${prefix}
@@ -54,4 +54,4 @@ rm ${infile} ${outfile} ${fileprefix} ${tree_file_name} ${fileprefix}timedummy.t
 rm -r ${prefix}
 
     
-    done
+    #done
