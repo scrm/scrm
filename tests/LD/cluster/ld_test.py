@@ -88,9 +88,9 @@ def extract_info (job_prefix, ith_rep):
     first_coal_file = open( first_coal_name, "r" )
     first_coal_time = []
     clade = []
-    for line in first_coal_file:
-        first_coal_time.append( float(line.split()[0]) )        
-        clade.append( line.split()[1] )
+    #for line in first_coal_file:
+        #first_coal_time.append( float(line.split()[0]) )        
+        #clade.append( line.split()[1] )
     first_coal_file.close()
     
     timeFile_name = prefix+"time.text"
@@ -247,19 +247,19 @@ def process_data ( data , small_delta, big_delta) :
     # compute the average Tmrca and Tmrc
     #tree_freq, tmrca, first_coal_time, clade, runtime
     tot_tmrca = 0
-    tot_tmrc = 0
+    #tot_tmrc = 0
     tot_time = 0
     tot_runtime = 0
     for d in data:
         tot_runtime += d[4]
         for i, duration_i in enumerate( d[0] ):   # d[0] : tree_freq, duration of the tree
             tmrca_i = d[1][i]                     # d[1] : tmrca
-            tmrc_i = d[2][i]                      # d[2] : tmrc
+            #tmrc_i = d[2][i]                      # d[2] : tmrc
             tot_time += duration_i                # d[0] : duration of the tree
             tot_tmrca += tmrca_i * duration_i     # JOE changed from tot_tmrca += tmrca_i
-            tot_tmrc += tmrc_i * duration_i       # JOE changed from tot_tmrc += tmrc_i
+            #tot_tmrc += tmrc_i * duration_i       # JOE changed from tot_tmrc += tmrc_i
     avg_tmrca = tot_tmrca / tot_time
-    avg_tmrc = tot_tmrc / tot_time
+    #avg_tmrc = tot_tmrc / tot_time
     
     ac_TMRC = []    
     ac_clade = []

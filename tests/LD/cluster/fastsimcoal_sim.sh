@@ -10,8 +10,8 @@
 
 
 
-#top_dir="toy_test"
-top_dir="/well/bsg/joezhu"
+top_dir="toy_test"
+#top_dir="/well/bsg/joezhu"
 rep=$(expr $SGE_TASK_ID )
 
 case=Constantpopsize
@@ -22,8 +22,8 @@ program=fastsimcoal
 
 job=${case}${program}_
 
-#for rep in $(seq 1 1 10)
-    #do 
+for rep in $(seq 1 1 10)
+    do 
 prefix=${job}${rep}
 mkdir ${top_dir}"/"${prefix}
 fileprefix=${top_dir}"/"${prefix}"/"${prefix}
@@ -47,11 +47,11 @@ first_coal_name=${fileprefix}"FirstCoal"
 grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
 grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_change_name}    
 hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_raw_name}
-hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
-./fastsimcoal_process.py ${fileprefix} 
+#hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
+./fastsimcoal_process.py ${fileprefix} 10000001
 
 rm ${infile} ${outfile} ${fileprefix} ${tree_file_name} ${fileprefix}timedummy.text ${tree_change_name} ${tmrca_raw_name} ${prefix}dummy
 rm -r ${prefix}
 
     
-    #done
+    done

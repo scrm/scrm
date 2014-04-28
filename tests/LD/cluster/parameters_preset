@@ -2,6 +2,6 @@ casefile=toyparam.src
 source ${casefile}
 top_dir="/well/bsg/joezhu/LD_test"
 rep=$(expr $SGE_TASK_ID )
-#top_dir="toy_test"
-#rep=10
+top_dir="toy_test"
+rep=10
 cmd="${nsam} 1 -T -r ${rho} ${seqlen}"
