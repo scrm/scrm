@@ -24,7 +24,7 @@ tmrca_moment <- function ( ms, scrm, s10000, s50000){
         ms_i    = ms[,i]
         scrm_i  = scrm[,i]
         scrm_p1 = s10000[,i]
-	scrm_p5 = s50000[,i]
+        scrm_p5 = s50000[,i]
 
         xrange = range ( c(ms_i, scrm_i, scrm_p1, scrm_p5) )
 
@@ -44,6 +44,7 @@ tmrca_moment <- function ( ms, scrm, s10000, s50000){
 
 ms_     = read.table( "ms_moment" ,  colClasses = "numeric",    sep = ",") 
 scrm_   = read.table( "scrm_moment" , colClasses = "numeric",   sep = ",") 
+#scrm_p0   = read.table( "scrmprune0_moment" , colClasses = "numeric",   sep = ",") 
 scrm_p10000_ = read.table( "scrmprune10000_moment" ,colClasses = "numeric",  sep = ",") 
 scrm_p50000_ = read.table( "scrmprune50000_moment" ,colClasses = "numeric",  sep = ",")
 
@@ -102,6 +103,8 @@ discrete <- function (ms, scrm, scrm_p10000, scrm_p50000, title_i){
 
 ms_     = read.table( "ms_stat")
 scrm_   = read.table( "scrm_stat")
+scrm_p0_ = read.table( "scrmprune0_stat")
+#scrm_=scrm_p0_
 scrm_p10000_ = read.table( "scrmprune10000_stat")
 scrm_p50000_ = read.table( "scrmprune50000_stat")
 
