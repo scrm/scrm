@@ -1,6 +1,6 @@
 case: Constantpopsize
 nsam: 6
-replicate: 1000
+replicate: 10
 seqlen: 10000001
 rho: 4000
 job: Constantpopsizems_
