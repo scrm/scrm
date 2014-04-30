@@ -306,7 +306,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
         tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
         l.append ( tmp1 )
     pylab.xlim( [np.min(delta), np.max(delta)] )
-    pylab.title( prefix + " of " + `len(delta)` + " delta points" )
+    #pylab.title( prefix + " of " + `len(delta)` + " delta points" )
     pylab.xlabel(r'Distance between two sites $\delta$')
     pylab.ylabel(r'Autocorrelation $\rho$')
     pylab.legend ([ x[0] for x in l], legend, loc = 1)
@@ -318,7 +318,7 @@ def time_figure(accuracy, time, prefix, legend, colors):
     x = accuracy
     y = time
     markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D"]
-    pylab.title("Time vs accuracy")
+    #pylab.title("Time vs accuracy")
     pylab.ylabel("Time")
     pylab.xlabel("Accuracy")
     #pylab.xlabel("rho tmrca at delta = 10000")
@@ -373,6 +373,14 @@ if __name__ == "__main__":
     
     _legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
     _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow", "cyan", "magenta"]
+
+    for job_i, job in enumerate(_use_param.jobs):
+        print job_i
+        f = open ( job+"tmrcaRho", "w" )
+        f.write(`processed_data[job_i][0]`+"\n")
+        f.close()
+        #print job
+
     
     myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
     #myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
