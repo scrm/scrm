@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import sys
-import numpy 
 if __name__ == "__main__":
     prefix = sys.argv[1]
     seqlen = float(sys.argv[2])
