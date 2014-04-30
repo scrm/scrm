@@ -45,5 +45,5 @@ job=${case}${program}_
     sed "s/Tree:.*TMRCA://g" ${fileprefix}dummy > ${tmrca_name}
     touch ${first_coal_name}    
     ./macs_process.py ${fileprefix} ${seqlen}
-    rm ${fileprefix} ${fileprefix}dummy ${tree_change_name}
+    rm ${fileprefix} ${fileprefix}dummy #${tree_change_name}
     #done
