@@ -353,12 +353,21 @@ def read_param_file ( experiment_name ):
 def calculate_acurrcy(data_matrix, delta, obj_index =0 ): # obj_index is index for processed data, 0: tmrca, 1: TMRC, 2: clade
     accuracy = []
     ms_ld = data_matrix[0][obj_index]    
+    print ms_ld
     for data_i in data_matrix:
         programs_ld = data_i[0]
         y = np.array([ ms_ld[i] - programs_ld[i] for i in range(len(ms_ld))] )
         accuracy.append(np.abs(simps(y, x = delta)))
     return accuracy
 
+def calculate_acurrcy_array( data_array, delta): # obj_index is index for processed data, 0: tmrca, 1: TMRC, 2: clade
+    accuracy = []
+    ms_ld = data_array[0]
+    for data_i in data_array:
+        #programs_ld = data_i[0]
+        y = np.array([ ms_ld[i] - data_i[i] for i in range(len(ms_ld))] )
+        accuracy.append(np.abs(simps(y, x = delta)))
+    return accuracy
     
 if __name__ == "__main__":
     _use_param = read_param_file ( sys.argv[1] )
@@ -378,6 +387,9 @@ if __name__ == "__main__":
         print job_i
         f = open ( job+"tmrcaRho", "w" )
         f.write(`processed_data[job_i][0]`+"\n")
+        f.close()
+        f = open ( job+"time", "w" )
+        f.write(`processed_data[job_i][3]`+"\n")
         f.close()
         #print job
 
