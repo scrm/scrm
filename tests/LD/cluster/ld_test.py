@@ -317,7 +317,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
 def time_figure(accuracy, time, prefix, legend, colors):
     x = accuracy
     y = time
-    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D"]
+    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
     #pylab.title("Time vs accuracy")
     pylab.ylabel("Time")
     pylab.xlabel("Accuracy")

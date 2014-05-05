@@ -19,7 +19,7 @@ if __name__ == "__main__":
         f.close()
     print runtime
     _legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
-    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow", "cyan", "magenta"]
+    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow", "cyan", "magenta", "pink"]
 
     
     ld.myfigures ( _use_param.small_delta, processed_data , _use_param.case+"tmrca", _legend, _colors)
