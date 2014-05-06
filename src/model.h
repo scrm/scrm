@@ -54,7 +54,7 @@ class Model
    friend class TestTimeInterval;
    friend class TestParam;
 #endif
-  
+   friend class ForestState;
    friend class Param;
    friend class CountModel;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
