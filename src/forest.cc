@@ -428,7 +428,11 @@ void Forest::sampleNextGenealogy() {
 
 // record recombination event
   //this->record_event(rec_point.base_node()->population(), size_t(-1), rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
-  this->record_Recombevent(rec_point.base_node()->population(), rec_point.height(), rec_point.height(), recomb_opportunity, EVENT );
+  this->record_Recombevent(rec_point.base_node()->population(), 
+                            //rec_point.height(), 
+                            //rec_point.height(), 
+                            recomb_opportunity, 
+                            EVENT );
   
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
