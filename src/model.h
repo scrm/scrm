@@ -56,6 +56,7 @@ class Model
 #endif
    friend class ForestState;
    friend class Param;
+   friend class PfParam;
    friend class CountModel;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
@@ -341,7 +342,6 @@ class Model
                                 const bool &time_scaled = false);
 
    void finalize(); 
-   std::vector<double> change_times_;
   
    void check();
    void reset();
@@ -362,7 +362,7 @@ class Model
    }
 
   private:
-
+   std::vector<double> change_times_;
    size_t addChangeTime(double time, const bool &scaled = false);
    
    template <typename T>
