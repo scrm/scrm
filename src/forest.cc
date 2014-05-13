@@ -427,18 +427,12 @@ void Forest::sampleNextGenealogy() {
   assert( this->printTree() );
 
 // record recombination event
-<<<<<<< HEAD
   //this->record_event(rec_point.base_node()->population(), size_t(-1), rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
   this->record_Recombevent(rec_point.base_node()->population(), 
                             //rec_point.height(), 
                             //rec_point.height(), 
                             recomb_opportunity, 
                             EVENT );
-=======
-  double opportunity_y = this -> local_tree_length();
-  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
-  this->record_event( rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
->>>>>>> master
   
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
