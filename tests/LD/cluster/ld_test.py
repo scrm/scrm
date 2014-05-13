@@ -4,6 +4,7 @@ import numpy as np
 import os
 import sys
 import pylab
+from scipy.integrate import simps, trapz
 
 __mydebug__       = False
 __fix_ms_seed__   = False
@@ -27,10 +28,10 @@ class parameter:
         self.jobs = jobs
         
         
-        delta_points = 30
+        delta_points = 20
         big_delta_max = 2e5
         #big_delta_max = 1e4
-        small_delta_max = 5e4
+        small_delta_max = 2e4
         #small_delta_max = big_delta_max
         self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
         #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
@@ -87,9 +88,9 @@ def extract_info (job_prefix, ith_rep):
     first_coal_file = open( first_coal_name, "r" )
     first_coal_time = []
     clade = []
-    for line in first_coal_file:
-        first_coal_time.append( float(line.split()[0]) )        
-        clade.append( line.split()[1] )
+    #for line in first_coal_file:
+        #first_coal_time.append( float(line.split()[0]) )        
+        #clade.append( line.split()[1] )
     first_coal_file.close()
     
     timeFile_name = prefix+"time.text"
@@ -244,46 +245,49 @@ def cal_ac_clade (tree_freq, clade, delta ):
         
 def process_data ( data , small_delta, big_delta) :
     # compute the average Tmrca and Tmrc
+    #tree_freq, tmrca, first_coal_time, clade, runtime
     tot_tmrca = 0
-    tot_tmrc = 0
+    #tot_tmrc = 0
     tot_time = 0
     tot_runtime = 0
     for d in data:
         tot_runtime += d[4]
-        for i, duration_i in enumerate( d[0] ):
-            tmrca_i = d[1][i]
-            tmrc_i = d[2][i]
-            tot_tmrca += tmrca_i
-            tot_tmrc += tmrc_i
-            tot_time += duration_i
+        for i, duration_i in enumerate( d[0] ):   # d[0] : tree_freq, duration of the tree
+            tmrca_i = d[1][i]                     # d[1] : tmrca
+            #tmrc_i = d[2][i]                      # d[2] : tmrc
+            tot_time += duration_i                # d[0] : duration of the tree
+            tot_tmrca += tmrca_i * duration_i     # JOE changed from tot_tmrca += tmrca_i
+            #tot_tmrc += tmrc_i * duration_i       # JOE changed from tot_tmrc += tmrc_i
     avg_tmrca = tot_tmrca / tot_time
-    avg_tmrc = tot_tmrc / tot_time
+    #avg_tmrc = tot_tmrc / tot_time
     
     ac_TMRC = []    
     ac_clade = []
     
-    for delta_i in big_delta:
-        print "processing delta:", delta_i
-        cum_ac_TMRC = 0
-        cum_var_TMRC = 0
-        cum_ac_clade = 0
-        cum_length_clade = 0
-        for d in data:
-            ac, var = cal_ac_TMRC_star_2( d[0], d[2], avg_tmrc, delta_i )
-            cum_ac_TMRC += ac
-            cum_var_TMRC += var
-            ac, length = cal_ac_clade_2( d[0], d[3], delta_i )
-            cum_ac_clade += ac
-            cum_length_clade += length
-        ac_TMRC.append( cum_ac_TMRC / cum_var_TMRC )
-        ac_clade.append( cum_ac_clade / cum_length_clade )
+    # COMMENT OUT THE FOLLOWING, THE LINES ALL LAY ON TOP OF EACH OTHER FOR THE MOST RECENT COALECENT EVENTS
+    #for delta_i in big_delta:
+        #print "processing delta:", delta_i
+        #cum_ac_TMRC = 0
+        #cum_var_TMRC = 0
+        #cum_ac_clade = 0
+        #cum_length_clade = 0
+        #for d in data:
+            #ac, var = cal_ac_TMRC_star_2( d[0], d[2], avg_tmrc, delta_i )
+            #cum_ac_TMRC += ac
+            #cum_var_TMRC += var
+            #ac, length = cal_ac_clade_2( d[0], d[3], delta_i )
+            #cum_ac_clade += ac
+            #cum_length_clade += length
+        #ac_TMRC.append( cum_ac_TMRC / cum_var_TMRC )
+        #ac_clade.append( cum_ac_clade / cum_length_clade )
         
     ac_TMRCA  = []    
-    for delta_i in small_delta:        
+    for delta_i in small_delta:
+        print "processing delta:", delta_i        
         cum_ac_TMRCA = 0
         cum_var_TMRCA = 0
         for d in data:
-            ac, var = cal_ac_TMRC_star_2( d[0], d[1], avg_tmrc, delta_i )
+            ac, var = cal_ac_TMRC_star_2( d[0], d[1], avg_tmrca, delta_i )
             cum_ac_TMRCA += ac
             cum_var_TMRCA += var
         ac_TMRCA.append( cum_ac_TMRCA / cum_var_TMRCA )
@@ -302,7 +306,7 @@ def myfigures ( delta, rho, prefix, legend, colors):
         tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
         l.append ( tmp1 )
     pylab.xlim( [np.min(delta), np.max(delta)] )
-    pylab.title( prefix + " of " + `len(delta)` + " delta points" )
+    #pylab.title( prefix + " of " + `len(delta)` + " delta points" )
     pylab.xlabel(r'Distance between two sites $\delta$')
     pylab.ylabel(r'Autocorrelation $\rho$')
     pylab.legend ([ x[0] for x in l], legend, loc = 1)
@@ -311,27 +315,24 @@ def myfigures ( delta, rho, prefix, legend, colors):
 
 
 def time_figure(accuracy, time, prefix, legend, colors):
-    #all_data = [ _msac, _scrmace5, _scrmac5e4, _scrmace4, _scrmace3,  _scrmac]
-    #x = [data_i[0][-1] for data_i in all_data ] # tmrca
-    #x = [data_i[1][-1] for data_i in all_data ] # tmrc
-    #x = [data_i[2][-1] for data_i in all_data ] # clade
-    #y = [data_i[3] for data_i in all_data]
     x = accuracy
     y = time
-    #pylab.plot(x[1:4],log(y[1:4]))
-    #pylab.axis([min(x), max(x), log(min(y)), log(max(y))])
-    markers = ["v", "o", "*", ">", "<", "s"]
-    pylab.title("Time vs accuracy")
-    pylab.ylabel("log(Time)")
+    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
+    #pylab.title("Time vs accuracy")
+    pylab.ylabel("Time")
     pylab.xlabel("Accuracy")
     #pylab.xlabel("rho tmrca at delta = 10000")
-    #timelegend = ['ms', 'exact window = 100000', 'exact window = 50000', 'exact window = 10000', 'exact window = 1000', 'exact window = 0']
     myl = []
     for i, xi in enumerate(x):
         myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
-    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=2 )
+    my_axes = pylab.gca()
+    yticks = my_axes.get_yticks()
+    ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
+    my_axes.set_yticklabels(ylabels)    
+    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=1, numpoints=1)
     pylab.savefig( prefix+"_timeVSacc.pdf")
     pylab.close()
+
 
 def read_param_file ( experiment_name ):
     top_param = parameter()
@@ -349,8 +350,24 @@ def read_param_file ( experiment_name ):
     top_param.printing()
     return top_param
 
+def calculate_acurrcy(data_matrix, delta, obj_index =0 ): # obj_index is index for processed data, 0: tmrca, 1: TMRC, 2: clade
+    accuracy = []
+    ms_ld = data_matrix[0][obj_index]    
+    print ms_ld
+    for data_i in data_matrix:
+        programs_ld = data_i[0]
+        y = np.array([ ms_ld[i] - programs_ld[i] for i in range(len(ms_ld))] )
+        accuracy.append(np.abs(simps(y, x = delta)))
+    return accuracy
 
-
+def calculate_acurrcy_array( data_array, delta): # obj_index is index for processed data, 0: tmrca, 1: TMRC, 2: clade
+    accuracy = []
+    ms_ld = data_array[0]
+    for data_i in data_array:
+        #programs_ld = data_i[0]
+        y = np.array([ ms_ld[i] - data_i[i] for i in range(len(ms_ld))] )
+        accuracy.append(np.abs(simps(y, x = delta)))
+    return accuracy
     
 if __name__ == "__main__":
     _use_param = read_param_file ( sys.argv[1] )
@@ -364,12 +381,24 @@ if __name__ == "__main__":
         processed_data.append( process_data (data, _use_param.small_delta,  _use_param.big_delta) )
     
     _legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
-    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow"]
+    _colors = [ "orange", "purple", "green",  "red",  "blue", "black",  "yellow", "cyan", "magenta"]
+
+    for job_i, job in enumerate(_use_param.jobs):
+        print job_i
+        f = open ( job+"tmrcaRho", "w" )
+        f.write(`processed_data[job_i][0]`+"\n")
+        f.close()
+        f = open ( job+"time", "w" )
+        f.write(`processed_data[job_i][3]`+"\n")
+        f.close()
+        #print job
+
     
     myfigures ( _use_param.small_delta, [ data_i[0] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
-    myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
-    myfigures ( _use_param.big_delta, [ data_i[2] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)
+    #myfigures ( _use_param.big_delta, [ data_i[1] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
+    #myfigures ( _use_param.big_delta, [ data_i[2] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)
 
-    time_figure ( [ data_i[0][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
-    time_figure ( [ data_i[1][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
-    time_figure ( [ data_i[2][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)
+    time_figure ( calculate_acurrcy(processed_data, _use_param.small_delta) , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
+    #time_figure ( [ data_i[0][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrca", _legend, _colors)
+    #time_figure ( [ data_i[1][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"tmrc", _legend, _colors)
+    #time_figure ( [ data_i[2][-1] for data_i in processed_data ] , [ data_i[3] for data_i in processed_data ] , _use_param.case+"clade", _legend, _colors)

@@ -1,0 +1,13 @@
+case: Constantpopsize
+nsam: 6
+replicate: 10
+seqlen: 10000001
+rho: 4000
+job: Constantpopsizems_
+job: Constantpopsizemacsretain1000_
+job: Constantpopsizemacsretain10000_
+job: Constantpopsizemacsretain100000_
+job: Constantpopsizemacs_
+job: Constantpopsizescrmwindow100000_
+job: Constantpopsizescrmwindow0_
+job: Constantpopsizefastsimcoal_
