@@ -400,9 +400,9 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  */
 void Forest::sampleNextGenealogy() {
 
-  double recomb_opportunity_x = this->next_base_ - this->current_base_;
-  double opportunity_y = this -> local_tree_length();
-  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
+  //double recomb_opportunity_x = this->next_base_ - this->current_base_;
+  //double opportunity_y = this -> local_tree_length();
+  //double recomb_opportunity = recomb_opportunity_x * opportunity_y;
 
   this->set_current_base(next_base_);
   if (current_base_ == model().getCurrentSequencePosition()) {
@@ -440,12 +440,11 @@ void Forest::sampleNextGenealogy() {
   assert( this->printTree() );
 
 // record recombination event
-  //this->record_event(rec_point.base_node()->population(), size_t(-1), rec_point.height(), rec_point.height(), recomb_opportunity, REC_EVENT );
-  this->record_Recombevent(rec_point.base_node()->population(), 
-                            //rec_point.height(), 
-                            //rec_point.height(), 
-                            recomb_opportunity, 
-                            EVENT );
+  //this->record_Recombevent(rec_point.base_node()->population(), 
+                            ////rec_point.height(), 
+                            ////rec_point.height(), 
+                            //recomb_opportunity, 
+                            //EVENT );
   
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent(), pruning_);
@@ -527,7 +526,7 @@ void Forest::sampleCoalescences(Node *start_node, bool pruning) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    this->record_all_event(*ti);
+    //this->record_all_event(*ti);
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
