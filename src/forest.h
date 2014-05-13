@@ -261,33 +261,8 @@ class Forest
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
-
   double calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
-
-  double calcRecombinationRate(Node const* node) const {
-    assert( !node->local() );
-    if (node->last_update() >= model().getCurrentSequencePosition()) {
-      // Rec rate is constant for the relevant sequence part
-      return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
-    } else {
-      // Rec rate may change. Accumulate the total rate.
-
-      double rate = model().recombination_rate() * 
-          (this->current_base() - model().getCurrentSequencePosition()); 
-      size_t idx = model().get_position_index() - 1;
-      assert(idx > 0);
-
-      while (model().change_position(idx) > node->last_update()) {
-        rate += model().recombination_rate(idx) * (model().change_position(idx+1)-model().change_position(idx));
-        --idx;
-        assert(idx > 0);
-      }
-
-      rate += model().recombination_rate(idx) * (model().change_position(idx+1)-node->last_update());
-      return rate;
-    }
-  }
-
+  double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti);
 
   void sampleEvent(const TimeInterval &ti, double tmp_event_time,  

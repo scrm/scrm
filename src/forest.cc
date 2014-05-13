@@ -809,6 +809,30 @@ double Forest::calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) 
   return ( 1.0 / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
 }
 
+double Forest::calcRecombinationRate(Node const* node) const {
+  assert( !node->local() );
+  if (node->last_update() >= model().getCurrentSequencePosition()) {
+    // Rec rate is constant for the relevant sequence part
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+  } else {
+    // Rec rate may change. Accumulate the total rate.
+
+    double rate = model().recombination_rate() * 
+        (this->current_base() - model().getCurrentSequencePosition()); 
+    size_t idx = model().get_position_index() - 1;
+    assert(idx > 0);
+
+    while (model().change_position(idx) > node->last_update()) {
+      assert(idx > 0);
+      rate += model().recombination_rate(idx) * (model().change_position(idx+1)-model().change_position(idx));
+      --idx;
+    }
+
+    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-node->last_update());
+    return rate;
+  }
+}
+
 
 /** 
  * Even if no event occurred in a time interval, there is some stuff that we
