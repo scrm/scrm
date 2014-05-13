@@ -19,6 +19,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckTreeLength );
   CPPUNIT_TEST( testGetFirstNode );
   CPPUNIT_TEST( testSamplePoint );
+  CPPUNIT_TEST( testCalcRecombinationRate );
   CPPUNIT_TEST( testCalcRate );
   CPPUNIT_TEST( testNodeIsOld );
   CPPUNIT_TEST( testPrune );
@@ -383,6 +384,31 @@ class TestForest : public CppUnit::TestCase {
     delete forest2;
   }
 
+  void testCalcRecombinationRate() {
+    forest->writable_model()->setRecombinationRate(1, false, false, 0);
+    forest->writable_model()->setRecombinationRate(2, false, false, 10);
+    forest->writable_model()->setRecombinationRate(3, false, false, 15);
+    forest->writable_model()->setRecombinationRate(4, false, false, 20);
+    forest->writable_model()->resetSequencePosition();
+
+    Node* node = forest->nodes()->at(6);
+
+    forest->set_current_base(7);
+    CPPUNIT_ASSERT_EQUAL( 2.0, forest->calcRecombinationRate(node) );
+
+    forest->writable_model()->increaseSequencePosition();
+    forest->set_current_base(12);
+    CPPUNIT_ASSERT_EQUAL( 5.0+2*2, forest->calcRecombinationRate(node) );
+
+    forest->writable_model()->increaseSequencePosition();
+    forest->set_current_base(17);
+    CPPUNIT_ASSERT_EQUAL( 5.0+10.0+6.0, forest->calcRecombinationRate(node) );
+
+    forest->writable_model()->increaseSequencePosition();
+    forest->set_current_base(22);
+    CPPUNIT_ASSERT_EQUAL( 5.0+10.0+15.0+8.0, forest->calcRecombinationRate(node) );
+  }
+
   void testSampleEvent() {
     Model model = Model(5);
     Forest forest2 = Forest(&model, rg);
@@ -739,4 +765,4 @@ class TestForest : public CppUnit::TestCase {
 
 
 //Uncomment this to activate the test
-//CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );

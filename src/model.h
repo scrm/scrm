@@ -99,7 +99,10 @@ class Model
     *
     * @return The recombination rate per base pair per generation
     */
-   double recombination_rate() const { return recombination_rates_.at(current_seq_idx_); }
+   double recombination_rate(const size_t &idx = -1) const { 
+     if (idx == -1) return recombination_rates_.at(current_seq_idx_); 
+     else return recombination_rates_.at(idx);
+   }
 
    /**
     * @brief Returns the length of all loci, in base pairs
@@ -333,8 +336,8 @@ class Model
                       double growth_rates, const bool &time_scaled = false,
                       const bool &rate_scaled = false);
 
-   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
-                       const bool &scaled = false);
+     void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
+                         const bool &scaled = false);
 
    // functions to add Migration
    void addMigrationRates(double time, const std::vector<double> &mig_rates,
@@ -358,6 +361,7 @@ class Model
    size_t countSummaryStatistics() const {
      return summary_statistics_.size(); 
    }
+
    std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {
      return summary_statistics_.at(i);
    }
@@ -379,11 +383,18 @@ class Model
     loci_length_ = length; 
    }
 
+   double change_position(size_t idx) const {
+    return this->change_position_.at(idx);
+   }
+
+   size_t get_position_index() const {
+    return this->current_seq_idx_;
+   }
 
   private:
    size_t addChangeTime(double time, const bool &scaled = false);
    size_t addChangePosition(const double &position);
-   
+
    template <typename T>
    void deleteParList(std::vector<T*> &parList) {
     typename std::vector<T*>::iterator it;
