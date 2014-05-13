@@ -159,7 +159,7 @@ bool Forest::checkInvariants(Node const* node) const {
     bool okay = 1;
 
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
-      if ( (*it)->height() > local_root()->height()) {
+      if ( (*it)->height() >= local_root()->height()) {
         if (!(*it)->local()) continue;
         dout << "Node " << *it << " is above the local root and local!" << std::endl;
         okay = 0;  
@@ -195,6 +195,9 @@ bool Forest::checkInvariants(Node const* node) const {
     dout << "length_below: is " << node->length_below() 
          << " and should be " << length_below 
          << " ( Diff " << node->length_below() - length_below << " )" << std::endl;
+
+    printNodes();
+    printTree();
     return false;
   }
 
@@ -304,7 +307,7 @@ bool Forest::checkTree(Node const* root) const {
 /******************************************************************
  * Tree Printing
  *****************************************************************/
-bool Forest::printTree() {
+bool Forest::printTree() const {
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
   //this->printPositions(positions);
