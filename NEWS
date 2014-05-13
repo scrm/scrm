@@ -1,3 +1,8 @@
+Version 0.9.2
+========================
+New Features:
++ Added variable recombination & mutation rates
+
 Version 0.9.1
 ========================
 Bug fixes:
