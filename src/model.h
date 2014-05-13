@@ -53,7 +53,9 @@ class Model
    friend class TestModel;
    friend class TestTimeInterval;
    friend class TestParam;
+   friend class TestForest;
 #endif
+   friend class Forest;
    friend class ForestState;
    friend class Param;
    friend class PfParam;
