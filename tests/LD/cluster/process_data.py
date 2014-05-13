@@ -209,24 +209,24 @@ def myfigures ( delta, rho, prefix, legend, colors):
     pylab.close()
 
 
-def time_figure(accuracy, time, prefix, legend, colors):
-    x = accuracy
-    y = time
-    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
-    #pylab.title("Time vs accuracy")
-    pylab.ylabel("Time")
-    pylab.xlabel("Accuracy")
-    #pylab.xlabel("rho tmrca at delta = 10000")
-    myl = []
-    for i, xi in enumerate(x):
-        myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
-    my_axes = pylab.gca()
-    yticks = my_axes.get_yticks()
-    ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
-    my_axes.set_yticklabels(ylabels)    
-    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=1, numpoints=1)
-    pylab.savefig( prefix+"_timeVSacc.pdf")
-    pylab.close()
+#def time_figure(accuracy, time, prefix, legend, colors):
+    #x = accuracy
+    #y = time
+    #markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
+    ##pylab.title("Time vs accuracy")
+    #pylab.ylabel("Time")
+    #pylab.xlabel("Accuracy")
+    ##pylab.xlabel("rho tmrca at delta = 10000")
+    #myl = []
+    #for i, xi in enumerate(x):
+        #myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
+    #my_axes = pylab.gca()
+    #yticks = my_axes.get_yticks()
+    #ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
+    #my_axes.set_yticklabels(ylabels)    
+    #pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=1, numpoints=1)
+    #pylab.savefig( prefix+"_timeVSacc.pdf")
+    #pylab.close()
 
 
 def read_param_file ( experiment_name ):
@@ -275,10 +275,18 @@ if __name__ == "__main__":
         #print "len(data[0]) = ", len(data[0])
         #print data
         processed_data = process_data (data, _use_param.small_delta)
-        print "sum over sum = ", processed_data[0]
-        print "mean = ", processed_data[1]
-        print "std = ", processed_data[2]
-        print "mean and std of time " , process_time (data)
+        mean_time, std_time = process_time (data)
+        f = open ( job+"Processed", "w" )
+        f.write(`processed_data[0]`+"\n")
+        f.write(`processed_data[1]`+"\n")
+        f.write(`processed_data[2]`+"\n")
+        f.write(`[mean_time, std_time]`+"\n")
+        f.close()
+
+        #print "sum over sum = ", processed_data[0]
+        #print "mean = ", processed_data[1]
+        #print "std = ", processed_data[2]
+        #print "mean and std of time " , 
         #print "time = ", processed_data[3]
     
     #_legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]

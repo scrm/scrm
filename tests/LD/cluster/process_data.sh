@@ -5,7 +5,7 @@
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N process_data.sh
-#$ -t 1-17
+#$ -t 1-20
 #$ -j y
 
 replicate=10
@@ -15,7 +15,8 @@ joblist=("ms" \
 "scrmwindow100000" "scrmwindow70000" "scrmwindow50000" "scrmwindow30000" \
 "scrmwindow10000" "scrmwindow7000" "scrmwindow5000" "scrmwindow3000" \
 "scrmwindow1000" "scrmwindow500" "scrmwindow0" \
-"macs" "macsretain1000" "macsretain10000" "macsretain100000" \
+"macs" "macsretain1000" "macsretain10000" "macsretain30000" \
+"macsretain50000" "macsretain70000" "macsretain100000" \
 "fastsimcoal")
 
 #rep=$(expr $SGE_TASK_ID - 1)
