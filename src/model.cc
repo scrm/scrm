@@ -50,10 +50,8 @@ Model::Model(const Model& model) {
   default_growth_rate = model.default_growth_rate;
   default_mig_rate = model.default_mig_rate;
   
-  mutation_rate_ = model.mutation_rate_;
-  mutation_rate_per_locus_ = model.mutation_rate_per_locus_;
-  mutation_exact_number_ = model.mutation_exact_number_;
-  rec_rate_ = model.rec_rate_;
+  mutation_rates_ = model.mutation_rates_;
+  recombination_rates_ = model.recombination_rates_;
   pop_number_ = model.pop_number_;
   loci_number_ = model.loci_number_;
   loci_length_ = model.loci_length_;
@@ -77,6 +75,7 @@ Model::Model(const Model& model) {
 
   // Pointers
   current_time_idx_ = model.current_time_idx_; 
+  current_seq_idx_ = model.current_seq_idx_; 
   current_pop_sizes_ = model.pop_sizes_list_.at(current_time_idx_);
   current_growth_rates_ = model.growth_rates_list_.at(current_time_idx_); 
   current_mig_rates_ = model.mig_rates_list_.at(current_time_idx_);
@@ -102,22 +101,24 @@ void Model::init() {
   has_migration_ = false;
 
   this->addChangeTime(0.0);
+  this->addChangePosition(0.0);
 
   this->set_population_number(1);
 
   this->set_loci_number(1);
   this->loci_length_ = this->default_loci_length;
 
-  this->set_mutation_rate(0.0);
-  this->set_recombination_rate(0.0, default_loci_length);
+  this->setLocusLength(default_loci_length);
+  this->setMutationRate(0.0);
+  this->setRecombinationRate(0.0);
 
   this->set_exact_window_length(-1);
   this->set_prune_interval(10);
 
-  this->mutation_exact_number_ = -1;
   this->set_finite_sites(true);
 
   this->resetTime();
+  this->resetSequencePosition();
 }
 
 
@@ -177,6 +178,46 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 }
 
 
+/** 
+ * Function to add a new change time to the model.
+ *
+ * It preserves the relation between the times and the *param*_list_ containers.
+ * If the same time is added multiple times, it is just added once to the model,
+ * but this should not make a difference when using this function.
+ *
+ * @param time The time that is added
+ * @param scaled set to TRUE if the time is in units of 4N0 generations, and
+ * FALSE if it is in units of generations. 
+ *
+ * @returns The position the time has now in the vector
+ */
+size_t Model::addChangePosition(const double &position) {
+  size_t idx = 0;
+
+  if ( change_position_.size() == 0 ) {
+    change_position_ = std::vector<double>(1, position);
+    recombination_rates_.push_back(-1);
+    mutation_rates_.push_back(-1);
+    return 0;
+  }
+
+  std::vector<double>::iterator ti; 
+  for (ti = change_position_.begin(); ti != change_position_.end(); ++ti) {
+    if ( *ti == position ) return idx;
+    if ( *ti > position ) break;
+    ++idx; 
+  }
+
+  change_position_.insert(ti, position);
+  
+  // Add Null at the right position in all parameter vectors 
+  recombination_rates_.insert(recombination_rates_.begin() + idx, -1);
+  mutation_rates_.insert(mutation_rates_.begin() + idx, -1);
+
+  return idx;
+}
+
+
 void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes, const bool &scaled) {
   if (scaled) time *= 4 * default_pop_size;
 
@@ -216,9 +257,6 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
     }
   }
   size_t position = addChangeTime(time, time_scaled);
-  if (pop_sizes_list_[position]){
-    delete pop_sizes_list_[position];    
-  }
   pop_sizes_list_[position] = pop_sizes_heap;  
 }
 
@@ -405,9 +443,6 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
   }
 
   size_t position = addChangeTime(time, scaled_time);
-  if (mig_rates_list_[position]){
-    delete mig_rates_list_[position];    
-  }
   mig_rates_list_[position] = mig_rates_heap; 
 }
 
@@ -464,9 +499,13 @@ void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop
 
 std::ostream& operator<<(std::ostream& os, const Model& model) {
   os << "---- Model: ------------------------" << std::endl;
-  os << "Mutation rate: " << model.mutation_rate() << std::endl;  
-  os << "Recombination rate: " << model.recombination_rate() << std::endl;  
   os << "Sample size: " << model.sample_size() << std::endl;  
+
+  for (size_t idx = 0; idx < model.change_position_.size(); ++idx) {
+    os << std::endl << "At position " << model.change_position_.at(idx) << ":" << std::endl;  
+    os << " Mutation rate: " << model.mutation_rates_.at(idx) << std::endl;  
+    os << " Recombination rate: " << model.recombination_rates_.at(idx) << std::endl;  
+  }
   
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
@@ -507,7 +546,6 @@ void Model::updateTotalMigRates(const size_t &position) {
   }
 }
 
-
 void Model::finalize() {
   fillVectorList(mig_rates_list_, default_mig_rate);
   fillVectorList(growth_rates_list_, default_growth_rate);
@@ -517,6 +555,19 @@ void Model::finalize() {
     if (mig_rates_list_.at(j) == NULL) continue;
     updateTotalMigRates(j);
   } 
+
+  // Fill in missing recombination rates
+  assert( mutation_rates_.at(0) != -1 );
+  assert( recombination_rates_.at(0) != -1 );
+  for (size_t j = 1; j < change_position_.size(); ++j) {
+    if (mutation_rates_.at(j) == -1) {
+      mutation_rates_.at(j) = mutation_rates_.at(j-1);
+    }
+
+    if (recombination_rates_.at(j) == -1) {
+      recombination_rates_.at(j) = recombination_rates_.at(j-1);
+    }
+  }
 
   check();
 }
@@ -625,10 +676,10 @@ void swap(Model& first, Model& second) {
   swap(first.default_growth_rate, second.default_growth_rate);
   swap(first.default_mig_rate, second.default_mig_rate);
 
-  swap(first.mutation_rate_, second.mutation_rate_);
-  swap(first.mutation_rate_per_locus_, second.mutation_rate_per_locus_);
-  swap(first.mutation_exact_number_, second.mutation_exact_number_);
-  swap(first.rec_rate_, second.rec_rate_);
+  swap(first.change_position_, second.change_position_);
+  swap(first.mutation_rates_, second.mutation_rates_);
+  swap(first.recombination_rates_, second.recombination_rates_);
+
   swap(first.pop_number_, second.pop_number_);
   swap(first.loci_number_, second.loci_number_);
   swap(first.loci_length_, second.loci_length_);

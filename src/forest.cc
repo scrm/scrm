@@ -39,6 +39,9 @@ Forest::Forest(Model* model, RandomGenerator* random_generator) {
 void Forest::initialize(Model* model, 
                         RandomGenerator* rg) {
 
+  model->resetTime();
+  model->resetSequencePosition();
+
   this->set_model(model);
   this->set_random_generator(rg);
   this->set_current_base(1);
@@ -197,6 +200,8 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
+  //dout << node << std::endl;
+  
   // Fast forward above local root because this part is non-local
   if (above_local_root) {
     if (node->local()) node->make_nonlocal(current_base());
@@ -400,6 +405,14 @@ void Forest::sampleNextGenealogy() {
   double recomb_opportunity = recomb_opportunity_x * opportunity_y;
 
   this->set_current_base(next_base_);
+  if (current_base_ == model().getCurrentSequencePosition()) {
+    // Don't implement a recombination if we are just here because rates changed
+    dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+    this->sampleNextBase();
+    this->calcSegmentSumStats();
+    return;
+  }
+
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
@@ -755,6 +768,30 @@ double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) co
 double Forest::calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
   // Rate a pair is 1/(2N), as N is the diploid population size
   return ( 1.0 / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
+}
+
+double Forest::calcRecombinationRate(Node const* node) const {
+  assert( !node->local() );
+  if (node->last_update() >= model().getCurrentSequencePosition()) {
+    // Rec rate is constant for the relevant sequence part
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+  } else {
+    // Rec rate may change. Accumulate the total rate.
+
+    double rate = model().recombination_rate() * 
+        (this->current_base() - model().getCurrentSequencePosition()); 
+    size_t idx = model().get_position_index() - 1;
+    assert(idx > 0);
+
+    while (model().change_position(idx) > node->last_update()) {
+      assert(idx > 0);
+      rate += model().recombination_rate(idx) * (model().change_position(idx+1)-model().change_position(idx));
+      --idx;
+    }
+
+    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-node->last_update());
+    return rate;
+  }
 }
 
 
