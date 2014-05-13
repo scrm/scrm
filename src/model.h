@@ -342,6 +342,7 @@ class Model
                                 const bool &time_scaled = false);
 
    void finalize(); 
+   std::vector<double> change_times_;
   
    void check();
    void reset();
@@ -362,7 +363,11 @@ class Model
    }
 
   private:
+<<<<<<< HEAD
    std::vector<double> change_times_;
+=======
+
+>>>>>>> master
    size_t addChangeTime(double time, const bool &scaled = false);
    
    template <typename T>
