@@ -93,7 +93,7 @@ class Param {
 
 void print_help();
 void print_example();
-void print_option();	
+void print_options();	
 
 template<class T>
 T readInput(char input[])
