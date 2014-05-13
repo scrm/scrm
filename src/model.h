@@ -54,8 +54,10 @@ class Model
    friend class TestTimeInterval;
    friend class TestParam;
 #endif
-  
+   friend class ForestState;
    friend class Param;
+   friend class PfParam;
+   friend class CountModel;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
@@ -374,6 +376,8 @@ class Model
      summary_statistics_.push_back(sum_stat);
    }
 
+  private:
+   std::vector<double> change_times_;
    void setLocusLength(const size_t &length) { 
     // Rescale the rates that are per base pair
     for (size_t i = 0; i < change_position_.size(); ++i) {
@@ -391,7 +395,6 @@ class Model
     return this->current_seq_idx_;
    }
 
-  private:
    size_t addChangeTime(double time, const bool &scaled = false);
    size_t addChangePosition(const double &position);
 
@@ -426,7 +429,6 @@ class Model
    std::vector<double> sample_times_;
 
    // Stores the time and sequences positions where the model changes.
-   std::vector<double> change_times_;
    std::vector<double> change_position_;
 
    // These pointer vectors hold the actual model parameters that can change in
