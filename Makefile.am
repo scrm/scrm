@@ -66,7 +66,7 @@ algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
  
 scrm_CXXFLAGS= -DNDEBUG -std=c++0x
 scrm_dbg_CXXFLAGS= -std=c++0x
-scrm_prof_CXXFLAGS= -pg -DNDEBUG -fno-inline -std=c++0x
+scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
