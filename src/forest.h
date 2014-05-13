@@ -70,7 +70,8 @@
 
 class TimeInterval;
 class TimeIntervalIterator;
-enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
+//enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
+enum eventCode { NOEVENT, EVENT, INIT_NULL};
 
 class Forest
 {
@@ -209,13 +210,20 @@ class Forest
   Node* trackLocalNode(Node *node) const; 
 
   //derived class from Forest
-  virtual void record_event(double start_time, double end_time, double opportunity, eventCode event_code) {
-    (void)start_time; (void)end_time; (void) opportunity; (void)event_code;  
+  virtual void record_Recombevent(size_t pop_i, 
+    //double start_time, 
+    //double end_time, 
+    double opportunity, 
+    eventCode event_code){
+    (void)pop_i;
+    //(void)start_time;
+    //(void)end_time;
+    (void)opportunity;
+    (void)event_code;  
   }
-  virtual void record_all_event(TimeInterval const &ti) {
-    (void) ti; 
+  virtual void record_all_event( TimeInterval const &ti){
+    (void) ti;   
   }
-
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
