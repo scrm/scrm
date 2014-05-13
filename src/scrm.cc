@@ -62,10 +62,15 @@ int main(int argc, char *argv[]){
       forest.buildInitialTree();
       forest.printSegmentSumStats(*output);
 
-      while (forest.next_base() < model.loci_length()) { 
-        // Sample next genealogy
-        forest.sampleNextGenealogy();
-        forest.printSegmentSumStats(*output);
+      // Start main loop, if the recombination rate is nonzero
+      if (model.recombination_rate() > 0.0){
+
+        while (forest.next_base() < model.loci_length()) { 
+          // Sample next genealogy
+          forest.sampleNextGenealogy();
+          forest.printSegmentSumStats(*output);
+
+        }
       }
 
       forest.printLocusSumStats(*output);

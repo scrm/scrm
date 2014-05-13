@@ -116,18 +116,9 @@ class Forest
   double next_base() const {return next_base_;}
   void set_next_base(const double &base){next_base_ = base;}
 
-  // Must be called AFTER the tree was modified.
   void sampleNextBase() {
-    double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
-                                                        model().getNextSequencePosition() - current_base_);
-    if (length == -1) {
-      // No recombination until the model changes
-      set_next_base(model().getNextSequencePosition());
-      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
-    } else {
-      // Recombination in the sequence segment
-      next_base_ = current_base_ + length;
-    }
+    next_base_ = current_base_ + random_generator()->sampleExpo(local_tree_length() * model().recombination_rate());
+    if (next_base_ > model().loci_length()) next_base_ = model().loci_length();
   } 
 
   /**
@@ -183,7 +174,7 @@ class Forest
   int countLinesRight(Node const* node) const;
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
-  bool printTree() const;
+  bool printTree();
   bool printTree_cout();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
@@ -261,8 +252,19 @@ class Forest
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
+
   double calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
-  double calcRecombinationRate(Node const* node) const;
+
+  double calcRecombinationRate(Node const* node) const {
+    assert( !node->local() );
+    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+  }
+
+  //double calcRecombinationOpportunity(Node const* node, double time ) const {
+    //assert( !node->local() );
+    //return ( time * (this->current_base() - node->last_update()) );
+  //}
+
   void calcRates(const TimeInterval &ti);
 
   void sampleEvent(const TimeInterval &ti, double tmp_event_time,  

@@ -26,8 +26,7 @@ class TestAlgorithm : public CppUnit::TestCase {
  public:
   void setUp() {
     model = new Model(10);
-    model->setRecombinationRate(0.0001);
-    model->finalize();
+    model->set_recombination_rate(0.0001, 1000);
     rg = new MersenneTwister(78361);
   }
 
