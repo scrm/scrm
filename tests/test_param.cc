@@ -17,7 +17,6 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseOutputOptions );
   CPPUNIT_TEST( testParseGrowthOptions );
   CPPUNIT_TEST( testReadInput );
-  CPPUNIT_TEST( testParseVariableRates );
   
   CPPUNIT_TEST_SUITE_END();
 
@@ -275,67 +274,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame(2.4 / 4 / model.default_pop_size, model.growth_rate(0)) );
     CPPUNIT_ASSERT( areSame(3.0 / 4 / model.default_pop_size, model.growth_rate(1)) );
-  }
-
-  void testParseVariableRates() {
-    // -st
-    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-st", "10", "5.1", "-st", "4.5", "3.2"};
-    CPPUNIT_ASSERT_NO_THROW( Param(11, argv).parse(model); );
-    double scale = 1 / ( 4 * model.default_pop_size * model.default_loci_length );
-    CPPUNIT_ASSERT( areSame(3.74 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getNextSequencePosition() );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT( areSame(3.2 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getNextSequencePosition() );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT( areSame(5.1 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
-
-    // -sr
-    char *argv2[] = { "scrm", "20", "10", "-r", "3.74", "100", "-sr", "10", "5.1", "-sr", "4.5", "3.2"};
-    CPPUNIT_ASSERT_NO_THROW( Param(12, argv2).parse(model); );
-    model.resetSequencePosition();
-    scale = 1 / ( 4 * model.default_pop_size * 99 );
-    CPPUNIT_ASSERT( areSame(3.74 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getNextSequencePosition() );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT( areSame(3.2 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getNextSequencePosition() );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT( areSame(5.1 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
-
-    // both
-    char *argv3[] = { "scrm", "20", "10", "-r", "3.74", "100", "-sr", "10", "5.1", "-st", "4.5", "3.2"};
-    CPPUNIT_ASSERT_NO_THROW( Param(12, argv3).parse(model); );
-    model.resetSequencePosition();
-    model.resetTime();
-    scale = 1 / ( 4 * model.default_pop_size * 99 );
-    double scale2 = 1 / ( 4 * model.default_pop_size * 100 );
-
-    CPPUNIT_ASSERT( areSame(3.74 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.mutation_rate() );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getNextSequencePosition() );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getNextSequencePosition() );
-    CPPUNIT_ASSERT( areSame(3.74 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT( areSame(3.2 * scale2, model.mutation_rate()) );
-
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT( areSame(5.1 * scale, model.recombination_rate()) );
-    CPPUNIT_ASSERT( areSame(3.2 * scale2, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
   }
 };
 

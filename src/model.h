@@ -88,23 +88,18 @@ class Model
    // Getters & Setters
 
    /**
-    * @brief Returns the mutation rate per base pair per generation for the
-    * currently active sequence position.
+    * @brief Returns the mutation rate per base pair per generation.
     *
     * @return The mutation rate per base per generation
     */
-   double mutation_rate() const { return mutation_rates_.at(current_seq_idx_); }
+   double mutation_rate() const { return mutation_rate_; }
   
    /**
-    * @brief Returns the recombination rate per base pair per generation for the
-    * currently active sequence positions.
+    * @brief Returns the recombination rate per base pair per generation
     *
     * @return The recombination rate per base pair per generation
     */
-   double recombination_rate(const size_t &idx = -1) const { 
-     if (idx == -1) return recombination_rates_.at(current_seq_idx_); 
-     else return recombination_rates_.at(idx);
-   }
+   double recombination_rate() const { return rec_rate_; }
 
    /**
     * @brief Returns the length of all loci, in base pairs
@@ -112,6 +107,14 @@ class Model
     * @return length of all loci, in base pairs
     */
    size_t loci_length() const { return loci_length_; }
+
+   /**
+    * @brief Getter for the exact number of mutations.
+    * Will be "-1" if no exact number of mutations is given.
+    *
+    * @return The exact number of mutations, or -1.
+    */
+   size_t mutation_exact_number() const { return mutation_exact_number_; };
 
    /**
     * @brief Whether recombinations can occur only on finitely many sites, or
@@ -225,19 +228,20 @@ class Model
     return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
    }
 
-   void setMutationRate(double rate,
-                        const bool &per_locus = false, 
-                        const bool &scaled = false,
-                        const double &seq_position = 0);
+   void set_mutation_rate(double rate,
+                          const bool &per_locus = false, 
+                          const bool &scaled = false);
 
-   void setRecombinationRate(double rate,
-                             const bool &per_locus = false, 
-                             const bool &scaled = false,
-                             const double &seq_position = 0);
+   void set_recombination_rate(double rate,
+                               const size_t &loci_length, 
+                               const bool &per_locus = false, 
+                               const bool &scaled = false);
 
    void set_mutation_exact_number(size_t number) { 
      throw std::runtime_error("SCRM does not support simulating a fixed number of mutations yet. Sorry"); 
+     mutation_exact_number_ = number; 
    }
+
 
    bool hasFixedTimeEvent(const double &at_time) const {
     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
@@ -260,16 +264,6 @@ class Model
     else return change_times_.at(current_time_idx_ + 1);
    }
 
-   double getCurrentSequencePosition() const { 
-    if ( current_seq_idx_ >= change_position_.size() ) return loci_length();
-    return change_position_.at(current_seq_idx_); 
-   }
-
-   double getNextSequencePosition() const { 
-    if ( current_seq_idx_ + 1 >= change_position_.size() ) return loci_length();
-    else return change_position_.at(current_seq_idx_ + 1);
-   }
-
    void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
    void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
    void set_population_number(const size_t &pop_number) { 
@@ -287,10 +281,6 @@ class Model
      current_time_idx_ = 0;
    };
 
-   void resetSequencePosition() {
-     current_seq_idx_ = 0; 
-   }
-
    void increaseTime() { 
      if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
      ++current_time_idx_;
@@ -304,10 +294,6 @@ class Model
      if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
    };
-
-   void increaseSequencePosition() {
-    ++current_seq_idx_;
-   }
   
    void print(std::ostream &os) const;
 
@@ -338,8 +324,8 @@ class Model
                       double growth_rates, const bool &time_scaled = false,
                       const bool &rate_scaled = false);
 
-     void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
-                         const bool &scaled = false);
+   void addSampleSizes(double time, const std::vector<size_t> &samples_sizes,
+                       const bool &scaled = false);
 
    // functions to add Migration
    void addMigrationRates(double time, const std::vector<double> &mig_rates,
@@ -363,7 +349,6 @@ class Model
    size_t countSummaryStatistics() const {
      return summary_statistics_.size(); 
    }
-
    std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {
      return summary_statistics_.at(i);
    }
@@ -376,32 +361,10 @@ class Model
      summary_statistics_.push_back(sum_stat);
    }
 
-<<<<<<< HEAD
   private:
    std::vector<double> change_times_;
-=======
-   void setLocusLength(const size_t &length) { 
-    // Rescale the rates that are per base pair
-    for (size_t i = 0; i < change_position_.size(); ++i) {
-      mutation_rates_.at(i) *= (double)loci_length() / length;
-      recombination_rates_.at(i) *= (double)(loci_length()-1) / (length-1);
-    }
-    loci_length_ = length; 
-   }
-
-   double change_position(size_t idx) const {
-    return this->change_position_.at(idx);
-   }
-
-   size_t get_position_index() const {
-    return this->current_seq_idx_;
-   }
-
-  private:
->>>>>>> master
    size_t addChangeTime(double time, const bool &scaled = false);
-   size_t addChangePosition(const double &position);
-
+   
    template <typename T>
    void deleteParList(std::vector<T*> &parList) {
     typename std::vector<T*>::iterator it;
@@ -414,6 +377,11 @@ class Model
    void updateTotalMigRates(const size_t &position);
    bool has_migration_;
    bool has_migration() { return has_migration_; };
+
+   void set_loci_length(const size_t &length) { 
+    loci_length_ = length; 
+    mutation_rate_ = mutation_rate_per_locus_ / length;
+   }
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
   void calcPopSizes();
@@ -428,38 +396,26 @@ class Model
     return i * (population_number()-1) + j - ( i < j );
   }
 
-   // Stores information about samples. Each index represents a sample.
    std::vector<size_t> sample_populations_;
    std::vector<double> sample_times_;
 
-   // Stores the time and sequences positions where the model changes.
-   std::vector<double> change_times_;
-   std::vector<double> change_position_;
-
-   // These pointer vectors hold the actual model parameters that can change in
-   // time. Each index represents one period in time within which the model
-   // parameters are constant. NULL means that the parameters do not change.
    std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
    std::vector<std::vector<double>*> single_mig_probs_list_;
    
-   // These vectors contain the model parameters that may change along the sequence.
-   // Again, each index represents an sequence segment within with the model
-   // does not change.
-   std::vector<double> recombination_rates_;       /*!< Unit: Recombinations per base per generation */
-   std::vector<double> mutation_rates_;           /*!< Unit: Mutations per base per generation */
-
-   // The index of the time and sequence segment currently active.
    size_t current_time_idx_;
-   size_t current_seq_idx_;
-
-   // Direct pointers to the currently active model parameters.
    std::vector<double>* current_pop_sizes_;
    std::vector<double>* current_growth_rates_;
    std::vector<double>* current_mig_rates_;
    std::vector<double>* current_total_mig_rates_;
+
+   double mutation_rate_;            /*!< Unit: Mutations per base per generation */
+   double mutation_rate_per_locus_;  /*!< Unit: Mutations per locus per generation */
+   size_t mutation_exact_number_;
+
+   double rec_rate_;                 /*!< Unit: Recombinations per base per generation */
 
    size_t pop_number_;
 
@@ -487,7 +443,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
 
 
 /**
- * @brief Sets the recombination rate
+ * @brief Sets the recombination rate and the loci_length
  *
  * @param rate The recombination rate per sequence length per time unit. 
  * The sequence length can be either per locus or per base pair and the time
@@ -499,17 +455,17 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
  * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
  * it isn't
  */
-inline void Model::setRecombinationRate(double rate,  
-                                        const bool &per_locus, 
-                                        const bool &scaled,
-                                        const double &seq_position) { 
+inline void Model::set_recombination_rate(double rate, const size_t &loci_length, 
+                                   const bool &per_locus, const bool &scaled) { 
 
+  if (loci_length <= 1) throw std::invalid_argument("Length of loci must be greater than 1");
   if (rate < 0.0) throw std::invalid_argument("Recombination rate must be non-negative");
 
   if (scaled) rate /= 4.0 * default_pop_size; 
-  if (per_locus) rate /= loci_length()-1;
+  if (per_locus) rate /= loci_length-1;
 
-  recombination_rates_[addChangePosition(seq_position)] = rate; 
+  set_loci_length(loci_length);
+  rec_rate_ = rate; 
 }
 
 
@@ -522,15 +478,15 @@ inline void Model::setRecombinationRate(double rate,
  * @param scaled Set this to TRUE if you give the mutation rate in scaled
  * units (e.g. as theta rather than as u).
  */
-inline void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled, 
-                                   const double &seq_position) { 
+inline void Model::set_mutation_rate(double rate, const bool &per_locus, const bool &scaled) { 
   if (scaled) rate /= 4.0 * default_pop_size; 
 
-  size_t idx = addChangePosition(seq_position);
   if (per_locus) {
-    mutation_rates_.at(idx) = rate / loci_length();
+    mutation_rate_per_locus_ = rate;
+    mutation_rate_ = rate / loci_length();
   } else {
-    mutation_rates_.at(idx) = rate;
+    mutation_rate_per_locus_ = rate * loci_length();
+    mutation_rate_ = rate;
   }
 }
 

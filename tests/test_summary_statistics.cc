@@ -82,7 +82,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
 
   void testSegSitesCalculate() {
     forest->createScaledExampleTree();
-    forest->writable_model()->setMutationRate(0.0001);
+    forest->writable_model()->set_mutation_rate(0.0001);
     forest->set_current_base(0.0);
     SegSites seg_sites = SegSites();
     CPPUNIT_ASSERT_EQUAL( 0.0, seg_sites.position() );
@@ -150,7 +150,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
 
   void testSiteFrequencies() {
     forest->createScaledExampleTree();
-    forest->writable_model()->setMutationRate(0.0001);
+    forest->writable_model()->set_mutation_rate(0.0001);
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     

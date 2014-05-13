@@ -20,7 +20,6 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testCopyConstructor );
   CPPUNIT_TEST( testAssignmentConstructor );
   CPPUNIT_TEST( testSetGetMutationRate );
-  CPPUNIT_TEST( testAddChangePositions );
   CPPUNIT_TEST( testSetGetRecombinationRate );
   CPPUNIT_TEST( testGetPopulationSize );
   CPPUNIT_TEST( testAddChangeTime );
@@ -38,7 +37,6 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheck );
   CPPUNIT_TEST( testPopSizeAfterGrowth );
   CPPUNIT_TEST( testAddSummaryStatistic );
-  CPPUNIT_TEST( testSetLocusLength );
 
 
 
@@ -312,48 +310,6 @@ class TestModel : public CppUnit::TestCase {
     Model model = Model(7);
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT( model.growth_rate(0) == 0 );
-    CPPUNIT_ASSERT_EQUAL( (size_t)0, model.current_time_idx_ );
-    CPPUNIT_ASSERT_EQUAL( (size_t)0, model.current_seq_idx_ );
-  }
-
-  void testAddChangePositions() {
-    Model model = Model(7);
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.change_position_.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, model.change_position_[0]);
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.mutation_rates_.size());
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.recombination_rates_.size());
-
-    // 0.0 is already in => no change
-    CPPUNIT_ASSERT_EQUAL((size_t)0, model.addChangePosition(0.0));
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.change_position_.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, model.change_position_[0]);
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.mutation_rates_.size());
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.recombination_rates_.size());
-
-    // Really add 1.0 ad the end
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.addChangePosition(1.0));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.change_position_.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, model.change_position_[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, model.change_position_[1]);
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.mutation_rates_.size());
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.recombination_rates_.size());
-
-    // Really add 1.0 again => nothing changes
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.addChangePosition(1.0));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.change_position_.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, model.change_position_[0]);
-    CPPUNIT_ASSERT_EQUAL(1.0, model.change_position_[1]);
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.mutation_rates_.size());
-    CPPUNIT_ASSERT_EQUAL((size_t)2, model.recombination_rates_.size());
-
-    // Add 0.5 in the middle
-    CPPUNIT_ASSERT_EQUAL((size_t)1, model.addChangePosition(0.5));
-    CPPUNIT_ASSERT_EQUAL((size_t)3, model.change_position_.size());
-    CPPUNIT_ASSERT_EQUAL(0.0, model.change_position_[0]);
-    CPPUNIT_ASSERT_EQUAL(0.5, model.change_position_[1]);
-    CPPUNIT_ASSERT_EQUAL(1.0, model.change_position_[2]);
-    CPPUNIT_ASSERT_EQUAL((size_t)3, model.mutation_rates_.size());
-    CPPUNIT_ASSERT_EQUAL((size_t)3, model.recombination_rates_.size());
   }
 
   void testIncreaseTime() {
@@ -429,90 +385,47 @@ class TestModel : public CppUnit::TestCase {
   }
 
   void testSetGetMutationRate() {
-    Model model = Model(5);
-    model.setMutationRate(0.001);
+    Model model = Model();
+    model.set_mutation_rate(0.001);
     CPPUNIT_ASSERT_EQUAL( 0.001, model.mutation_rate() );
     
-    model.setMutationRate(10, false, false);
+    model.set_mutation_rate(10, false, false);
     CPPUNIT_ASSERT_EQUAL( 10.0, model.mutation_rate() );
 
-    model.setMutationRate(10, true, false);
+    model.set_mutation_rate(10, true, false);
     CPPUNIT_ASSERT_EQUAL( 10.0/model.default_loci_length, model.mutation_rate() );
 
-    model.setMutationRate(10, false, true);
+    model.set_mutation_rate(10, false, true);
     CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size), model.mutation_rate() );
 
-    model.setMutationRate(10, true, true);
-    CPPUNIT_ASSERT_EQUAL(10.0/(4*model.default_pop_size*model.default_loci_length), 
-                         model.mutation_rate() );
-
-    // Test setting multiple rates
-    model.setMutationRate(10, false, false, 0.0);
-    model.setMutationRate(5, false, false, 2.0);
-    CPPUNIT_ASSERT_EQUAL(10.0, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(5.0, model.mutation_rate());
-
-    model.setMutationRate(7.5, false, false, 1.0);
-    model.resetSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(10.0, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(7.5, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(5.0, model.mutation_rate());
-
-    // Test if the vector are filled during finalization
-    model.resetSequencePosition();
-    model.setRecombinationRate(2.5, false, false, 0.5);
-    model.finalize();
-    CPPUNIT_ASSERT_EQUAL(10.0, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(10.0, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(7.5, model.mutation_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(5.0, model.mutation_rate());
+    model.set_mutation_rate(10, true, true);
+    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size*model.default_loci_length), model.mutation_rate() );
   }
 
   void testSetGetRecombinationRate() {
     Model model = Model();
-    model.setLocusLength(101);
-    model.setRecombinationRate(0.001);
+    model.set_recombination_rate(0.001, 101);
     CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
-    model.setRecombinationRate(0.001, false, false);
+    model.set_recombination_rate(0.001, 101, false, false);
     CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
-    model.setRecombinationRate(0.001, true, false);
+    model.set_recombination_rate(0.001, 101, true, false);
     CPPUNIT_ASSERT_EQUAL( 0.00001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
-    model.setRecombinationRate(0.001, false, true);
+    model.set_recombination_rate(0.001, 101, false, true);
     CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size), model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
-    model.setRecombinationRate(0.001, true, true);
+    model.set_recombination_rate(0.001, 101, true, true);
     CPPUNIT_ASSERT( areSame(0.00001/(4*model.default_pop_size), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
-    CPPUNIT_ASSERT_THROW( model.setRecombinationRate(-0.001, 100), std::invalid_argument );
-
-    // Test setting multiple rates
-    model.setRecombinationRate(10, false, false, 0.0);
-    model.setRecombinationRate(5, false, false, 2.0);
-    CPPUNIT_ASSERT_EQUAL(10.0, model.recombination_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(5.0, model.recombination_rate());
-
-    model.setRecombinationRate(7.5, false, false, 1.0);
-    model.resetSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(10.0, model.recombination_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(7.5, model.recombination_rate());
-    model.increaseSequencePosition();
-    CPPUNIT_ASSERT_EQUAL(5.0, model.recombination_rate());
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(0.001, 0), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( model.set_recombination_rate(-0.001, 100), std::invalid_argument );
   }
 
   void testCheck() {
@@ -653,21 +566,6 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT(model.countSummaryStatistics() == 0); 
     model.addSummaryStatistic(new TMRCA());
     CPPUNIT_ASSERT(model.countSummaryStatistics() == 1); 
-  }
-
-  void testSetLocusLength() {
-    Model model = Model(5);
-    CPPUNIT_ASSERT_EQUAL(model.default_loci_length, model.loci_length() );
-    model.setMutationRate(5.0, true, false);
-    CPPUNIT_ASSERT_EQUAL(5.0/model.default_loci_length, model.mutation_rate());
-
-    model.setLocusLength(2000);
-    CPPUNIT_ASSERT_EQUAL((size_t)2000, model.loci_length() );
-    CPPUNIT_ASSERT_EQUAL(0.0025, model.mutation_rate());
-
-    model.setLocusLength(5000);
-    CPPUNIT_ASSERT_EQUAL((size_t)5000, model.loci_length() );
-    CPPUNIT_ASSERT_EQUAL(0.001, model.mutation_rate());
   }
 };
 
