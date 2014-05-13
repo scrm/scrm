@@ -8,7 +8,7 @@
 #$ -t 1-20
 #$ -j y
 
-replicate=10
+replicate=1000
 case="Constantpopsize"
 
 joblist=("ms" \
