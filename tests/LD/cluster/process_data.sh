@@ -19,8 +19,8 @@ joblist=("ms" \
 "macsretain50000" "macsretain70000" "macsretain100000" \
 "fastsimcoal")
 
-#rep=$(expr $SGE_TASK_ID - 1)
-rep=0
+rep=$(expr $SGE_TASK_ID - 1)
+#rep=0
 #for rep in $(seq 0 1 16)
     #do
     Job=${case}${joblist[${rep}]}
