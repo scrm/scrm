@@ -1,5 +1,5 @@
 case=Constantpopsize
-nsam=6
+nsam=20
 replicate=1000
 seqlen=10000001
 rho=4000 # This is equal to r * seqlen * 4 * Ne, which is 1e-8 * 1e7 * 4 * 1e4

@@ -53,7 +53,7 @@ ax3 = fig3.add_subplot(111)
 #ax1.plot ( delta, ms.ac , linewidth=3.0, color = "black")
 #ax1.errorbar ( delta, ms.ac, yerr = [ x/(1000**0.5) *1.96 for x in ms.ac_std ] )
 
-linestyles = ['-', '_', '--', ':']
+linestyles = ['-', '-.', '--', ':']
 colors = [ "blue", "red", "green",  "purple", "black",  "yellow", "cyan", "magenta", "orange"]
 markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H", "d","x"]
 legendlist1 = []
@@ -84,29 +84,29 @@ for i, program_i in enumerate ( program ):
             current_job = job( prefix + program_i + case_j + suffix )
             legendlist1.append( program_i + case_j)
             current_line = ax1.plot ( delta, current_job.ac, linestyles[i], color = colors[color_j] )
-            ax1.errorbar ( delta, current_job.ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
-                          fmt='.', color = colors[color_j] )
+#           ax1.errorbar ( delta, current_job.ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
+#                        fmt='.', color = colors[color_j] )
             l1.append(current_line)
             relative_ac = [ np.abs(ms.ac[ac_i] - current_job.ac[ac_i]) for ac_i in range(len(ms.ac))]
             current_line3 = ax3.plot ( delta, relative_ac, linestyles[i], color = colors[color_j] )
-            ax3.errorbar ( delta, relative_ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
-                          fmt='.', color = colors[color_j] )
+ #           ax3.errorbar ( delta, relative_ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
+ #                         fmt='.', color = colors[color_j] )
             l3.append(current_line3)
             color_j += 1
             
     #ax2.errorbar ( program_dev, np.log(program_time), yerr = program_time_err, color = colors[i])
-    ax2.errorbar ( program_dev, program_time, yerr = program_time_err, color = colors[i])
+    ax2.plot ( program_dev, program_time, color = colors[i])
+    #ax2.errorbar ( program_dev, program_time, yerr = program_time_err, color = colors[i])
     
 ms_line = ax1.plot ( delta, ms.ac,  linewidth=2.0, color = "black")    
-ax1.errorbar ( delta, ms.ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
-                          fmt='.', color = colors[color_j] )
+#ax1.errorbar ( delta, ms.ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
+                          #fmt='.', color = colors[color_j] )
 l1[0] = ms_line                          
 
 relative_ac = [ float(0) for ac_i in range(len(ms.ac))]
-print relative_ac
 ms_line3 = ax3.plot ( delta, relative_ac,  linewidth=2.0, color = "black")    
-ax3.errorbar ( delta, relative_ac, yerr = [ x/(1000**0.5) *1.96 for x in ms.ac_std ],
-                          fmt='.', color = "black" )
+#ax3.errorbar ( delta, relative_ac, yerr = [ x/(1000**0.5) *1.96 for x in ms.ac_std ],
+                          #fmt='.', color = "black" )
 l3[0] = ms_line3
                               
 ax1.legend ([ x[0] for x in l1], legendlist1, loc = 1)        
@@ -118,7 +118,7 @@ fig1.savefig("TMRCArhoLD.pdf")
 ax3.legend ([ x[0] for x in l1], legendlist1, loc = 1)        
 ax3.axis([0,30000, -.01, 0.06]) 
 ax3.set_xlabel(r'Distance between two sites $\delta$')
-ax3.set_ylabel(r'Relative Autocorrelation $\rho$')
+ax3.set_ylabel(r'Error in Autocorrelation $\rho$')
 fig3.savefig("RelativeTMRCArhoLD.pdf")
 
 
