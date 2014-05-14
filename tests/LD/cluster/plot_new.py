@@ -32,7 +32,7 @@ suffix = "_Processed"
 ms_case = [""]
 fastsimcoal_case = [""]
 scrm_case = [ "window" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
-macs_case = [ "retain" + `x` for x in [1000, 10000, 30000, 50000, 70000, 100000]]
+macs_case = [ "retain" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
 macs_case.insert(0,"")
 program = ["ms", "fastsimcoal", "scrm", "macs"]
 case = [ms_case, fastsimcoal_case, scrm_case, macs_case]
