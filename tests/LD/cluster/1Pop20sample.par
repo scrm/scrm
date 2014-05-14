@@ -15,4 +15,4 @@
 //Per chromosome: Number of linkage blocks 
 1 
 //per Block: data type, num loci, rec. rate and mut rate + optional parameters 
-DNA 50000001 0.00000001 0.00000002 
+DNA 10000001 0.00000001 0.00000002 
