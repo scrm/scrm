@@ -5,7 +5,7 @@
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N process_data.sh
-#$ -t 1-20
+#$ -t 1-24
 #$ -j y
 
 replicate=1000
@@ -29,8 +29,8 @@ rep=$(expr $SGE_TASK_ID - 1)
 echo -e "case: ${case}\n\
 nsam: 20\n\
 replicate: ${replicate}\n\
-seqlen: 50000001\n\
-rho: 20000\n\
+seqlen: 10000001\n\
+rho: 4000\n\
 job: ${Job}_" > ${JobParamFile}
     python process_data.py ${JobParamFile}
     #done
