@@ -1,16 +1,24 @@
 #!/usr/bin/env python
 
-import numpy as np
+#import numpy as np
 import os
 import sys
-import pylab
-from scipy.integrate import simps, trapz
+#import pylab
+#from scipy.integrate import simps, trapz
 
 __mydebug__       = False
 __fix_ms_seed__   = False
 __fix_scrm_seed__ = False
 
 # exact_windows_length [0, 10e2, 10e3, 10e4, -1]
+
+def mean( x ):
+    return sum(x)*1.0 / float(len(x))
+
+def std( x ):
+    mu = mean(x)
+    dev = sum ( [ (xi - mu)**2 for xi in x ] )
+    return (dev/float(len(x)) )**0.5 
 
 class parameter:
     def __init__( self, nsam = 6, replicate = 100, seqlen = 1e7, rho = 1e-8 , exact_window_length = 0 , divergence = 0, jobs = []): 
@@ -33,10 +41,10 @@ class parameter:
         #big_delta_max = 1e4
         small_delta_max = 2e4
         #small_delta_max = big_delta_max
-        self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
+        #self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
         #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
-        self.small_delta = np.linspace( 0, int(small_delta_max+1), delta_points )
-
+        #self.small_delta = np.linspace( 0, int(small_delta_max+1), delta_points )
+        self.small_delta = range( 0, int(small_delta_max+1), 1000 )
     
     def printing ( self ):
         """
@@ -154,7 +162,7 @@ def process_time (data) :
     run_time_array = []
     for d in data:
         run_time_array.append ( d[2] )
-    return np.mean(run_time_array), np.std(run_time_array)
+    return mean(run_time_array), std(run_time_array)
         
 def process_data ( data , delta ) :
     # compute the average Tmrca 
@@ -182,51 +190,51 @@ def process_data ( data , delta ) :
             cum_ac_TMRCA += ac
             cum_var_TMRCA += var
             ratio.append( ac/var )
-        ac_mean.append( np.mean(ratio) )
-        ac_std.append ( np.std(ratio) )         
+        ac_mean.append( mean(ratio) )
+        ac_std.append ( std (ratio) )         
             
         ac_TMRCA.append( cum_ac_TMRCA / cum_var_TMRCA )
 
     return ac_TMRCA, ac_mean, ac_std
     
 
-def myfigures ( delta, rho, prefix, legend, colors):
-    # rho is a list of MS, SCRM (pruned) and SCRM (full pruning) results
-    # results is a list of autocorrelations, one for each delta
-    #print legend
-    l = [] 
-    fig,(ax1)=pylab.subplots(1,1)
-    for i in range ( len (rho) ):
-        #y_err = [np.std(yi)*1.96/np.sqrt(len(yi)) for yi in rho[i]]
-        tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
-        l.append ( tmp1 )
-    pylab.xlim( [np.min(delta), np.max(delta)] )
-    #pylab.title( prefix + " of " + `len(delta)` + " delta points" )
-    pylab.xlabel(r'Distance between two sites $\delta$')
-    pylab.ylabel(r'Autocorrelation $\rho$')
-    pylab.legend ([ x[0] for x in l], legend, loc = 1)
-    pylab.savefig( prefix+".pdf" )
-    pylab.close()
+#def myfigures ( delta, rho, prefix, legend, colors):
+    ## rho is a list of MS, SCRM (pruned) and SCRM (full pruning) results
+    ## results is a list of autocorrelations, one for each delta
+    ##print legend
+    #l = [] 
+    #fig,(ax1)=pylab.subplots(1,1)
+    #for i in range ( len (rho) ):
+        ##y_err = [np.std(yi)*1.96/np.sqrt(len(yi)) for yi in rho[i]]
+        #tmp1 = ax1.plot( delta, rho[i] , color = colors[i])
+        #l.append ( tmp1 )
+    #pylab.xlim( [np.min(delta), np.max(delta)] )
+    ##pylab.title( prefix + " of " + `len(delta)` + " delta points" )
+    #pylab.xlabel(r'Distance between two sites $\delta$')
+    #pylab.ylabel(r'Autocorrelation $\rho$')
+    #pylab.legend ([ x[0] for x in l], legend, loc = 1)
+    #pylab.savefig( prefix+".pdf" )
+    #pylab.close()
 
 
-def time_figure(accuracy, time, prefix, legend, colors):
-    x = accuracy
-    y = time
-    markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
-    #pylab.title("Time vs accuracy")
-    pylab.ylabel("Time")
-    pylab.xlabel("Accuracy")
-    #pylab.xlabel("rho tmrca at delta = 10000")
-    myl = []
-    for i, xi in enumerate(x):
-        myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
-    my_axes = pylab.gca()
-    yticks = my_axes.get_yticks()
-    ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
-    my_axes.set_yticklabels(ylabels)    
-    pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=1, numpoints=1)
-    pylab.savefig( prefix+"_timeVSacc.pdf")
-    pylab.close()
+#def time_figure(accuracy, time, prefix, legend, colors):
+    #x = accuracy
+    #y = time
+    #markers = ["v", "o", "*", ">", "<", "s", "^", "+" , "D", "H"]
+    ##pylab.title("Time vs accuracy")
+    #pylab.ylabel("Time")
+    #pylab.xlabel("Accuracy")
+    ##pylab.xlabel("rho tmrca at delta = 10000")
+    #myl = []
+    #for i, xi in enumerate(x):
+        #myl.append(pylab.plot( x[i], np.log(y[i]), markers[i]))
+    #my_axes = pylab.gca()
+    #yticks = my_axes.get_yticks()
+    #ylabels = ["%.5g" % (np.exp(float(y))) for y in yticks]
+    #my_axes.set_yticklabels(ylabels)    
+    #pylab.legend( [ lx[0] for lx in myl ] ,  legend, loc=1, numpoints=1)
+    #pylab.savefig( prefix+"_timeVSacc.pdf")
+    #pylab.close()
 
 
 def read_param_file ( experiment_name ):
@@ -275,10 +283,18 @@ if __name__ == "__main__":
         #print "len(data[0]) = ", len(data[0])
         #print data
         processed_data = process_data (data, _use_param.small_delta)
-        print "sum over sum = ", processed_data[0]
-        print "mean = ", processed_data[1]
-        print "std = ", processed_data[2]
-        print "mean and std of time " , process_time (data)
+        mean_time, std_time = process_time (data)
+        f = open ( job+"Processed", "w" )
+        f.write(`processed_data[0]`+"\n")
+        f.write(`processed_data[1]`+"\n")
+        f.write(`processed_data[2]`+"\n")
+        f.write(`[mean_time, std_time]`+"\n")
+        f.close()
+
+        #print "sum over sum = ", processed_data[0]
+        #print "mean = ", processed_data[1]
+        #print "std = ", processed_data[2]
+        #print "mean and std of time " , 
         #print "time = ", processed_data[3]
     
     #_legend = [ job[len(_use_param.case):-1] for job in _use_param.jobs ]
