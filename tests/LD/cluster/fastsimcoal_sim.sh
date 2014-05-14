@@ -9,14 +9,10 @@
 #$ -j y
 
 
+source parameters_preset
 
-#top_dir="toy_test"
-top_dir="/well/bsg/joezhu"
-rep=$(expr $SGE_TASK_ID )
 
-case=Constantpopsize
-
-fsc_param_file=1Pop6sample.par
+fsc_param_file=1Pop20sample.par
 
 program=fastsimcoal
 
