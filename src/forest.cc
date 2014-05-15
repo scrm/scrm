@@ -1110,7 +1110,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 
 
 bool Forest::pruneNodeIfNeeded(Node* node) {
-  assert( node != NULL );
+  assert(node != NULL);
   if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
 
@@ -1130,7 +1130,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
     return true;
   } 
 
-  // Orphaned nodes must go too
+  // Orphaned nodes must go, too
   else if (node->is_root() && node->numberOfChildren() == 0) {
     dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
     nodes()->remove(node);
@@ -1147,7 +1147,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
     assert(node->first_child()->local() == node->local());
 
     Node* child = node->first_child();
-    child->set_parent( node->parent() );
+    child->set_parent(node->parent());
     node->parent()->change_child(node, child); 
     nodes()->remove(node);
     return true;

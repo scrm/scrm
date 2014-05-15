@@ -220,7 +220,7 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
 }
 
 /** 
- * Findes all nodes which code for branches at the height of a given node in the
+ * Finds all nodes which code for branches at the height of a given node in the
  * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
  * member.
  * 
@@ -246,8 +246,8 @@ void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
       child = (*node_iterator)->next()->first_child();
       if (!forest_->pruneNodeIfNeeded((*node_iterator)->next())) break;
 
-      // If the removed node would have need an contemporary, maybe it children
-      // are now contemporaries because there new parent is higher. 
+      // If the removed node would have need an contemporary, maybe its children
+      // are now contemporaries because their new parent is higher. 
       // This can only happen if the node has only one child.
       if ( child != NULL && child->parent_height() > node->height() ) 
         this->addToContemporaries(child);
