@@ -36,38 +36,65 @@ class RandomGenerator
  public:
   RandomGenerator() {};
   virtual ~RandomGenerator() {}
- 
-   //Getters & Setters
-   size_t seed() const { return seed_; }
 
-   //Virtual methods
-   virtual void initialize() =0;
-   virtual double sample() =0;
-   virtual void set_seed(const size_t&);
+  //Getters & Setters
+  size_t seed() const { return seed_; }
 
-   //Base class methods
-   void initializeUnitExponential();
-   int sampleInt(int max_value);
+  virtual void set_seed(const size_t &seed) {
+    this->seed_ = seed;
+  }
 
-   double sampleExpo(double lambda);
-   double sampleExpoLimit(double lambda, double limit);
-   double sampleExpoExpoLimit(double b, double c, double limit);
+  virtual void initialize() =0;
+  virtual double sample() =0;
+
+  // Base class methods
+  // Initialize unit_exponential; must be called when the random generator is up and running
+  void initializeUnitExponential() {
+    this->unit_exponential_ = sampleUnitExponential();
+  }
+
+  // Uniformly samples a number out of 0, ..., range-1
+  // Unit tested 
+  int sampleInt(const int &max_value) {
+    return(static_cast<int>(this->sample()*max_value));
+  }
+
+  // Samples from an exponential distribution 
+  // Unit tested 
+  double sampleExpo(const double &lambda) {
+    return sampleUnitExponential() / lambda;
+  }
+
+  // Samples from an exponential distribution; return -1 if beyond limit
+  // If a limit is known, this version is faster than the standard one
+  // Unit tested
+  double sampleExpoLimit(const double &lambda, const double &limit) {
+    return sampleExpoExpoLimit(lambda, 0, limit);
+  }
+
+  double sampleExpoExpoLimit(const double &b, const double &c, const double &limit);
 
 #ifdef UNITTEST
-   friend class TestRandomGenerator;
+  friend class TestRandomGenerator;
 #endif
 
-   //Protected methods
-  protected:
-   virtual double sampleUnitExponential();
+ protected:
+  // Sample from a unit exponential distribution
+  // Unit tested
+  // fastlog can return 0, which causes a bug in scrm.
+  // log or fastlog does seems to have an influence on the runtime.
+  virtual double sampleUnitExponential() {
+    //return -ff.fastlog( sample() );
+    return -std::log(sample());
+  }
 
-  protected:
-   // seed
-   size_t seed_;
-   // cache for a unit-exponentially distributed variable
-   double unit_exponential_;
-   // fast functions
-   FastFunc ff;
+ protected:
+  // seed
+  size_t seed_;
+  // cache for a unit-exponentially distributed variable
+  double unit_exponential_;
+  // fast functions
+  FastFunc ff;
 };
 
 #endif

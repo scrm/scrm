@@ -21,7 +21,6 @@
 */
 
 #include "fastfunc.h"
-#include "mersenne_twister.h"
 
 float* FastFunc::build_fastlog_table() {
   float * table = (float*) malloc( 1025*sizeof(float) );

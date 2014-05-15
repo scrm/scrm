@@ -31,14 +31,15 @@ class MersenneTwister : public RandomGenerator
   public:
    MersenneTwister();
    MersenneTwister(const size_t &seed);
-   virtual ~MersenneTwister();
+   virtual ~MersenneTwister() {};
                          
    void initialize() {};
-   double sample();
    void set_seed(const size_t &seed);
 
+   double sample() { return unif_(mt_); }
+
   protected:
-   virtual double sampleUnitExponential() { return expo_(mt_); };
+   double sampleUnitExponential() { return expo_(mt_); };
 
    std::mt19937 mt_; 
    std::uniform_real_distribution<> unif_;
