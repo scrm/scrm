@@ -1115,43 +1115,46 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
   if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
 
-  // Old nodes have to go, no matter what
-  if (nodeIsOld(node)) {
-    dout << "* * * PRUNING: Removing branch above " << node << " from tree (old)" << std::endl;
-    assert(!node->is_root());
-    assert(!node->is_migrating());
-
-    node->parent()->change_child(node, NULL);
-    if (node->numberOfChildren() == 0) nodes()->remove(node); 
-    else { 
-      Node* parent = node->parent();
-      node->set_parent(NULL);
-      updateAbove(parent, false, true, true);
+  if (node->is_root()) {
+    // Orphaned nodes must go
+    if (node->numberOfChildren() == 0) {
+      dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+      nodes()->remove(node);
+      return true; 
     }
-    return true;
-  } 
+    // Other root never go
+    return false;
+  } else {
+    // No root:
+    if (nodeIsOld(node)) {
+      // Old nodes have to go, no matter what
+      dout << "* * * PRUNING: Removing branch above " << node << " from tree (old)" << std::endl;
+      assert(!node->is_root());
+      assert(!node->is_migrating());
 
-  // Orphaned nodes must go, too
-  else if (node->is_root() && node->numberOfChildren() == 0) {
-    dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
-    nodes()->remove(node);
-    return true; 
-  }
+      node->parent()->change_child(node, NULL);
+      if (node->numberOfChildren() == 0) nodes()->remove(node); 
+      else { 
+        Node* parent = node->parent();
+        node->set_parent(NULL);
+        updateAbove(parent, false, true, true);
+      }
+      return true;
+    } 
 
-  // Unneeded nodes 
-  else if ((!node->is_root()) && 
-           node->numberOfChildren() == 1 &&
-           !node->is_migrating()) {
-    dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
-    assert(!node->is_migrating());
-    assert(node->first_child()->last_update() == node->last_update());
-    assert(node->first_child()->local() == node->local());
+    else if (node->numberOfChildren() == 1 && !node->is_migrating()) {
+      // Unneeded nodes 
+      dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
+      assert(!node->is_migrating());
+      assert(node->first_child()->last_update() == node->last_update());
+      assert(node->first_child()->local() == node->local());
 
-    Node* child = node->first_child();
-    child->set_parent(node->parent());
-    node->parent()->change_child(node, child); 
-    nodes()->remove(node);
-    return true;
+      Node* child = node->first_child();
+      child->set_parent(node->parent());
+      node->parent()->change_child(node, child); 
+      nodes()->remove(node);
+      return true;
+    }
   }
 
   return false;

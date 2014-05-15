@@ -39,7 +39,8 @@ class MersenneTwister : public RandomGenerator
    double sample() { return unif_(mt_); }
 
   protected:
-   double sampleUnitExponential() { return expo_(mt_); };
+   //Not faster than using the quantile transformation in random_generator!
+   //double sampleUnitExponential() { return expo_(mt_); };
 
    std::mt19937 mt_; 
    std::uniform_real_distribution<> unif_;

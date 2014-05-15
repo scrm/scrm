@@ -19,6 +19,6 @@ pars=$@
 while [ 1 ]; do
   ((i++))
   echo "Seed: $i"
-  ./src/scrm_dbg $pars -seed $i > /dev/null 
+  ./scrm_dbg $pars -seed $i > /dev/null 
   [ $? -eq 0 ] || exit 1
 done

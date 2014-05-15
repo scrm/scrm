@@ -84,8 +84,8 @@ class RandomGenerator
   // fastlog can return 0, which causes a bug in scrm.
   // log or fastlog does seems to have an influence on the runtime.
   virtual double sampleUnitExponential() {
-    //return -ff.fastlog( sample() );
-    return -std::log(sample());
+    return -ff.fastlog(sample());
+    //return -std::log(sample());
   }
 
  protected:
