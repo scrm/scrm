@@ -31,9 +31,10 @@ prefix = "Constantpopsize"
 suffix = "_Processed"
 ms_case = [""]
 fastsimcoal_case = [""]
-scrm_case = [ "window" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
-macs_case = [ "retain" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
-macs_case.insert(0,"")
+#scrm_case = [ "window" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
+#macs_case = [ "retain" + `x` for x in [0, 500, 1000, 3000, 5000, 7000, 10000, 30000, 50000, 70000, 100000] ]
+scrm_case = [ "window" + `x` for x in [0,  5000, 7000, 10000, 30000, 50000, 100000] ]
+macs_case = [ "retain" + `x` for x in [0,  5000, 7000, 10000, 30000, 50000, 100000] ]
 program = ["ms", "fastsimcoal", "scrm", "macs"]
 case = [ms_case, fastsimcoal_case, scrm_case, macs_case]
 joblist = []
@@ -80,7 +81,7 @@ for i, program_i in enumerate ( program ):
         current_dot = ax2.plot ( current_job2.dev, current_job2.time_mean, markers[j], color = colors[i])
         l2.append(current_dot)
         legendlist2.append(program_i + case_j)
-        if j % 3 == 0:
+        if j % 2 == 0:
             current_job = job( prefix + program_i + case_j + suffix )
             legendlist1.append( program_i + case_j)
             current_line = ax1.plot ( delta, current_job.ac, linestyles[i], color = colors[color_j] )
@@ -123,7 +124,7 @@ fig3.savefig("RelativeTMRCArhoLD.pdf")
 
 
 ax2.set_xlim ([-10, 1300])
-ax2.set_ylim ([0.1, 14])
+ax2.set_ylim ([0.5, 35])
 #ax2.axis([-10, 1300, -2.5, np.log(ms.time_mean)*1.1] )
 #yticks = ax2.get_yticks()
 #print yticks
