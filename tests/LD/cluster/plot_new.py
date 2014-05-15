@@ -45,7 +45,7 @@ ms = job("Constantpopsizems_Processed")
 fig1 = plt.figure(figsize=(9, 6), dpi=80)
 ax1 = fig1.add_subplot(111)
 
-fig2 = plt.figure(figsize=(12, 8), dpi=80)
+fig2 = plt.figure(figsize=(9,6), dpi=80)
 ax2 = fig2.add_subplot(111)
 
 fig3 = plt.figure(figsize=(9, 6), dpi=80)
