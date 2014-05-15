@@ -250,12 +250,17 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
   if ( pop_sizes.size() != population_number() ) 
     throw std::logic_error("Population size values do not meet the number of populations");
   auto pop_sizes_heap = new std::vector<double>(pop_sizes);
-  if (relative) {
-    for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
-      if (std::isnan(*it)) continue;
-      else *it *= this->default_pop_size; 
-    }
+
+  for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
+    if (std::isnan(*it)) continue;
+
+    // Scale to absolute values if necessary
+    if (relative) { *it *= this->default_pop_size; }
+
+    // Save inverse double value
+    *it = 1.0/(2 * *it);
   }
+
   size_t position = addChangeTime(time, time_scaled);
   pop_sizes_list_[position] = pop_sizes_heap;  
 }
@@ -303,7 +308,7 @@ void Model::addPopulationSize(const double &time, const size_t &pop, double popu
   if (relative) population_size *= default_pop_size;
 
   if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
-  pop_sizes_list_.at(position)->at(pop) = population_size;
+  pop_sizes_list_.at(position)->at(pop) = 1.0/(2*population_size);
 }
 
 
@@ -609,14 +614,14 @@ void Model::calcPopSizes() {
       
       // Else copy the last value we had...
       if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
-        pop_sizes_list_.at(i)->at(pop) = default_pop_size;
+        pop_sizes_list_.at(i)->at(pop) = 1.0/(2*default_pop_size);
       else
         pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
 
       // ... and scale it if there was growth 
       if (last_growth != -1) {  
         pop_sizes_list_.at(i)->at(pop) *=  
-          std::exp(-1*(growth_rates_list_.at(last_growth)->at(pop)) * duration);
+          std::exp((growth_rates_list_.at(last_growth)->at(pop)) * duration);
       }
     }
 

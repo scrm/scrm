@@ -155,16 +155,20 @@ class Model
     *
     * @return The size of the sub population
     */
-   double population_size(size_t pop = 0, double time = -1) const { 
+   double population_size(const size_t &pop = 0, const double &time = -1) const { 
+     return 0.5 / inv_double_pop_size(pop, time);
+   }
+
+   double inv_double_pop_size(const size_t &pop = 0, const double &time = -1) const { 
      double pop_size;
      if (current_pop_sizes_ == NULL) 
-       pop_size = default_pop_size;
+       pop_size = 1/(2*default_pop_size);
      else 
        pop_size = current_pop_sizes_->at(pop);   // population size basal to this segment
 
      if (time >= 0 && growth_rate(pop) != 0.0) {
        assert( time >= getCurrentTime() && time <= getNextTime() );
-       pop_size *= std::exp( -1 * growth_rate(pop) * ( time - getCurrentTime() ) ); 
+       pop_size *= std::exp(growth_rate(pop) * (time - getCurrentTime())); 
      }
 
      return pop_size;
@@ -436,11 +440,15 @@ class Model
    // These pointer vectors hold the actual model parameters that can change in
    // time. Each index represents one period in time within which the model
    // parameters are constant. NULL means that the parameters do not change.
-   std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
    std::vector<std::vector<double>*> single_mig_probs_list_;
+
+   // Population sizes are saved as 1/(2N), where N is the actual population
+   // size (do to fast multiplication rather than slow division in the
+   // algorithm)
+   std::vector<std::vector<double>*> pop_sizes_list_;
    
    // These vectors contain the model parameters that may change along the sequence.
    // Again, each index represents an sequence segment within with the model

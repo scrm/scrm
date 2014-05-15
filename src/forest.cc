@@ -760,14 +760,15 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 
 double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
-  return ( ti.numberOfContemporaries(pop) / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
+  return ti.numberOfContemporaries(pop) * model().inv_double_pop_size(pop, ti.start_height());
 }
 
 
 double Forest::calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
   // Rate a pair is 1/(2N), as N is the diploid population size
-  return ( 1.0 / ( 2.0 * this->model().population_size(pop, ti.start_height()) ) );
+  return model().inv_double_pop_size(pop, ti.start_height());
 }
+
 
 double Forest::calcRecombinationRate(Node const* node) const {
   assert( !node->local() );
