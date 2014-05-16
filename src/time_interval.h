@@ -67,8 +67,8 @@ class TimeInterval {
 class TimeIntervalIterator {
  public:
   TimeIntervalIterator();
-  TimeIntervalIterator(Forest *forest, Node *start_node, bool pruning = true);
-  ~TimeIntervalIterator();
+  TimeIntervalIterator(Forest *forest, Node *start_node);
+  ~TimeIntervalIterator() {};
 
   void next();
   bool good() const { return this->good_; }
@@ -117,7 +117,6 @@ class TimeIntervalIterator {
   NodeIterator node_iterator_;
 
   bool good_;
-  bool pruning_;
   bool model_changed_;
 
   Node* inside_node_;

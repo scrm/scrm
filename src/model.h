@@ -256,7 +256,6 @@ class Model
    double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
 
    size_t exact_window_length() const { return exact_window_length_; }
-   size_t prune_interval() const { return prune_interval_; }
    size_t population_number() const { return pop_number_; }
   
    
@@ -277,7 +276,6 @@ class Model
    }
 
    void set_exact_window_length(const size_t ewl) { exact_window_length_ = ewl; }
-   void set_prune_interval(const size_t pi) { prune_interval_ = pi; }
    void set_population_number(const size_t pop_number) { 
     pop_number_ = pop_number; 
     if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
@@ -472,7 +470,6 @@ class Model
    size_t loci_length_;
 
    size_t exact_window_length_;
-   size_t prune_interval_;
 
    bool finite_sites_;
 

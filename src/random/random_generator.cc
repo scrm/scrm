@@ -71,7 +71,6 @@ double RandomGenerator::sampleExpoExpoLimit(const double b, const double c, cons
     } else {
       double result = unit_exponential_ / b;
       unit_exponential_ = sampleUnitExponential();
-      assert( result > 0 );
       return result;
     }
   }

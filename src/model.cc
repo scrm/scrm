@@ -56,7 +56,6 @@ Model::Model(const Model& model) {
   loci_number_ = model.loci_number_;
   loci_length_ = model.loci_length_;
   exact_window_length_ = model.exact_window_length_;
-  prune_interval_ = model.prune_interval_;
   has_migration_ = model.has_migration_;
 
   // Vector members
@@ -113,7 +112,6 @@ void Model::init() {
   this->setRecombinationRate(0.0);
 
   this->set_exact_window_length(-1);
-  this->set_prune_interval(10);
 
   this->set_finite_sites(true);
 
@@ -689,7 +687,6 @@ void swap(Model& first, Model& second) {
   swap(first.loci_number_, second.loci_number_);
   swap(first.loci_length_, second.loci_length_);
   swap(first.exact_window_length_, second.exact_window_length_);
-  swap(first.prune_interval_, second.prune_interval_);
   swap(first.has_migration_, second.has_migration_);
 
   // Vector members

@@ -154,12 +154,6 @@ class Forest
 
   NodeContainer const *getNodes() const { return &nodes_; };
 
-  size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
-  void set_prune_countdown(size_t  prune_countdown){prune_countdown_ = prune_countdown;}
-
-  bool pruning() const{return pruning_;}
-  void set_pruning(bool pruning){pruning_=pruning;}
-
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
@@ -240,7 +234,7 @@ class Forest
                    const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node, bool pruning);
+  void sampleCoalescences(Node *start_node);
   size_t getNodeState(Node const *node, const double current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
@@ -265,6 +259,7 @@ class Forest
   }
 
   bool pruneNodeIfNeeded(Node* node);
+  void doCompletePruning();
 
 
   // Calculation of Rates
@@ -304,8 +299,7 @@ class Forest
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t prune_countdown_;  // We will prune once this countdown reaches 0
-  bool pruning_;
+  size_t segment_count_;     // Counts next number segments already created 
 
   Model* model_;
   RandomGenerator* random_generator_;
