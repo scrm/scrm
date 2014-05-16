@@ -177,9 +177,6 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
   // Don't add root nodes
   if (current_node->is_root()) current_node = NULL;
 
-  //std::cout << "Child1 " << child1 << " Child2 " << child2 
-  //          << " addnode " << add_node << std::endl;
-
   if (child1 != NULL || child2 != NULL) {
     std::vector<Node*>::iterator end = contemporaries_.end();
     for (auto it = contemporaries_.begin(); it != end; ++it) {
@@ -191,6 +188,7 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
           ++pop_counts_.at(current_node->population());
           current_node = NULL;
         } else { 
+          // We need to remove the node
           contemporaries_.erase(it--);
         }
         --pop_counts_.at(child1->population());

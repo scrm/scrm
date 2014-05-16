@@ -1110,7 +1110,8 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
       // Old nodes have to go, no matter what
       dout << "* * * PRUNING: Removing branch above " << node << " from tree (old)" << std::endl;
       assert(!node->is_root());
-      assert(!node->is_migrating());
+      //assert(printTree());
+      //assert(!node->is_migrating());
 
       node->parent()->change_child(node, NULL);
       if (node->numberOfChildren() == 0) nodes()->remove(node); 
