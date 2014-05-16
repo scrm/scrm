@@ -40,7 +40,7 @@ class RandomGenerator
   //Getters & Setters
   size_t seed() const { return seed_; }
 
-  virtual void set_seed(const size_t &seed) {
+  virtual void set_seed(const size_t seed) {
     this->seed_ = seed;
   }
 
@@ -55,24 +55,24 @@ class RandomGenerator
 
   // Uniformly samples a number out of 0, ..., range-1
   // Unit tested 
-  int sampleInt(const int &max_value) {
+  int sampleInt(const int max_value) {
     return(static_cast<int>(this->sample()*max_value));
   }
 
   // Samples from an exponential distribution 
   // Unit tested 
-  double sampleExpo(const double &lambda) {
+  double sampleExpo(const double lambda) {
     return sampleUnitExponential() / lambda;
   }
 
   // Samples from an exponential distribution; return -1 if beyond limit
   // If a limit is known, this version is faster than the standard one
   // Unit tested
-  double sampleExpoLimit(const double &lambda, const double &limit) {
+  double sampleExpoLimit(const double lambda, const double limit) {
     return sampleExpoExpoLimit(lambda, 0, limit);
   }
 
-  double sampleExpoExpoLimit(const double &b, const double &c, const double &limit);
+  double sampleExpoExpoLimit(const double b, const double c, const double limit);
 
 #ifdef UNITTEST
   friend class TestRandomGenerator;

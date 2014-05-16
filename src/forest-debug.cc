@@ -583,7 +583,7 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
 
-bool Forest::checkForNodeAtHeight(const double &height) const {
+bool Forest::checkForNodeAtHeight(const double height) const {
   for (auto it = getNodes()->iterator(); it.good(); ++it) {
     if ((*it)->height() == height) return true;
     if ((*it)->height() > height) return false;

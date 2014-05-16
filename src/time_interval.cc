@@ -43,7 +43,7 @@ TimeInterval::TimeInterval(TimeIntervalIterator const* tii, double start_height,
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
-Node* TimeInterval::getRandomContemporary(const size_t &population) const {
+Node* TimeInterval::getRandomContemporary(const size_t population) const {
   assert( population < forest().model().population_number() );
   assert( this->numberOfContemporaries(population) > 0 );
 
@@ -59,7 +59,7 @@ Node* TimeInterval::getRandomContemporary(const size_t &population) const {
 }
 
 
-Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t &pop) const {
+Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t pop) const {
   assert( i < numberOfContemporaries(pop) );
   Node* node = NULL;
   for (size_t j = 0; j < contemporaries().size(); ++j) {

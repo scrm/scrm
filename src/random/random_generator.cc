@@ -29,7 +29,7 @@
 // This code allows c=0, and falls back to a standard exponential if so
 // For a p ~ unif(0,1), a waiting time sample is (1/c) log[ 1 - (c/b) log p ]
 // It returns -1 if no event occurred; this can happen even if limit == +infinity (if c<0)
-double RandomGenerator::sampleExpoExpoLimit(const double &b, const double &c, const double &limit) {
+double RandomGenerator::sampleExpoExpoLimit(const double b, const double c, const double limit) {
   if (b == 0.0) return -1;
   assert (b>0);
   assert (limit>=0);

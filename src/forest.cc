@@ -660,7 +660,7 @@ void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time,
  * In particular requires that the 'temporary' forest members samples_, rates_, 
  * active_nodes_, and nodes_timelines_ are set correctly beforehand.  
  */
-void Forest::sampleEventType(const double &time, const size_t &time_line, 
+void Forest::sampleEventType(const double time, const size_t time_line, 
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
@@ -723,7 +723,7 @@ void Forest::sampleEventType(const double &time, const size_t &time_line,
  * \param time_line The variable that saves the timeline of the nearest event 
  * \return Nothing, but updates current_time and current_time_line   
  */
-void Forest::selectFirstTime(const double &new_time, const size_t &time_line, 
+void Forest::selectFirstTime(const double new_time, const size_t time_line, 
                              double &current_time, size_t &current_time_line) const {
   if (new_time == -1) return;
   if (current_time == -1 || new_time < current_time) {
@@ -743,7 +743,7 @@ void Forest::selectFirstTime(const double &new_time, const size_t &time_line,
  *  \param current_time the time at which the coalescence is
  *  \return The state of the node
  */
-size_t Forest::getNodeState(Node const *node, const double &current_time) const {
+size_t Forest::getNodeState(Node const *node, const double current_time) const {
   if (node->height() > current_time) return(0);
   if (node->is_root()) return(1);
   if (!node->local()) return(2);
@@ -758,13 +758,13 @@ size_t Forest::getNodeState(Node const *node, const double &current_time) const 
 }
 
 
-double Forest::calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+double Forest::calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
   return ti.numberOfContemporaries(pop) * model().inv_double_pop_size(pop, ti.start_height());
 }
 
 
-double Forest::calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const {
+double Forest::calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const {
   // Rate a pair is 1/(2N), as N is the diploid population size
   return model().inv_double_pop_size(pop, ti.start_height());
 }
@@ -953,7 +953,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
  * @param root_2 The second coalescing node
  * @param time   The time at which the coalescence happens
  */
-void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double &time) {
+void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double time) {
   dout << "* * Both nodes coalesced together" << std::endl;
   dout << "* * Implementing..." << std::flush;
 
@@ -1161,7 +1161,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
 }
 
 
-bool areSame(const double &a, const double &b, const double &epsilon) {
+bool areSame(const double a, const double b, const double epsilon) {
   // from Knuths "The art of computer programming"
   return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
 }

@@ -191,7 +191,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  *
  * @returns The position the time has now in the vector
  */
-size_t Model::addChangePosition(const double &position) {
+size_t Model::addChangePosition(const double position) {
   size_t idx = 0;
 
   if ( change_position_.size() == 0 ) {
@@ -280,7 +280,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSizes(const double &time, const double &pop_size, 
+void Model::addPopulationSizes(const double time, const double pop_size, 
                                const bool &time_scaled, const bool &relative) {
   addPopulationSizes(time, std::vector<double>(population_number(), pop_size), time_scaled, relative);
 }
@@ -302,7 +302,7 @@ void Model::addPopulationSizes(const double &time, const double &pop_size,
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSize(const double &time, const size_t &pop, double population_size,
+void Model::addPopulationSize(const double time, const size_t pop, double population_size,
                               const bool &time_scaled, const bool &relative) {
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
@@ -324,7 +324,7 @@ void Model::addPopulationSize(const double &time, const size_t &pop, double popu
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRates(const double &time, const std::vector<double> &growth_rates,
+void Model::addGrowthRates(const double time, const std::vector<double> &growth_rates,
                            const bool &time_scaled, const bool &rate_scaled) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
@@ -352,7 +352,7 @@ void Model::addGrowthRates(const double &time, const std::vector<double> &growth
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRates(const double &time, const double &growth_rate,
+void Model::addGrowthRates(const double time, const double growth_rate,
                            const bool &time_scaled, const bool &rate_scaled) {
   addGrowthRates(time, std::vector<double>(population_number(), growth_rate), time_scaled, rate_scaled);
 }
@@ -371,7 +371,7 @@ void Model::addGrowthRates(const double &time, const double &growth_rate,
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRate(const double &time, const size_t &population, 
+void Model::addGrowthRate(const double time, const size_t population, 
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
   size_t position = addChangeTime(time, time_scaled);
   if (rate_scaled) growth_rate /= 4 * default_pop_size;
@@ -473,15 +473,15 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
  * @param rate_scaled Set to true if the rate is given as M = 4*N0*m and to
  *  false if it is given as m.
  */
-void Model::addSymmetricMigration(const double &time, const double &mig_rate, 
+void Model::addSymmetricMigration(const double time, const double mig_rate, 
                                   const bool &time_scaled, const bool &rate_scaled) {
   std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
   this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
 }
 
 
-void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop, 
-                                    const size_t &sink_pop, const double &fraction,
+void Model::addSingleMigrationEvent(const double time, const size_t source_pop, 
+                                    const size_t sink_pop, const double fraction,
                                     const bool &time_scaled) {
   
   size_t position = addChangeTime(time, time_scaled);
@@ -532,7 +532,7 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
 }
 
 
-void Model::updateTotalMigRates(const size_t &position) {
+void Model::updateTotalMigRates(const size_t position) {
   std::vector<double>* mig_rates;
   if ( total_mig_rates_list_.at(position) == NULL ) {
     mig_rates = new std::vector<double>(population_number(), 0.0);
@@ -640,7 +640,7 @@ void Model::check() {
 }
 
 
-void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value) {
+void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double default_value) {
   std::vector<double>* last = NULL; 
   std::vector<double>* current = NULL; 
   for (size_t j = 0; j < vector_list.size(); ++j) {

@@ -30,11 +30,11 @@ class MersenneTwister : public RandomGenerator
 {
   public:
    MersenneTwister();
-   MersenneTwister(const size_t &seed);
+   MersenneTwister(const size_t seed);
    virtual ~MersenneTwister() {};
                          
    void initialize() {};
-   void set_seed(const size_t &seed);
+   void set_seed(const size_t seed);
 
    double sample() { return unif_(mt_); }
 
