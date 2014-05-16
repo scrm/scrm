@@ -171,14 +171,44 @@ void TimeIntervalIterator::next() {
 
 
 void TimeIntervalIterator::updateContemporaries(Node* current_node) {
-  if ( current_node->first_child() != NULL ) { 
-    this->removeFromContemporaries(current_node->first_child());
-    if ( current_node->second_child() != NULL ) 
-      this->removeFromContemporaries(current_node->second_child());
+  Node *child1 = current_node->first_child(),
+       *child2 = current_node->second_child();
+
+  // Don't add root nodes
+  if (current_node->is_root()) current_node = NULL;
+
+  //std::cout << "Child1 " << child1 << " Child2 " << child2 
+  //          << " addnode " << add_node << std::endl;
+
+  if (child1 != NULL || child2 != NULL) {
+    std::vector<Node*>::iterator end = contemporaries_.end();
+    for (auto it = contemporaries_.begin(); it != end; ++it) {
+      // Remove first node
+      if (*it == child1) {
+        if (current_node != NULL) {
+          // We can just replace the node
+          *it = current_node;
+          ++pop_counts_.at(current_node->population());
+          current_node = NULL;
+        } else { 
+          contemporaries_.erase(it--);
+        }
+        --pop_counts_.at(child1->population());
+        child1 = NULL;
+      }
+
+      // Remove second node
+      if (*it == child2) {
+        contemporaries_.erase(it--);
+        --pop_counts_.at(child2->population());
+        child2 = NULL;
+      }
+
+      if (child1 == NULL && child2 == NULL) break;
+    }
   }
 
-  if ( !current_node->is_root() ) 
-    this->addToContemporaries(current_node);
+  if (current_node != NULL) this->addToContemporaries(current_node);
 }
 
 // Removes a Node from the contemporaries if it is there.
