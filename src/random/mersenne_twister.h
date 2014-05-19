@@ -28,26 +28,26 @@
 
 class MersenneTwister : public RandomGenerator
 {
-  public:
-   MersenneTwister();
-   MersenneTwister(const size_t seed);
-   virtual ~MersenneTwister() {};
-                         
-   void initialize() {};
-   void set_seed(const size_t seed);
+ public:
+  MersenneTwister();
+  MersenneTwister(const size_t seed);
+  virtual ~MersenneTwister() {};
 
-   double sample() { return unif_(mt_); }
+  void initialize() {};
+  void set_seed(const size_t seed);
 
-  protected:
-   //Not faster than using the quantile transformation in random_generator!
-   //double sampleUnitExponential() { return expo_(mt_); };
+  double sample() { return unif_(mt_); }
 
-   std::mt19937 mt_; 
-   std::uniform_real_distribution<> unif_;
-   std::exponential_distribution<> expo_;
+ protected:
+  //Not faster than using the quantile transformation in random_generator!
+  //double sampleUnitExponential() { return expo_(mt_); };
 
-  private:
-   size_t generateRandomSeed() const;
+  std::mt19937 mt_; 
+  std::uniform_real_distribution<> unif_;
+  std::exponential_distribution<> expo_;
+
+ private:
+  size_t generateRandomSeed() const;
 };
 
 #endif
