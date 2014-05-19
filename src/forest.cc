@@ -460,10 +460,9 @@ void Forest::sampleCoalescences(Node *start_node) {
   assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
-    //this->initialize_event((*ti).start_height());
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
-        << (*ti).end_height() << std::endl;
+        << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
     // Assert that we don't accidentally jump in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
@@ -627,7 +626,7 @@ void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time,
   // Correct the time from relative to the time interval to absolute 
   if (tmp_event_time != -1) tmp_event_time += ti.start_height();
   assert( (tmp_event_time == -1) || 
-         (ti.start_height() < tmp_event_time && tmp_event_time <= ti.end_height()) );
+         (ti.start_height() <= tmp_event_time && tmp_event_time <= ti.end_height()) );
 
   // Sample the event type
   sampleEventType(tmp_event_time, tmp_event_line, ti, return_event);
@@ -1110,8 +1109,6 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
       // Old nodes have to go, no matter what
       dout << "* * * PRUNING: Removing branch above " << node << " from tree (old)" << std::endl;
       assert(!node->is_root());
-      //assert(printTree());
-      //assert(!node->is_migrating());
 
       node->parent()->change_child(node, NULL);
       if (node->numberOfChildren() == 0) nodes()->remove(node); 
