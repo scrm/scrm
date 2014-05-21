@@ -443,7 +443,8 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
-// record recombination event
+  // record recombination event - we pass the population, but disregard for now, 
+  // since the opportunity is calculated overall rather than per-population. 
   this->record_Recombevent(rec_point.base_node()->population(), 
                             //rec_point.height(), 
                             //rec_point.height(), 
