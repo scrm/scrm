@@ -54,12 +54,10 @@
 #include <cfloat>
 #include <cassert>
 #include <sstream> // This is required by Forest::writeTree, ostringstream
-#include <boost/assign/std/vector.hpp>
 
 #include "node.h"
 #include "event.h"
 #include "model.h"
-// #include "param.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
