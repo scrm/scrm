@@ -37,13 +37,6 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
 }
 
 
-void Param::nextArg(std::string option) {
-  ++argc_i;
-  if (argc_i >= argc_) {
-    throw std::invalid_argument(std::string("Not enough parameters when parsing option ") + option);
-  }
-}
-
 /*! 
  * \brief Read in ms parameters and convert to scrm parameters
  * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
@@ -78,10 +71,8 @@ void Param::parse(Model &model) {
     std::string argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
-      nextArg("nsam (1st option)");
-      sample_size = readInput<size_t>(argv_[argc_i]);
-      nextArg("howmany (2nd option)");
-      model.set_loci_number(readInput<size_t>(argv_[argc_i]));
+      sample_size = readNextInput<size_t>();
+      model.set_loci_number(readNextInput<size_t>());
     }
 
     // ------------------------------------------------------------------
@@ -122,33 +113,26 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0
     else if (argv_i == "-I") {
-      nextArg(argv_i);
-      model.set_population_number(readInput<size_t>(argv_[argc_i]));
+      model.set_population_number(readNextInput<size_t>());
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        nextArg(argv_i);
-        sample_size.push_back(readInput<size_t>(argv_[argc_i]));
+        sample_size.push_back(readNextInput<size_t>());
       }
       model.addSampleSizes(0.0, sample_size);
       // there might or might not follow a symmetric migration rate
       try {
-        nextArg(argv_i);
-        model.addSymmetricMigration(0.0, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
+        model.addSymmetricMigration(0.0, readNextInput<double>()/(model.population_number()-1), true, true);
       } catch (std::invalid_argument e) {
-        --argc_i;
-      } catch (boost::bad_lexical_cast e) {
         --argc_i;
       }
     }
 
     // Add samples at arbitrary times
     else if (argv_i == "-eI") {
-      nextArg(argv_i);
-      time = readInput<double>(argv_[argc_i]);
+      time = readNextInput<double>();
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        nextArg(argv_i);
-        sample_size.push_back(readInput<size_t>(argv_[argc_i]));
+        sample_size.push_back(readNextInput<size_t>());
       }
       model.addSampleSizes(time, sample_size, true);
     }
@@ -192,16 +176,17 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-ma" || argv_i == "-ema") {
       if (argv_i == "-ema") {
-        nextArg(argv_i);
-        time = readInput<double>(argv_[argc_i]);
+        time = readNextInput<double>();
       }
       else time = 0.0;
       std::vector<double> migration_rates;
       for (size_t i = 0; i < model.population_number(); ++i) {
         for (size_t j = 0; j < model.population_number(); ++j) {
-          nextArg(argv_i);
-          if (i==j) migration_rates.push_back(0.0);
-          else migration_rates.push_back(readInput<double>(argv_[argc_i]));
+          if (i==j) {
+            migration_rates.push_back(0.0);
+            ++argc_i;
+          }
+          else migration_rates.push_back(readNextInput<double>());
         }
       }
       model.addMigrationRates(time, migration_rates, true, true);
@@ -209,12 +194,10 @@ void Param::parse(Model &model) {
 
     else if (argv_i == "-M" || argv_i == "-eM") {
       if (argv_i == "-eM") {
-        nextArg(argv_i);
-        time = readInput<double>(argv_[argc_i]);
+        time = readNextInput<double>();
       }
       else time = 0.0;
-      nextArg(argv_i);
-      model.addSymmetricMigration(time, readInput<double>(argv_[argc_i])/(model.population_number()-1), true, true);
+      model.addSymmetricMigration(time, readNextInput<double>()/(model.population_number()-1), true, true);
     }
 
     else if (argv_i == "-es") {
@@ -240,13 +223,11 @@ void Param::parse(Model &model) {
     // Pruning 
     // ------------------------------------------------------------------
     else if (argv_i == "-l"){
-      nextArg(argv_i);
-      model.set_exact_window_length(readInput<size_t>(argv_[argc_i]));
+      model.set_exact_window_length(readNextInput<size_t>());
     }
 
     // ------------------------------------------------------------------
-    // Output 
-    // ------------------------------------------------------------------
+
     else if (argv_i == "-T" || argv_i == "-Tfs"){
       trees = true;
     }
@@ -269,8 +250,7 @@ void Param::parse(Model &model) {
     }
 
     else if (argv_i == "-seed"){
-      nextArg(argv_i);
-      random_seed = readInput<size_t>(argv_[argc_i]);
+      random_seed = readNextInput<size_t>();
     }
     
     else {  

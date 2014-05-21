@@ -32,7 +32,6 @@
 #include <stdlib.h>  
 #include <stdio.h>
 #include <stdexcept>
-#include <boost/lexical_cast.hpp> 
 #include <memory>
 
 #include "model.h"
@@ -66,7 +65,6 @@ class Param {
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
-  void nextArg(std::string option);
   void print_param();
 
   // Member variables
@@ -80,7 +78,14 @@ class Param {
       throw std::invalid_argument(std::string("Not enough parameters when parsing options"));
     }
 
-    return boost::lexical_cast<T>(argv_[argc_i]);
+    char c;
+    T input;
+    std::stringstream ss(argv_[argc_i]);
+    ss >> input;
+    if (ss.fail() || ss.get(c)) {
+      throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
+    }
+    return input;
   }
 
  private:
@@ -94,12 +99,5 @@ class Param {
 void print_help();
 void print_example();
 void print_options();	
-
-template<class T>
-T readInput(char input[])
-{
-  return boost::lexical_cast<T>(input);
-}
-
 
 #endif

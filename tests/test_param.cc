@@ -16,7 +16,6 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseMigrationOptions );
   CPPUNIT_TEST( testParseOutputOptions );
   CPPUNIT_TEST( testParseGrowthOptions );
-  CPPUNIT_TEST( testReadInput );
   CPPUNIT_TEST( testParseVariableRates );
   
   CPPUNIT_TEST_SUITE_END();
@@ -238,14 +237,6 @@ class TestParam : public CppUnit::TestCase {
     char *argv9[] = { "scrm", "20", "10", "-oSFS", "-t", "5", "-L", "-T" };
     CPPUNIT_ASSERT_NO_THROW( Param(8, argv9).parse(model); );
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 4 );
-  }
-
-  void testReadInput() {
-    CPPUNIT_ASSERT_EQUAL( (int)1, readInput<int>("1") );
-    CPPUNIT_ASSERT_EQUAL( (size_t)7, readInput<size_t>("7") );
-    CPPUNIT_ASSERT_EQUAL( (double)3.1, readInput<double>("3.1") );
-    CPPUNIT_ASSERT_THROW( readInput<int>("ABC"), boost::bad_lexical_cast );
-    CPPUNIT_ASSERT_THROW( readInput<int>("-I"), boost::bad_lexical_cast );
   }
 
   void testParseGrowthOptions() {
