@@ -35,9 +35,16 @@ MersenneTwister::MersenneTwister(const size_t seed){
   else this->set_seed(seed);
 }
 
+
+/**
+ * @brief Generates a random seed using entropy provided by the operating
+ * system. 
+ *
+ * @return A random int between 0 and 2^32
+ */
 size_t MersenneTwister::generateRandomSeed() const {
   std::random_device rd;
-  std::uniform_int_distribution<size_t> dist(0, std::numeric_limits<std::size_t>::max());
+  std::uniform_int_distribution<size_t> dist(0, 4294967296); //2^32
   return( dist(rd) );
 }
 
