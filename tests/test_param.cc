@@ -16,6 +16,8 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseOutputOptions );
   CPPUNIT_TEST( testParseGrowthOptions );
   CPPUNIT_TEST( testParseVariableRates );
+  CPPUNIT_TEST( testParseUnsupportedMsArguments );
+  CPPUNIT_TEST( testParseSeeds );
   
   CPPUNIT_TEST_SUITE_END();
 
@@ -326,6 +328,36 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(5.1 * scale, model.recombination_rate()) );
     CPPUNIT_ASSERT( areSame(3.2 * scale2, model.mutation_rate()) );
     CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
+  }
+
+  void testParseUnsupportedMsArguments() {
+    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-c", "10", "5.1", "-st", "4.5", "3.2"};
+    CPPUNIT_ASSERT_THROW( Param(11, argv).parse(model), std::invalid_argument ); 
+
+    char *argv2[] = { "scrm", "20", "10", "-s", "5"};
+    CPPUNIT_ASSERT_THROW( Param(5, argv2).parse(model), std::invalid_argument ); 
+  }
+
+  void testParseSeeds() {
+    char *argv[] = { "scrm", "4", "7", "-seed", "123", "-t", "5"};
+    Param pars = Param(7, argv);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed );
+
+    char *argv2[] = { "scrm", "4", "7", "-seed", "1", "2", "3", "-t", "5"};
+    pars = Param(9, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    size_t seed = pars.random_seed;
+
+    pars = Param(9, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT_EQUAL( seed, pars.random_seed );
+
+    char *argv3[] = { "scrm", "20", "10", "-seed", "1", "2", "3", "4"};
+    CPPUNIT_ASSERT_THROW( Param(8, argv3).parse(model), std::invalid_argument ); 
+
+    char *argv4[] = { "scrm", "20", "10", "-seed", "-t", "2"};
+    CPPUNIT_ASSERT_THROW( Param(6, argv4).parse(model), std::invalid_argument ); 
   }
 };
 

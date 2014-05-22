@@ -241,10 +241,6 @@ class Model
                              const bool &scaled = false,
                              const double seq_position = 0);
 
-   void set_mutation_exact_number(size_t number) { 
-     throw std::runtime_error("SCRM does not support simulating a fixed number of mutations yet. Sorry"); 
-   }
-
    bool hasFixedTimeEvent(const double at_time) const {
     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
     if (getCurrentTime() != at_time) return false;

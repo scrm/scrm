@@ -27,15 +27,12 @@ void Param::init(){
   this->random_seed = 0;
 }
 
-
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
-  //stream << param.argv_[0];
   for (int i = 0; i < param.argc_; ++i) {
     stream << " " << param.argv_[i];
   }
   return stream;
 }
-
 
 /*! 
  * \brief Read in ms parameters and convert to scrm parameters
@@ -43,7 +40,6 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  * and -ej options in ms are time t in unit of 4N_0 generations. 
  * In scrm, we define time t in number of generations. 
  */
-
 void Param::parse(Model &model) {
   model = Model();
   size_t sample_size = 0;
@@ -88,10 +84,6 @@ void Param::parse(Model &model) {
         //seg_sites = shared_ptr<SegSites>(new SegSites());
         seg_sites = new SegSites();
       }
-    }
-
-    else if (argv_i == "-s") {
-      model.set_mutation_exact_number(readNextInput<size_t>());
     }
 
     // ------------------------------------------------------------------
@@ -249,10 +241,40 @@ void Param::parse(Model &model) {
       first_last_tmrca = true;
     }
 
-    else if (argv_i == "-seed"){
-      random_seed = readNextInput<size_t>();
+    // ------------------------------------------------------------------
+    // Seeds
+    // ------------------------------------------------------------------
+    else if (argv_i == "-seed" || argv_i == "--seed") {
+      std::vector<size_t> seeds(3, 0);
+      // Always require one seed
+      seeds.at(0) = readNextInput<size_t>();
+      try {
+        // Maybe read in up to 3 seeds (ms compatibility)
+        for (size_t i = 1; i < 3; i++) seeds.at(i) = readNextInput<size_t>();
+      } catch (std::invalid_argument e) {
+        --argc_i;
+      }
+
+      if (seeds.at(1) != 0 || seeds.at(2) != 0) {
+        // Mangles the seed together into a single int stored in the vectors
+        // first entry.
+        std::seed_seq{seeds.at(0), seeds.at(1), seeds.at(2)}.generate(seeds.begin(), seeds.begin()+1);
+      }
+      random_seed = seeds.at(0);
     }
     
+
+    // ------------------------------------------------------------------
+    // Unsupported ms arguments
+    // ------------------------------------------------------------------
+    else if (argv_i == "-c") {
+      throw std::invalid_argument("scrm does not support gene conversion.");
+    }
+
+    else if (argv_i == "-s") {
+      throw std::invalid_argument("scrm does not support simulating a fixed number of mutations.");
+    }
+
     else {  
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
     }
