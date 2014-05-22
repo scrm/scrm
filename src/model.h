@@ -473,7 +473,7 @@ class Model
 
    bool finite_sites_;
 
-   std::vector<std::shared_ptr<SummaryStatistic>> summary_statistics_;
+   std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
 };
 
 
