@@ -31,7 +31,7 @@ MersenneTwister::MersenneTwister() {
 MersenneTwister::MersenneTwister(const size_t seed){
   unif_ = std::uniform_real_distribution<>(0, 1);
   expo_ = std::exponential_distribution<>(1);
-  if (seed == 0) set_seed(generateRandomSeed());
+  if (seed == -1) set_seed(generateRandomSeed());
   else this->set_seed(seed);
 }
 

@@ -24,7 +24,7 @@
 #include "param.h"
 
 void Param::init(){
-  this->random_seed = 0;
+  this->random_seed = -1;
 }
 
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
