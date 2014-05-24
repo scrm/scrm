@@ -63,10 +63,14 @@ void Param::parse(Model &model) {
     // Check that have have at least one argument
     if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
 
-    // Check if we need to print the help (only valid one argument command)
+    // Check if we need to print the help & version (only valid one argument commands)
     argv_i = argv_[1];
     if (argv_i == "-h" || argv_i == "--help") {
       this->set_help(true);
+      return;
+    }
+    if (argv_i == "-v" || argv_i == "--version") {
+      this->set_version(true);
       return;
     }
 
@@ -277,10 +281,15 @@ void Param::parse(Model &model) {
     
 
     // ------------------------------------------------------------------
-    // Help
+    // Help & Version
     // ------------------------------------------------------------------
     else if (argv_i == "-h" || argv_i == "--help") {
       this->set_help(true);
+      return;
+    }
+
+    else if (argv_i == "-v" || argv_i == "--version") {
+      this->set_version(true);
       return;
     }
 

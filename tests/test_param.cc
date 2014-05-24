@@ -59,6 +59,22 @@ class TestParam : public CppUnit::TestCase {
     pars = Param(5, argv8);
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
     CPPUNIT_ASSERT( !pars.help() ); 
+    CPPUNIT_ASSERT( !pars.version() ); 
+
+    char *argv9[] = { "scrm", "-v" };
+    pars = Param(2, argv9);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( pars.version() ); 
+
+    char *argv10[] = { "scrm", "--version" };
+    pars = Param(2, argv10);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( pars.version() ); 
+
+    char *argv11[] = { "scrm", "2", "1", "-v" };
+    pars = Param(4, argv11);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( pars.version() ); 
   }
 
   void testParseCommonOptions() {

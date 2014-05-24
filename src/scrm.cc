@@ -44,6 +44,10 @@ int main(int argc, char *argv[]){
       user_para.printHelp(*output); 
       return EXIT_SUCCESS;
     }
+    if (user_para.version()) {
+      *output << "scrm " << VERSION << std::endl;
+      return EXIT_SUCCESS;
+    }
 
     MersenneTwister rg = MersenneTwister(user_para.random_seed());
 
@@ -70,6 +74,7 @@ int main(int argc, char *argv[]){
 
       forest.printLocusSumStats(*output);
     }
+    return EXIT_SUCCESS;
   }
   catch (const exception &e)
   {

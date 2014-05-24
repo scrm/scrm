@@ -42,8 +42,6 @@
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
 
-#pragma clang diagnostic ignored "-Wdeprecated-register"
-
 
 class Param {
  public:
@@ -61,11 +59,13 @@ class Param {
   void init() {
     this->set_random_seed(-1);
     this->set_help(false);
+    this->set_version(false);
     argc_i = 0;
   }
 
   // Getters and setters
   bool help() const { return help_; }
+  bool version() const { return version_; }
   size_t random_seed() const { return random_seed_; }
   void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
 
@@ -96,6 +96,7 @@ class Param {
 
  private:
   void set_help(const bool help) { this->help_ = help; } 
+  void set_version(const bool version) { this->version_ = version; } 
 
   int argc_;
   int argc_i;
@@ -103,5 +104,6 @@ class Param {
   size_t random_seed_;  
   bool directly_called_;
   bool help_;
+  bool version_;
 };
 #endif
