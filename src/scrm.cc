@@ -30,17 +30,12 @@
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
-  if (argc < 3 ){
-    std::cout << "Too few command line arguments" << std::endl;
-    print_help();
-    exit(1);
-  }
-
   try {
     Param user_para(argc, argv);
 
     Model model;
     user_para.parse(model);
+    if (!user_para.execute()) return EXIT_SUCCESS;
 
     MersenneTwister rg = MersenneTwister(user_para.random_seed);
 
@@ -70,11 +65,11 @@ int main(int argc, char *argv[]){
 
       forest.printLocusSumStats(*output);
     }
-
   }
   catch (const exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
+    std::cerr << "Try 'scrm --help' for more information." << std::endl;
     return EXIT_FAILURE;
   }
 }

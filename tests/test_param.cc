@@ -11,6 +11,7 @@ class TestParam : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestParam );
 
+  CPPUNIT_TEST( testParseBasicCmdStructure );
   CPPUNIT_TEST( testParse );
   CPPUNIT_TEST( testParseMigrationOptions );
   CPPUNIT_TEST( testParseOutputOptions );
@@ -25,6 +26,36 @@ class TestParam : public CppUnit::TestCase {
     Model model;
 
  public:
+  void testParseBasicCmdStructure() {
+    Param pars;
+    char *argv1[] = { "scrm" };
+    CPPUNIT_ASSERT_THROW( Param(1, argv1).parse(model), std::invalid_argument ); 
+
+    char *argv2[] = { "scrm", "-h" };
+    pars = Param(2, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( !pars.execute() ); 
+
+    char *argv3[] = { "scrm", "--help" };
+    pars = Param(2, argv3);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( !pars.execute() ); 
+    
+    char *argv4[] = { "scrm", "2", "1", "-h" };
+    pars = Param(4, argv4);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( !pars.execute() ); 
+
+    char *argv5[] = { "scrm", "1" };
+    CPPUNIT_ASSERT_THROW( Param(2, argv5).parse(model), std::invalid_argument ); 
+
+    char *argv6[] = { "scrm", "1", "-t", "5" };
+    CPPUNIT_ASSERT_THROW( Param(4, argv6).parse(model), std::invalid_argument ); 
+
+    char *argv7[] = { "scrm", "-t", "5" };
+    CPPUNIT_ASSERT_THROW( Param(3, argv7).parse(model), std::invalid_argument ); 
+  }
+
   void testParse() {
     CPPUNIT_ASSERT_NO_THROW( Param().parse(model) );
 

@@ -25,10 +25,12 @@
 
 void Param::init(){
   this->random_seed = -1;
+  this->set_execute(false);
 }
 
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
-  for (int i = 0; i < param.argc_; ++i) {
+  stream << "scrm";
+  for (int i = 1; i < param.argc_; ++i) {
     stream << " " << param.argv_[i];
   }
   return stream;
@@ -42,6 +44,8 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  */
 void Param::parse(Model &model) {
   model = Model();
+  this->init();
+
   size_t sample_size = 0;
   double par_bool = 0.0;
   double time = 0.0;
@@ -55,16 +59,30 @@ void Param::parse(Model &model) {
        trees = false,
        sfs = false; 
 
-  if ( argc_ == 0 ) return;
+  std::string argv_i = "";
   argc_i = 0;
-  if (!directly_called_){
-    std::cout<<"Indirectely called"<<std::endl;
+
+  if (argc_ == 0) return;
+  if (!directly_called_) {
+    std::cout << "Indirectly called" << std::endl;
+  } else {
+    // Check that have have at least one argument
+    if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
+
+    // Check if we need to print the help (only valid one argument command)
+    argv_i = argv_[1];
+    if (argv_i == "-h" || argv_i == "--help") {
+      printHelp(std::cout);
+      set_execute(false);
+      return;
+    }
+
+    // Check that have have at least two arguments
+    if (argc_ == 2) throw std::invalid_argument("To few command line arguments.");
   }
 
-  this->init();
-
   while( argc_i < argc_ ){
-    std::string argv_i = argv_[argc_i];
+    argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
       sample_size = readNextInput<size_t>();
@@ -265,6 +283,15 @@ void Param::parse(Model &model) {
     
 
     // ------------------------------------------------------------------
+    // Help
+    // ------------------------------------------------------------------
+    else if (argv_i == "-h" || argv_i == "--help") {
+      printHelp(std::cout);
+      set_execute(false);
+      return;
+    }
+
+    // ------------------------------------------------------------------
     // Unsupported ms arguments
     // ------------------------------------------------------------------
     else if (argv_i == "-c") {
@@ -308,43 +335,26 @@ void Param::parse(Model &model) {
   model.resetTime();
 }
 
+void Param::printHelp(std::ostream& out) {
+  out << "Usage: scrm <nsamp> <nloci> [...]" << std::endl << std::endl;
 
-
-void Param::print_param(){
-}	
-
-void print_options(){
-  std::cout << "  Options (ms-compatible):" << std::endl;
-  std::cout<<std::setw(20)<<"-t theta          Set theta = 4*N0*mu, mu = locus mutation rate per generation" << std::endl;
-  std::cout<<std::setw(20)<<"-r rho nsites     Set rho = 4*N0*r, r = locus recombination rate; and locus length" << std::endl;
-  std::cout<<std::setw(20)<<"-T                Output gene trees" << std::endl;
-  std::cout<<std::setw(20)<<"-s segsites       Sample a fixed number of segregating sites onto the sampled ARG" << std::endl;
-  std::cout<<std::setw(20)<<"-I n n1 .. nn     Define n populations, each of effective size N0, each having n1,..,nn samples. (Migration not yet implemented.)" << std::endl;
-  std::cout<<std::setw(20)<<"-eN t size        Modify population sizes, to become size*N0 prior to time t" << std::endl;
-  std::cout<<std::endl;
-  std::cout<<"  Further options:" << std::endl;
-  std::cout<<std::setw(20)<<"-seed SEED        Set seed for random number generator (default: use system time)"<<std::endl;
-  std::cout<<std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
-  //std::cout<<std::setw(20)<<"-l exact_window_length"<<"  --  "
+  out << "Options (ms-compatible):" << std::endl;
+  out << std::setw(20) << "-t <theta>" << "Set theta = 4*N0*mu, mu = locus mutation rate per generation" << std::endl;
+  out << std::setw(20) << "-r <rho> <nsites>" << "Set rho = 4*N0*r, r = locus recombination rate; and locus length" << std::endl;
+  out << std::setw(20) << "-T                Output gene trees" << std::endl;
+  out << std::setw(20) << "-s segsites       Sample a fixed number of segregating sites onto the sampled ARG" << std::endl;
+  out << std::setw(20) << "-I n n1 .. nn     Define n populations, each of effective size N0, each having n1,..,nn samples. (Migration not yet implemented.)" << std::endl;
+  out << std::setw(20) << "-eN t size        Modify population sizes, to become size*N0 prior to time t" << std::endl;
+  out << std::endl;
+  out << "  Further options:" << std::endl;
+  out << std::setw(20)<<"-seed SEED        Set seed for random number generator (default: use system time)"<<std::endl;
+  out << std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
+  //out<<std::setw(20)<<"-l exact_window_length"<<"  --  "
   //    <<"User define the length of the exact window."<<std::endl;
-  std::cout<<std::endl;
-}
+  out<<std::endl;
+  out<<"Examples:"<<std::endl;
+  out<<"./scrm 3 1 -t 10"<<std::endl;
+  out<<"./scrm 6 2 -t 10 -r 40 20000 -l 1000"<<std::endl;
 
-
-void print_help(){
-  std::cout << "usage: scrm nsam howmany" << std::endl;
-  print_options();
-  print_example();
-}
-
-
-void print_example(){	
-  std::cout<<"Examples:"<<std::endl;
-  std::cout<<"./scrm 3 1 -t 10"<<std::endl;
-  std::cout<<"./scrm 6 3 -t 10 -r 40 20000 "<<std::endl;
-  std::cout<<"./scrm 5 3 -t 20 -r 30 10000 -seed 1314 "<<std::endl;
-  std::cout<<"./scrm 6 1 -t 30 -r 40 10000 "<<std::endl;
-  std::cout<<"./scrm 6 2 -t 25 -r 30 100000"<<std::endl;
-  std::cout<<"./scrm 6 2 -t 40 -r 40 100000 -T "<<std::endl;
 }
 

@@ -57,10 +57,13 @@ class Param {
 
   // Getters and setters
   bool seg_bool() const { return seg_bool_; }
-  void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
+  void set_seg_bool(const bool seg_bool) { seg_bool_ = seg_bool; } 
+  bool execute() const { execute_; }
+  void set_execute(const bool execute) { execute_ = execute; } 
 
   // Other methods
   void init();
+  void printHelp(std::ostream& stream);
 
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
@@ -94,10 +97,7 @@ class Param {
   char * const* argv_;
   bool seg_bool_;
   bool directly_called_;
+  bool execute_;
 };
-
-void print_help();
-void print_example();
-void print_options();	
 
 #endif
