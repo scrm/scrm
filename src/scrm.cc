@@ -31,16 +31,21 @@
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
+    // Organize output
+    std::ostream *output = &std::cout;
+
     Param user_para(argc, argv);
 
     Model model;
     user_para.parse(model);
-    if (!user_para.execute()) return EXIT_SUCCESS;
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed);
+    // Print help if user asked for it
+    if (user_para.help()) {
+      user_para.printHelp(*output); 
+      return EXIT_SUCCESS;
+    }
 
-    // Organize output
-    std::ostream *output = &std::cout;
+    MersenneTwister rg = MersenneTwister(user_para.random_seed());
 
     //*output << "scrm " << VERSION << " |" << user_para << std::endl;
     *output << user_para << std::endl;

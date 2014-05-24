@@ -23,11 +23,6 @@
 
 #include "param.h"
 
-void Param::init(){
-  this->random_seed = -1;
-  this->set_execute(false);
-}
-
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
   for (int i = 1; i < param.argc_; ++i) {
@@ -44,7 +39,6 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  */
 void Param::parse(Model &model) {
   model = Model();
-  this->init();
 
   size_t sample_size = 0;
   double par_bool = 0.0;
@@ -72,8 +66,7 @@ void Param::parse(Model &model) {
     // Check if we need to print the help (only valid one argument command)
     argv_i = argv_[1];
     if (argv_i == "-h" || argv_i == "--help") {
-      printHelp(std::cout);
-      set_execute(false);
+      this->set_help(true);
       return;
     }
 
@@ -276,9 +269,10 @@ void Param::parse(Model &model) {
       if (seeds.at(1) != 0 || seeds.at(2) != 0) {
         // Mangles the seed together into a single int stored in the vectors
         // first entry.
-        std::seed_seq{seeds.at(0), seeds.at(1), seeds.at(2)}.generate(seeds.begin(), seeds.begin()+1);
+        std::seed_seq{seeds.at(0), seeds.at(1), seeds.at(2)}.
+             generate(seeds.begin(), seeds.begin()+1);
       }
-      random_seed = seeds.at(0);
+      set_random_seed(seeds.at(0));
     }
     
 
@@ -286,8 +280,7 @@ void Param::parse(Model &model) {
     // Help
     // ------------------------------------------------------------------
     else if (argv_i == "-h" || argv_i == "--help") {
-      printHelp(std::cout);
-      set_execute(false);
+      this->set_help(true);
       return;
     }
 
@@ -318,7 +311,6 @@ void Param::parse(Model &model) {
   else if (model.sample_size() != sample_size ) {
     throw std::invalid_argument("Sum of samples not equal to the total sample size");
   }
-
 
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
@@ -355,6 +347,4 @@ void Param::printHelp(std::ostream& out) {
   out<<"Examples:"<<std::endl;
   out<<"./scrm 3 1 -t 10"<<std::endl;
   out<<"./scrm 6 2 -t 10 -r 40 20000 -l 1000"<<std::endl;
-
 }
-

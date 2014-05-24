@@ -52,26 +52,29 @@ class Param {
  #endif
 
   // Constructors
-  Param() : argc_(0), argv_(NULL) { };
-  Param(int argc, char *argv[], bool directly_called=true) : argc_(argc), argv_(argv) , directly_called_(directly_called) { }
+  Param() : argc_(0), argv_(NULL) { init(); }
+  Param(int argc, char *argv[], bool directly_called=true) : 
+      argc_(argc), argv_(argv), directly_called_(directly_called) {
+        init();
+      }
+
+  void init() {
+    this->set_random_seed(-1);
+    this->set_help(false);
+    argc_i = 0;
+  }
 
   // Getters and setters
-  bool seg_bool() const { return seg_bool_; }
-  void set_seg_bool(const bool seg_bool) { seg_bool_ = seg_bool; } 
-  bool execute() const { execute_; }
-  void set_execute(const bool execute) { execute_ = execute; } 
+  bool help() const { return help_; }
+  size_t random_seed() const { return random_seed_; }
+  void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
 
   // Other methods
-  void init();
   void printHelp(std::ostream& stream);
 
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
-  void print_param();
-
-  // Member variables
-  size_t random_seed;  
 
   template<class T>
   T readNextInput() {
@@ -92,12 +95,13 @@ class Param {
   }
 
  private:
+  void set_help(const bool help) { this->help_ = help; } 
+
   int argc_;
   int argc_i;
   char * const* argv_;
-  bool seg_bool_;
+  size_t random_seed_;  
   bool directly_called_;
-  bool execute_;
+  bool help_;
 };
-
 #endif
