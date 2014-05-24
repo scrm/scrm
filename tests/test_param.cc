@@ -83,7 +83,8 @@ class TestParam : public CppUnit::TestCase {
     argv2[3] = "-tv";
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(model), std::invalid_argument ); 
 
-    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "-T", "-M", "5.0" };
+    char *argv3[] = { "scrm", "20", "10", "-t", "3.74", 
+                      "-I", "3", "7", "8", "5", "-T", "-M", "5.0" };
     Param pars2 = Param(13, argv3);
     CPPUNIT_ASSERT_NO_THROW( pars2.parse(model) ); 
     CPPUNIT_ASSERT( !pars2.help() );

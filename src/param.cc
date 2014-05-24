@@ -328,23 +328,75 @@ void Param::parse(Model &model) {
 }
 
 void Param::printHelp(std::ostream& out) {
-  out << "Usage: scrm <nsamp> <nloci> [...]" << std::endl << std::endl;
+  out << "scrm - Fast & accurate coalescent simulations" << std::endl; 
+  out << "Version " << VERSION << std::endl << std::endl; 
 
-  out << "Options (ms-compatible):" << std::endl;
-  out << std::setw(20) << "-t <theta>" << "Set theta = 4*N0*mu, mu = locus mutation rate per generation" << std::endl;
-  out << std::setw(20) << "-r <rho> <nsites>" << "Set rho = 4*N0*r, r = locus recombination rate; and locus length" << std::endl;
-  out << std::setw(20) << "-T                Output gene trees" << std::endl;
-  out << std::setw(20) << "-s segsites       Sample a fixed number of segregating sites onto the sampled ARG" << std::endl;
-  out << std::setw(20) << "-I n n1 .. nn     Define n populations, each of effective size N0, each having n1,..,nn samples. (Migration not yet implemented.)" << std::endl;
-  out << std::setw(20) << "-eN t size        Modify population sizes, to become size*N0 prior to time t" << std::endl;
-  out << std::endl;
-  out << "  Further options:" << std::endl;
-  out << std::setw(20)<<"-seed SEED        Set seed for random number generator (default: use system time)"<<std::endl;
-  out << std::setw(20)<<"-eI t n n1 .. nn  As -I but define  n  new populations at time t in past" << std::endl;
-  //out<<std::setw(20)<<"-l exact_window_length"<<"  --  "
-  //    <<"User define the length of the exact window."<<std::endl;
-  out<<std::endl;
-  out<<"Examples:"<<std::endl;
-  out<<"./scrm 3 1 -t 10"<<std::endl;
-  out<<"./scrm 6 2 -t 10 -r 40 20000 -l 1000"<<std::endl;
+  out << "Usage" << std::endl; 
+  out << "--------------------------------------------------------" << std::endl; 
+  out << "Call scrm follow by two integers and an arbitrary number" << std::endl; 
+  out << "of options described below:" << std::endl; 
+  out << std::endl << "  scrm <n_samp> <n_loci> [...]" << std::endl << std::endl; 
+  out << "Here, n_samp is the total number of samples and n_loci" << std::endl; 
+  out << "is the number of independent loci to simulate." << std::endl; 
+  out << std::endl << "Options" << std::endl; 
+  out << "--------------------------------------------------------" << std::endl; 
+  out << "A detailed description of these options and their parameters" << std::endl; 
+  out << "is provided is the manual." << std::endl << std::endl;
+
+  out << "Recombination:" << std::endl;
+  out << "  -r <R> <L>       Set recombination rate to R and locus length to L." << std::endl;
+  out << "  -sr <p> <R>      Change the recombination rate R at sequence position p." << std::endl;
+  out << "  -l <l>           Set the approximation window length to l." << std::endl;
+
+  out << std::endl << "Population Structure:" << std::endl;
+  out << "  -I <npop> <s1> ... <sn> [<M>]   Use an island model with npop populations," <<std::endl
+      << "                   where s1 to sn individuals are sampled each population." << std::endl
+      << "                   Optionally assume a symmetric migration rate of M." << std::endl;
+  out << "  -eI <t> <s1> ... <sn> [<M>]     Sample s1 to sn indiviuals from their" << std::endl
+      << "                   corresponding populations at time t." << std::endl;
+  out << "  -M <M>           Assume a symmetric migration rate of M/(npop-1)." << std::endl;
+  out << "  -eM <t> <M>      Change the symmetric migration rate to M/(npop-1) at time t." 
+      << std::endl;
+  out << "  -m <i> <j> <M>   Set the migration rate from population j to population i to M" 
+      << std::endl;
+  out << "  -em <t> <i> <j> <M>   Set the migration rate from population j to" << std::endl
+      << "                   population i to M at time t." << std::endl;
+  out << "  -ma <M11> <M21> ...   Sets the (backwards) migration matrix." << std::endl;
+  out << "  -ema <t> <M11> <M21> ...    Changes the migration matrix at time t" << std::endl;
+  out << "  -es <t> <i> <p>  Population admixture. Replaces a fraction of 1-p of" << std::endl
+      << "                   population i with individuals a from population npop + 1" << std::endl
+      << "                   which is ignored afterwards (forward in time). " << std::endl;
+  out << "  -ej <t> <i> <j>  Speciation event at time t. Creates population j" << std::endl
+      << "                   from individuals of population i." << std::endl;
+
+  out << std::endl << "Population Size Changes:" << std::endl;
+  out << "  -n <i> <n>       Set the present day size of population i to n*N0." << std::endl;
+  out << "  -en <t> <i> <n>  Change the size of population i to n*N0 at time t." << std::endl;
+  out << "  -eN <t> <n>      Set the present day size of all populations to n*N0." << std::endl;
+  out << "  -g <i> <a>       Set the exponential growth rate of population i to a." << std::endl;
+  out << "  -eg <t> <i> <a>  Change the exponential growth rate of population i to a" << std::endl
+      << "                   at time t." << std::endl;
+  out << "  -G <a>           Set the exponential growth rate of all populations to a." << std::endl;
+  out << "  -eG <t> <a>      Change the exponential growth rate of all populations to a" << std::endl
+      << "                   at time t." << std::endl;
+
+  out << std::endl << "Other:" << std::endl;
+  out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
+      << "                   integer numbers." << std::endl;
+  out << "  -v, --version    Prints the version of scrm." << std::endl;
+  out << "  -h, --help       Prints this text." << std::endl;
+
+  out << std::endl << "Examples" << std::endl;
+  out << "--------------------------------------------------------" << std::endl;
+  out << "Five independent sites for 10 individuals using Kingman's Coalescent:" <<std::endl;
+  out << "  scrm 10 5 -t 10" << std::endl << std::endl;
+
+  out << "A sequence of 10kb from 4 individuals under the exact ARG:" <<std::endl; 
+  out << "  scrm 4 1 -t 10 -r 4 10000" << std::endl << std::endl;
+
+  out << "A sequence of 100Mb using the SMC' approximation:" << std::endl;
+  out << "  scrm 4 1 -t 10 -r 4000 100000000 -l 0" << std::endl << std::endl;
+
+  out << "Same as above, but with essentially correct linkage:" << std::endl;
+  out << "  scrm 4 1 -t 10 -r 4000 100000000 -l 100000" << std::endl << std::endl;
 }
