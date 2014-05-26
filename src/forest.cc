@@ -413,7 +413,7 @@ void Forest::sampleNextGenealogy() {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
     //this->record_Recombevent(0, recomb_opportunity, NOEVENT );
-this->record_Recombevent(0, this -> local_tree_length(), NOEVENT );
+this->record_Recombevent(0, 0,0,this -> local_tree_length(), NOEVENT );
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
@@ -448,8 +448,8 @@ this->record_Recombevent(0, this -> local_tree_length(), NOEVENT );
   // record recombination event - we pass the population, but disregard for now, 
   // since the opportunity is calculated overall rather than per-population. 
   this->record_Recombevent(0, 
-                            //rec_point.height(), 
-                            //rec_point.height(), 
+                            rec_point.height(), 
+                            rec_point.height(), 
                             recomb_opportunity, 
                             EVENT );
   
@@ -782,6 +782,7 @@ double Forest::calcRecombinationRate(Node const* node) const {
     // Rec rate is constant for the relevant sequence part
     return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
   } else {
+      cout<<"ever here"<<endl;
     // Rec rate may change. Accumulate the total rate.
 
     double rate = model().recombination_rate() * 

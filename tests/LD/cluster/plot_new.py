@@ -104,7 +104,7 @@ for i, program_i in enumerate ( program ):
                 #current_line.set_color("blue")
             
             if i > 0 :
-                relative_ac = [ np.abs(ms.ac[ac_i] - current_job.ac[ac_i]) for ac_i in range(len(ms.ac))]
+                relative_ac = [ (ms.ac[ac_i] - current_job.ac[ac_i]) for ac_i in range(len(ms.ac))]
                 current_line3 = ax3.plot ( delta, relative_ac, linestyles[i], color = colors[color_j] )
      #           ax3.errorbar ( delta, relative_ac, yerr = [ x/(1000**0.5) *1.96 for x in current_job.ac_std ],
      #                         fmt='.', color = colors[color_j] )
@@ -131,7 +131,7 @@ for i, program_i in enumerate ( program ):
 #l3[0] = ms_line3
                               
 ax1.legend ([ x[0] for x in l1], legendlist1, loc = 1)        
-ax1.axis([0,20000, 0, 1]) 
+ax1.axis([0,4e4, 0, 1]) 
 ax1.set_xlabel(r'Distance between two sites $\delta$')
 ax1.set_ylabel(r'Autocorrelation $\rho$')
 fig1.savefig("TMRCArhoLD.pdf")
@@ -139,13 +139,13 @@ fig1.savefig("TMRCArhoLD.pdf")
 l1.pop(0)
 legendlist1.pop(0)
 ax3.legend ([ x[0] for x in l1], legendlist1, loc = 1)        
-ax3.axis([0, 20000, -0.005, 0.07]) 
+ax3.axis([0, 1e5, -0.03, 0.06]) 
 ax3.set_xlabel(r'Distance between two sites $\delta$')
 ax3.set_ylabel(r'Errors in Autocorrelation $\rho$')
 fig3.savefig("RelativeTMRCArhoLD.pdf")
 
 
-ax2.set_xlim ([-10, 900])
+ax2.set_xlim ([-10, 2100])
 #ax2.set_ylim ([0.5, 35])
 ax2.set_ylim ([5, 3500])
 #ax2.axis([-10, 1300, -2.5, np.log(ms.time_mean)*1.1] )
