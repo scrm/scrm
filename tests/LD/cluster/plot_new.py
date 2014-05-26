@@ -25,7 +25,7 @@ class job:
         self.dev = np.abs(simps(y, x = delta))
         #print self.dev
 
-delta = range( 0, int(2e4+1), 1000 )
+delta = range( 0, int(1e5+1), 1000 ) # Changed on May 26th, 2e4 to 1e5
 
 prefix = "Constantpopsize"
 suffix = "_Processed"
