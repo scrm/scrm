@@ -412,6 +412,8 @@ void Forest::sampleNextGenealogy() {
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+    //this->record_Recombevent(0, recomb_opportunity, NOEVENT );
+this->record_Recombevent(0, this -> local_tree_length(), NOEVENT );
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
@@ -445,7 +447,7 @@ void Forest::sampleNextGenealogy() {
 
   // record recombination event - we pass the population, but disregard for now, 
   // since the opportunity is calculated overall rather than per-population. 
-  this->record_Recombevent(rec_point.base_node()->population(), 
+  this->record_Recombevent(0, 
                             //rec_point.height(), 
                             //rec_point.height(), 
                             recomb_opportunity, 
