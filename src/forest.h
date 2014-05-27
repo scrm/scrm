@@ -84,7 +84,6 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
-friend class ParticleContainer; //DEBUG
   friend class ForestState;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
@@ -212,13 +211,13 @@ friend class ParticleContainer; //DEBUG
 
   //derived class from Forest
   virtual void record_Recombevent(size_t pop_i, 
-    double start_time, 
-    double end_time, 
+    //double start_time, 
+    //double end_time, 
     double opportunity, 
     eventCode event_code){
     (void)pop_i;
-    (void)start_time;
-    (void)end_time;
+    //(void)start_time;
+    //(void)end_time;
     (void)opportunity;
     (void)event_code;  
   }
