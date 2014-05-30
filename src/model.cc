@@ -711,3 +711,37 @@ void swap(Model& first, Model& second) {
   swap(first.current_mig_rates_, second.current_mig_rates_);
   swap(first.current_total_mig_rates_, second.current_total_mig_rates_);
 }
+
+
+void Model::addPopulation() {
+  // Create the new population
+  size_t new_pop = population_number();
+  this->set_population_number(new_pop+1);
+
+  // Change Vectors
+  addPopToVectorList(growth_rates_list_);
+  addPopToVectorList(pop_sizes_list_);
+
+  // Change Matrices
+  addPopToMatrixList(mig_rates_list_, new_pop);
+  addPopToMatrixList(single_mig_probs_list_, new_pop, 0);
+}
+
+void Model::addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, size_t new_pop, double default_value) {
+  for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
+    if (*it == NULL) continue;
+    for (size_t i = 0; i < new_pop; ++i) {
+      (*it)->insert((*it)->begin() + getMigMatrixIndex(i, new_pop), default_value);
+    }
+    for (size_t i = 0; i < new_pop; ++i) {
+      (*it)->insert((*it)->begin() + getMigMatrixIndex(new_pop, i), default_value);
+    }
+  }
+}
+
+void Model::addPopToVectorList(std::vector<std::vector<double>*> &vector_list) {
+  for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
+    if (*it == NULL) continue;
+    (*it)->push_back(nan("value to replace"));
+  }
+}

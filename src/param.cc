@@ -53,6 +53,11 @@ void Param::parse(Model &model) {
        trees = false,
        sfs = false; 
 
+
+  // The minimal time at which -eM, -eN, -eG, -eI, -ema and -es are allowed to happen. Is
+  // increased by using -es.
+  double min_time = 0.0;
+
   std::string argv_i = "";
   argc_i = 0;
 
@@ -137,6 +142,10 @@ void Param::parse(Model &model) {
     // Add samples at arbitrary times
     else if (argv_i == "-eI") {
       time = readNextInput<double>();
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-eI' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by the time."));
+      }
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
         sample_size.push_back(readNextInput<size_t>());
@@ -150,6 +159,10 @@ void Param::parse(Model &model) {
     else if (argv_i == "-eN" || argv_i == "-N") {
       if (argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-N' or '-eN' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by time."));
+      }
       model.addPopulationSizes(time, readNextInput<double>(), true, true); 
       if (time != 0.0) model.addGrowthRates(time, 0.0, true);
     }
@@ -168,6 +181,10 @@ void Param::parse(Model &model) {
     else if (argv_i == "-G" || argv_i == "-eG") {
       if (argv_i == "-eG") time = readNextInput<double>();
       else time = 0.0;
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-G' or '-eG' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by time."));
+      }
       model.addGrowthRates(time, readNextInput<double>(), true, true); 
     }
 
@@ -186,6 +203,10 @@ void Param::parse(Model &model) {
         time = readNextInput<double>();
       }
       else time = 0.0;
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-ma' or '-ema' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by time."));
+      }
       std::vector<double> migration_rates;
       for (size_t i = 0; i < model.population_number(); ++i) {
         for (size_t j = 0; j < model.population_number(); ++j) {
@@ -204,17 +225,35 @@ void Param::parse(Model &model) {
         time = readNextInput<double>();
       }
       else time = 0.0;
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-M' or '-eM' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by time."));
+      }
       model.addSymmetricMigration(time, readNextInput<double>()/(model.population_number()-1), true, true);
     }
 
+    // ------------------------------------------------------------------
+    // Population merges
+    // ------------------------------------------------------------------
     else if (argv_i == "-es") {
       time = readNextInput<double>();
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("You must sort multiple population merges ('-es'),") +
+                                    std::string("by the time they occur."));
+      }
+      min_time = time;
       size_t source_pop = readNextInput<size_t>() - 1;
-      size_t sink_pop = readNextInput<size_t>() - 1;
+      size_t sink_pop = model.population_number();
       double fraction = readNextInput<double>();
+
+      model.addPopulation();
       model.addSingleMigrationEvent(time, source_pop, sink_pop, fraction, true); 
     }
 
+
+    // ------------------------------------------------------------------
+    // Population splits
+    // ------------------------------------------------------------------
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
       size_t source_pop = readNextInput<size_t>() - 1;
@@ -233,8 +272,10 @@ void Param::parse(Model &model) {
       model.set_exact_window_length(readNextInput<size_t>());
     }
 
-    // ------------------------------------------------------------------
 
+    // ------------------------------------------------------------------
+    // Summary Statistics
+    // ------------------------------------------------------------------
     else if (argv_i == "-T" || argv_i == "-Tfs"){
       trees = true;
     }

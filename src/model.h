@@ -376,6 +376,8 @@ class Model
      summary_statistics_.push_back(sum_stat);
    }
 
+  void addPopulation();
+
   private:
    std::vector<double> change_times_;
    void setLocusLength(const size_t length) { 
@@ -423,6 +425,11 @@ class Model
     assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
   }
+
+  void addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, 
+                          size_t new_pop,
+                          double default_value = nan("value to replace"));
+  void addPopToVectorList(std::vector<std::vector<double>*> &vector_list);
 
    // Stores information about samples. Each index represents a sample.
    std::vector<size_t> sample_populations_;
