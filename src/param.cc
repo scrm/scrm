@@ -55,7 +55,7 @@ void Param::parse(Model &model) {
 
 
   // The minimal time at which -eM, -eN, -eG, -eI, -ema and -es are allowed to happen. Is
-  // increase by using -es.
+  // increased by using -es.
   double min_time = 0.0;
 
   std::string argv_i = "";
