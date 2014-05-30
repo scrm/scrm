@@ -19,6 +19,8 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseGrowthOptions );
   CPPUNIT_TEST( testParseVariableRates );
   CPPUNIT_TEST( testParseUnsupportedMsArguments );
+  CPPUNIT_TEST( testParseSplitOptions );
+  CPPUNIT_TEST( testParseMergeOptions );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -232,17 +234,64 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
+  }
 
+  void testParseMergeOptions() {
     // -es
-    char *argv5[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
-      "-es", "1.6", "2", "1", "0.5", "-es", "1.6", "1", "2", "0.1", "-M", "5.0" };
-    CPPUNIT_ASSERT_NO_THROW( Param(21, argv5).parse(model); );
+    char *argv1[] = { "scrm", "20", "10", 
+                      "-I", "2", "10", "10", "1.5", 
+                      "-es", "1.6", "2", "0.5" };
+    CPPUNIT_ASSERT_NO_THROW( Param(12, argv1).parse(model); );
     model.resetTime();
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0,1)) );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(1,0)) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,0) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,1) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(2) );
+
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 0.1, model.single_mig_pop(0, 1) );
-    CPPUNIT_ASSERT_EQUAL( 0.5, model.single_mig_pop(1, 0) );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.single_mig_pop(1, 2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.single_mig_pop(2, 1) );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0,1)) );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(1,0)) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0,2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,0) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(1,2) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,1) );
+    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(1) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate() );
 
+    char *argv2[] = { "scrm", "20", "10", 
+                      "-I", "2", "10", "10", "1.5", 
+                      "-es", "1.6", "2", "0.5",
+                      "-eM", "0.9", "5.0" };
+    CPPUNIT_ASSERT_THROW( Param(15, argv2).parse(model), std::invalid_argument );
+
+    char *argv3[] = { "scrm", "20", "10", 
+                      "-I", "2", "10", "10", "1.5", 
+                      "-es", "1.6", "2", "0.5",
+                      "-eG", "0.9", "5.0" };
+    CPPUNIT_ASSERT_THROW( Param(15, argv3).parse(model), std::invalid_argument );
+
+    char *argv4[] = { "scrm", "20", "10", 
+                      "-I", "2", "10", "10", "1.5", 
+                      "-es", "1.6", "2", "0.5",
+                      "-eN", "0.9", "5.0" };
+    CPPUNIT_ASSERT_THROW( Param(15, argv4).parse(model), std::invalid_argument );
+
+    char *argv5[] = { "scrm", "20", "10", 
+                      "-I", "2", "10", "10", "1.5", 
+                      "-es", "1.6", "2", "0.5",
+                      "-es", "0.9", "3", "1" };
+    CPPUNIT_ASSERT_THROW( Param(16, argv5).parse(model), std::invalid_argument );
+  }
+
+  void testParseSplitOptions() {
     // -ej
     char *argv6[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
       "-ej", "1.6", "2", "1", "-M", "1.3" };

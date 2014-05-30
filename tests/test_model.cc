@@ -39,6 +39,8 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST( testPopSizeAfterGrowth );
   CPPUNIT_TEST( testAddSummaryStatistic );
   CPPUNIT_TEST( testSetLocusLength );
+  CPPUNIT_TEST( testAddPopToVectorList );
+  CPPUNIT_TEST( testAddPopToMatrixList );
 
 
 
@@ -668,6 +670,56 @@ class TestModel : public CppUnit::TestCase {
     model.setLocusLength(5000);
     CPPUNIT_ASSERT_EQUAL((size_t)5000, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL(0.001, model.mutation_rate());
+  }
+
+  void testAddPopToVectorList() {
+    Model model = Model(5);
+    std::vector<std::vector<double>*> vector_list;
+    vector_list.push_back(new std::vector<double>(2, 1.0));    
+    vector_list.push_back(NULL);    
+    vector_list.push_back(new std::vector<double>(2, 0.5));    
+
+    model.addPopToVectorList(vector_list);
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, vector_list.at(0)->size() );
+    CPPUNIT_ASSERT_EQUAL( 1.0, vector_list.at(0)->at(0) );
+    CPPUNIT_ASSERT_EQUAL( 1.0, vector_list.at(0)->at(1) );
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(2)));
+
+    CPPUNIT_ASSERT_EQUAL( (size_t)3, vector_list.at(2)->size() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, vector_list.at(2)->at(0) );
+    CPPUNIT_ASSERT_EQUAL( 0.5, vector_list.at(2)->at(1) );
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(2)->at(2)));
+
+    model.deleteParList(vector_list);
+  }
+
+  void testAddPopToMatrixList() {
+    Model model = Model(5);
+    std::vector<std::vector<double>*> vector_list;
+    vector_list.push_back(new std::vector<double>(2, 1.0));    
+    vector_list.push_back(NULL);    
+    vector_list.push_back(new std::vector<double>(2, 0.5));    
+
+    model.set_population_number(3);
+    model.addPopToMatrixList(vector_list, 2);
+
+    CPPUNIT_ASSERT_EQUAL( (size_t)6, vector_list.at(0)->size() );
+    CPPUNIT_ASSERT_EQUAL( 1.0, vector_list.at(0)->at(0) );
+    CPPUNIT_ASSERT_EQUAL( 1.0, vector_list.at(0)->at(2) );
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(1)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(3)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(4)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(5)));
+
+    CPPUNIT_ASSERT_EQUAL( (size_t)6, vector_list.at(2)->size() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, vector_list.at(2)->at(0) );
+    CPPUNIT_ASSERT_EQUAL( 0.5, vector_list.at(2)->at(2) );
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(1)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(3)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(4)));
+    CPPUNIT_ASSERT( std::isnan(vector_list.at(0)->at(5)));
+
+    model.deleteParList(vector_list);
   }
 };
 
