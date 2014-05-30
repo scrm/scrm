@@ -1,6 +1,6 @@
 SUBDIRS = doc
 include aminclude.am 
-EXTRA_DIST = bootstrap doc/manual.pdf m4/ac_doxygen.m4
+EXTRA_DIST = bootstrap doc/manual.html m4/ac_doxygen.m4
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
@@ -12,8 +12,8 @@ distdir = $(PACKAGE)-$(VERSION)
 #CXXFLAGS= -I/opt/local/include
 #LDFLAGS= -L/opt/local/lib
 
-doc/manual.pdf:
-	cd doc; make manual.pdf
+doc/manual.html:
+	cd doc; make manual.html
 
 unittests: unit_tests
 	./unit_tests 
