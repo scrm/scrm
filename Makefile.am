@@ -68,7 +68,7 @@ algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unitte
 
 # Documentation
 if HAVE_PANDOC
-pages=doc/wiki/Command-Line-Options.md
+pages=doc/wiki/Command-Line-Options.md doc/wiki/Output.md
 
 init-wiki:
 	git submodule init; git submodule update
