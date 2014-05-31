@@ -1,11 +1,11 @@
 foo(){
-    cut -f 2 mstime > mstmrca
-	cut -f 2 scrmtime > scrmtmrca
+    #cut -f 2 mstime > mstmrca
+	#cut -f 2 scrmtime > scrmtmrca
 	echo "TMRCA" > figuretitle
 	R CMD BATCH tmrca.r
 
-    cut -f 3 mstime > msbl
-	cut -f 3 scrmtime > scrmbl
+    #cut -f 3 mstime > msbl
+	#cut -f 3 scrmtime > scrmbl
 	echo "BL" > figuretitle
 	R CMD BATCH bl.r
 

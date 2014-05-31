@@ -5,6 +5,7 @@ CHECKING THE INITIAL TREE
 * Checking -T option
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
+(Checking 31 May 14)
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -14,6 +15,7 @@ CHECKING THE INITIAL TREE
 		
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
+(Checking 31 May 14)
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -34,6 +36,8 @@ CHECKING THE INITIAL TREE
 * Checking segregating sites data
 (Good 27Jan14) ##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
+
 	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
 	./ms_vs_scrm_SEG_samplestats.sh
 	
@@ -46,6 +50,7 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 * Checking -ma option	
 (Good 28Jan14) ##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
 
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig.sh
@@ -56,6 +61,8 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
         
 (Good 27Feb 14) ##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
+
 	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
 	./ms_vs_scrm-mig_more.sh
 	
@@ -67,6 +74,7 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 * Checking the population structure, -eN option
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for Population structure
 	./ms_vs_scrm_pop_struct.sh 
 
@@ -79,6 +87,7 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 * Checking -ma option with -eN option
 (Good 28Jan14) ##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig-popsize.sh 
 	
@@ -89,6 +98,8 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 * Checking the sub population structure, -en, and -ej options
 (GOOD 13Feb14)##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
+
 	Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_subpop_struct.sh
     
@@ -99,6 +110,8 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 * Checking growth rate, -G, -eG, and -eg option
 (GOOD 10APR14)##############################################
 (GOOD 17 May 14)
+(GOOD 31 May 14)
+
     Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_growth.sh 
     
@@ -136,7 +149,8 @@ NOTE: for most of the cases, there is no significant difference on number of seg
 
 * Checking -ma option with -r option
 (Good 27Feb14) ##############################################
-(retest 17 May 14)
+(GOOD 17 May 14)
+(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig_recomb.sh
 	
@@ -145,6 +159,8 @@ NOTE: for most of the cases, there is no significant difference on number of seg
 		test-mig-recomb/*.pdf
         
 (Good 27Feb14) ##############################################
+(GOOD 31 May 14)
+
 	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
 	./ms_vs_scrm-mig_more_recomb.sh
 	

@@ -7,7 +7,7 @@ cd test-mig
 rm *pdf
 
 
-rep=10000
+rep=100000
 
 ## compare TMRCA
 COMPAREFILE=compareMIG

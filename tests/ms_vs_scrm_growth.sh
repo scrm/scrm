@@ -6,7 +6,7 @@ cd ${dir}
 rm *pdf
 
 
-rep=10000
+rep=100000
 
 COMPAREFILE=compareGrowth
 rm ${COMPAREFILE}
@@ -34,8 +34,8 @@ scrm 5 ${rep} -t ${theta} -G 7.0 -T > scrmout
 
 cat msout | sample_stats > ms_stats
 cat msout | grep ";" | sed -e 's/\[.*\]//g' > msTrees
-hybrid-Lambda -gt msTrees -tmrca mstmrca
-hybrid-Lambda -gt msTrees -bl msbl
+hybrid-Lambda -gt msTrees -tmrca mstmrca -log
+hybrid-Lambda -gt msTrees -bl msbl -log
 
 
 cat scrmout | sample_stats > scrm_stats
