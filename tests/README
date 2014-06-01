@@ -5,7 +5,7 @@ CHECKING THE INITIAL TREE
 * Checking -T option
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
-(Checking 31 May 14)
+(GOOD 1 June 14)
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -15,7 +15,7 @@ CHECKING THE INITIAL TREE
 		
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
-(Checking 31 May 14)
+(GOOD 1 June 14)
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -26,6 +26,7 @@ CHECKING THE INITIAL TREE
 
 (Good 19Jan14) ##############################################
 (GOOD 17 May 14)
+(GOOD 1 June 14)
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg.sh 
 	
@@ -124,6 +125,7 @@ WITH RECOMBINATION
 	
 (Good 27Jan14)	##############################################
 (retest 17 May 14)
+(GOOD 1 June 14)
 	Compare TMRCA
 	Compare total branch length
 
@@ -136,7 +138,7 @@ WITH RECOMBINATION
 	
 	
 (Good Feb 10)	##############################################
-(retest 17 May 14)
+(GOOD 1 June 14)
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg_wit_recomb.sh 
     
@@ -185,7 +187,7 @@ test-spectrum-recomb/
 
 
 * Checking growth rate with recombination, -G, -eG, and -eg option
-(TO COME)##############################################
+(GOOD 1 June 14)##############################################
     Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_growth-recomb.sh 
     
