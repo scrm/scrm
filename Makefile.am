@@ -1,5 +1,5 @@
 include aminclude.am 
-EXTRA_DIST = doc/manual.html doc/wiki doc/knitr.css m4/ac_doxygen.m4
+EXTRA_DIST = doc/manual.html m4/ac_doxygen.m4
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
@@ -81,7 +81,7 @@ doc/manual.html: ${pages} doc/knitr.css
 	  -M title='The scrm Quick Reference' \
 	  -M author='Paul R. Staab, Joe (Sha) Zhu, Dirk Metzler and Gerton Lunter' \
 	  -M date="Version ${VERSION}" \
-	  -c knitr.css \
-	  --standalone \
+	  -c doc/knitr.css \
+	  --standalone --self-contained \
 	  -o doc/manual.html ${pages}
 endif
