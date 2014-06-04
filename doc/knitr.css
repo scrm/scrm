@@ -19,14 +19,31 @@ tt, code, pre {
 
 h1 {
    font-size:2.2em;
+   padding-top: 1.5em;
+   text-align: center;
+   padding-bottom: 0.25em;
+   border-bottom: 1px solid #57c4d0;
+}
+
+h1.title {
+   padding-top: 0em;
+   border: 0px;
 }
 
 h2 {
    font-size:1.8em;
+   padding-top: 1em;
+   line-height: 1.3em;
+}
+
+h2.author, h3.date {
+   text-align: center;
+   padding-top: 0em;
 }
 
 h3 {
    font-size:1.4em;
+   padding-top: 0.5em;
 }
 
 h4 {

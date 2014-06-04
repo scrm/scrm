@@ -77,9 +77,10 @@ update-wiki: init-wiki
 	cd doc/wiki; git pull origin master
 
 doc/manual.html: ${pages} doc/knitr.css
-	pandoc -s -S --toc --toc-depth=2 \
-	  -M title='scrm manual' \
-	  -M author='Paul R. Staab, Joe (Sha) Zhu, Dirk Metzler and Gerton Lunter' \
+	pandoc -t html5 -s -S  --toc --toc-depth=2 \
+	  -M title='The scrm Quick Reference' \
+	  -M author='Paul R. Staab, Joe (Sha) Zhu, Dirk Metzler and Gerton Lunter' \
+	  -M date="Version ${VERSION}" \
 	  -c knitr.css \
 	  --standalone \
 	  -o doc/manual.html ${pages}
