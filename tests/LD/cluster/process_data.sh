@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -V
-#$ -P bsg.prjb -q short.qb
+#$ -P bsg.prjb -q long.qb
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N process_data.sh
