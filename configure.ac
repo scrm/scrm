@@ -1,5 +1,5 @@
-AC_INIT([scrm], [0.9.2],[https://github.com/paulstaab/scrm/issues])
-#AC_INIT([scrm],[beta],[staab@biologie.uni-muenchen.de])
+AC_INIT([scrm], [1.0-beta1],[https://github.com/paulstaab/scrm/issues])
+AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
 #AC_CONFIG_HEADER([config.h])
@@ -7,7 +7,6 @@ dnl AC_CONFIG_SRCDIR([simu.c])
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
 AM_SILENT_RULES([yes])
 
-AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_INSTALL
 AC_PREREQ
 AC_CANONICAL_HOST
@@ -37,7 +36,6 @@ case $host_os in
     AC_PROG_CXX([clang])
     export CXX=clang++
     export CXXFLAGS=-I/opt/local/include
-    AC_CHECK_HEADERS([/opt/local/include/boost/assign/std/vector.hpp /opt/local/include/boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Install from the port: sudo port install boost])])
         ;;
   linux*)
     AC_PROG_CXX
@@ -55,9 +53,7 @@ case $host_os in
         AC_MSG_ERROR([Require g++ compiler 4.6+])
     fi 
 
-    AC_CHECK_HEADERS([boost/assign/std/vector.hpp boost/lexical_cast.hpp],[],[AC_MSG_ERROR(['boost' header files not found. Try downloading from :http://www.boost.org. Or: sudo apt-get install libboost-all-dev])])        
     ;;
-    #compile on cluster 3, ./configure CXXFLAGS=-I/usr/local/boost
    *BSD*)
         # Do something specific for BSD
         ;;
@@ -84,7 +80,6 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-
 # Checks for libraries.
 #AC_CHECK_LIB([m], [log])
 
@@ -97,7 +92,7 @@ AC_FUNC_REALLOC
 #AC_HEADER_STDBOOL
 
 m4_include([m4/ac_doxygen.m4])
-DX_INIT_DOXYGEN(scrm, Doxyfile, html/)
+DX_INIT_DOXYGEN(scrm, Doxyfile, doc/doxygen)
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
@@ -109,14 +104,21 @@ DX_PS_FEATURE(OFF)
 
 
 # Check for presence of pdfLaTeX
-AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
-AC_CHECK_PROG(BIBTEX, bibtex,bibtex)
-if test -z "$PDFLATEX"; then
-  AC_MSG_WARN([Unable to create PDF version of the user manual.])
+#AC_CHECK_PROG(PDFLATEX, pdflatex, pdflatex)
+#AC_CHECK_PROG(BIBTEX, bibtex,bibtex)
+#if test -z "$PDFLATEX"; then
+#  AC_MSG_WARN([Unable to create PDF version of the user manual.])
+#fi
+
+#AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
+
+# Check for presence of pandoc
+AC_CHECK_PROG(PANDOC, pandoc, pandoc)
+if test -z "$PANDOC"; then
+  AC_MSG_WARN([Unable to create the user manual.])
 fi
 
-AM_CONDITIONAL([HAVE_PDFLATEX], test -n "$PDFLATEX")
+AM_CONDITIONAL([HAVE_PANDOC], test -n "$PANDOC")
 
-AC_CONFIG_FILES([Makefile doc/Makefile])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
-

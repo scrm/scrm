@@ -62,7 +62,7 @@ class Node
 
   //Getters & Setters
   double height() const { return this->height_; }
-  void set_height(const double &height) { this->height_ = height; }
+  void set_height(const double height) { this->height_ = height; }
 
   double parent_height() const {
     if ( this->is_root() ) return this->height();
@@ -72,7 +72,7 @@ class Node
   double height_above() const { return this->parent_height() - this->height(); }
 
   size_t population() const { return population_; }
-  void set_population(const size_t &pop) { population_ = pop; }
+  void set_population(const size_t pop) { population_ = pop; }
 
   bool local() const { return (last_update_ == -1); }
 
@@ -80,7 +80,7 @@ class Node
     //if (!local()) dout << "AAA Making " << this << " local (last-update before:" << last_update() << ")" << std::endl;
     last_update_ = -1; 
   }
-  void make_nonlocal(const double &current_base) { 
+  void make_nonlocal(const double current_base) { 
     assert( this->local() ); 
     //dout << "AAA Making " << this << " non-local with last_update " << current_base << std::endl;
     set_last_update(current_base);
@@ -104,7 +104,7 @@ class Node
   void set_samples_below(size_t samples) { samples_below_ = samples; }
 
   double length_below() const { return length_below_; }
-  void set_length_below(const double &length) { length_below_ = length; }
+  void set_length_below(const double length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
   int  numberOfChildren() const { 
@@ -136,7 +136,7 @@ class Node
     return (this->numberOfChildren() == 1 && !this->is_migrating()); 
   }
 
-  bool is_contemporary(const double &time) {
+  bool is_contemporary(const double time) {
     return ( time <= height() && height() <= parent_height() ); 
   }
 
@@ -156,7 +156,7 @@ class Node
 	
  private:
   void init(double heigh=-1, size_t label=0);
-  void set_last_update(const double &position) { last_update_ = position; }; 
+  void set_last_update(const double position) { last_update_ = position; }; 
 
   size_t label_;
   double height_;        // The total height of the node

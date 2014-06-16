@@ -54,12 +54,10 @@
 #include <cfloat>
 #include <cassert>
 #include <sstream> // This is required by Forest::writeTree, ostringstream
-#include <boost/assign/std/vector.hpp>
 
 #include "node.h"
 #include "event.h"
 #include "model.h"
-// #include "param.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
@@ -109,13 +107,13 @@ class Forest
     if (sample_size_ == 0) return model().sample_size(); 
     return this->sample_size_; 
   }
-  void set_sample_size(const size_t &size ) { sample_size_ = size; }
+  void set_sample_size(const size_t size ) { sample_size_ = size; }
 
   double current_base() const { return current_base_; }
-  void set_current_base(const double &base) { current_base_ = base; }
+  void set_current_base(const double base) { current_base_ = base; }
 
   double next_base() const {return next_base_;}
-  void set_next_base(const double &base){next_base_ = base;}
+  void set_next_base(const double base){next_base_ = base;}
 
   // Must be called AFTER the tree was modified.
   void sampleNextBase() {
@@ -154,12 +152,6 @@ class Forest
 
   NodeContainer const *getNodes() const { return &nodes_; };
 
-  size_t prune_countdown() const{return prune_countdown_;}  // We will prune once this countdown reaches 0
-  void set_prune_countdown(size_t  prune_countdown){prune_countdown_ = prune_countdown;}
-
-  bool pruning() const{return pruning_;}
-  void set_pruning(bool pruning){pruning_=pruning;}
-
   // Central functions
   void buildInitialTree();
   void sampleNextGenealogy();
@@ -177,7 +169,7 @@ class Forest
   bool checkNodeProperties() const;
   bool checkContemporaries(const TimeInterval &ti) const;
   bool printNodes() const;
-  bool checkForNodeAtHeight(const double &height) const;
+  bool checkForNodeAtHeight(const double height) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -240,15 +232,15 @@ class Forest
                    const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node, bool pruning);
-  size_t getNodeState(Node const *node, const double &current_time) const;
+  void sampleCoalescences(Node *start_node);
+  size_t getNodeState(Node const *node, const double current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
   void implementNoEvent(const TimeInterval &ti, bool &coalescence_finished);
   void implementCoalescence(const Event &event, TimeIntervalIterator &tii);
-  void implementPwCoalescence(Node* root_1, Node* root_2, const double &time);
+  void implementPwCoalescence(Node* root_1, Node* root_2, const double time);
   void implementRecombination(const Event &event, TimeIntervalIterator &tii);
   void implementMigration(const Event &event, const bool &recalculate, TimeIntervalIterator &tii);
   void implementFixedTimeEvent(TimeIntervalIterator &ti);
@@ -265,24 +257,25 @@ class Forest
   }
 
   bool pruneNodeIfNeeded(Node* node);
+  void doCompletePruning();
 
 
   // Calculation of Rates
-  double calcCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
-  double calcPwCoalescenceRate(const size_t &pop, const TimeInterval &ti) const;
+  double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
+  double calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti);
 
   void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
                    size_t tmp_event_line, Event &return_event) const;
 
-  void sampleEventType(const double &time, const size_t &time_line, 
+  void sampleEventType(const double time, const size_t time_line, 
                        const TimeInterval &ti, Event &return_event) const;
 
-  void selectFirstTime(const double &new_time, const size_t &time_line, 
+  void selectFirstTime(const double new_time, const size_t time_line, 
                        double &current_time, size_t &current_time_line) const;
 
-  double getTimeLineGrowth(const size_t &time_line) const {
+  double getTimeLineGrowth(const size_t time_line) const {
     if (time_line == 0) return 0.0;
     else if (time_line == 1) return model().growth_rate(active_node(0)->population());
     else if (time_line == 2) return model().growth_rate(active_node(1)->population());
@@ -304,8 +297,7 @@ class Forest
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t prune_countdown_;  // We will prune once this countdown reaches 0
-  bool pruning_;
+  size_t segment_count_;     // Counts next number segments already created 
 
   Model* model_;
   RandomGenerator* random_generator_;
@@ -343,7 +335,7 @@ class Forest
   bool coalescence_finished_;
 };
 
-bool areSame(const double &a, const double &b, 
-             const double &epsilon = std::numeric_limits<double>::epsilon());
+bool areSame(const double a, const double b, 
+             const double epsilon = std::numeric_limits<double>::epsilon());
 
 #endif
