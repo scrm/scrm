@@ -62,93 +62,8 @@ double speedtest(int oper, double rate, double growth, double limit) {
   return z + zf;  // to avoid optimizing everything away
 }
 
-//
-// set of unit tests
-//
 
-double ut_calclog( double x, char func, class FastFunc& ff ) {
-
-  switch (func) {
-  case 'l':
-    return log(x);
-  case 'f':
-    return (double)logf( (float)x );
-  case 'F':
-    return ff.fastlog(x);
-  default:
-    std::cout << "Bad function identifier: " << func << std::endl;
-    exit(1);
-  }
-}
-    
-// test that log is in range around 1.0
-bool unittest_range( char func, class FastFunc& ff) {
-
-  double x,y;
-  // test log 1.0
-  y = ut_calclog( 1.0, func, ff );
-  if (y == 0.0) {
-    std::cout << " ok : log(1.0) = 0.0 " << std::endl;
-  } else {
-    std::cout << " PROBLEM : log(1.0) = " << y << std::endl;
-    return false;
-  }
-
-  // test numbers very close to 1.0
-  int i_limit = 1564;  // float
-  if (func == 'd') i_limit = 3574;
-  for (int i = 0; i<10000; i++) {
-    x = exp( -(1+i/100.0) );
-    y = ut_calclog( 1.0 - x, func, ff );
-    if ( y >= 0.0 ) {
-      std::cout << (i >= i_limit ? " ok" : " PROBLEM") << " : log( 1.0 - " << x << " ) = " << y << " at i=" << i << std::endl;
-      return i >= i_limit;
-    }
-    y = ut_calclog( 1.0 + x, func, ff );
-    if ( y <= 0.0 ) {
-      std::cout << (i >= i_limit ? " ok" : " PROBLEM") << " : log( 1.0 + " << x << " ) = " << y << " at i=" << i << std::endl;
-      return i >= i_limit;
-    }
-  }
-  return true;  // never happens
-}
-
-bool unittest_maxdiff_monotone( char func, class FastFunc& ff) {    
-
-  double epsilon = 1.5e-7;
-  double maxdiff = 0.0;
-  double y0 = ut_calclog( 0.5 - epsilon, func, ff );
-  for (int i=0; i<(int)(2+1.0/epsilon); i++) {
-    double x = 0.5 + epsilon*i;
-    double y1 = log(x);
-    double y2 = ut_calclog( x, func, ff );
-    double diff = fabs(y1-y2);
-    if (diff > maxdiff) {
-      maxdiff = diff;
-    }
-    if (y2 <= y0) {
-      std::cout << " PROBLEM: not increasing at " << x << " (i=" << i << ")" << std::endl;
-      return false;
-    }
-    y0 = y2;
-  }
-  std::cout << " max abs diff across [0.5-1.5] = " << maxdiff << std::endl;
-}
-
-
-void unittest_log() {
-
-  class FastFunc ff;
-  for (int i=0; i<3; i++) {
-    char func = "lfF"[i];
-    std::cout << "Testing: " << func << "  [ l=log(dbl); f=log(float); F=fastlog(dbl) ]" << std::endl;
-    unittest_range( func, ff );
-    unittest_maxdiff_monotone( func, ff );
-  }
-}
-
-
-void speedtest_log() {
+void testlog() {
 
   const int CASES=4;
   const double epsilon=1e-7;
@@ -184,9 +99,7 @@ int main(int argc, char** argv) {
 
   class MersenneTwister rg;
 
-  unittest_log();
-
-  speedtest_log();
+  testlog();
 
   printf("Test\t\tRate\tGrowth\tLimit\tTime\n");
   for (int i=0; i<LLTEST + CASES; i++) {

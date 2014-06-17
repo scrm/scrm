@@ -58,9 +58,9 @@ class Event {
   bool isMigration() const { return (type_ == 3); }
   bool isRecombination() const { return (type_ == 4); }
   
-  void set_time(const double time) { time_ = time; }
+  void set_time(const double &time) { time_ = time; }
 
-  void setToCoalescence(Node *node, const size_t active_node_nr) {
+  void setToCoalescence(Node *node, const size_t &active_node_nr) {
     type_  = 1;
     node_  = node;
     active_node_nr_ = active_node_nr;
@@ -68,13 +68,13 @@ class Event {
   void setToPwCoalescence() {
     type_  = 2;
   }
-  void setToMigration(Node *node, const size_t active_node_nr, const size_t mig_pop) {
+  void setToMigration(Node *node, const size_t &active_node_nr, const size_t &mig_pop) {
     type_  = 3;
     node_  = node;
     active_node_nr_ = active_node_nr;
     mig_pop_ = mig_pop;
   }
-  void setToRecombination(Node *node, const size_t active_node_nr) {
+  void setToRecombination(Node *node, const size_t &active_node_nr) {
     type_  = 4;
     node_  = node;
     active_node_nr_ = active_node_nr;

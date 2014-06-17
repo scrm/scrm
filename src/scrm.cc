@@ -30,26 +30,22 @@
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
-  try {
-    // Organize output
-    std::ostream *output = &std::cout;
+  if (argc < 3 ){
+    std::cout << "Too few command line arguments" << std::endl;
+    print_help();
+    exit(1);
+  }
 
+  try {
     Param user_para(argc, argv);
 
     Model model;
     user_para.parse(model);
 
-    // Print help if user asked for it
-    if (user_para.help()) {
-      user_para.printHelp(*output); 
-      return EXIT_SUCCESS;
-    }
-    if (user_para.version()) {
-      *output << "scrm " << VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
+    MersenneTwister rg = MersenneTwister(user_para.random_seed);
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    // Organize output
+    std::ostream *output = &std::cout;
 
     //*output << "scrm " << VERSION << " |" << user_para << std::endl;
     *output << user_para << std::endl;
@@ -74,12 +70,11 @@ int main(int argc, char *argv[]){
 
       forest.printLocusSumStats(*output);
     }
-    return EXIT_SUCCESS;
+
   }
   catch (const exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
-    std::cerr << "Try 'scrm --help' for more information." << std::endl;
     return EXIT_FAILURE;
   }
 }

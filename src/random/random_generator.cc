@@ -24,6 +24,38 @@
 #include <iostream>
 #include <cmath>
 
+// Sample from a unit exponential distribution
+// Unit tested
+// fastlog can return 0, which causes a bug in scrm.
+// log or fastlog does seems to have an influence on the runtime.
+double RandomGenerator::sampleUnitExponential(void) {
+  //return -ff.fastlog( sample() );
+  return -std::log( sample() );
+}
+
+// Sets new seed
+void RandomGenerator::set_seed(const size_t &seed){
+  this->seed_ = seed;
+}
+
+// Initialize unit_exponential; must be called when the random generator is up and running
+void RandomGenerator::initializeUnitExponential() {
+  this->unit_exponential_ = sampleUnitExponential();
+}
+
+// Samples from an exponential distribution 
+// Unit tested 
+double RandomGenerator::sampleExpo(double lambda){
+  return sampleUnitExponential() / lambda;
+}
+
+// Samples from an exponential distribution; return -1 if beyond limit
+// If a limit is known, this version is faster than the standard one
+// Unit tested
+double RandomGenerator::sampleExpoLimit(double lambda, double limit){
+  return sampleExpoExpoLimit(lambda, 0, limit);
+}
+
 // Samples waiting time, with limit, for a process with an exponentially changing rate:
 //  rate(t) = b exp( c t )
 // This code allows c=0, and falls back to a standard exponential if so
@@ -75,4 +107,10 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
       return result;
     }
     }
+}
+
+// Uniformly samples a number out of 0, ..., range-1
+// Unit tested 
+int RandomGenerator::sampleInt(int range) {
+  return(static_cast<int>(this->sample()*range));
 }

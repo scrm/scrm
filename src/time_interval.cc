@@ -43,7 +43,7 @@ TimeInterval::TimeInterval(TimeIntervalIterator const* tii, double start_height,
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
-Node* TimeInterval::getRandomContemporary(const size_t population) const {
+Node* TimeInterval::getRandomContemporary(size_t population) const {
   assert( population < forest().model().population_number() );
   assert( this->numberOfContemporaries(population) > 0 );
 
@@ -59,7 +59,15 @@ Node* TimeInterval::getRandomContemporary(const size_t population) const {
 }
 
 
-Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t pop) const {
+size_t TimeInterval::numberOfContemporaries(size_t pop) const { 
+  return tii_->numberOfContemporaries(pop); 
+}
+
+const std::vector<Node*> &TimeInterval::contemporaries() const { 
+  return tii_->contemporaries(); 
+}
+
+Node* TimeInterval::getIthContemporaryOfPop(size_t i, const size_t &pop) const {
   assert( i < numberOfContemporaries(pop) );
   Node* node = NULL;
   for (size_t j = 0; j < contemporaries().size(); ++j) {
@@ -86,11 +94,13 @@ TimeIntervalIterator::TimeIntervalIterator() {
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
-                                           Node* start_node) {
+                                           Node* start_node, 
+                                           bool pruning) {
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
+  this->pruning_ = pruning;
   this->current_time_ = start_node->height();
   forest->writable_model()->resetTime();
 
@@ -106,6 +116,19 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   }
 
   next();
+}
+
+
+// If sometimes also prune nodes at the top of the tree
+TimeIntervalIterator::~TimeIntervalIterator() {
+  if (!pruning_) return;
+  if (!node_iterator_.good()) return;
+
+  while ( !(*node_iterator_)->is_last() ) {
+    // Prunes the next node BEFORE node_iterator_ gets there, 
+    // and does therefor not invalidate it.
+    if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) ++node_iterator_;
+  }
 }
 
 
@@ -171,42 +194,14 @@ void TimeIntervalIterator::next() {
 
 
 void TimeIntervalIterator::updateContemporaries(Node* current_node) {
-  Node *child1 = current_node->first_child(),
-       *child2 = current_node->second_child();
-
-  // Don't add root nodes
-  if (current_node->is_root()) current_node = NULL;
-
-  if (child1 != NULL || child2 != NULL) {
-    std::vector<Node*>::iterator end = contemporaries_.end();
-    for (auto it = contemporaries_.begin(); it != end; ++it) {
-      // Remove first node
-      if (*it == child1) {
-        if (current_node != NULL) {
-          // We can just replace the node
-          *it = current_node;
-          ++pop_counts_.at(current_node->population());
-          current_node = NULL;
-        } else { 
-          // We need to remove the node
-          contemporaries_.erase(it--);
-        }
-        --pop_counts_.at(child1->population());
-        child1 = NULL;
-      }
-
-      // Remove second node
-      if (*it == child2) {
-        contemporaries_.erase(it--);
-        --pop_counts_.at(child2->population());
-        child2 = NULL;
-      }
-
-      if (child1 == NULL && child2 == NULL) break;
-    }
+  if ( current_node->first_child() != NULL ) { 
+    this->removeFromContemporaries(current_node->first_child());
+    if ( current_node->second_child() != NULL ) 
+      this->removeFromContemporaries(current_node->second_child());
   }
 
-  if (current_node != NULL) this->addToContemporaries(current_node);
+  if ( !current_node->is_root() ) 
+    this->addToContemporaries(current_node);
 }
 
 // Removes a Node from the contemporaries if it is there.
@@ -225,7 +220,7 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
 }
 
 /** 
- * Finds all nodes which code for branches at the height of a given node in the
+ * Findes all nodes which code for branches at the height of a given node in the
  * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
  * member.
  * 
@@ -235,36 +230,30 @@ void TimeIntervalIterator::removeFromContemporaries(Node* node) {
 void TimeIntervalIterator::searchContemporariesOfNode(Node *node) {
   if (contemporaries_.size() > 0) contemporaries_.clear();
 
-  Node *prev, *child;
+  NodeIterator node_iterator = forest_->nodes()->iterator();
+  Node* child;
 
-  for (NodeIterator ni = forest_->nodes()->iterator(); *ni != node; ++ni) {
-    assert(ni.good());
+  while( *node_iterator != node ) {
+    if ( ! node_iterator.good() )
+      throw std::out_of_range("TimeIntervalIterator: start_node not found");
 
-    // Check if *ni is a contemporary of node 
-    if ( (*ni)->parent_height() > node->height() ) {
-      // Is is; it may however be a node we need to prune
-      if ((*ni)->is_first()) prev = NULL;
-      else prev = (*ni)->previous();
-      child = (*ni)->first_child();
+    assert( !forest_->pruneNodeIfNeeded(*node_iterator) );
 
-      if (forest_->pruneNodeIfNeeded(*ni)) {
-        // Removing the node invalidates the ni
-        if (prev == NULL) ni = forest_->nodes()->iterator();
-        else ni = forest_->nodes()->iterator(prev);
+    if ( (*node_iterator)->parent_height() > node->height() )
+      this->addToContemporaries(*node_iterator);
 
-        // Maybe a child of the node became a contemporary by removing the node
-        // This can only happen if the node has only one child.
-        if ( child != NULL && child->parent_height() > node->height() ) { 
-          this->addToContemporaries(child);
-        }
-      } else {
-        // No pruning => Just add to contemporaries
-        this->addToContemporaries(*ni);
-      }
+    while ( !(*node_iterator_)->is_last() ) {
+      child = (*node_iterator)->next()->first_child();
+      if (!forest_->pruneNodeIfNeeded((*node_iterator)->next())) break;
+
+      // If the removed node would have need an contemporary, maybe it children
+      // are now contemporaries because there new parent is higher. 
+      // This can only happen if the node has only one child.
+      if ( child != NULL && child->parent_height() > node->height() ) 
+        this->addToContemporaries(child);
     }
-
-    // Nothing to do if its not contemporary
-  }
+    ++node_iterator; 
+  };
 }
 
 
@@ -285,13 +274,13 @@ void TimeIntervalIterator::searchContemporariesOfNodeTopDown(Node *node, Node *c
     assert( current_node != NULL);
     std::cout << "P.root: " << current_node << std::endl;
   }
-
+  
   /*
-     if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
-     forest_->prune(*node_iterator);
-     continue;
-     }
-     */
+    if ( pruning_ && forest_->isPrunable(*node_iterator) ) {
+      forest_->prune(*node_iterator);
+      continue;
+    }
+    */
 
   if (current_node->height() > node->height() ) {
     if (node->first_child() != NULL) searchContemporariesOfNodeTopDown(node, node->first_child());

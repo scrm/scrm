@@ -56,6 +56,7 @@ Model::Model(const Model& model) {
   loci_number_ = model.loci_number_;
   loci_length_ = model.loci_length_;
   exact_window_length_ = model.exact_window_length_;
+  prune_interval_ = model.prune_interval_;
   has_migration_ = model.has_migration_;
 
   // Vector members
@@ -112,6 +113,7 @@ void Model::init() {
   this->setRecombinationRate(0.0);
 
   this->set_exact_window_length(-1);
+  this->set_prune_interval(10);
 
   this->set_finite_sites(true);
 
@@ -189,7 +191,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  *
  * @returns The position the time has now in the vector
  */
-size_t Model::addChangePosition(const double position) {
+size_t Model::addChangePosition(const double &position) {
   size_t idx = 0;
 
   if ( change_position_.size() == 0 ) {
@@ -248,17 +250,12 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
   if ( pop_sizes.size() != population_number() ) 
     throw std::logic_error("Population size values do not meet the number of populations");
   auto pop_sizes_heap = new std::vector<double>(pop_sizes);
-
-  for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
-    if (std::isnan(*it)) continue;
-
-    // Scale to absolute values if necessary
-    if (relative) { *it *= this->default_pop_size; }
-
-    // Save inverse double value
-    *it = 1.0/(2 * *it);
+  if (relative) {
+    for (auto it = pop_sizes_heap->begin(); it != pop_sizes_heap->end(); ++it) {
+      if (std::isnan(*it)) continue;
+      else *it *= this->default_pop_size; 
+    }
   }
-
   size_t position = addChangeTime(time, time_scaled);
   pop_sizes_list_[position] = pop_sizes_heap;  
 }
@@ -278,7 +275,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSizes(const double time, const double pop_size, 
+void Model::addPopulationSizes(const double &time, const double &pop_size, 
                                const bool &time_scaled, const bool &relative) {
   addPopulationSizes(time, std::vector<double>(population_number(), pop_size), time_scaled, relative);
 }
@@ -300,13 +297,13 @@ void Model::addPopulationSizes(const double time, const double pop_size,
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSize(const double time, const size_t pop, double population_size,
+void Model::addPopulationSize(const double &time, const size_t &pop, double population_size,
                               const bool &time_scaled, const bool &relative) {
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
   if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
-  pop_sizes_list_.at(position)->at(pop) = 1.0/(2*population_size);
+  pop_sizes_list_.at(position)->at(pop) = population_size;
 }
 
 
@@ -322,7 +319,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRates(const double time, const std::vector<double> &growth_rates,
+void Model::addGrowthRates(const double &time, const std::vector<double> &growth_rates,
                            const bool &time_scaled, const bool &rate_scaled) {
   if ( growth_rates.size() != population_number() ) 
     throw std::logic_error("Growth rates values do not meet the number of populations");
@@ -350,7 +347,7 @@ void Model::addGrowthRates(const double time, const std::vector<double> &growth_
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRates(const double time, const double growth_rate,
+void Model::addGrowthRates(const double &time, const double &growth_rate,
                            const bool &time_scaled, const bool &rate_scaled) {
   addGrowthRates(time, std::vector<double>(population_number(), growth_rate), time_scaled, rate_scaled);
 }
@@ -369,7 +366,7 @@ void Model::addGrowthRates(const double time, const double growth_rate,
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRate(const double time, const size_t population, 
+void Model::addGrowthRate(const double &time, const size_t &population, 
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
   size_t position = addChangeTime(time, time_scaled);
   if (rate_scaled) growth_rate /= 4 * default_pop_size;
@@ -471,15 +468,15 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
  * @param rate_scaled Set to true if the rate is given as M = 4*N0*m and to
  *  false if it is given as m.
  */
-void Model::addSymmetricMigration(const double time, const double mig_rate, 
+void Model::addSymmetricMigration(const double &time, const double &mig_rate, 
                                   const bool &time_scaled, const bool &rate_scaled) {
   std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
   this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
 }
 
 
-void Model::addSingleMigrationEvent(const double time, const size_t source_pop, 
-                                    const size_t sink_pop, const double fraction,
+void Model::addSingleMigrationEvent(const double &time, const size_t &source_pop, 
+                                    const size_t &sink_pop, const double &fraction,
                                     const bool &time_scaled) {
   
   size_t position = addChangeTime(time, time_scaled);
@@ -530,7 +527,7 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
 }
 
 
-void Model::updateTotalMigRates(const size_t position) {
+void Model::updateTotalMigRates(const size_t &position) {
   std::vector<double>* mig_rates;
   if ( total_mig_rates_list_.at(position) == NULL ) {
     mig_rates = new std::vector<double>(population_number(), 0.0);
@@ -612,14 +609,14 @@ void Model::calcPopSizes() {
       
       // Else copy the last value we had...
       if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
-        pop_sizes_list_.at(i)->at(pop) = 1.0/(2*default_pop_size);
+        pop_sizes_list_.at(i)->at(pop) = default_pop_size;
       else
         pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
 
       // ... and scale it if there was growth 
       if (last_growth != -1) {  
         pop_sizes_list_.at(i)->at(pop) *=  
-          std::exp((growth_rates_list_.at(last_growth)->at(pop)) * duration);
+          std::exp(-1*(growth_rates_list_.at(last_growth)->at(pop)) * duration);
       }
     }
 
@@ -638,7 +635,7 @@ void Model::check() {
 }
 
 
-void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double default_value) {
+void Model::fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value) {
   std::vector<double>* last = NULL; 
   std::vector<double>* current = NULL; 
   for (size_t j = 0; j < vector_list.size(); ++j) {
@@ -687,6 +684,7 @@ void swap(Model& first, Model& second) {
   swap(first.loci_number_, second.loci_number_);
   swap(first.loci_length_, second.loci_length_);
   swap(first.exact_window_length_, second.exact_window_length_);
+  swap(first.prune_interval_, second.prune_interval_);
   swap(first.has_migration_, second.has_migration_);
 
   // Vector members
@@ -710,38 +708,4 @@ void swap(Model& first, Model& second) {
   swap(first.current_growth_rates_, second.current_growth_rates_); 
   swap(first.current_mig_rates_, second.current_mig_rates_);
   swap(first.current_total_mig_rates_, second.current_total_mig_rates_);
-}
-
-
-void Model::addPopulation() {
-  // Create the new population
-  size_t new_pop = population_number();
-  this->set_population_number(new_pop+1);
-
-  // Change Vectors
-  addPopToVectorList(growth_rates_list_);
-  addPopToVectorList(pop_sizes_list_);
-
-  // Change Matrices
-  addPopToMatrixList(mig_rates_list_, new_pop);
-  addPopToMatrixList(single_mig_probs_list_, new_pop, 0);
-}
-
-void Model::addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, size_t new_pop, double default_value) {
-  for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
-    if (*it == NULL) continue;
-    for (size_t i = 0; i < new_pop; ++i) {
-      (*it)->insert((*it)->begin() + getMigMatrixIndex(i, new_pop), default_value);
-    }
-    for (size_t i = 0; i < new_pop; ++i) {
-      (*it)->insert((*it)->begin() + getMigMatrixIndex(new_pop, i), default_value);
-    }
-  }
-}
-
-void Model::addPopToVectorList(std::vector<std::vector<double>*> &vector_list) {
-  for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
-    if (*it == NULL) continue;
-    (*it)->push_back(nan("value to replace"));
-  }
 }

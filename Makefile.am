@@ -1,12 +1,19 @@
+SUBDIRS = doc
 include aminclude.am 
-EXTRA_DIST = doc/manual.html m4/ac_doxygen.m4
+EXTRA_DIST = bootstrap doc/manual.pdf m4/ac_doxygen.m4
 bin_PROGRAMS = scrm 
 
 TESTS = unit_tests algorithm_tests 
 check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
 PROG = SCRM
 
-#distdir = $(PACKAGE)-$(VERSION)
+#DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+distdir = $(PACKAGE)-$(VERSION)
+#CXXFLAGS= -I/opt/local/include
+#LDFLAGS= -L/opt/local/lib
+
+doc/manual.pdf:
+	cd doc; make manual.pdf
 
 unittests: unit_tests
 	./unit_tests 
@@ -64,24 +71,3 @@ unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x
 algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports
-
-
-# Documentation
-if HAVE_PANDOC
-pages=doc/wiki/Installation.md doc/wiki/Command-Line-Options.md doc/wiki/Output.md
-
-init-wiki:
-	git submodule init; git submodule update
-
-update-wiki: init-wiki
-	cd doc/wiki; git pull origin master
-
-doc/manual.html: ${pages} doc/knitr.css
-	pandoc -t html5 -s -S  --toc --toc-depth=2 \
-	  -M title='The scrm Quick Reference' \
-	  -M author='Paul R. Staab, Joe (Sha) Zhu, Dirk Metzler and Gerton Lunter' \
-	  -M date="Version ${VERSION}" \
-	  -c doc/knitr.css \
-	  --standalone --self-contained \
-	  -o doc/manual.html ${pages}
-endif

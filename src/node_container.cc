@@ -157,7 +157,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
 }
 
 
-void NodeContainer::move(Node *node, const double new_height) {
+void NodeContainer::move(Node *node, const double &new_height) {
   assert( node != NULL );
 
   // Stupid edge case first: We may have only one node.

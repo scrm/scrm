@@ -64,7 +64,7 @@ class NodeContainer {
 
   void add(Node* node, Node* after_node=NULL);
   void remove(Node *node, const bool &del=true);
-  void move(Node *node, const double new_height);
+  void move(Node *node, const double &new_height);
   void clear();
 
   Node* at(size_t nr) const; 

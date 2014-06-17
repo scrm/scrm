@@ -54,7 +54,6 @@ INSTALL
 # ./docs
 doc/latex
 doc/html
-doc/manual.html
 *.bbl
 *.blg
 *.aux

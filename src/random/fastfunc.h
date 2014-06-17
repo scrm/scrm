@@ -33,9 +33,6 @@
 #endif
 #include <iostream>
 
-// Number of interpolation points.  If this is changed, several constants in fastlog must also be changed.
-#define SIZE_DOUBLE 1024
-
 class FastFunc {
  public:
   FastFunc();
@@ -47,28 +44,43 @@ class FastFunc {
   double fastexp_lo(double y);  /* lower bound to exp; at most 5.792% too low.  10x as fast as exp */
 
  protected:
-  double* build_fastlog_double_table( int );
+  float* build_fastlog_table();
   
   static constexpr double EXP_A=1048576/M_LN2;
   static constexpr long long EXP_C_LO=90254;
   static constexpr long long EXP_C_UP=-1;
 
-  double* fastlog_double_table_;
+  float* fastlog_table_;
 };
+
+
+class _float_bits {
+ public:
+  union {
+    float f;
+    int32_t i;
+  } n;
+  _float_bits(float f) { n.f=f; }
+  _float_bits(int32_t i) { n.i=i; }
+  float f() const { return n.f; }
+  int32_t i() const { return n.i; }
+};
+
 
 // Inline definitions
 inline FastFunc::FastFunc() {
-  fastlog_double_table_ = build_fastlog_double_table( SIZE_DOUBLE );
+  fastlog_table_ = build_fastlog_table();
 }
 
 inline FastFunc::~FastFunc() {
-    free(fastlog_double_table_);
+    free(fastlog_table_);
 }
 
 // Fast and fairly tight upper and lower bounds for exp(x)
 // A quick test showed a ~10x speed improvement
 // See: Nicol N. Schraudolf, A Fast, Compact Approximation of the Exponential Function, Neural Computation 11, 853-862 (1999)
 // http://nic.schraudolph.org/pubs/Schraudolph99.pdf
+
 
 inline double FastFunc::fastexp_up(double y) {
   if (y<-700) return 0.0;
@@ -77,7 +89,10 @@ inline double FastFunc::fastexp_up(double y) {
     double d;
     int64_t i;
   } n;
+  //int64_t* yint = (int64_t*)(&y);
+  //*yint = (((long long)(EXP_A*y)) + (1072693248 - EXP_C_UP)) << 32;
   n.i = (((long long)(EXP_A*y)) + (1072693248 - EXP_C_UP)) << 32;
+  //return *(double*)(yint);
   return n.d;
 }
 
@@ -88,21 +103,25 @@ inline double FastFunc::fastexp_lo(double y) {
     double d;
     int64_t i;
   } n;
+  //int64_t* yint = (int64_t*)(&y);
+  //*yint = (((long long)(EXP_A*y)) + (1072693248 - EXP_C_LO)) << 32;
+  //return *(double*)(yint);
   n.i = (((long long)(EXP_A*y)) + (1072693248 - EXP_C_LO)) << 32;
   return n.d;
 }
 
 inline double FastFunc::fastlog(double x) {
-  const float offset = 2047;                // as int64_t: 0x409ffc00000....
-  double y = x;
-  int64_t* yint = (int64_t*)(&y);
-  int expon = ((*yint) >> 52) - 1023;       // base-2 exponent of float
-  int index = ((*yint) >> (52-10)) & 1023;  // upper 10 bits of mantissa
-  *yint |= 0x7ffffc0000000000;              // convert float into remainder of mantissa; and
-  *yint &= 0x409fffffffffffff;              // modify exponent to get into proper range
-  return (expon * M_LN2 +                   // contribution of base-2 log
-	  fastlog_double_table_[index] +    // table lookup, and linear interpolation
-	  (fastlog_double_table_[index+1] - fastlog_double_table_[index]) * (*(double*)(yint) - offset) );
+  const float offset = 2047; // as int32_t: 0x44ffe000;
+  float y = x;
+  int32_t* yint = (int32_t*)(&y);
+  int expon = ((*yint) >> 23) - 127;   // base-2 exponent of float
+  int index = ((*yint) >> 13) & 1023;  // upper 10 bits of mantissa
+  *yint |= 0x7fffe000;                 // convert float into remainder of mantissa; and
+  *yint &= 0x44ffffff;                 // modify exponent to get into proper range
+  return (expon * M_LN2 +              // contribution of base-2 log
+	  fastlog_table_[index] +      // table lookup
+	  (fastlog_table_[index+1] - fastlog_table_[index]) * (*(float*)(yint) - offset) );  // linear interpolation
 }
+
 
 #endif

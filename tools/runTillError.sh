@@ -10,13 +10,15 @@
 # Licence:  GPLv3 or later
 #
 
-pars=$@
-[ $# == 0 ] && pars='5 10 -r 100 1000 -l 50'
-
+count=0
 i=0
+
+pars=$@
+[ $# == 0 ] && pars=5
+
 while [ 1 ]; do
   ((i++))
   echo "Seed: $i"
-  ./scrm_dbg $pars -seed $i > /dev/null 
-  [ $? -eq 0 ] || { echo "Failed: ./scrm_dbg $pars -seed $i"; exit 1; }
+  ./src/scrm_dbg $pars -seed $i > /dev/null 
+  [ $? -eq 0 ] || exit 1
 done

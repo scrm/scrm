@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -cwd
 #$ -V
-#$ -P bsg.prjb -q long.qb
+#$ -P bsg.prjb -q short.qb
 #$ -e ErrFiles
 #$ -o OutFiles
 #$ -N process_data.sh
@@ -19,9 +19,6 @@ joblist=("ms" \
 "macsretain10000" "macsretain7000" "macsretain5000" "macsretain3000" \
 "macsretain1000" "macsretain500" "macsretain0" \
 "fastsimcoal")
-#joblist=("scrmwindow100000" "scrmwindow70000" "scrmwindow50000" "scrmwindow30000" \
-#"scrmwindow10000" "scrmwindow7000" "scrmwindow5000" "scrmwindow3000" \
-#"scrmwindow1000" "scrmwindow500" "scrmwindow0" )
 
 rep=$(expr $SGE_TASK_ID - 1)
 #rep=0

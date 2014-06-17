@@ -1,7 +1,6 @@
 casefile=toyparam.src
 source ${casefile}
-#top_dir="/well/bsg/joezhu"
-top_dir="/well/bsg/joezhu/LD_test"
+top_dir="/well/bsg/joezhu"
 rep=$(expr $SGE_TASK_ID )
 #top_dir="toy_test"
 #rep=10

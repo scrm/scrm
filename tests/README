@@ -4,8 +4,6 @@ CHECKING THE INITIAL TREE
 	
 * Checking -T option
 (Good 19Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 1 June 14)
 	Compare TMRCA
 		./ms_vs_scrm-tmrca.sh
 	
@@ -14,8 +12,6 @@ CHECKING THE INITIAL TREE
 		test-tmrca/*.pdf
 		
 (Good 19Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 1 June 14)
 	Compare total branch length
 		./ms_vs_scrm-bl.sh
 	
@@ -25,8 +21,6 @@ CHECKING THE INITIAL TREE
 
 
 (Good 19Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 1 June 14)
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg.sh 
 	
@@ -36,9 +30,6 @@ CHECKING THE INITIAL TREE
 
 * Checking segregating sites data
 (Good 27Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
-
 	Compare summary statistics of the segregating site statistics (see ms manual section: Using ms with sample_stats)
 	./ms_vs_scrm_SEG_samplestats.sh
 	
@@ -50,9 +41,6 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 
 * Checking -ma option	
 (Good 28Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
-
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig.sh
 	
@@ -61,21 +49,16 @@ CHECK TMRCA TOTAL BL SEG IN THE FOLLOWING CASES
 		test-mig/*.pdf
         
 (Good 27Feb 14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
-
 	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
 	./ms_vs_scrm-mig_more.sh
 	
 	Output file:
-		test-mig-more/compareMIG  
-		test-mig-more/*.pdf
+		test-mig/compareMIG  
+		test-mig/*.pdf
         
 			
 * Checking the population structure, -eN option
 (Good 19Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for Population structure
 	./ms_vs_scrm_pop_struct.sh 
 
@@ -87,8 +70,6 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 
 * Checking -ma option with -eN option
 (Good 28Jan14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig-popsize.sh 
 	
@@ -98,9 +79,6 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 
 * Checking the sub population structure, -en, and -ej options
 (GOOD 13Feb14)##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
-
 	Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_subpop_struct.sh
     
@@ -110,9 +88,6 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 
 * Checking growth rate, -G, -eG, and -eg option
 (GOOD 10APR14)##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
-
     Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_growth.sh 
     
@@ -124,8 +99,6 @@ NOTE: Tajima's D only works when sample at least 3 individuals. Therefore, case 
 WITH RECOMBINATION
 	
 (Good 27Jan14)	##############################################
-(retest 17 May 14)
-(GOOD 1 June 14)
 	Compare TMRCA
 	Compare total branch length
 
@@ -138,7 +111,6 @@ WITH RECOMBINATION
 	
 	
 (Good Feb 10)	##############################################
-(GOOD 1 June 14)
 	Compare number of segregating sites (mutations)
 	./ms_vs_scrm-seg_wit_recomb.sh 
     
@@ -151,18 +123,14 @@ NOTE: for most of the cases, there is no significant difference on number of seg
 
 * Checking -ma option with -r option
 (Good 27Feb14) ##############################################
-(GOOD 17 May 14)
-(GOOD 31 May 14)
 	Compare TMRCA and total branch length, and segregating sites for migration
 	./ms_vs_scrm-mig_recomb.sh
 	
 	Output file:
-		test-mig-recomb/compareMIG  
-		test-mig-recomb/*.pdf
+		test-mig/compareMIG  
+		test-mig/*.pdf
         
 (Good 27Feb14) ##############################################
-(GOOD 31 May 14)
-
 	Compare TMRCA and total branch length, and segregating sites for migration BETWEEN TWO SEQUENCES
 	./ms_vs_scrm-mig_more_recomb.sh
 	
@@ -187,7 +155,7 @@ test-spectrum-recomb/
 
 
 * Checking growth rate with recombination, -G, -eG, and -eg option
-(GOOD 1 June 14)##############################################
+(TO COME)##############################################
     Compare TMRCA and total branch length, and segregating sites for migration
     ./ms_vs_scrm_growth-recomb.sh 
     
