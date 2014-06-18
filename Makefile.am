@@ -1,6 +1,7 @@
 include aminclude.am 
 EXTRA_DIST = doc/manual.html doc/scrm.1 m4/ac_doxygen.m4
 bin_PROGRAMS = scrm 
+man_MANS = doc/scrm.1
 
 TESTS = unit_tests algorithm_tests 
 check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
