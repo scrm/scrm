@@ -85,6 +85,7 @@ class Forest
   friend class TestNodeContainer;
 #endif
   friend class ForestState;
+  friend class ParticleContainer;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
