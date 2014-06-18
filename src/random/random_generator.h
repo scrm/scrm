@@ -25,7 +25,6 @@
 
 #include <cassert>
 #include <cmath>
-#pragma clang diagnostic ignored "-Wdeprecated-register"
 
 #include "fastfunc.h"
 
