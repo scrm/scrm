@@ -3,6 +3,7 @@ Version 1.0-beta2
 Improvements:
 + Fix file permissions
 + Remove clang warning suppression
++ Added a man page
 
 Version 1.0-beta1
 ========================
