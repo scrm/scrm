@@ -16,7 +16,7 @@ make
 
 On Mac OS:
 ```bash
-port install autoconf autoconf-archive doxygen cppunit 
+port install automake autoconf autoconf-archive doxygen cppunit 
 ./bootstrap
 make
 
