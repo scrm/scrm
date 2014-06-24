@@ -128,8 +128,8 @@ void TimeIntervalIterator::next() {
   // interval 
   if ( start_height >= forest_->model().getNextTime() ) { 
     forest_->writable_model()->increaseTime();
-  } 
-  
+  }
+
   if ( start_height >= node_iterator_.height() ) {
     updateContemporaries(*node_iterator_);
 
@@ -181,10 +181,11 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
     std::vector<Node*>::iterator end = contemporaries_.end();
     for (auto it = contemporaries_.begin(); it != end; ++it) {
       // Remove first node
-      if (*it == child1) {
+      if (*it == child1 && child1) {
         if (current_node != NULL) {
           // We can just replace the node
           *it = current_node;
+
           ++pop_counts_.at(current_node->population());
           current_node = NULL;
         } else { 
@@ -196,7 +197,7 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
       }
 
       // Remove second node
-      if (*it == child2) {
+      if (*it == child2 && child2) {
         contemporaries_.erase(it--);
         --pop_counts_.at(child2->population());
         child2 = NULL;
