@@ -760,7 +760,6 @@ double Forest::calcRecombinationRate(Node const* node) const {
     double rate = model().recombination_rate() * 
         (this->current_base() - model().getCurrentSequencePosition()); 
     size_t idx = model().get_position_index() - 1;
-    assert(idx > 0);
 
     while (model().change_position(idx) > node->last_update()) {
       assert(idx > 0);
