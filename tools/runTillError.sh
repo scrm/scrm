@@ -12,6 +12,7 @@
 
 pars=$@
 [ $# == 0 ] && pars='5 10 -r 100 1000 -l 50'
+make -j2 scrm scrm_dbg
 
 i=0
 while [ 1 ]; do
@@ -19,4 +20,6 @@ while [ 1 ]; do
   echo "Seed: $i"
   ./scrm_dbg $pars -seed $i > /dev/null 
   [ $? -eq 0 ] || { echo "Failed: ./scrm_dbg $pars -seed $i"; exit 1; }
+  valgrind --error-exitcode=1 --leak-check=full -q ./scrm $pars -seed $i > /dev/null  
+  [ $? -eq 0 ] || { echo "valgrind failed: ./scrm_dbg $pars -seed $i"; exit 1; }
 done
