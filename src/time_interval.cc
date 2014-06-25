@@ -175,13 +175,15 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
        *child2 = current_node->second_child();
 
   // Don't add root nodes
+  assert( current_node != NULL );
   if (current_node->is_root()) current_node = NULL;
 
   if (child1 != NULL || child2 != NULL) {
     std::vector<Node*>::iterator end = contemporaries_.end();
     for (auto it = contemporaries_.begin(); it != end; ++it) {
       // Remove first node
-      if (*it == child1 && child1) {
+      if (*it == child1) {
+        assert(child1 != NULL);
         if (current_node != NULL) {
           // We can just replace the node
           *it = current_node;
@@ -197,7 +199,8 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
       }
 
       // Remove second node
-      if (*it == child2 && child2) {
+      else if (*it == child2) {
+        assert(child2 != NULL);
         contemporaries_.erase(it--);
         --pop_counts_.at(child2->population());
         child2 = NULL;
