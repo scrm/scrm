@@ -32,7 +32,6 @@
 #include <stdlib.h>  
 #include <stdio.h>
 #include <stdexcept>
-#include <boost/lexical_cast.hpp> 
 #include <memory>
 
 #include "model.h"
@@ -43,8 +42,6 @@
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
 
-#pragma clang diagnostic ignored "-Wdeprecated-register"
-
 
 class Param {
  public:
@@ -53,24 +50,31 @@ class Param {
  #endif
 
   // Constructors
-  Param() : argc_(0), argv_(NULL) { };
-  Param(int argc, char *argv[], bool directly_called=true) : argc_(argc), argv_(argv) , directly_called_(directly_called) { }
+  Param() : argc_(0), argv_(NULL) { init(); }
+  Param(int argc, char *argv[], bool directly_called=true) : 
+      argc_(argc), argv_(argv), directly_called_(directly_called) {
+        init();
+      }
+
+  void init() {
+    this->set_random_seed(-1);
+    this->set_help(false);
+    this->set_version(false);
+    argc_i = 0;
+  }
 
   // Getters and setters
-  bool seg_bool() const { return seg_bool_; }
-  void set_seg_bool(const bool &seg_bool) { seg_bool_ = seg_bool; } 
+  bool help() const { return help_; }
+  bool version() const { return version_; }
+  size_t random_seed() const { return random_seed_; }
+  void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
 
   // Other methods
-  void init();
+  void printHelp(std::ostream& stream);
 
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
   void parse(Model &model);
-  void nextArg(std::string option);
-  void print_param();
-
-  // Member variables
-  size_t random_seed;  
 
   template<class T>
   T readNextInput() {
@@ -80,26 +84,26 @@ class Param {
       throw std::invalid_argument(std::string("Not enough parameters when parsing options"));
     }
 
-    return boost::lexical_cast<T>(argv_[argc_i]);
+    char c;
+    T input;
+    std::stringstream ss(argv_[argc_i]);
+    ss >> input;
+    if (ss.fail() || ss.get(c)) {
+      throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
+    }
+    return input;
   }
 
  private:
+  void set_help(const bool help) { this->help_ = help; } 
+  void set_version(const bool version) { this->version_ = version; } 
+
   int argc_;
   int argc_i;
   char * const* argv_;
-  bool seg_bool_;
+  size_t random_seed_;  
   bool directly_called_;
+  bool help_;
+  bool version_;
 };
-
-void print_help();
-void print_example();
-void print_options();	
-
-template<class T>
-T readInput(char input[])
-{
-  return boost::lexical_cast<T>(input);
-}
-
-
 #endif

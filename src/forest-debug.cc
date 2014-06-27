@@ -317,6 +317,12 @@ bool Forest::printTree() const {
          end_height = getNodes()->get(0)->height();
 
   for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
+    if ( !(*ni)->is_root() && (*ni)->height_above() == 0.0 ) {
+      dout << "A rare situation occurred were a parent and a child have exactly "
+           << "the same height. We can't print such trees here, the algorithm however"
+           << "should not be affected." << std::endl; 
+      return 1;
+    }
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
@@ -583,7 +589,7 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
 
-bool Forest::checkForNodeAtHeight(const double &height) const {
+bool Forest::checkForNodeAtHeight(const double height) const {
   for (auto it = getNodes()->iterator(); it.good(); ++it) {
     if ((*it)->height() == height) return true;
     if ((*it)->height() > height) return false;
