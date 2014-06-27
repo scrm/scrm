@@ -151,8 +151,8 @@ void TimeIntervalIterator::next() {
   // interval 
   if ( start_height >= forest_->model().getNextTime() ) { 
     forest_->writable_model()->increaseTime();
-  } 
-  
+  }
+
   if ( start_height >= node_iterator_.height() ) {
     updateContemporaries(*node_iterator_);
 
@@ -194,10 +194,43 @@ void TimeIntervalIterator::next() {
 
 
 void TimeIntervalIterator::updateContemporaries(Node* current_node) {
-  if ( current_node->first_child() != NULL ) { 
-    this->removeFromContemporaries(current_node->first_child());
-    if ( current_node->second_child() != NULL ) 
-      this->removeFromContemporaries(current_node->second_child());
+  Node *child1 = current_node->first_child(),
+       *child2 = current_node->second_child();
+
+  // Don't add root nodes
+  assert( current_node != NULL );
+  if (current_node->is_root()) current_node = NULL;
+
+  if (child1 != NULL || child2 != NULL) {
+    std::vector<Node*>::iterator end = contemporaries_.end();
+    for (auto it = contemporaries_.begin(); it != end; ++it) {
+      // Remove first node
+      if (*it == child1) {
+        assert(child1 != NULL);
+        if (current_node != NULL) {
+          // We can just replace the node
+          *it = current_node;
+
+          ++pop_counts_.at(current_node->population());
+          current_node = NULL;
+        } else { 
+          // We need to remove the node
+          contemporaries_.erase(it--);
+        }
+        --pop_counts_.at(child1->population());
+        child1 = NULL;
+      }
+
+      // Remove second node
+      else if (*it == child2) {
+        assert(child2 != NULL);
+        contemporaries_.erase(it--);
+        --pop_counts_.at(child2->population());
+        child2 = NULL;
+      }
+
+      if (child1 == NULL && child2 == NULL) break;
+    }
   }
 
   if ( !current_node->is_root() ) 

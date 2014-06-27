@@ -2,9 +2,6 @@ language: cpp
 compiler:
 - gcc
 - clang
-env:
-  global:
-    secure: PNca+nOQXvtjAzGpPJ7DeXXyrq0yRbE5nn3rOA3QIc3a9xcWSJcDriEuhObj8oPBXPCrk88huXImv76KR2NjK5vg0/7tK0r8k1BD20Xt5JXfYwHDLjq0xcrBfbQISsfbksPVdKxDqFJtAolMOYxArHHN6ZPCkqLzca8GUGGhHF0=
 script:
 - make scrm scrm_dbg
 - make unittests
@@ -12,8 +9,6 @@ script:
 - ./tests/test_binaries.sh
 before_install:
 - sudo apt-get update -qq
-- sudo apt-get install -qq libboost-all-dev libcppunit-dev
+- sudo apt-get install -qq libcppunit-dev valgrind
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
-after_success:
-- "./.travis/deploy.sh"

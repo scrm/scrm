@@ -1,5 +1,5 @@
-AC_INIT([scrm], [0.9.2],[https://github.com/paulstaab/scrm/issues])
-#AC_INIT([scrm],[beta],[staab@biologie.uni-muenchen.de])
+AC_INIT([scrm], [1.0-beta2],[https://github.com/paulstaab/scrm/issues])
+AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])
 #AC_CONFIG_HEADER([config.h])

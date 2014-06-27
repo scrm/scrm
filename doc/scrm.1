@@ -1,0 +1,139 @@
+.TH SCRM 1 "Jun 2014" "Version 1.0" 
+.SH NAME
+scrm \- An accurate coalescent simulator for genome-scale sequences
+
+.SH SYNOPSIS
+.B scrm
+.I nsamp nloci
+[\fB\-hvL\fR]
+[\fB\-r\fR \fIrec L\fR [\fB\-l\fR \fIl\fR] [\fB\-sr\fR \fIb rec\fR]... ]
+[\fB\-I\fR \fInpop s1 \fR... \fIsn \fR[\fIM\fR]
+[\fB\-eI\fR \fIt s1 \fR... \fIsn\fR \fR[\fIM\fR]]... 
+[\fB\-M\fR \fIM\fR]
+[\fB\-eM\fR \fIt M\fR]...
+[\fB\-m\fR \fIi j M\fR]
+[\fB\-em\fR \fIt i j M\fR]...
+[\fB\-ma\fR \fIM11 M21 ... Mnn\fR]
+[\fB\-ema\fR \fIt M11 M21 ... Mnn\fR]...
+[\fB\-es\fR \fIt i p\fR]...
+[\fB\-ej\fR \fIt i j\fR]...]
+[\fB\-n\fR \fIi n\fR]
+[\fB\-en\fR \fIt i n\fR]...
+[\fB\-eN\fR \fIt i n\fR]...
+[\fB\-g\fR \fIi a\fR]
+[\fB\-eg\fR \fIt i a\fR]...
+[\fB\-G\fR \fIt a\fR]
+[\fB\-eG\fR \fIt a\fR]...
+[\fB\-t\fR \fItheta\fR [\fB\-oSFS\fR] [\fB\-st\fR \fIb theta\fR]... ]
+[\fB\-seed\fR \fIseed \fR[\fIseed2 seed3\fR]]
+
+.SH DESCRIPTION
+.B scrm
+is a coalescent simulator for biological sequences. Different to similar
+programs, it can approximate the Ancestral Recombination Graph with arbitrary
+precision. This allows you to rapidly simulate long sequences with essentially
+correct genetic linkage between sites.
+
+.SH OPTIONS
+.SS "Recombination:"
+.TP
+\fB\-r\fR \fIR\fR \fIL\fR
+Set recombination rate to R and locus length to L.
+.TP
+\fB\-sr\fR \fIp\fR \fIR\fR
+Change the recombination rate R at sequence position p.
+.TP
+\fB\-l\fR \fIl\fR
+Set the approximation window length to l.
+.SS "Population Structure:"
+.TP
+\fB\-I\fR \fInpop\fR \fIs1\fR ... \fIsn\fR [\fIM\fR]
+Use an island model with npop populations,
+.IP
+where s1 to sn individuals are sampled each population.
+Optionally assume a symmetric migration rate of M.
+.TP
+\fB\-eI\fR \fIt\fR \fIs1\fR ... \fIsn\fR [\fIM\fR]
+Sample s1 to sn indiviuals from their
+.IP
+corresponding populations at time t.
+.TP
+\fB\-M\fR \fIM\fR
+Assume a symmetric migration rate of M/(npop\-1).
+.TP
+\fB\-eM\fR \fIt\fR \fIM\fR
+Change the symmetric migration rate to M/(npop\-1) at time t.
+.TP
+\fB\-m\fR \fIi\fR \fIj\fR \fIM\fR
+Set the migration rate from population j to population i to M
+.TP
+\fB\-em\fR \fIt\fR \fIi\fR \fIj\fR \fIM\fR
+Set the migration rate from population j to
+.IP
+population i to M at time t.
+.TP
+\fB\-ma\fR \fIM11\fR \fIM21\fR ...
+Sets the (backwards) migration matrix.
+.TP
+\fB\-ema\fR \fIt\fR \fIM11\fR \fIM21\fR ...
+Changes the migration matrix at time t
+.TP
+\fB\-es\fR \fIt\fR \fIi\fR \fIp\fR
+Population admixture. Replaces a fraction of 1\-p of
+population i with individuals a from population npop + 1
+which is ignored afterwards (forward in time).
+.TP
+\fB\-ej\fR \fIt\fR \fIi\fR \fIj\fR
+Speciation event at time t. Creates population j
+from individuals of population i.
+.SS "Population Size Changes:"
+.TP
+\fB\-n\fR \fIi\fR \fIn\fR
+Set the present day size of population i to n*N0.
+.TP
+\fB\-en\fR \fIt\fR \fIi\fR \fIn\fR
+Change the size of population i to n*N0 at time t.
+.TP
+\fB\-eN\fR \fIt\fR \fIn\fR
+Set the present day size of all populations to n*N0.
+.TP
+\fB\-g\fR \fIi\fR \fIa\fR
+Set the exponential growth rate of population i to a.
+.TP
+\fB\-eg\fR \fIt\fR \fIi\fR \fIa\fR
+Change the exponential growth rate of population i to a
+at time t.
+.TP
+\fB\-G\fR \fIa\fR
+Set the exponential growth rate of all populations to a.
+.TP
+\fB\-eG\fR \fIt\fR \fIa\fR
+Change the exponential growth rate of all populations to a
+at time t.
+.SS "Other:"
+.TP
+\fB\-seed\fR \fISEED\fR [\fISEED2\fR \fISEED3\fR]
+The random seed to use. Takes up three
+.IP
+integer numbers.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Prints the version of scrm.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Prints this text.
+.PP
+
+.SH Examples
+.SS Five independent sites for 10 individuals using Kingman's Coalescent:
+.IP
+scrm 10 5 \fB\-t\fR 10
+.SS "A sequence of 10kb from 4 individuals under the exact ARG:"
+.IP
+scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4 10000
+.SS "A sequence of 100Mb using the SMC' approximation:"
+.IP
+scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4000 100000000 \fB\-l\fR 0
+.SS "Same as above, but with essentially correct linkage:"
+.IP
+scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4000 100000000 \fB\-l\fR 100000 

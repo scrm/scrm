@@ -93,7 +93,7 @@ void Param::parse(Model &model) {
       else time = 0.0;
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
-      if (directly_called_){
+      if (directly_called_ && seg_sites == NULL){
         //seg_sites = shared_ptr<SegSites>(new SegSites());
         seg_sites = new SegSites();
       }
