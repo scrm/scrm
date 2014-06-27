@@ -132,9 +132,9 @@ class TestForest : public CppUnit::TestCase {
     TimeIntervalIterator tii3(forest, forest->nodes()->at(0));
 
     CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
-    CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[0] );   
-    CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
-    CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
+    CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[0]) );   
+    CPPUNIT_ASSERT( areSame(1.0/pop_size, forest->rates_[1]) );   
+    CPPUNIT_ASSERT( areSame(0.0/pop_size, forest->rates_[2]) );   
     CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
     CPPUNIT_ASSERT_EQUAL( (size_t)0, forest->active_nodes_timelines_[1] );   
     
@@ -206,7 +206,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->writable_model()->finalize();
     forest2->writable_model()->resetTime();
 
-    TimeIntervalIterator tii(forest2, forest2->nodes()->at(0), false);
+    TimeIntervalIterator tii(forest2, forest2->nodes()->at(0));
     
     forest2->set_active_node(0, forest2->nodes()->at(0));
     forest2->set_active_node(1, forest2->nodes()->at(2));
@@ -416,7 +416,7 @@ class TestForest : public CppUnit::TestCase {
     forest2.writable_model()->finalize();
     forest2.writable_model()->resetTime();
 
-    TimeIntervalIterator tii(&forest2, forest2.nodes()->at(0), false);
+    TimeIntervalIterator tii(&forest2, forest2.nodes()->at(0));
     
     forest2.set_active_node(0, forest2.nodes()->at(0));
     forest2.set_active_node(1, forest2.nodes()->at(8));
@@ -580,7 +580,7 @@ class TestForest : public CppUnit::TestCase {
 
   void testImplementRecombination() {
     Node* new_root = forest->cut(TreePoint(forest->nodes()->at(4), 3.5, false));
-    TimeIntervalIterator tii(forest, new_root, false);
+    TimeIntervalIterator tii(forest, new_root);
     forest->set_active_node(0, new_root);
     forest->set_active_node(1, forest->local_root());
 
@@ -621,7 +621,7 @@ class TestForest : public CppUnit::TestCase {
       forest->set_current_base(17);
 
       Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
-      TimeIntervalIterator tii(forest, new_root, false);
+      TimeIntervalIterator tii(forest, new_root);
       forest->set_active_node(0, new_root);
       forest->set_active_node(1, forest->local_root());
 

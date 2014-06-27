@@ -10,13 +10,11 @@
 # Licence:  GPLv3 or later
 #
 
-count=0
-i=0
-
 pars=$@
 [ $# == 0 ] && pars='5 10 -r 100 1000 -l 50'
 make -j2 scrm scrm_dbg
 
+i=0
 while [ 1 ]; do
   ((i++))
   echo "Seed: $i"

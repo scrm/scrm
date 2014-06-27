@@ -36,10 +36,12 @@ class parameter:
         self.jobs = jobs
         
         
-        delta_points = 20
+        #delta_points = 20
+        delta_points = 1000 # changed on June 4th
         big_delta_max = 2e5
         #big_delta_max = 1e4
-        small_delta_max = 1e5 # changed on May 26th
+        #small_delta_max = 1e5 # changed on May 26th
+        small_delta_max = 1e6 # changed on June 4th
         #small_delta_max = big_delta_max
         #self.big_delta = np.linspace( 0, int(big_delta_max+1), delta_points )
         #self.big_delta = range( 0, int(big_delta_max+1), 10000 )
