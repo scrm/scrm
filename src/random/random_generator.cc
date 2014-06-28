@@ -43,7 +43,7 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
   //  -c log p > b (exp_lo(c t)-1)    [c>0]
   // where exp_up and exp_lo are upper and lower bounds for the exp(x) function resp.
   if (c < 0) {
-    double c_logp_limit = b*(ff.fastexp_lo(c*limit)-1);  // negative
+    double c_logp_limit = b*(this->ff()->fastexp_lo(c*limit)-1);  // negative
     if (c*unit_exponential_ < c_logp_limit) {
       unit_exponential_ -= c_logp_limit / c;
       return -1;
@@ -51,16 +51,16 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
     double y = 1.0 + c*unit_exponential_ / b;
     unit_exponential_ = sampleUnitExponential();
     if (y <= 0.0) return -1; // no event at all
-    y = ff.fastlog( y )/c;       
+    y = this->ff()->fastlog( y )/c;
     if (y > limit) return -1;  // the event time; can still be beyond limit
     return y;
   } else if (c > 0) {
-    double c_logp_limit = b*(ff.fastexp_up( c*limit )-1);  // positive
+    double c_logp_limit = b*(this->ff()->fastexp_up( c*limit )-1);  // positive
     if (c*unit_exponential_ > c_logp_limit) {
       unit_exponential_ -= c_logp_limit / c;
       return -1;
     }
-    double y = ff.fastlog( 1.0 + c*unit_exponential_ / b ) / c;
+    double y = this->ff()->fastlog( 1.0 + c*unit_exponential_ / b ) / c;
     unit_exponential_ = sampleUnitExponential();
     if (y > limit) return -1;
     return y;
