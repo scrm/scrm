@@ -517,7 +517,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    //this->record_all_event(*ti);
+    this->record_all_event(*ti);
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
