@@ -103,7 +103,7 @@ class Model
     *
     * @return The recombination rate per base pair per generation
     */
-   double recombination_rate(const size_t &idx = -1) const { 
+   double recombination_rate(const size_t idx = -1) const { 
      if (idx == -1) return recombination_rates_.at(current_seq_idx_); 
      else return recombination_rates_.at(idx);
    }
@@ -155,16 +155,20 @@ class Model
     *
     * @return The size of the sub population
     */
-   double population_size(size_t pop = 0, double time = -1) const { 
+   double population_size(const size_t pop = 0, const double time = -1) const { 
+     return 0.5 / inv_double_pop_size(pop, time);
+   }
+
+   double inv_double_pop_size(const size_t pop = 0, const double time = -1) const { 
      double pop_size;
      if (current_pop_sizes_ == NULL) 
-       pop_size = default_pop_size;
+       pop_size = 1/(2*default_pop_size);
      else 
        pop_size = current_pop_sizes_->at(pop);   // population size basal to this segment
 
      if (time >= 0 && growth_rate(pop) != 0.0) {
        assert( time >= getCurrentTime() && time <= getNextTime() );
-       pop_size *= std::exp( -1 * growth_rate(pop) * ( time - getCurrentTime() ) ); 
+       pop_size *= std::exp(growth_rate(pop) * (time - getCurrentTime())); 
      }
 
      return pop_size;
@@ -184,7 +188,7 @@ class Model
     *
     * @return The current unscaled, backwards migration rate.
     */
-   double migration_rate(const size_t &source, const size_t &sink) const {
+   double migration_rate(const size_t source, const size_t sink) const {
      if (current_mig_rates_ == NULL) return default_mig_rate;
      if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
@@ -204,7 +208,7 @@ class Model
     *
     * @return The total current, unscaled rate of migration out if the population.
     */
-   double total_migration_rate(const size_t &source) const {
+   double total_migration_rate(const size_t source) const {
      if (current_total_mig_rates_ == NULL) return default_mig_rate;
      return current_total_mig_rates_->at(source); 
    }; 
@@ -221,7 +225,7 @@ class Model
     *
     * @return The probability/fraction of migration.
     */
-   double single_mig_pop(const size_t &source, const size_t &sink) const {
+   double single_mig_pop(const size_t source, const size_t sink) const {
     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return 0.0;
     if (sink == source) return 0.0;
     return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
@@ -230,18 +234,14 @@ class Model
    void setMutationRate(double rate,
                         const bool &per_locus = false, 
                         const bool &scaled = false,
-                        const double &seq_position = 0);
+                        const double seq_position = 0);
 
    void setRecombinationRate(double rate,
                              const bool &per_locus = false, 
                              const bool &scaled = false,
-                             const double &seq_position = 0);
+                             const double seq_position = 0);
 
-   void set_mutation_exact_number(size_t number) { 
-     throw std::runtime_error("SCRM does not support simulating a fixed number of mutations yet. Sorry"); 
-   }
-
-   bool hasFixedTimeEvent(const double &at_time) const {
+   bool hasFixedTimeEvent(const double at_time) const {
     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
     if (getCurrentTime() != at_time) return false;
     return true;
@@ -252,7 +252,6 @@ class Model
    double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
 
    size_t exact_window_length() const { return exact_window_length_; }
-   size_t prune_interval() const { return prune_interval_; }
    size_t population_number() const { return pop_number_; }
   
    
@@ -272,9 +271,8 @@ class Model
     else return change_position_.at(current_seq_idx_ + 1);
    }
 
-   void set_exact_window_length(const size_t &ewl) { exact_window_length_ = ewl; }
-   void set_prune_interval(const size_t &pi) { prune_interval_ = pi; }
-   void set_population_number(const size_t &pop_number) { 
+   void set_exact_window_length(const size_t ewl) { exact_window_length_ = ewl; }
+   void set_population_number(const size_t pop_number) { 
     pop_number_ = pop_number; 
     if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
    }
@@ -321,22 +319,22 @@ class Model
    void addPopulationSizes(double time, const std::vector<double> &pop_sizes, 
                            const bool &time_scaled = false, const bool &relative = false);
 
-   void addPopulationSizes(const double &time, const double &pop_size, 
+   void addPopulationSizes(const double time, const double pop_size, 
                            const bool &time_scaled = false, const bool &relative = false); 
 
-   void addPopulationSize(const double &time, const size_t &pop, double population_sizes,
+   void addPopulationSize(const double time, const size_t pop, double population_sizes,
                           const bool &time_scaled = false, const bool &relative = false);
 
    // Add exponential growth
-   void addGrowthRates(const double &time, const std::vector<double> &growth_rates,
+   void addGrowthRates(const double time, const std::vector<double> &growth_rates,
                        const bool &time_scaled = false, 
                        const bool &rate_scaled = false);
 
-   void addGrowthRates(const double &time, const double &growth_rates,
+   void addGrowthRates(const double time, const double growth_rates,
                        const bool &time_scaled = false,
                        const bool &rate_scaled = false);
 
-   void addGrowthRate(const double &time, const size_t &population, 
+   void addGrowthRate(const double time, const size_t population, 
                       double growth_rates, const bool &time_scaled = false,
                       const bool &rate_scaled = false);
 
@@ -350,11 +348,11 @@ class Model
    void addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
                        const bool &time_scaled = false, const bool &rate_scaled = false);
 
-   void addSymmetricMigration(const double &time, const double &mig_rate,
+   void addSymmetricMigration(const double time, const double mig_rate,
                        const bool &time_scaled = false, const bool &rate_scaled = false);
 
-   void addSingleMigrationEvent(const double &time, const size_t &source_pop, 
-                                const size_t &sink_pop, const double &fraction,
+   void addSingleMigrationEvent(const double time, const size_t source_pop, 
+                                const size_t sink_pop, const double fraction,
                                 const bool &time_scaled = false);
 
    void finalize(); 
@@ -378,9 +376,11 @@ class Model
      summary_statistics_.push_back(sum_stat);
    }
 
+  void addPopulation();
+
   private:
    std::vector<double> change_times_;
-   void setLocusLength(const size_t &length) { 
+   void setLocusLength(const size_t length) { 
     // Rescale the rates that are per base pair
     for (size_t i = 0; i < change_position_.size(); ++i) {
       mutation_rates_.at(i) *= (double)loci_length() / length;
@@ -398,7 +398,7 @@ class Model
    }
 
    size_t addChangeTime(double time, const bool &scaled = false);
-   size_t addChangePosition(const double &position);
+   size_t addChangePosition(const double position);
 
    template <typename T>
    void deleteParList(std::vector<T*> &parList) {
@@ -409,11 +409,11 @@ class Model
     parList.clear();
    }
 
-   void updateTotalMigRates(const size_t &position);
+   void updateTotalMigRates(const size_t position);
    bool has_migration_;
    bool has_migration() { return has_migration_; };
 
-  void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double &default_value);
+  void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double default_value);
   void calcPopSizes();
 
   template <typename T>
@@ -421,10 +421,15 @@ class Model
 
   friend void swap(Model& first, Model& second);
 
-  size_t getMigMatrixIndex(const size_t &i, const size_t &j) const {
+  size_t getMigMatrixIndex(const size_t i, const size_t j) const {
     assert(i != j);
     return i * (population_number()-1) + j - ( i < j );
   }
+
+  void addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, 
+                          size_t new_pop,
+                          double default_value = nan("value to replace"));
+  void addPopToVectorList(std::vector<std::vector<double>*> &vector_list);
 
    // Stores information about samples. Each index represents a sample.
    std::vector<size_t> sample_populations_;
@@ -436,11 +441,15 @@ class Model
    // These pointer vectors hold the actual model parameters that can change in
    // time. Each index represents one period in time within which the model
    // parameters are constant. NULL means that the parameters do not change.
-   std::vector<std::vector<double>*> pop_sizes_list_;
    std::vector<std::vector<double>*> growth_rates_list_;
    std::vector<std::vector<double>*> mig_rates_list_;
    std::vector<std::vector<double>*> total_mig_rates_list_;
    std::vector<std::vector<double>*> single_mig_probs_list_;
+
+   // Population sizes are saved as 1/(2N), where N is the actual population
+   // size (do to fast multiplication rather than slow division in the
+   // algorithm)
+   std::vector<std::vector<double>*> pop_sizes_list_;
    
    // These vectors contain the model parameters that may change along the sequence.
    // Again, each index represents an sequence segment within with the model
@@ -464,11 +473,10 @@ class Model
    size_t loci_length_;
 
    size_t exact_window_length_;
-   size_t prune_interval_;
 
    bool finite_sites_;
 
-   std::vector<std::shared_ptr<SummaryStatistic>> summary_statistics_;
+   std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
 };
 
 
@@ -499,7 +507,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
 inline void Model::setRecombinationRate(double rate,  
                                         const bool &per_locus, 
                                         const bool &scaled,
-                                        const double &seq_position) { 
+                                        const double seq_position) { 
 
   if (rate < 0.0) throw std::invalid_argument("Recombination rate must be non-negative");
 
@@ -520,7 +528,7 @@ inline void Model::setRecombinationRate(double rate,
  * units (e.g. as theta rather than as u).
  */
 inline void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled, 
-                                   const double &seq_position) { 
+                                   const double seq_position) { 
   if (scaled) rate /= 4.0 * default_pop_size; 
 
   size_t idx = addChangePosition(seq_position);
