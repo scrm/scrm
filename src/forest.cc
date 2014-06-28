@@ -395,6 +395,11 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
+
+  double recomb_opportunity_x = this->next_base_ - this->current_base_;
+  double opportunity_y = this -> local_tree_length();
+  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
+
   this->set_current_base(next_base_);
 
   if (current_base_ == model().getCurrentSequencePosition()) {
@@ -423,6 +428,13 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
+  // record recombination event - we pass the population, but disregard for now, 
+  // since the opportunity is calculated overall rather than per-population. 
+  this->record_Recombevent(0, 
+                            //rec_point.height(), 
+                            //rec_point.height(), 
+                            recomb_opportunity, 
+                            EVENT );
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 
