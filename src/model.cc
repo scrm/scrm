@@ -260,6 +260,9 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
   }
 
   size_t position = addChangeTime(time, time_scaled);
+  if (pop_sizes_list_[position]){
+    delete pop_sizes_list_[position];    
+  }
   pop_sizes_list_[position] = pop_sizes_heap;  
 }
 
