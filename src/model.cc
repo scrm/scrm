@@ -446,6 +446,9 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
   }
 
   size_t position = addChangeTime(time, scaled_time);
+  if (mig_rates_list_[position]){
+    delete mig_rates_list_[position];    
+  }
   mig_rates_list_[position] = mig_rates_heap; 
 }
 
