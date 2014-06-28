@@ -81,7 +81,7 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
-  friend class ForestState;
+  //friend class ForestState;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
