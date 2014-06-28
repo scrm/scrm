@@ -62,6 +62,7 @@ Model::Model(const Model& model) {
   sample_times_ = model.sample_times_;
   sample_populations_ = model.sample_populations_;
   change_times_ = model.change_times_;
+  change_position_ = model.change_position_;
 
   // Vector lists
   pop_sizes_list_ = copyVectorList(model.pop_sizes_list_);
