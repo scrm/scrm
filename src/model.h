@@ -56,10 +56,7 @@ class Model
    friend class TestForest;
 #endif
    friend class Forest;
-   //friend class ForestState;
    friend class Param;
-   //friend class PfParam;
-   //friend class CountModel;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
