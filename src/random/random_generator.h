@@ -31,9 +31,12 @@
 
 class RandomGenerator
 {
+ friend class MersenneTwister;
  public:
-  RandomGenerator() {};
+  RandomGenerator() { this->ff_ = new FastFunc(); };
+  RandomGenerator( FastFunc* ff ) { this->ff_ = ff; };
   virtual ~RandomGenerator() {}
+  void clearFastFunc() { delete this->ff_; }
 
   //Getters & Setters
   size_t seed() const { return seed_; }
@@ -76,13 +79,16 @@ class RandomGenerator
   friend class TestRandomGenerator;
 #endif
 
+  // fast functions
+  FastFunc *ff() { return this->ff_; }
+
  protected:
   // Sample from a unit exponential distribution
   // Unit tested
   // fastlog can return 0, which causes a bug in scrm.
   // log or fastlog does seems to have an influence on the runtime.
   virtual double sampleUnitExponential() {
-    return -ff.fastlog(sample());
+    return -(this->ff()->fastlog(sample()));
     //return -std::log(sample());
   }
 
@@ -91,8 +97,7 @@ class RandomGenerator
   size_t seed_;
   // cache for a unit-exponentially distributed variable
   double unit_exponential_;
-  // fast functions
-  FastFunc ff;
+  FastFunc *ff_;
 };
 
 #endif

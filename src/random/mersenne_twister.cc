@@ -22,6 +22,13 @@
 
 #include "mersenne_twister.h"
 
+void MersenneTwister::construct_common(const size_t seed){
+  unif_ = std::uniform_real_distribution<>(0, 1);
+  expo_ = std::exponential_distribution<>(1);
+  if (seed == -1) set_seed(generateRandomSeed());
+  else this->set_seed(seed);
+}
+
 MersenneTwister::MersenneTwister() {
   unif_ = std::uniform_real_distribution<>(0, 1);
   expo_ = std::exponential_distribution<>(1);
@@ -29,12 +36,12 @@ MersenneTwister::MersenneTwister() {
 }
 
 MersenneTwister::MersenneTwister(const size_t seed){
-  unif_ = std::uniform_real_distribution<>(0, 1);
-  expo_ = std::exponential_distribution<>(1);
-  if (seed == -1) set_seed(generateRandomSeed());
-  else this->set_seed(seed);
+  this->construct_common(seed);
 }
 
+MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerator( ff ) {
+  this->construct_common(seed);
+}
 
 /**
  * @brief Generates a random seed using entropy provided by the operating

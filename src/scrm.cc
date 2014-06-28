@@ -73,6 +73,7 @@ int main(int argc, char *argv[]){
       }
 
       forest.printLocusSumStats(*output);
+      rg.clearFastFunc();
     }
     return EXIT_SUCCESS;
   }
