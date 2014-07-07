@@ -31,3 +31,9 @@ void TMRCA::printLocusOutput(std::ostream &output) {
   output_buffer_.str("");
   output_buffer_.clear();
 }
+
+void TMRCA::printLocusOutput_omp(ParallelStream &output) {
+  output << output_buffer_.str();  
+  output_buffer_.str("");
+  output_buffer_.clear();
+}

@@ -1,6 +1,6 @@
 include aminclude.am 
 EXTRA_DIST = doc/manual.html doc/scrm.1 m4/ac_doxygen.m4
-bin_PROGRAMS = scrm 
+bin_PROGRAMS = scrm scrm_omp
 man_MANS = doc/scrm.1
 
 TESTS = unit_tests algorithm_tests 
@@ -54,12 +54,14 @@ alg_test_src = tests/test_runner.cc tests/test_algorithm.cc
 
 
 scrm_SOURCES = $(scrm_src) src/scrm.cc
+scrm_omp_SOURCES = $(scrm_src) src/scrm_omp.cpp
 scrm_dbg_SOURCES = $(scrm_src) $(debug_src) src/scrm.cc
 scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
 unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
 algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
  
 scrm_CXXFLAGS= -DNDEBUG -std=c++0x
+scrm_omp_CXXFLAGS= -DNDEBUG -std=c++0x -fopenmp
 scrm_dbg_CXXFLAGS= -std=c++0x
 scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 

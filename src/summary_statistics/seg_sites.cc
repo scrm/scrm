@@ -55,6 +55,19 @@ void SegSites::printLocusOutput(std::ostream &output) {
   }
 }
 
+void SegSites::printLocusOutput_omp(ParallelStream &output) {
+  output << "segsites: "<< countMutations() << "\n";
+  if ( countMutations() == 0 ) return;
+
+  output << "positions: " << positions_ << "\n";
+
+  for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
+    for (size_t j = 0; j < haplotypes_.size(); j++){
+      output << haplotypes_[j][i];
+    }
+    output <<"\n";
+  }
+}
 
 std::valarray<bool> SegSites::getHaplotypes(TreePoint mutation, const Forest &forest) {
   std::valarray<bool> haplotype(forest.model().sample_size());

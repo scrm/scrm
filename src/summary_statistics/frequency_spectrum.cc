@@ -39,3 +39,16 @@ void FrequencySpectrum::printLocusOutput(std::ostream &output) {
   }
   output << "SFS: " << sfs << std::endl;
 }
+
+void FrequencySpectrum::printLocusOutput_omp(ParallelStream &output) {
+  std::vector<size_t> sfs(model_.sample_size() - 1, 0);
+  size_t haplotype;
+
+  for (size_t i = 0; i < seg_sites_->countMutations(); ++i) { 
+    haplotype = 0;
+    for (size_t j = 0; j < seg_sites_->getHaplotype(i)->size(); ++j) 
+      haplotype += (*(seg_sites_->getHaplotype(i)))[j];
+    sfs.at(haplotype - 1) += 1; 
+  }
+  output << "SFS: " << sfs << "\n";
+}

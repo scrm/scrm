@@ -29,3 +29,7 @@ void FirstLastTMRCA::calculate(const Forest &forest) {
 void FirstLastTMRCA::printLocusOutput(std::ostream &output) {
   output << "FLTMRCA: " << first_tmrca_ << " " << last_tmrca_ << std::endl;
 }
+
+void FirstLastTMRCA::printLocusOutput_omp(ParallelStream &output) {
+  output << "FLTMRCA: " << first_tmrca_ << " " << last_tmrca_ << "\n";
+}

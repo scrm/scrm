@@ -1184,11 +1184,25 @@ void Forest::printSegmentSumStats(ostream &output) const {
   }
 }
 
+void Forest::printSegmentSumStats_omp(ParallelStream &output) const {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
+    model().getSummaryStatistic(i)->printSegmentOutput_omp(output);
+  }
+}
+
+
 void Forest::printLocusSumStats(ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
 }
+
+void Forest::printLocusSumStats_omp(ParallelStream &output) const {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
+    model().getSummaryStatistic(i)->printLocusOutput_omp(output);
+  }
+}
+
 
 void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
   if (node->in_sample()){

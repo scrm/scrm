@@ -25,6 +25,27 @@
 
 #include <iostream>
 #include <ostream>
+#include <sstream>
+
+#ifdef _OPENMP
+    #include <omp.h>
+#else
+    #define omp_get_thread_num() 0
+#endif
+
+class ParallelStream{
+    std::ostringstream stdStream;
+public:
+    ParallelStream(){}
+    template <class T>
+    ParallelStream& operator<<(const T& inData){
+        stdStream << inData;
+        return *this;
+    }
+    std::string toString() const{
+        return stdStream.str();
+    }
+};
 
 class Forest;
 
@@ -36,7 +57,9 @@ class SummaryStatistic
    //Virtual methods
    virtual void calculate(const Forest &forest) =0;
    virtual void printSegmentOutput(std::ostream &output) =0;
+   virtual void printSegmentOutput_omp(ParallelStream &output) =0;
    virtual void printLocusOutput(std::ostream &output) =0;
+   virtual void printLocusOutput_omp(ParallelStream &output) =0;
 };
 
 #endif

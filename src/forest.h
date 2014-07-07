@@ -218,8 +218,11 @@ class Forest
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
   void printSegmentSumStats(ostream &output) const;
+  void printSegmentSumStats_omp(ParallelStream &output) const;
   void printLocusSumStats(ostream &output) const;
-  
+  void printLocusOutput_omp(ParallelStream &output) const;
+  void printLocusSumStats_omp(ParallelStream &output) const ;
+
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);

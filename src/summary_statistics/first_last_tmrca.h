@@ -41,7 +41,9 @@ class FirstLastTMRCA : public SummaryStatistic
    //Virtual methods
    void calculate(const Forest &forest);
    void printSegmentOutput(std::ostream &output) { (void)output; }
+   void printSegmentOutput_omp(ParallelStream &output) { (void)output; }
    void printLocusOutput(std::ostream &output);
+   void printLocusOutput_omp(ParallelStream &output);
 
  private:
    std::ostringstream output_buffer_;
