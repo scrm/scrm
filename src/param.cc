@@ -307,7 +307,8 @@ void Param::parse(Model &model) {
       try {
         // Maybe read in up to 3 seeds (ms compatibility)
         for (size_t i = 1; i < 3; i++) seeds.at(i) = readNextInput<size_t>();
-      } catch (std::invalid_argument &e) {
+      //} catch (std::invalid_argument &e) {
+      } catch (std::logic_error &e) {
           std::cout<<"ok, caught the seed is less than 3 arguments"<<endl; // DEBUG
         --this->argc_i;
       }
