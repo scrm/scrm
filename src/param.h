@@ -81,7 +81,7 @@ class Param {
     ++argc_i;
 
     if (argc_i >= argc_) {
-      throw std::invalid_argument(std::string("Not enough parameters when parsing options"));
+      throw std::invalid_argument(std::string("Not enough parameters when parsing options: ") + argv_[argc_i-1]);
     }
 
     char c;
