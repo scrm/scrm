@@ -1,8 +1,6 @@
 scrm
 ====
 
-[![Build Status](https://travis-ci.org/paulstaab/scrm.png?branch=master)](https://travis-ci.org/paulstaab/scrm)
-
 scrm is a coalescent simulator for biological sequences. Different to similar programs, 
 it can approximate the Ancestral Recombination Graph as close as needed, but still has 
 only linear runtime cost for long sequences. It allows you to rapidly simulate chromosome 
@@ -14,20 +12,26 @@ You can download the lastest stable release of `scrm` from [scrm's homepage][1].
 Instructions on building the binary from the source packages are available in the [wiki][3].
 
 ### Stable/Development Version From GitHub
-You can also install `scrm` directly from the GitHub. 
-Clone branch `stable` for the lastest stable or branch `master` for the lastet development 
-version. You need to install `autoconf` to build `scrm`:  
+
+Version             | Branch | Build Status
+------------------- | ------ | -----------------
+Stable Version      | stable | [![Build Status](https://travis-ci.org/scrm/scrm.png?branch=stable)](https://travis-ci.org/scrm/scrm)
+Development Version | master | [![Build Status](https://travis-ci.org/scrm/scrm.png?branch=master)](https://travis-ci.org/scrm/scrm)
+
+You can also install `scrm` directly from the git repository. Here, you need to install `autoconf` first:  
 
 On Debian/Ubuntu based systems:
 ```bash
 apt-get install build-essential autoconf autoconf-archive doxygen libcppunit-dev
-CXXFLAGS="-O3" ./bootstrap
-make
 ```
 
 On Mac OS:
 ```bash
 port install automake autoconf autoconf-archive doxygen cppunit 
+```
+
+Afterwards you can build the binary using 
+```bash
 CXXFLAGS="-O3" ./bootstrap
 make
 ```
