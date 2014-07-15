@@ -7,7 +7,7 @@ only linear runtime cost for long sequences. It allows you to rapidly simulate c
 scale sequences with essentially correct genetic linkage.
 
 ## Installation
-### Stable Release
+### Stable Release (recommended) 
 You can download the lastest stable release of `scrm` from [scrm's homepage][1]. 
 Instructions on building the binary from the source packages are available in the [wiki][3].
 
