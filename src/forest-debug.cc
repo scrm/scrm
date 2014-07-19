@@ -600,30 +600,32 @@ bool Forest::checkForNodeAtHeight(const double height) const {
 // Checks if all nodes in contemporaries are contempoaries.
 bool Forest::checkContemporaries(const TimeInterval &ti) const {
   // Check if all nodes in contemporaries() are contemporaries
-  for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
+  for (size_t pop = 0; pop < model().population_number(); ++pop) {
+    for (auto it = ti.contemporaries(pop).begin(); it != ti.contemporaries(pop).end(); ++it) {
 
-    if ( *it == NULL ) return 0;
-    if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
-      dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
-      return 0;
-    }
-
-    if ( nodeIsOld(*it) ) { 
-      if ( *it == local_root() ) {
-        if ( !(*it)->is_root() ) {
-          dout << "Branch above local root should be pruned but is not" << std::endl;
-          return 0;
-        }
-      } else {
-        dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+      if ( *it == NULL ) return 0;
+      if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
+        dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
         return 0;
       }
-    }
 
-    for (size_t i = 0; i < 2; ++i) {
-      if ( *it == active_node(i) && states_[i] == 1 ) {
-        dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
-        return 0;
+      if ( nodeIsOld(*it) ) { 
+        if ( *it == local_root() ) {
+          if ( !(*it)->is_root() ) {
+            dout << "Branch above local root should be pruned but is not" << std::endl;
+            return 0;
+          }
+        } else {
+          dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+          return 0;
+        }
+      }
+
+      for (size_t i = 0; i < 2; ++i) {
+        if ( *it == active_node(i) && states_[i] == 1 ) {
+          dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
+          return 0;
+        }
       }
     }
   }
@@ -635,7 +637,8 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
       if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
       
       bool found = false;
-      for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
+      for (auto it = ti.contemporaries((*ni)->population()).begin(); 
+           it != ti.contemporaries((*ni)->population()).end(); ++it) {
         if ( *it == *ni ) {
           found = true;
           break;
