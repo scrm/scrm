@@ -600,8 +600,7 @@ bool Forest::checkForNodeAtHeight(const double height) const {
 // Checks if all nodes in contemporaries are contempoaries.
 bool Forest::checkContemporaries(const TimeInterval &ti) const {
   // Check if all nodes in contemporaries() are contemporaries
-  for (std::vector<Node*>::const_iterator it = ti.contemporaries().begin(); 
-       it != ti.contemporaries().end(); ++it) {
+  for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
 
     if ( *it == NULL ) return 0;
     if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {

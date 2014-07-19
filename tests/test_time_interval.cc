@@ -11,12 +11,12 @@ class TestTimeInterval : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestTimeInterval );
 
+  CPPUNIT_TEST( testAddContemporary );
   CPPUNIT_TEST( testIteratorCreation );
   CPPUNIT_TEST( testIteratorNext );
   CPPUNIT_TEST( testIteratorCreationWithTimeFrames );
   CPPUNIT_TEST( testIteratorNextWithTimeFrames );
   CPPUNIT_TEST( testSplitIntervall );
-  CPPUNIT_TEST( testGetIthContemporary );
   CPPUNIT_TEST( testSampleContemporary );
   CPPUNIT_TEST( testRecalculateTI );
 
@@ -41,15 +41,40 @@ class TestTimeInterval : public CppUnit::TestCase {
     delete rg;
   }
 
+  void testAddContemporary() {
+    forest->writable_model()->set_population_number(3);
+    TimeIntervalIterator ti(forest, forest->nodes()->at(0));
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, (*ti).numberOfContemporaries() );
+
+    Node* node1 = new Node(5);
+    ti.addToContemporaries(node1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
+
+    Node* node2 = new Node(10);
+    node2->set_population(1);
+    ti.addToContemporaries(node2);
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
+
+    Node* node3 = new Node(10);
+    node3->set_population(2);
+    ti.addToContemporaries(node3);
+    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(2) );
+
+    delete node1, node2, node3;
+  }
+
   void testIteratorCreation() {
     TimeIntervalIterator it(forest, forest->nodes()->at(0));
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT_EQUAL( (size_t)4, (*it).numberOfContemporaries() );
-    CPPUNIT_ASSERT( (*it).contemporaries().at(0) != NULL );
-    CPPUNIT_ASSERT( (*it).contemporaries().at(1) != NULL );
-    CPPUNIT_ASSERT( (*it).contemporaries().at(2) != NULL );
-    CPPUNIT_ASSERT( (*it).contemporaries().at(3) != NULL );
     
     TimeIntervalIterator it2(forest, forest->nodes()->at(4));
     CPPUNIT_ASSERT( (*it2).start_height() == 1 );
@@ -189,31 +214,6 @@ class TestTimeInterval : public CppUnit::TestCase {
     delete split_node;
   }
 
-  void testGetIthContemporary() {
-    forest->writable_model()->set_population_number(2);
-    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(0) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(1) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(2) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(3) != NULL );
-    Node *node1 = new Node(1), *node2 = new Node(1), *node3 = new Node(1);
-    node1->set_population(1);
-    node2->set_population(1);
-    tii.addToContemporaries(node1);
-    tii.addToContemporaries(node2);
-    tii.addToContemporaries(node3);
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(0) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(1) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(2) != NULL );
-    CPPUNIT_ASSERT( (*tii).contemporaries().at(3) != NULL );
-    CPPUNIT_ASSERT( node1 == (*tii).getIthContemporaryOfPop(0, 1) );
-    CPPUNIT_ASSERT( node2 == (*tii).getIthContemporaryOfPop(1, 1) );
-    CPPUNIT_ASSERT( node3 == (*tii).getIthContemporaryOfPop(4, 0) );
-    delete node1;
-    delete node2;
-    delete node3;
-  } 
-
   void testSampleContemporary() {
     TimeIntervalIterator it(forest, forest->nodes()->at(7));
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
@@ -226,9 +226,6 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
     CPPUNIT_ASSERT( (*it).getRandomContemporary() != NULL );
-
-    ++it;
-    CPPUNIT_ASSERT_THROW( (*it).getRandomContemporary(), std::out_of_range );
   }
 
   void testRecalculateTI() {

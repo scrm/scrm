@@ -13,9 +13,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
+ * GNU General Public License for more details.  * * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
@@ -23,6 +21,7 @@
 #ifndef scrm_src_time_interval
 #define scrm_src_time_interval
 
+#include <unordered_set>
 #include "forest.h"
 
 class Forest;
@@ -50,12 +49,9 @@ class TimeInterval {
 
   Node* getRandomContemporary(const size_t pop = 0) const;
 
-  const std::vector<Node*> &contemporaries() const;
-
+  const std::unordered_set<Node*> &contemporaries(const size_t pop = 0) const;
 
  private:
-  Node* getIthContemporaryOfPop(size_t i, const size_t pop) const;
-  
   double start_height_;
   double end_height_; 
   TimeIntervalIterator const* tii_;
@@ -87,18 +83,36 @@ class TimeIntervalIterator {
   };
 
   void recalculateInterval();
-  void removeFromContemporaries(Node* node);
+
+  void removeFromContemporaries(Node* node) {
+    contemporaries_.at(node->population()).erase(node);
+  }
+
   void addToContemporaries(Node* node) { 
-    contemporaries_.push_back(node);
-    pop_counts_.at(node->population()) += 1; 
+    // Assert that the node is not already in the contemporaries
+    assert( contemporaries_.at(node->population()).find(node) == 
+            contemporaries_.at(node->population()).end() );
+    contemporaries_.at(node->population()).insert(node);
   };
+
+  size_t numberOfContemporaries(const size_t pop = 0) const { 
+    return contemporaries_.at(pop).size(); 
+  };
+
+  size_t clearContemporaries() {
+    for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+      (*it).clear();
+    }
+  }
+
   void searchContemporariesOfNode(Node *node);
   void searchContemporariesOfNodeTopDown(Node *node, Node *current_node = NULL);
   void updateContemporaries(Node *current_node); 
 
-  const std::vector<Node*> &contemporaries() const { return contemporaries_; };
+  const std::unordered_set<Node*> &contemporaries(const size_t pop = 0) const { 
+    return contemporaries_.at(pop); 
+  };
   const Forest &forest() const { return *forest_; };
-  size_t numberOfContemporaries(const size_t pop = 0) const { return pop_counts_.at(pop); };
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
@@ -111,8 +125,7 @@ class TimeIntervalIterator {
   Forest* forest_;
   TimeInterval current_interval_;
   double current_time_;
-  std::vector<Node*> contemporaries_;
-  std::vector<size_t> pop_counts_;
+  std::vector<std::unordered_set<Node*> > contemporaries_;
   NodeIterator node_iterator_;
 
   bool good_;
@@ -127,7 +140,7 @@ inline size_t TimeInterval::numberOfContemporaries(const size_t pop) const {
   return tii_->numberOfContemporaries(pop); 
 }
 
-inline const std::vector<Node*> &TimeInterval::contemporaries() const {
-  return tii_->contemporaries(); 
+inline const std::unordered_set<Node*> &TimeInterval::contemporaries(const size_t pop) const {
+  return tii_->contemporaries(pop); 
 }
 #endif
