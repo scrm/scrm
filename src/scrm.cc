@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -22,11 +22,13 @@
 
 #include <iostream>
 #include <ctime>
+#include <memory>
 
 #include "param.h"
 #include "forest.h"
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
+
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
@@ -34,10 +36,10 @@ int main(int argc, char *argv[]){
     // Organize output
     std::ostream *output = &std::cout;
 
+    // Parse command line arguments
     Param user_para(argc, argv);
-
-    Model model;
-    user_para.parse(model);
+    Model model = user_para.parse();
+    output->precision(user_para.precision());
 
     // Print help if user asked for it
     if (user_para.help()) {
@@ -49,21 +51,26 @@ int main(int argc, char *argv[]){
       return EXIT_SUCCESS;
     }
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
-
-    //*output << "scrm " << VERSION << " |" << user_para << std::endl;
+    MersenneTwister rg(user_para.seed_is_set(), user_para.random_seed());
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
-    // Loop over the independent samples
-    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
+    if (user_para.print_model()) {
+      *output << model << std::endl;
+    }
 
+    // Create the forest
+    Forest forest = Forest(&model, &rg);
+
+    // Loop over the independent loci/chromosomes
+    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
       // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
 
       // Now set up the ARG, and sample the initial tree
-      Forest forest = Forest(&model, &rg);
-      forest.buildInitialTree();
+      if ( user_para.read_init_genealogy() )
+        forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
+      else forest.buildInitialTree();
       forest.printSegmentSumStats(*output);
 
       while (forest.next_base() < model.loci_length()) { 
@@ -71,19 +78,23 @@ int main(int argc, char *argv[]){
         forest.sampleNextGenealogy();
         forest.printSegmentSumStats(*output);
       }
+      assert(forest.next_base() == model.loci_length());
 
       forest.printLocusSumStats(*output);
+      forest.clear();
     }
 
     // Clean-up and exit
     rg.clearFastFunc();
     return EXIT_SUCCESS;
   }
-  catch (const exception &e)
-  {
+
+  catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     std::cerr << "Try 'scrm --help' for more information." << std::endl;
     return EXIT_FAILURE;
   }
 }
+
 #endif
+

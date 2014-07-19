@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -21,21 +21,23 @@
 
 #include "newick_tree.h"
 
+
 void NewickTree::calculate(const Forest &forest) {
-  if (forest.model().recombination_rate() == 0.0) {
-    output_buffer_ << generateTree(forest.local_root(), forest) << ";\n";  
-  } else {
-    if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-    output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
-                   << generateTree(forest.local_root(), forest) << ";\n";  
-  }
+  segment_length_ = forest.calcSegmentLength();
+  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest, has_rec_); 
 }
 
-void NewickTree::printLocusOutput(std::ostream &output) {
-  output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
+
+void NewickTree::printSegmentOutput(std::ostream &output) const {
+  if (segment_length_ == 0.0) return;
+  if (has_rec_) {
+    double intpart; // dummy variable for modf
+    if (modf(segment_length_, &intpart) == 0.0) output << "[" << (size_t)segment_length_ << "]";
+    else output << "[" << segment_length_ << "]";
+  }
+  output << tree_ << ";" << std::endl;
 }
+
 
 /**
  * @brief Prints a part of the tree in newick format
@@ -44,23 +46,39 @@ void NewickTree::printLocusOutput(std::ostream &output) {
  *
  * @return A part of the tree in newick format
  */
-std::string NewickTree::generateTree(Node *node, const Forest &forest) {
-  if(node->in_sample()){
-    std::ostringstream label_strm;
-    label_strm<<node->label();
-    return label_strm.str();
+std::string NewickTree::generateTree(Node const* node, const Forest &forest, const bool use_buffer) {
+  // Use tree from buffer if possible
+  std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
+  if (use_buffer && it != buffer_.end()) {
+    if (it->second.recombination > node->last_change()) {
+      // Check that the buffered tree is correct.
+      assert(it->second.tree.compare(generateTree(node, forest, false)) == 0);
+      return it->second.tree;
+    }
   }
-  else{
-    Node *left = forest.trackLocalNode(node->first_child());
-    double t1 = node->height() - left->height();
-    std::ostringstream t1_strm;
-    t1_strm << t1 / (4 * forest.model().default_pop_size);
 
-    Node *right = forest.trackLocalNode(node->second_child());
-    double t2 = node->height() - right->height();
-    std::ostringstream t2_strm;
-    t2_strm << t2 / (4 * forest.model().default_pop_size);
+  // Generate a new tree
+  std::stringstream tree;
+  tree.precision(this->precision_);
+  tree.exceptions(std::ios::failbit); 
 
-    return "("+this->generateTree(left, forest)+":"+t1_strm.str()+","+ this->generateTree(right, forest)+":"+t2_strm.str() +")";
+  if (node->in_sample()) tree << node->label();
+  else { 
+    Node *left = node->getLocalChild1();
+    Node *right = node->getLocalChild2();
+
+    tree << "(" << generateTree(left, forest, use_buffer) << ":" <<
+           (node->height() - left->height()) * forest.model().scaling_factor() <<
+           "," << generateTree(right, forest, use_buffer) << ":" <<
+           (node->height() - right->height()) * forest.model().scaling_factor() << ")";
+
+    // And add to to the buffer
+    if (use_buffer) {
+      NewickBuffer buf = {forest.current_rec(), tree.str()};
+      buffer_[node] = buf; 
+    }
   }
+
+  return tree.str();
 }
+

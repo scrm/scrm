@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -23,25 +23,23 @@
 #ifndef scrm_param
 #define scrm_param
 
+#include <vector>
 #include <iostream>
-#include <iomanip>      
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <iostream>
-#include <stdlib.h>  
-#include <stdio.h>
+#include <string>
 #include <stdexcept>
-#include <memory>
+#include <random>
+#include <iterator>
+#include <sstream>
+
 
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
 #include "summary_statistics/tmrca.h"
-#include "summary_statistics/first_last_tmrca.h"
 #include "summary_statistics/seg_sites.h"
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
-
+#include "summary_statistics/oriented_forest.h"
 
 class Param {
  public:
@@ -50,60 +48,99 @@ class Param {
  #endif
 
   // Constructors
-  Param() : argc_(0), argv_(NULL) { init(); }
+  Param() { init(); }
+
+  Param(const std::string &arg) { 
+    std::istringstream iss(arg);
+    copy(std::istream_iterator<std::string>(iss),
+         std::istream_iterator<std::string>(),
+         std::back_inserter(argv_));
+    directly_called_ = true;
+    init();
+  }
+
   Param(int argc, char *argv[], bool directly_called=true) : 
-      argc_(argc), argv_(argv), directly_called_(directly_called) {
-        init();
-      }
+    directly_called_(directly_called) {
+    argv_ = std::vector<std::string>(argv + 1, argv + argc);
+    init();
+  }
 
   void init() {
-    this->set_random_seed(-1);
+    this->seed_set_ = false;
+    this->random_seed_ = 0;
     this->set_help(false);
     this->set_version(false);
-    argc_i = 0;
+    this->set_precision(6);
+    this->set_print_model(false);
+    this->argv_i = argv_.begin();
   }
 
   // Getters and setters
   bool help() const { return help_; }
   bool version() const { return version_; }
+  bool read_init_genealogy() const { return this->read_init_genealogy_; }
   size_t random_seed() const { return random_seed_; }
-  void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
+  size_t precision() const { return precision_; }
+  bool seed_is_set() const { return this->seed_set_; }
+  bool print_model() const { return this->print_model_; }
+
+  void set_precision ( const size_t p ) { this->precision_ = p; }
+  void set_random_seed(const size_t seed) { 
+    this->random_seed_ = seed;
+    this->seed_set_ = true; 
+  }
+  void set_print_model(const bool print_model) { print_model_ = print_model; }
 
   // Other methods
   void printHelp(std::ostream& stream);
 
   friend std::ostream& operator<< (std::ostream& stream, const Param& param);
 
-  void parse(Model &model);
+  Model parse();
 
   template<class T>
   T readNextInput() {
-    ++argc_i;
+    ++argv_i;
 
-    if (argc_i >= argc_) {
-      throw std::invalid_argument(std::string("Not enough parameters when parsing options: ") + argv_[argc_i-1]);
+    if (argv_i == argv_.end()) {
+      throw std::invalid_argument(std::string("Unexpected end of arguments"));
     }
 
-    char c;
-    T input;
-    std::stringstream ss(argv_[argc_i]);
-    ss >> input;
-    if (ss.fail() || ss.get(c)) {
-      throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
-    }
-    return input;
+    return convert<T>(*argv_i);
   }
+
+  template<class T>
+  T convert(const std::string &arg) {
+    T value;
+    std::stringstream ss(arg);
+    ss >> value;
+    if (ss.fail()) {
+      throw std::invalid_argument(std::string("Failed to parse option: ") + arg);
+    }
+    return value;
+  }
+
+  // Read to double first and then cast to int to support scientific notation
+  size_t readNextInt() {
+    return readNextInput<double>();
+  }
+
+
+  std::vector < std::string > init_genealogy;
 
  private:
   void set_help(const bool help) { this->help_ = help; } 
   void set_version(const bool version) { this->version_ = version; } 
 
-  int argc_;
-  int argc_i;
-  char * const* argv_;
-  size_t random_seed_;  
+  std::vector<std::string> argv_;
+  std::vector<std::string>::iterator argv_i;
+  size_t seed_set_;
+  size_t random_seed_;
+  size_t precision_;
   bool directly_called_;
   bool help_;
   bool version_;
+  bool read_init_genealogy_;
+  bool print_model_;
 };
 #endif

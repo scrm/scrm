@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include "summary_statistic.h"
 #include "../forest.h"
@@ -37,12 +38,20 @@ class TMRCA : public SummaryStatistic
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
+   void printLocusOutput(std::ostream &output) const;
+   void clear() {
+     tmrca_.clear();
+     tree_length_.clear();
+   }
+   
+   TMRCA* clone() const { return new TMRCA(); } 
+
+   const std::vector<double> & tmrca() const { return tmrca_; }
+   const std::vector<double> & tree_length() const { return tree_length_; }
 
  private:
-   std::ostringstream output_buffer_;
-
+   std::vector<double> tmrca_;
+   std::vector<double> tree_length_;
 };
 
 #endif

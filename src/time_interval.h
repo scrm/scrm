@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -13,9 +13,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
+ * GNU General Public License for more details.  * * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
@@ -23,7 +21,21 @@
 #ifndef scrm_src_time_interval
 #define scrm_src_time_interval
 
+#include "macros.h" // Needs to be before cassert
+
 #include "forest.h"
+#include "contemporaries_container.h"
+#include "model.h"
+
+#ifdef UNITTEST
+#define TI_DEBUG
+#endif
+
+#ifndef NDEBUG
+#ifndef TI_DEBUG
+#define TI_DEBUG
+#endif
+#endif
 
 class Forest;
 class TimeIntervalIterator;
@@ -38,26 +50,20 @@ class TimeInterval {
 #endif
 
   TimeInterval();
-  TimeInterval(TimeIntervalIterator const* tii, double start_height, double end_height);
+  TimeInterval(TimeIntervalIterator* tii, double start_height, double end_height);
   ~TimeInterval() { };
 
-  double start_height() const { return this->start_height_; };
-  double end_height()   const { return this->end_height_; };
-  double length()       const { return (end_height() - start_height()); };
-  const Forest &forest() const;
+  double start_height()  const { return this->start_height_; };
+  double end_height()    const { return this->end_height_; };
+  double length()        const { return (end_height() - start_height()); };
+  const Forest &forest() const { return *(this->forest_); }
 
-  size_t numberOfContemporaries(const size_t pop = 0) const;
-
-  Node* getRandomContemporary(const size_t pop = 0) const;
-
-  const std::vector<Node*> &contemporaries() const;
-
+  //std::unordered_set<Node*> &contemporaries(const size_t pop = 0);
 
  private:
-  Node* getIthContemporaryOfPop(size_t i, const size_t pop) const;
-  
   double start_height_;
   double end_height_; 
+  Forest* forest_;
   TimeIntervalIterator const* tii_;
 };
 
@@ -65,9 +71,7 @@ class TimeInterval {
 /* WARNING: DON'T USE MULTIPLE OF THESE AT THE SAME TIME */
 class TimeIntervalIterator {
  public:
-  TimeIntervalIterator();
-  TimeIntervalIterator(Forest *forest, Node *start_node);
-  ~TimeIntervalIterator() {};
+  TimeIntervalIterator(Forest* forest, Node* start_node);
 
   void next();
   bool good() const { return this->good_; }
@@ -83,51 +87,63 @@ class TimeIntervalIterator {
   // second part of the interval.
   void splitCurrentInterval(Node* splitting_node, Node* del_node = NULL) {
     this->inside_node_ = splitting_node;
-    if (del_node != NULL) removeFromContemporaries(del_node);
+    if (del_node != NULL) contemporaries_->remove(del_node);
   };
 
   void recalculateInterval();
-  void removeFromContemporaries(Node* node);
-  void addToContemporaries(Node* node) { 
-    contemporaries_.push_back(node);
-    pop_counts_.at(node->population()) += 1; 
-  };
-  void searchContemporariesOfNode(Node *node);
-  void searchContemporariesOfNodeTopDown(Node *node, Node *current_node = NULL);
-  void updateContemporaries(Node *current_node); 
 
-  const std::vector<Node*> &contemporaries() const { return contemporaries_; };
+  void searchContemporaries(Node* node);
+  void searchContemporariesBottomUp(Node* node, const bool use_buffer = false);
+
   const Forest &forest() const { return *forest_; };
-  size_t numberOfContemporaries(const size_t pop = 0) const { return pop_counts_.at(pop); };
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
 #endif
 
  private:
+  TimeIntervalIterator(Forest *forest);
   TimeIntervalIterator( TimeIntervalIterator const &other );
   TimeIntervalIterator& operator= ( TimeIntervalIterator const &other ); 
 
+  Forest* forest() { return forest_; }
+  ContemporariesContainer* contemporaries() { return contemporaries_; }
+  Model* model() { return model_; }
+
   Forest* forest_;
+  ContemporariesContainer* contemporaries_;
+  Model* model_;
+
   TimeInterval current_interval_;
   double current_time_;
-  std::vector<Node*> contemporaries_;
-  std::vector<size_t> pop_counts_;
   NodeIterator node_iterator_;
 
   bool good_;
   bool model_changed_;
 
   Node* inside_node_;
+
+  // Temporary values
+  Node *tmp_child_1_, *tmp_child_2_, *tmp_prev_node_;
 };
 
-inline const Forest &TimeInterval::forest() const { return tii_->forest(); }
-
-inline size_t TimeInterval::numberOfContemporaries(const size_t pop) const {
-  return tii_->numberOfContemporaries(pop); 
+/** 
+ * Finds all nodes which code for branches at the height of a given node in the
+ * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
+ * member.
+ * 
+ * @param node Node for which we are searching contemporaries
+ * @return Nothing. Nodes are saved in contemporaries_.
+ */
+inline void TimeIntervalIterator::searchContemporaries(Node *node) {
+  // Prefer top-down search if the target is above .8 coalescence units in
+  // sample space. This is relatively high, but the iterative bottom-up approach
+  // is faster than the recursion.
+  if (node->height() >= contemporaries()->buffer_time()) {
+    searchContemporariesBottomUp(node, true);
+  } else {
+    searchContemporariesBottomUp(node);
+  }
 }
 
-inline const std::vector<Node*> &TimeInterval::contemporaries() const {
-  return tii_->contemporaries(); 
-}
 #endif

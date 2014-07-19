@@ -1,0 +1,10 @@
+casefile=toyparam.src
+source ${casefile}
+
+top_dir="/well/gerton/joezhu/LD_test"
+rep=$(expr $SGE_TASK_ID )
+
+#top_dir="toy_test"
+#rep=10
+
+cmd="${nsam} 1 -T -r ${rho} ${seqlen}"

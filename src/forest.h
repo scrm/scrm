@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -36,43 +36,39 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Unless compiled with options NDEBUG, we will produce a debug output using 
-//'dout' instead of cout and execute (expensive) assert statements.
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
-#pragma GCC diagnostic ignored "-Wsign-compare"
+#include <string>
+
+#include "macros.h" // Needs to be before cassert
 
 #include <vector>
-#include <valarray>
-#include <iomanip>
+#include <unordered_set>
 #include <stdexcept>
-#include <cfloat>
 #include <cassert>
-#include <sstream> // This is required by Forest::writeTree, ostringstream
+#include <iostream> // ostreams
+#include <iomanip>  // Used for debug output
+#include <sstream>  // Used for debug output
 
-#include "node.h"
+#include "contemporaries_container.h"
 #include "event.h"
 #include "model.h"
+#include "macros.h"
+#include "node.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
 #include "random/random_generator.h"
-#include "random/constant_generator.h"
-#include "random/mersenne_twister.h"
 #include "summary_statistics/summary_statistic.h"
 
 class TimeInterval;
 class TimeIntervalIterator;
-//enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
 enum eventCode { NOEVENT, EVENT, INIT_NULL};
 
 class Forest
 {
  public:
+  Node* readNewickNode( std::string &in_str, std::string::iterator &current_it, size_t parenthesis_balance = 0, Node* parent = NULL );
+  void readNewick(std::string &in_str);
+  ContemporariesContainer* contemporaries()  {return &this->contemporaries_;};
 
 #ifdef UNITTEST
   friend class TestForest;
@@ -84,10 +80,8 @@ class Forest
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
-  Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
-  Forest(Forest *current_forest);
   virtual ~Forest() {};
 
   //Getters & Setters
@@ -107,25 +101,9 @@ class Forest
   }
   void set_sample_size(const size_t size ) { sample_size_ = size; }
 
-  double current_base() const { return current_base_; }
-  void set_current_base(const double base) { current_base_ = base; }
+  size_t segment_count() const { return current_rec_; }
 
-  double next_base() const {return next_base_;}
-  void set_next_base(const double base){next_base_ = base;}
-
-  // Must be called AFTER the tree was modified.
-  void sampleNextBase() {
-    double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
-                                                        model().getNextSequencePosition() - current_base_);
-    if (length == -1) {
-      // No recombination until the model changes
-      set_next_base(model().getNextSequencePosition());
-      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
-    } else {
-      // Recombination in the sequence segment
-      next_base_ = current_base_ + length;
-    }
-  } 
+  void sampleNextBase();
 
   /**
    * @brief Returns the length of the sequence for with the current tree is
@@ -137,15 +115,17 @@ class Forest
    *
    * @return The length of the current segment (see above for its unit)
    */
-  double calcSegmentLength(bool finite_sites = true) const {
-    if (finite_sites) return ceil(next_base()) - ceil(current_base());
-    else return next_base() - current_base();
+  double calcSegmentLength() const {
+    if (model().getSequenceScaling() == relative) {
+      return (next_base() - current_base()) / model().loci_length();
+    } else {
+      return ceil(next_base()) - ceil(current_base());
+    }
   }
 
-  double local_tree_length() const { return local_root()->length_below(); }
-
   void set_random_generator(RandomGenerator *rg) {
-    this->random_generator_ = rg; }
+    this->random_generator_ = rg; 
+  }
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
   NodeContainer const *getNodes() const { return &nodes_; };
@@ -154,6 +134,8 @@ class Forest
   void buildInitialTree();
   void sampleNextGenealogy();
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
+
+  void clear();
 
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
@@ -165,9 +147,11 @@ class Forest
   bool checkTreeLength() const;
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
-  bool checkContemporaries(const TimeInterval &ti) const;
+  bool checkContemporaries(const double time) const;
   bool printNodes() const;
   bool checkForNodeAtHeight(const double height) const;
+  bool checkRootIsRegistered(Node const* node) const;
+  bool checkRoots() const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -175,13 +159,11 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
-  bool printTree_cout();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
   NodeContainer *nodes() { return &(this->nodes_); }
 
-  //printing tree
   double getTMRCA(const bool &scaled = false) const {
     if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
     else return local_root()->height();
@@ -192,22 +174,11 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //segegrating sites
-  std::valarray<int> find_haplotypes(Node *node); 
-  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
-  std::ostream &generateSegData(std::ostream &output, int total_mut);
-
-  Node* trackLocalNode(Node *node) const; 
-
   //derived class from Forest
   virtual void record_Recombevent(size_t pop_i, 
-    //double start_time, 
-    //double end_time, 
     double opportunity, 
     eventCode event_code){
     (void)pop_i;
-    //(void)start_time;
-    //(void)end_time;
     (void)opportunity;
     (void)event_code;  
   }
@@ -216,11 +187,26 @@ class Forest
   }
 
   // Calc & Print Summary Statistics
-  void calcSegmentSumStats() const;
-  void printSegmentSumStats(ostream &output) const;
-  void printLocusSumStats(ostream &output) const;
-  
+  void calcSegmentSumStats();
+  void clearSumStats();
+  void printLocusSumStats(std::ostream &output) const;
+  void printSegmentSumStats(std::ostream &output) const;
+
+  double get_rec_base(const size_t idx) const {
+    assert(idx < rec_bases_.size());
+    return rec_bases_[idx];
+  }
+
+  double current_base() const { return get_rec_base(current_rec_); }
+  double next_base() const { return get_rec_base(current_rec_ + 1); }
+  void set_current_base(double const base) { rec_bases_[current_rec_] = base; }; 
+  void set_next_base(double const base) { rec_bases_.push_back(base); }; 
+
+  size_t current_rec() const { return current_rec_; };
+
  private:
+  Forest() { this->initialize(); }
+
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
@@ -247,16 +233,22 @@ class Forest
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    return (current_base() - node->last_update() > model().exact_window_length());
+    if ( model().has_window_rec() && 
+         segment_count() - node->last_update() > model().window_length_rec()) {
+      return true;
+    }
+    if ( model().has_window_seq() && 
+         current_base() - get_rec_base(node->last_update()) > model().window_length_seq()) {
+      return true;
+    }
+    return false;
   }
 
   bool nodeIsActive(Node const* node) const {
     return (node == active_node(0) || node == active_node(1));
   }
 
-  bool pruneNodeIfNeeded(Node* node);
-  void doCompletePruning();
-
+  bool pruneNodeIfNeeded(Node* node, const bool prune_orphans = true);
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
@@ -264,8 +256,7 @@ class Forest
   double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti);
 
-  void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
-                   size_t tmp_event_line, Event &return_event) const;
+  void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
 
   void sampleEventType(const double time, const size_t time_line, 
                        const TimeInterval &ti, Event &return_event) const;
@@ -280,22 +271,23 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
-
-  //Private variables
+  // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
 
-  // We have 2 different roots that are important:
-  // - local_root: root of the smallest subtree containing all local sequences
-  // - primary_root: root of the tree that contains all local sequences (do we
-  //   need this one?)
-
+  // We have 3 different kind of roots that are important:
+  // local root: root of the smallest subtree containing all local sequences
   Node* local_root_;
+
+  // primary root: root of the tree that contains all local sequences
   Node* primary_root_;
 
-  double current_base_;     // The current position of the sequence we are simulating
-  double next_base_;
+  // secondary roots: roots of trees that contain only non-local nodes
+  // std::unordered_set<Node*> secondary_roots_;
+
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t segment_count_;     // Counts next number segments already created 
+  size_t current_rec_;      // A counter for recombinations
+
+  std::vector<double> rec_bases_; // Genetic positions of the recombinations 
 
   Model* model_;
   RandomGenerator* random_generator_;
@@ -317,8 +309,8 @@ class Forest
   size_t states_[2];
   Node* active_nodes_[2];
   Event  tmp_event_;
-  size_t tmp_event_line_;
   double tmp_event_time_;
+  ContemporariesContainer contemporaries_;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];
@@ -332,8 +324,5 @@ class Forest
 
   bool coalescence_finished_;
 };
-
-bool areSame(const double a, const double b, 
-             const double epsilon = std::numeric_limits<double>::epsilon());
 
 #endif

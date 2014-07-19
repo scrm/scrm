@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -34,7 +34,7 @@
 class SegSites : public SummaryStatistic
 {
  public:
-  SegSites() { set_position(0.0); }
+  SegSites( ) { set_position(0.0); set_transpose(false);}
   ~SegSites() {}
 
 #ifdef UNITTEST
@@ -43,29 +43,38 @@ class SegSites : public SummaryStatistic
 
   //Virtual methods
   void calculate(const Forest &forest);
-  void printSegmentOutput(std::ostream &output) { (void)output; }
-  void printLocusOutput(std::ostream &output);
+  void printLocusOutput(std::ostream &output) const;
 
-  size_t countMutations() const { return positions_.size(); };
+  SegSites* clone() const { return new SegSites(*this); }
 
-  double position() const { return position_; };
-  std::valarray<bool> const* getHaplotype(const size_t mutation) const {
-    return &(haplotypes_.at(mutation));
-  }
-
- private:
-  std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
   void clear() { 
     positions_.clear();
     haplotypes_.clear();  
     set_position(0.0);
   };
 
+  size_t countMutations() const { return positions_.size(); };
+
+  double position() const { return position_; };
+  std::vector<double> const* positions() const { return &positions_; };
+
+  std::valarray<bool> const* getHaplotype(const size_t mutation) const {
+    return &(haplotypes_.at(mutation));
+  }
+  void set_transpose(const bool transpose) { transpose_ = transpose; };
+  bool get_transpose() const { return transpose_; }
+
+ private:
+  std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
+
   std::vector<double> positions_;
+  std::vector<double> heights_;
   std::vector<std::valarray<bool>> haplotypes_;	
+  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
 
   void set_position(const double position) { position_ = position; };
   double position_;
+  bool transpose_;
 };
 
 #endif

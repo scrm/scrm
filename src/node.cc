@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -33,14 +33,15 @@ Node::Node(double height, size_t label) { init(height, label); }
 Node::~Node() {}
 
 void Node::init(double height, size_t label) {
-  this->set_last_update(-1);
+  this->set_last_update(0);
   this->set_population(0);
 
   this->set_height(height);
   this->set_label(label);
   if (label == 0) this->set_samples_below(1);
-  else this->set_samples_below(0);
+  else this->set_samples_below(0); 
   this->set_length_below(0);
+  this->set_last_change(0);
 
   this->set_parent(NULL);
   this->set_second_child(NULL);
@@ -60,7 +61,13 @@ void Node::change_child(Node* from, Node* to) {
   }
   else if ( this->second_child() == from )
     this->set_second_child(to);
-  else throw std::invalid_argument("Can't find child node to replace");
+  else {
+    dout << "Error when changing child of " << this << " form "
+         << from << " to " << to << std::endl;
+    dout << "Children are " << this->first_child() << " and "
+         << this->second_child() << std::endl;
+    throw std::invalid_argument("Can't find child node to replace");
+  }
 }
 
 void Node::remove_child(Node* child) {
@@ -77,3 +84,86 @@ void Node::remove_child(Node* child) {
 
   throw std::invalid_argument("Can't find child to delete");
 }
+
+/**
+ * @brief Returns is the parent of this node on the local tree.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return The node that is this node's parent on the local tree. 
+ */
+Node* Node::getLocalParent() const {
+  assert( this->local() );
+  assert( !this->is_root());
+  assert( this->parent()->countChildren() > 0 );
+  if (parent()->countChildren(true) == 2) return parent(); 
+  return parent()->getLocalParent();
+}
+
+/**
+ * @brief Returns one child of this node when looking 
+ * only at the local tree.
+ * 
+ * The up to two children of a node are in basically 
+ * arbitrary order. The only difference between child_1 and
+ * child_2 is that if a node has only one child, than
+ * it is always child_1.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return NULL if this node has no children on the local tree,
+ * or a pointer to the child otherwise. 
+ */
+Node* Node::getLocalChild1() const {
+  if (first_child() == NULL || !first_child()->local()) return NULL;
+  if (first_child()->countChildren(true) == 1) {
+    if (first_child()->first_child()->local()) return first_child()->getLocalChild1();
+    else return first_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return first_child();
+}
+
+/**
+ * @brief Returns one child of this node when looking 
+ * only at the local tree.
+ * 
+ * The up to two children of a node are in basically 
+ * arbitrary order. The only difference between child_1 and
+ * child_2 is that if a node has only one child, than
+ * it is always child_1.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return NULL if this node has less than two children on the local tree,
+ * or a pointer to the child otherwise. 
+ */
+Node* Node::getLocalChild2() const {
+  if (second_child() == NULL || !second_child()->local()) return NULL;
+  if (second_child()->countChildren(true) == 1) {
+    if (second_child()->first_child()->local()) return second_child()->getLocalChild1();
+    else return second_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return second_child();
+}
+
+
+void Node::extract_bl_and_label ( std::string::iterator in_it ){
+  // Going backwards, extract branch length first, then the node label
+  std::string::iterator bl_start = in_it;
+  //for (; (*(bl_start-1)) != ':'; --bl_start ){ }
+  while ((*(bl_start-1)) != ':')
+    --bl_start;
+  double bl = strtod( &(*bl_start), NULL );
+  this->set_bl ( bl );
+
+  std::string::iterator label_start = (bl_start-2);
+
+  while ( (*(label_start)) != ',' &&  ( *(label_start)) != '(' &&  (*(label_start)) != ')' )
+    --label_start;
+
+  this->set_label ( ( (*(label_start)) == ')' ? 0 /*! Label internal nodes */
+                                                : strtol ( &(*(label_start+1)), NULL , 10)) ); /*! Label tip nodes */
+}
+

@@ -1,7 +1,7 @@
   /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -26,10 +26,6 @@
  * Constructors & Initialization
  *****************************************************************/
 
-Forest::Forest() {
-  this->initialize();
-}
-
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
   dout << *model << std::endl;
@@ -44,30 +40,65 @@ void Forest::initialize(Model* model,
 
   this->set_model(model);
   this->set_random_generator(rg);
-  this->set_current_base(1);
+
+  current_rec_ = 0;
+  rec_bases_ = std::vector<double>(1, -1);
+  rec_bases_.reserve(1000);
+
   this->set_sample_size(0);
 
+  this->coalescence_finished_ = true;
+
+  this->contemporaries_ = ContemporariesContainer(model->population_number(), 
+                                                  model->sample_size(),
+                                                  rg);
+
   tmp_event_time_ = -1;
-  tmp_event_line_ = -1;
 }
 
 /**
  * @brief Copy constructor for forest
  *
+ * This creates a copy of an Forest. It only produces valid results
+ * when there is no ongoing coalescence event (e.g. when we are not 
+ * inside of sampleNextGenealogy()).
+ *
+ * Also, both copies of it share the model and the random generator,
+ * so make sure that only one of them is sampling a new genealogy at
+ * a time.
+ *
  * @param current_forest Forest that needs to be duplicated
  */
 Forest::Forest(const Forest &current_forest) { 
+  if (!current_forest.coalescence_finished_) {
+    throw std::logic_error("Can not copy forest during an ongoing coalescence");
+  }
+
+  // Share a model and a random generator
   this->set_model(current_forest.model_);
   this->set_random_generator(current_forest.random_generator());
+
+  // Copy state information
   this->set_sample_size(current_forest.sample_size());
-  this->set_current_base(current_forest.current_base());
-  this->set_next_base((current_forest.next_base()));
+  this->rec_bases_ = current_forest.rec_bases_;
+  this->current_rec_ = current_forest.current_rec_;
 
-  nodes_ = NodeContainer(*current_forest.getNodes());
+  // Copy the nodes
+  this->nodes_ = NodeContainer(*current_forest.getNodes());
 
+  // Rebuild invariants of the nodes, and determine new roots
+  this->set_local_root(NULL);
+  this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
+
+  // Set initial values for temporary variables
+  this->contemporaries_ = ContemporariesContainer(model().population_number(), 
+                                                  model().sample_size(),
+                                                  random_generator());
+  this->tmp_event_time_ = -1; 
+  this->coalescence_finished_ = true;
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
   assert(this->printTree());
@@ -76,36 +107,6 @@ Forest::Forest(const Forest &current_forest) {
   assert(this->checkLeafsOnLocalTree() );
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
-
-Forest::Forest(Forest * current_forest) { 
-  this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-  this->set_sample_size(current_forest->sample_size());
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-
-  this->nodes_ = NodeContainer(*current_forest->getNodes());
-
-  for (auto it = nodes()->iterator(); it.good(); ++it) {
-    updateAbove(*it, false, false);
-  }
-
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_line_ = 0;
-  this->tmp_event_time_ = -1; 
-  this->coalescence_finished_ = true;
-  
-  
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  
-  //assert(this->printTree());
-  //assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
-}
-
 
 
 /** 
@@ -124,12 +125,12 @@ Node* Forest::cut(const TreePoint &cut_point) {
   assert( parent != NULL );
 
   //The new end of the old branch after the cut
-  Node* new_leaf = new Node(cut_point.height());
+  Node* new_leaf = nodes()->createNode(cut_point.height());
   
   if ( !cut_point.base_node()->local() )
     new_leaf->make_nonlocal(cut_point.base_node()->last_update());
   else
-    new_leaf->make_nonlocal(current_base());
+    new_leaf->make_nonlocal(current_rec());
   assert( !new_leaf->local() );
 
   new_leaf->set_population(cut_point.base_node()->population());
@@ -150,7 +151,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   cut_point.base_node()->make_local();
 
   // The new "root" of the newly formed tree
-  Node* new_root = new Node(cut_point.height());
+  Node* new_root = nodes()->createNode(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
@@ -195,20 +196,25 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  //dout << node << std::endl;
+  //dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
-  // Fast forward above local root because this part is non-local
+  // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
-    if (node->local()) node->make_nonlocal(current_base());
-    //node->set_samples_below(this->sample_size());
-    //node->set_length_below(this->local_root()->length_below());
+    // Assure that everything is non-local
+    if (node->local()) node->make_nonlocal(current_rec());
+
+    // Update the primary root if needed
     if ( node->is_root() ) {
-      set_primary_root(node);
+      if (node != primary_root()) {
+        set_primary_root(node);
+      }
       return;
-    }
+    } 
     if ( recursive ) updateAbove(node->parent(), true, true);
     return;
   }
+
+  node->set_last_change(current_rec());
 
   // Calculate new values for samples_below and length_below for the current
   // node
@@ -235,17 +241,19 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   // Update whether the node is local or not 
   if (!invariants_only) {
     if (samples_below == 0) {
-      if ( node->local() ) node->make_nonlocal(current_base());
+      if ( node->local() ) node->make_nonlocal(current_rec());
     }
     else if ( samples_below == sample_size() ) {
-      if ( node->local() ) node->make_nonlocal(current_base());
+      if ( node->local() ) node->make_nonlocal(current_rec());
 
       // Are we the local root?
-      if (node->numberOfChildren() == 2 && 
+      if (node->countChildren() == 2 && 
           l_child->samples_below() > 0 && h_child->samples_below() > 0) {
         set_local_root(node);
       }
-      if ( node->is_root() ) set_primary_root(node);
+      if ( node->is_root() && node != primary_root() ) {
+        set_primary_root(node);
+      }
       above_local_root = true;
     }
   }
@@ -274,26 +282,33 @@ void Forest::updateAbove(Node* node, bool above_local_root,
  */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
-  this->set_current_base(0.0);
-  this->segment_count_ = 1;
+  assert(this->nodes()->size() == 0);
+  assert(this->segment_count() == 0);
+  assert(this->rec_bases_.size() == 1);
+  assert(this->model().getCurrentSequencePosition() == 0.0);
+  this->set_next_base(0.0);
+  ++current_rec_;
 
   dout << "* Adding first node... ";
-  Node* first_node = new Node(model().sample_time(0), 1);
+  Node* first_node = nodes()->createNode(model().sample_time(0), 1);
   first_node->set_population(model().sample_population(0));
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
   this->set_primary_root(first_node);
   dout << "done." << std::endl;
 
+  Node* last_added_node = NULL;
   for (size_t i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
 
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
-    Node* new_leaf = new Node(model().sample_time(i), i+1);
+    Node* new_leaf = nodes()->createNode(model().sample_time(i), i+1);
     new_leaf->set_population(model().sample_population(i));
-    dout << "(" << new_leaf << ")" << std::endl;
-    nodes()->add(new_leaf);
+    dout << new_leaf << "(" << new_leaf->population() << ") "
+         << "at height " << new_leaf->height() << std::endl;
+    nodes()->add(new_leaf, last_added_node);
+    if (new_leaf->height() == 0.0) last_added_node = new_leaf;
     dout << "* starting coalescences" << std::endl;
 
     //Coalesces the separate tree into the main tree
@@ -303,8 +318,10 @@ void Forest::buildInitialTree() {
     assert(this->checkTree());
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
+    assert(this->printNodes());
   }
   this->sampleNextBase();
+  dout << "Next Sequence position: " << this->next_base() << std::endl;
   this->calcSegmentSumStats();
 }
 
@@ -335,8 +352,8 @@ TreePoint Forest::samplePoint(Node* node, double length_left) const {
     assert( this->checkTreeLength() );
 
     node = this->local_root();
-    length_left = random_generator()->sample() * local_tree_length();
-    assert( 0 < length_left && length_left < local_tree_length() );
+    length_left = random_generator()->sample() * getLocalTreeLength();
+    assert( 0 < length_left && length_left < getLocalTreeLength() );
   }
 
   assert( node->local() || node == this->local_root() );
@@ -395,20 +412,26 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
-  this->set_current_base(next_base_);
+  ++current_rec_; // Move to next recombination;
 
-  if (current_base_ == model().getCurrentSequencePosition()) {
+  if (current_base() == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
     this->sampleNextBase();
     this->calcSegmentSumStats();
+    dout << "Next Position: " << this->next_base() << std::endl;
     return;
   }
 
-  ++segment_count_;
+  assert( current_base() > model().getCurrentSequencePosition() );
+  assert( current_base() < model().getNextSequencePosition() );
+
+  assert( tmp_event_time_ >= 0 );
+  this->contemporaries_.buffer(tmp_event_time_);
+
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
-  dout << "Segment Nr: " << segment_count_ << std::endl;
-  dout << "Sequence position: " << this->current_base() << std::endl;
+  dout << "Segment Nr: " << current_rec() << " | "
+       << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
 
   // Sample the recombination point
@@ -431,10 +454,8 @@ void Forest::sampleNextGenealogy() {
   assert( this->printTree() );
   assert( this->printNodes() );
 
-  // Rarely prune all possible nodes 
-  if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
-
   this->sampleNextBase();
+  dout << "Next Sequence position: " << this->next_base() << std::endl;
   this->calcSegmentSumStats();
 }
 
@@ -457,12 +478,15 @@ void Forest::sampleCoalescences(Node *start_node) {
   coalescence_finished_ = false;
 
   // This assertion needs an exception for building the initial tree
-  assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
+  assert ( current_rec() == 1 || 
+           active_node(1)->in_sample() || 
+           start_node->height() <= active_node(1)->height() );
 
+  // Only prune every second round
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
-        << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
+         << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
     // Assert that we don't accidentally jump in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
@@ -474,8 +498,11 @@ void Forest::sampleCoalescences(Node *start_node) {
     // Fixed time events (e.g pop splits/merges & single migration events first
     if (model().hasFixedTimeEvent((*ti).start_height())) implementFixedTimeEvent(ti);
 
+    // Calculate the rates of events in this time interval
+    assert( checkContemporaries((*ti).start_height()) );
     calcRates(*ti);
 
+    // Some debug checks
     dout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
         << "(p" << active_node(0)->population() << ")" 
         << " a1:" << active_node(1) << ":s" << states_[1] 
@@ -497,10 +524,8 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
-    assert( checkContemporaries(*ti) );
-
-    // Sample the time at which the next thing happens
-    sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
+    // Sample the time at which the next event happens (if any)
+    sampleEvent(*ti, tmp_event_time_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
@@ -531,7 +556,6 @@ void Forest::sampleCoalescences(Node *start_node) {
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
       if (coalescence_finished_) return;
-
       assert( this->printTree() );
     }
   }
@@ -585,9 +609,9 @@ void Forest::calcRates(const TimeInterval &ti) {
         active_nodes_timelines_[1] = 1;
       } 
       else {
-	// No chance of a pairwise coalescence, but there is growth.
+	      // No chance of a pairwise coalescence, but there is growth.
         // We might need our own timeline (This could be made more efficient if both populations have
-	//  equal growth rates, but we ignore that for the moment)
+	      // equal growth rates, but we ignore that for the moment).
         rates_[2] += calcCoalescenceRate(active_node(1)->population(), ti);
         active_nodes_timelines_[1] = 2;
       }
@@ -597,6 +621,10 @@ void Forest::calcRates(const TimeInterval &ti) {
     // recombining
     rates_[0] += calcRecombinationRate(active_node(1));
   }
+
+  assert(rates_[0] >= 0);
+  assert(rates_[1] >= 0);
+  assert(rates_[2] >= 0);
 }  
 
 
@@ -610,25 +638,25 @@ void Forest::calcRates(const TimeInterval &ti) {
  * \param ti The current time interval
  * \returns the event that has happened (can also be a "NoEvent" event)
  */
-void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time, 
-                         size_t tmp_event_line, Event &return_event) const {
-  tmp_event_time = -1;
-  tmp_event_line = -1;
+void Forest::sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const {
+  event_time = -1;
+  size_t event_line = -1;
 
   // Sample on which time and time line the event happens (if any)
   for (size_t i = 0; i < 3; ++i) {
     if (rates_[i] == 0.0) continue;
     selectFirstTime(random_generator()->sampleExpoExpoLimit(rates_[i], getTimeLineGrowth(i), ti.length()), 
-                    i, tmp_event_time, tmp_event_line );
+                    i, event_time, event_line);
   }
 
   // Correct the time from relative to the time interval to absolute 
-  if (tmp_event_time != -1) tmp_event_time += ti.start_height();
-  assert( (tmp_event_time == -1) || 
-         (ti.start_height() <= tmp_event_time && tmp_event_time <= ti.end_height()) );
+  if (event_time != -1) event_time += ti.start_height();
+  assert( (event_time == -1) || 
+         (ti.start_height() <= event_time && event_time <= ti.end_height()) );
 
+  assert( (event_line == -1 && event_time == -1) || (event_line != -1 && event_time != -1));
   // Sample the event type
-  sampleEventType(tmp_event_time, tmp_event_line, ti, return_event);
+  sampleEventType(event_time, event_line, ti, return_event);
 }
 
 
@@ -642,7 +670,9 @@ void Forest::sampleEventType(const double time, const size_t time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("An event with rate 0 has happened!");
+  if ( time_line != -1 && rates_[time_line] == 0.0 ) {
+    throw std::logic_error("An event with rate 0 has happened!");
+  }
 
   // Situation where it is clear what happened:
   if (time == -1) return;
@@ -738,7 +768,7 @@ size_t Forest::getNodeState(Node const *node, const double current_time) const {
 
 double Forest::calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
-  return ti.numberOfContemporaries(pop) * model().inv_double_pop_size(pop, ti.start_height());
+  return contemporaries_.size(pop) * model().inv_double_pop_size(pop, ti.start_height());
 }
 
 
@@ -749,10 +779,13 @@ double Forest::calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) c
 
 
 double Forest::calcRecombinationRate(Node const* node) const {
-  assert( !node->local() );
-  if (node->last_update() >= model().getCurrentSequencePosition()) {
+  assert(!node->local());
+  assert(this->current_base() >= model().getCurrentSequencePosition());
+  double last_update_pos = get_rec_base(node->last_update());
+
+  if (last_update_pos >= model().getCurrentSequencePosition()) {
     // Rec rate is constant for the relevant sequence part
-    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+    return (this->current_base() - last_update_pos) * model().recombination_rate();
   } else {
     // Rec rate may change. Accumulate the total rate.
 
@@ -760,13 +793,13 @@ double Forest::calcRecombinationRate(Node const* node) const {
         (this->current_base() - model().getCurrentSequencePosition()); 
     size_t idx = model().get_position_index() - 1;
 
-    while (model().change_position(idx) > node->last_update()) {
+    while (model().change_position(idx) > last_update_pos) {
       assert(idx > 0);
       rate += model().recombination_rate(idx) * (model().change_position(idx+1)-model().change_position(idx));
       --idx;
     }
 
-    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-node->last_update());
+    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-last_update_pos);
     return rate;
   }
 }
@@ -783,8 +816,24 @@ double Forest::calcRecombinationRate(Node const* node) const {
  *    coalescence has finished. 
  */
 void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished) {
-  if (ti.end_height() == DBL_MAX) 
-    throw std::logic_error("Lines did not coalescence. If you use an negative growth parameter (population rapidly declining forward in time), you need to set it to a non-negative value at some time.");
+  if (ti.end_height() == DBL_MAX) {
+    std::stringstream message;
+    message << "Lines did not coalescence." << std::endl;
+    if (active_node(0)->population() != active_node(1)->population()) {
+      message << "The lines were in populations " << active_node(0)->population() + 1
+          << " and " << active_node(1)->population() + 1 << "." << std::endl 
+          << "You should add on opportunity for migration between these populations."
+          << std::endl;
+    }
+
+    else if (model().growth_rate(active_node(0)->population())) {
+        message << "Population " << active_node(0)->population() + 1
+                << " has a negative growth factor for infinite time." << std::endl
+                << "This can prevent coalescence. " << std::endl;
+    }
+
+    throw std::logic_error(message.str());
+  }
   if (states_[0] == 2) {
     set_active_node(0, possiblyMoveUpwards(active_node(0), ti));
     if (active_node(0)->local()) {
@@ -792,6 +841,10 @@ void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished
       dout << "* * * Active Node 0 hit a local node. Done" << std::endl;
       updateAbove(active_node(0));
       coalescence_finished = true;
+      tmp_event_time_ = active_node(0)->height();
+      contemporaries_.replace(active_node(0), 
+                              active_node(0)->first_child(), 
+                              active_node(0)->second_child());
       return;
     }
   }
@@ -805,6 +858,9 @@ void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished
         << ". Done." << std::endl;
     updateAbove(active_node(0));
     coalescence_finished = true;
+    // Update contemporaries for reuse
+    contemporaries_.replaceChildren(active_node(0));
+    tmp_event_time_ = active_node(0)->height();
   }
 }
 
@@ -823,7 +879,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   assert( event.node() == active_node(event.active_node_nr()) );
 
   Node* coal_node = event.node();
-  Node* target = (*tii).getRandomContemporary(coal_node->population());
+  Node* target = contemporaries_.sample(coal_node->population());
 
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
@@ -833,14 +889,13 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   Node* new_node;
 
-
   // ---------------------------------------------
   // Actually implement the coalescence
   // ---------------------------------------------
 
   // Look if we can reuse the root that coalesced for marking the point of 
   // coalescence
-  if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
+  if ( coal_node->countChildren() == 1 && !coal_node->is_migrating() ){
     assert( coal_node->local() );
     new_node = coal_node;
     coal_node = coal_node->first_child();
@@ -848,7 +903,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     updateAbove(new_node, false, false);
   } else {
     // If not, create a new node
-    new_node = new Node(event.time());
+    new_node = nodes()->createNode(event.time());
     new_node->change_child(NULL, coal_node);
     coal_node->set_parent(new_node);
     nodes()->add(new_node);
@@ -865,7 +920,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->set_parent(target->parent());
   if (!target->local()) {
     new_node->make_nonlocal(target->last_update());
-    tii.addToContemporaries(new_node);
+    contemporaries_.add(new_node);
   } else {
     new_node->make_local();
   }
@@ -912,6 +967,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     dout << "* * * We hit the local tree. Done." << std::endl;
     updateAbove(getEventNode()); 
     coalescence_finished_ = true;
+    contemporaries_.replace(new_node, coal_node, target);
     return;
   }
 
@@ -939,13 +995,14 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   assert( root_2 != NULL );
   assert( root_1->population() == root_2->population() );
 
+  // Both roots are now local
   root_1->make_local();
   root_2->make_local();
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
-  if (root_1->numberOfChildren() == 1 && !root_1->is_migrating()) {
-    if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
+  if (root_1->countChildren() == 1 && !root_1->is_migrating()) {
+    if (root_2->countChildren() == 1 && !root_2->is_migrating()) {
       // both trees have a single branch => delete one
       root_2 = root_2->first_child();
       this->nodes()->remove(root_2->parent());
@@ -959,7 +1016,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
     root_1 = root_1->first_child();
     assert( root_1 != NULL );
   } 
-  else if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
+  else if (root_2->countChildren() == 1 && !root_2->is_migrating()) {
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
@@ -967,7 +1024,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   }
   else {
     // No tree a has single branch on top => create a new root
-    new_root = new Node(time);
+    new_root = nodes()->createNode(time);
     this->nodes()->add(new_root);
   }
 
@@ -1005,34 +1062,33 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
   assert( event.node()->is_root() );
 
   // There is only little to do if we can reuse the event.node() 
-  if ( event.node()->is_unimportant() ) {
+  if ( event.node()->is_unimportant() || 
+       ( event.node()->height() == event.time() && event.node()->is_migrating() ) ) {
     dout << "Reusing: " << event.node() << "... " << std::flush;
     nodes()->move(event.node(), event.time());
     event.node()->set_population(event.mig_pop());
     updateAbove(event.node());
-    assert(event.node()->is_migrating());
-  }
-  else {
-    // Otherwise create a new node that marks the migration event
-    Node* mig_node = new Node(event.time());
+  } else {
+    // Otherwise create a new node that marks the migration event,
+    Node* mig_node = nodes()->createNode(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
 
-    // Integrate it into the tree
+    // integrate it into the tree
     event.node()->set_parent(mig_node);
     mig_node->set_first_child(event.node());
     updateAbove(event.node(), false, false);
     updateAbove(mig_node);
 
-    // And set it active
+    // and set it active.
     this->set_active_node(event.active_node_nr(), mig_node);
     assert(mig_node->is_migrating());
 
-    // And make the event node local
+    // Now make the event node local
     event.node()->make_local();
   }
-  // And recalculate the interval
+  // Recalculate the interval
   if (recalculate) ti.recalculateInterval();
   dout << "done." << std::endl;
 
@@ -1042,17 +1098,38 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
 
 void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
   dout << "* * Fixed time event" << std::endl;
+  double sample;
+  bool migrated;
+  size_t chain_cnt, pop_number = model().population_number();
+
   for (size_t i = 0; i < 2; ++i) {
     if (states_[i] != 1) continue;
-    double prob;
-    for (size_t j = 0; j < model().population_number(); ++j) {
-      prob = model().single_mig_pop(active_node(i)->population(), j);
-      if (prob == 0.0) continue;
-      if (prob == 1.0 || prob <= random_generator()->sample() ) {
-        tmp_event_ = Event((*ti).start_height());
-        tmp_event_.setToMigration(active_node(i), i, j);
-        implementMigration(tmp_event_, false, ti);
+    chain_cnt = 0;
+    while (true) {
+      migrated = false;
+      sample = random_generator()->sample();
+
+      for (size_t j = 0; j < pop_number; ++j) {
+        sample -= model().single_mig_pop(active_node(i)->population(), j);
+        if (sample < 0) {
+          tmp_event_ = Event((*ti).start_height());
+          tmp_event_.setToMigration(active_node(i), i, j);
+          implementMigration(tmp_event_, false, ti);
+          migrated = true;
+          break;
+        }
       }
+
+      // Stop if no migration occurred
+      if (!migrated) {
+        dout << "* * No fixed time migration occurred" << std::endl;
+        break;
+      }
+
+      // Resolve a maximum of 10k chained events for each node
+      if (chain_cnt == 10000) 
+        throw std::logic_error("Circle detected when moving individuals between populations");
+      ++chain_cnt;
     }
   }
   assert( printTree() );
@@ -1087,19 +1164,24 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 }
 
 
-bool Forest::pruneNodeIfNeeded(Node* node) {
+bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
   assert(node != NULL);
-  if (model().exact_window_length() == -1) return false;
+  if (!model().has_approximation()) return false;
   if (node->in_sample()) return false;
 
   if (node->is_root()) {
     // Orphaned nodes must go
-    if (node->numberOfChildren() == 0) {
+    if (node->countChildren() == 0 && prune_orphans) {
       dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+      assert(node != local_root());
+      // If we are removing the primary root, it is difficult to find the new
+      // primary root. It should however be automatically set during the updates
+      // of the current coalescence.
+      if (node == primary_root()) set_primary_root(NULL);
       nodes()->remove(node);
       return true; 
     }
-    // Other root never go
+    // Other roots stay
     return false;
   } else {
     // No root:
@@ -1109,8 +1191,11 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
       assert(!node->is_root());
 
       node->parent()->change_child(node, NULL);
-      if (node->numberOfChildren() == 0) nodes()->remove(node); 
+      if (node->countChildren() == 0) nodes()->remove(node); 
       else { 
+        // Remove link between `node` and its parent,
+        // which effectively removes the branch, 
+        // and separates the subtree below from the main tree
         Node* parent = node->parent();
         node->set_parent(NULL);
         updateAbove(parent, false, true, true);
@@ -1118,7 +1203,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
       return true;
     } 
 
-    else if (node->numberOfChildren() == 1 && !node->is_migrating()) {
+    else if (node->countChildren() == 1 && !node->is_migrating()) {
       // Unneeded nodes 
       dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
       assert(!node->is_migrating());
@@ -1137,88 +1222,146 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
 }
 
 
-bool areSame(const double a, const double b, const double epsilon) {
-  // from Knuths "The art of computer programming"
-  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-}
-
-
-/**
- * @brief Goes down in the tree as long as we are on the same "local branch"
- *
- * In the ARG, there are many bifurcations were a non-local branch splits from
- * the local tree. If we only print the local tree, we can ignore them. This
- * functions goes down in the tree, until it hit a true bifurcation of the local
- * tree.
- *
- * @param node The node we are following downwards
- *
- * @return The next true local bifurcation
- */
-Node* Forest::trackLocalNode(Node *node) const { 
-  assert( node->local() );
-  if (node->numberOfChildren() == 0) return node;
-  if (node->numberOfChildren() == 1) return trackLocalNode(node->first_child());
-
-  assert( node->numberOfChildren() == 2 );
-  assert( node->first_child()->local() || node->second_child()->local() );
-
-  if ( node->first_child()->local() ) {
-    if (node->second_child()->local()) return node;
-    else return trackLocalNode(node->first_child()); 
-  }
-  else return trackLocalNode(node->second_child());
-}
-
-
-
-void Forest::calcSegmentSumStats() const {
+void Forest::calcSegmentSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
-void Forest::printSegmentSumStats(ostream &output) const {
+
+void Forest::clearSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
-    model().getSummaryStatistic(i)->printSegmentOutput(output);
+    model().getSummaryStatistic(i)->clear();
   }
 }
 
-void Forest::printLocusSumStats(ostream &output) const {
+
+void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
 }
 
-void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
-  if (node->in_sample()){
-    haplotype[node->label()-1]=1;
+
+void Forest::printSegmentSumStats(std::ostream &output) const {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
+    model().getSummaryStatistic(i)->printSegmentOutput(output);
   }
-  else if (node->second_child() == NULL) {
-    traversal(node->first_child(), haplotype);
-  }
-  else if (node->first_child()->local() && node->second_child()->local()){
-    Node *left = trackLocalNode(node->first_child());
-    traversal(left, haplotype);
-    Node *right = trackLocalNode(node->second_child());
-    traversal(right, haplotype);
-  }
-  else if (!node->first_child()->local() ){
-    traversal(node->second_child(), haplotype);
-  }
-  else if (!node->second_child()->local()) {
-    traversal(node->first_child(), haplotype);
-  }
-  else {
-    assert( 0 );
-  }
-  //std::cout << "end" << std::endl;
 }
 
-void Forest::doCompletePruning() {
-  dout << "Pruning Tree:" << std::endl;
-  for (NodeIterator ni = nodes()->iterator(nodes()->first()->next()); ni.good(); ++ni) {
-    pruneNodeIfNeeded((*ni)->previous());
-  }
-  pruneNodeIfNeeded(nodes()->last());
+
+void Forest::clear() {
+  // Clear roots tracking
+  set_local_root(NULL);
+  set_primary_root(NULL);
+
+  // Clear nodes
+  nodes()->clear();
+
+  // Reset Position & Segment Counts
+  this->rec_bases_.clear();
+  this->set_next_base(-1.0);
+  this->current_rec_ = 0;
+
+  // Clear Summary Statistics
+  this->clearSumStats();
+  
+  // Reset Model
+  writable_model()->resetTime();
+  writable_model()->resetSequencePosition();
 }
+
+
+
+Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
+  Node * node = nodes()->createNode( (double)0.0, (size_t)0 );
+  node->set_parent ( parent );
+  node->make_local();
+  //this->nodes()->push_front( node );
+  dout << "Node " << node
+       << " starts from [ " << std::endl;
+  for (  ; it != in_str.end(); ++it) {
+    dout << "\""<<(*it) <<"\"" ;
+    if        ( (*it) == '(' )  { // Start of a internal node, extract a new node
+      parenthesis_balance++;
+      Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
+      node->set_first_child ( child_1 );
+      this->nodes()->add( child_1 );
+      if ( node->first_child() != NULL)
+        node->set_height ( node->first_child()->height() + 40000*node->first_child()->bl()  ) ;
+    } else if ( (*(it+1)) == ',' ){ //
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has first child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ',' ){ //
+      Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
+      node->set_second_child ( child_2 );
+      this->nodes()->add( child_2 );
+    } else if ( (*(it+1)) == ')'  ){
+      // Before return, extract the branch length for the second node
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has second child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ';' ) {
+      dout <<" Node " << node << " closed " << std::endl;
+      this->nodes()->add( node );
+      node->make_nonlocal(current_rec());
+      return node;
+    } else {
+      continue;
+    }
+  }
+  assert(false);
+  return NULL;
+}
+
+
+void Forest::readNewick( std::string &in_str ){
+  this->current_rec_ = 1;
+  std::string::iterator it = in_str.begin();
+  (void)this->readNewickNode( in_str, it );
+  this->set_local_root( this->nodes()->last() );
+  this->set_primary_root(this->nodes()->last() );
+  dout << std::endl<<"there are "<< this->nodes()->size() << " nodes " << std::endl;
+  (void)this->nodes()->sorted();
+  for (auto it = nodes()->iterator(); it.good(); ++it) {
+    updateAbove(*it, false, false);
+  }
+  assert(this->printNodes());
+  assert(this->printTree());
+  dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
+  this->sampleNextBase();
+  this->calcSegmentSumStats();
+  this->tmp_event_time_ = this->local_root()->height();
+}
+
+
+// Must be called AFTER the tree was modified.
+void Forest::sampleNextBase() {
+  double length = random_generator()->sampleExpoLimit(getLocalTreeLength() * model().recombination_rate(),
+                                                      model().getNextSequencePosition() - current_base());
+  if (length == -1) {
+    // No recombination until the model changes
+    set_next_base(model().getNextSequencePosition());
+    if (next_base() < model().loci_length()) writable_model()->increaseSequencePosition();
+  } else {
+    // Recombination in the sequence segment
+    set_next_base(current_base() + length);
+  }
+
+  assert(next_base() > current_base());
+  assert(next_base() <= model().loci_length());
+} 
+

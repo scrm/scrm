@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -30,8 +30,10 @@ class MersenneTwister : public RandomGenerator
 {
  public:
   MersenneTwister();
+  MersenneTwister(FastFunc* ff);
   MersenneTwister(const size_t seed);
-  MersenneTwister(const size_t seed, FastFunc* ff );
+  MersenneTwister(const bool use_seed, size_t seed);
+  MersenneTwister(const size_t seed, FastFunc* ff);
   virtual ~MersenneTwister() {};
 
   void initialize() {};
@@ -41,12 +43,8 @@ class MersenneTwister : public RandomGenerator
   double sample() { return unif_(mt_); }
 
  protected:
-  //Not faster than using the quantile transformation in random_generator!
-  //double sampleUnitExponential() { return expo_(mt_); };
-
-  std::mt19937 mt_; 
+  std::mt19937_64 mt_; 
   std::uniform_real_distribution<> unif_;
-  std::exponential_distribution<> expo_;
 
  private:
   size_t generateRandomSeed() const;
