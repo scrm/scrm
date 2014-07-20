@@ -244,7 +244,7 @@ bool Forest::checkNodeProperties() const {
 bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
     bool good = true;
-    //Default when called without argument
+    // Default when called without argument
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
       if ( (*it)->is_root() ) good = checkTree(*it);
     }
@@ -256,6 +256,7 @@ bool Forest::checkTree(Node const* root) const {
   }
   assert( root != NULL );
 
+  if (!checkRootIsRegistered(root)) return false;  
   Node* h_child = root->second_child();
   Node* l_child = root->first_child();
 
@@ -653,4 +654,13 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
   }
 
   return 1;
+}
+
+bool Forest::checkRootIsRegistered(Node const* node) const {
+  if (!node->is_root()) return true;
+  if (node == primary_root() || isRegisteredSecondaryRoot(node)) return true;
+  else {
+    dout << "Error: Root " << node << " is not registered." << std::endl;
+    return false;
+  }
 }
