@@ -64,6 +64,7 @@ void Forest::createExampleTree() {
   nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
+  this->registerSecondaryRoot(nl_root);
   updateAbove(nl_node);
 
   updateAbove(leaf1);
@@ -604,7 +605,7 @@ bool Forest::checkForNodeAtHeight(const double height) const {
 bool Forest::checkContemporaries(const TimeInterval &ti) const {
   // Check if all nodes in contemporaries() are contemporaries
   for (size_t pop = 0; pop < model().population_number(); ++pop) {
-    for (auto it = ti.contemporaries(pop).begin(); it != ti.contemporaries(pop).end(); ++it) {
+    for (auto it = ti.contemp_iterator(); it != ti.contemp_rev_iterator(); ++it) {
 
       if ( *it == NULL ) return 0;
       if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
@@ -640,8 +641,8 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
       if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
       
       bool found = false;
-      for (auto it = ti.contemporaries((*ni)->population()).begin(); 
-           it != ti.contemporaries((*ni)->population()).end(); ++it) {
+      for (auto it = ti.contemp_iterator((*ni)->population()); 
+           it != ti.contemp_rev_iterator((*ni)->population()); ++it) {
         if ( *it == *ni ) {
           found = true;
           break;
@@ -705,3 +706,12 @@ bool Forest::checkRoots() const {
 
   return true;
 }
+
+// Stupid slow implementation needed because it cannot be const otherwise (it's
+// debug only...)
+bool Forest::isRegisteredSecondaryRoot(Node const* root) const {
+  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+    if (*it == root) return true;
+  }
+  return false;
+};

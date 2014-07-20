@@ -169,6 +169,7 @@ class Forest
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;
   bool checkRoots() const;
+  bool isRegisteredSecondaryRoot(Node const* root) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -284,7 +285,6 @@ class Forest
   // tracking of secondary roots
   void registerSecondaryRoot(Node* root);
   void unregisterSecondaryRoot(Node* root);
-  bool isRegisteredSecondaryRoot(Node const* root) const;
 
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
@@ -297,7 +297,7 @@ class Forest
   Node* primary_root_;
 
   // secondary roots: roots of trees that contain only non-local nodes
-  std::unordered_set<Node const*> secondary_roots_;
+  std::unordered_set<Node*> secondary_roots_;
 
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
@@ -353,9 +353,5 @@ inline void Forest::registerSecondaryRoot(Node* root) {
 inline void Forest::unregisterSecondaryRoot(Node* root) {
   dout << "Secondary Roots: Trying to remove " << root<< std::endl;
   secondary_roots_.erase(root);
-};
-
-inline bool Forest::isRegisteredSecondaryRoot(Node const* root) const {
-  return secondary_roots_.find(root) != secondary_roots_.end();   
 };
 #endif

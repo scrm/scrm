@@ -1110,6 +1110,7 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
   assert(node != NULL);
   if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
+  dout << "Try pruning " << node << std::endl;
 
   if (node->is_root()) {
     // Orphaned nodes must go
