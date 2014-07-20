@@ -99,7 +99,7 @@ class TimeIntervalIterator {
     return contemporaries_.at(pop).size(); 
   };
 
-  size_t clearContemporaries() {
+  void clearContemporaries() {
     for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
       (*it).clear();
     }
