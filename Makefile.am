@@ -16,11 +16,6 @@ unittests: unit_tests
 algorithmtests: algorithm_tests
 	./algorithm_tests 
 
-travis-test: scrm scrm_dbg
-	make unittests
-	make algorithmtests
-	./tests/test_binaries.sh
-
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
 		   src/model.cc src/tree_point.cc \
 		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
