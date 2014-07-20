@@ -168,6 +168,7 @@ class Forest
   bool printNodes() const;
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;
+  bool checkRoots() const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -344,11 +345,13 @@ bool areSame(const double a, const double b,
 
 inline void Forest::registerSecondaryRoot(Node* root) {
   assert(root->is_root());
+  assert(root != NULL);
+  dout << "Secondary Roots: Adding " << root<< std::endl;
   secondary_roots_.insert(root);  
 };
   
 inline void Forest::unregisterSecondaryRoot(Node* root) {
-  assert(isRegisteredSecondaryRoot(root));
+  dout << "Secondary Roots: Trying to remove " << root<< std::endl;
   secondary_roots_.erase(root);
 };
 

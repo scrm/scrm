@@ -7,11 +7,7 @@
  * 
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * the Free Software Foundation, either version 3 of the License, or * (at your option) any later version.  * * This program is distributed in the hope that it will be useful, * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
@@ -246,12 +242,13 @@ bool Forest::checkTree(Node const* root) const {
     bool good = true;
     // Default when called without argument
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
-      if ( (*it)->is_root() ) good = checkTree(*it);
+      if ( (*it)->is_root() ) good *= checkTree(*it);
     }
 
-    assert( this->checkInvariants() );
-    assert( this->checkNodeProperties() );
-    assert( this->checkTreeLength() );
+    good *= this->checkInvariants();
+    good *= this->checkNodeProperties();
+    good *= this->checkTreeLength();
+    good *= this->checkRoots();
     return good;
   }
   assert( root != NULL );
@@ -586,6 +583,11 @@ std::vector<Node const*> Forest::determinePositions() const {
     }
     dout << "Local Root:    " << this->local_root() << std::endl;
     dout << "Primary Root:  " << this->primary_root() << std::endl;
+    dout << "Secondary Roots:  "; 
+    for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+      dout << *it << " ";  
+    }
+    dout  << std::endl;
     return true;
   }
 
@@ -663,4 +665,43 @@ bool Forest::checkRootIsRegistered(Node const* node) const {
     dout << "Error: Root " << node << " is not registered." << std::endl;
     return false;
   }
+}
+
+bool Forest::checkRoots() const {
+  // Check that local_root() really is the local root:
+  if (local_root()->samples_below() != sample_size() ||
+      local_root()->first_child() == NULL ||
+      local_root()->second_child() == NULL ||
+      (!local_root()->first_child()->local()) ||
+      (!local_root()->second_child()->local()) ) {
+    dout << local_root() << " is registered as local root, but is not." << std::endl;
+    return false;
+  } 
+  
+  // Check that primary_root() really is the primary root:
+  Node* node = local_root();
+  while (!node->is_root()) node = node->parent(); 
+  if (node != primary_root()) {
+    dout << primary_root() << " is registered as primary root, but "
+         << node << " is." << std::endl;
+    return false;
+  }
+
+  // Check if all secondary roots are still roots:
+  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+    if (!(*it)->is_root()) {
+      dout << *it << " is in secondary roots, but it is no root." << std::endl;
+      return false;
+    }
+    if (*it == local_root()) {
+      dout << *it << " is in secondary roots, but it is the local root." << std::endl;
+      return false;
+    }
+    if (*it == primary_root()) {
+      dout << *it << " is in secondary roots, but it is the primary root." << std::endl;
+      return false;
+    }
+  }
+
+  return true;
 }

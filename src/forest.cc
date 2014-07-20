@@ -195,17 +195,22 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  //dout << node << std::endl;
+  dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
-  // Fast forward above local root because this part is non-local
+  // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
+    // Assure that everything is non-local
     if (node->local()) node->make_nonlocal(current_base());
-    //node->set_samples_below(this->sample_size());
-    //node->set_length_below(this->local_root()->length_below());
+
+    // Update the primary root if needed
     if ( node->is_root() ) {
-      set_primary_root(node);
+      if (node != primary_root()) {
+        if ( primary_root() != NULL && primary_root()->is_root() ) registerSecondaryRoot(primary_root());  
+        set_primary_root(node);
+        unregisterSecondaryRoot(node);
+      }
       return;
-    }
+    } 
     if ( recursive ) updateAbove(node->parent(), true, true);
     return;
   }
@@ -245,7 +250,14 @@ void Forest::updateAbove(Node* node, bool above_local_root,
           l_child->samples_below() > 0 && h_child->samples_below() > 0) {
         set_local_root(node);
       }
-      if ( node->is_root() ) set_primary_root(node);
+      if ( node->is_root() && node != primary_root() ) {
+        // node is the new primary root. Maybe the old primary root is a
+        // secondary root now. We check if this is the case:
+        if ( primary_root() != NULL && primary_root()->is_root() ) registerSecondaryRoot(primary_root());  
+        // And register node as the new primary root
+        set_primary_root(node);
+        unregisterSecondaryRoot(node);
+      }
       above_local_root = true;
     }
   }
@@ -585,9 +597,9 @@ void Forest::calcRates(const TimeInterval &ti) {
         active_nodes_timelines_[1] = 1;
       } 
       else {
-	// No chance of a pairwise coalescence, but there is growth.
+	      // No chance of a pairwise coalescence, but there is growth.
         // We might need our own timeline (This could be made more efficient if both populations have
-	//  equal growth rates, but we ignore that for the moment)
+	      // equal growth rates, but we ignore that for the moment).
         rates_[2] += calcCoalescenceRate(active_node(1)->population(), ti);
         active_nodes_timelines_[1] = 2;
       }
@@ -823,6 +835,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   assert( event.node() == active_node(event.active_node_nr()) );
 
   Node* coal_node = event.node();
+  unregisterSecondaryRoot(coal_node);
   Node* target = (*tii).getRandomContemporary(coal_node->population());
 
   dout << "* * * Above node " << target << std::endl;
@@ -939,8 +952,11 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   assert( root_2 != NULL );
   assert( root_1->population() == root_2->population() );
 
+  // Both roots are now local
   root_1->make_local();
   root_2->make_local();
+  unregisterSecondaryRoot(root_1);
+  unregisterSecondaryRoot(root_2);
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
@@ -1013,26 +1029,29 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
     assert(event.node()->is_migrating());
   }
   else {
-    // Otherwise create a new node that marks the migration event
+    // Otherwise create a new node that marks the migration event,
     Node* mig_node = new Node(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
 
-    // Integrate it into the tree
+    // integrate it into the tree
     event.node()->set_parent(mig_node);
     mig_node->set_first_child(event.node());
     updateAbove(event.node(), false, false);
     updateAbove(mig_node);
 
-    // And set it active
+    // and set it active.
     this->set_active_node(event.active_node_nr(), mig_node);
     assert(mig_node->is_migrating());
 
-    // And make the event node local
+    // Now make the event node local
     event.node()->make_local();
+
+    // and unregister it from the roots
+    unregisterSecondaryRoot(event.node());
   }
-  // And recalculate the interval
+  // Recalculate the interval
   if (recalculate) ti.recalculateInterval();
   dout << "done." << std::endl;
 
@@ -1096,10 +1115,16 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
     // Orphaned nodes must go
     if (node->numberOfChildren() == 0) {
       dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+      assert(node != local_root());
+      // If we are removing the primary root, it is difficult to find the new
+      // primary root. It should however be automatically set during the updates
+      // of the current coalescence.
+      if (node == primary_root()) set_primary_root(NULL);
+      unregisterSecondaryRoot(node);
       nodes()->remove(node);
       return true; 
     }
-    // Other root never go
+    // Other roots stay
     return false;
   } else {
     // No root:
@@ -1111,8 +1136,12 @@ bool Forest::pruneNodeIfNeeded(Node* node) {
       node->parent()->change_child(node, NULL);
       if (node->numberOfChildren() == 0) nodes()->remove(node); 
       else { 
+        // Remove link between `node` and its parent,
+        // which effectively removes the branch, 
+        // and separates the subtree below from the main tree
         Node* parent = node->parent();
         node->set_parent(NULL);
+        registerSecondaryRoot(node);
         updateAbove(parent, false, true, true);
       }
       return true;
