@@ -38,6 +38,8 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrintLocusSumStats );
   CPPUNIT_TEST( testTraversal );
   CPPUNIT_TEST( testSampleNextPosition ); 
+  CPPUNIT_TEST( testRegisterSecondaryRoot );
+  CPPUNIT_TEST( testUnregisterSecondaryRoot );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -759,6 +761,38 @@ class TestForest : public CppUnit::TestCase {
     forest->sampleNextBase();
     CPPUNIT_ASSERT_EQUAL(3.0, forest->next_base());
     CPPUNIT_ASSERT_EQUAL(1.0, forest->model().recombination_rate());
+  }
+
+  void testRegisterSecondaryRoot() {
+    Node* node1 = new Node(5);
+    forest->registerSecondaryRoot(node1);
+    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node1) );
+
+    Node* node2 = new Node(10);
+    forest->registerSecondaryRoot(node2);
+    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
+    
+    delete node1, node2;
+  }
+  
+  void testUnregisterSecondaryRoot() {
+    Node* node1 = new Node(5);
+    forest->registerSecondaryRoot(node1);
+    Node* node2 = new Node(10);
+    forest->registerSecondaryRoot(node2);
+
+    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node1) );
+    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
+
+    forest->unregisterSecondaryRoot(node1);
+    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node1) );
+    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
+
+    forest->unregisterSecondaryRoot(node2);
+    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node1) );
+    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node2) );
+    
+    delete node1, node2;
   }
 };
 

@@ -41,12 +41,11 @@
 #ifndef NDEBUG
 #define dout std::cout
 #else
-#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
-#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>
+#include <unordered_set>
 #include <valarray>
 #include <iomanip>
 #include <stdexcept>
@@ -280,22 +279,28 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
+  // tracking of secondary roots
+  void registerSecondaryRoot(Node* root);
+  void unregisterSecondaryRoot(Node* root);
+  bool isRegisteredSecondaryRoot(Node* root);
 
-  //Private variables
+  // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
 
-  // We have 2 different roots that are important:
-  // - local_root: root of the smallest subtree containing all local sequences
-  // - primary_root: root of the tree that contains all local sequences (do we
-  //   need this one?)
-
+  // We have 3 different kind of roots that are important:
+  // local root: root of the smallest subtree containing all local sequences
   Node* local_root_;
+
+  // primary root: root of the tree that contains all local sequences
   Node* primary_root_;
+
+  // secondary roots: roots of trees that contain only non-local nodes
+  std::unordered_set<Node* > secondary_roots_;
 
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t segment_count_;     // Counts next number segments already created 
+  size_t segment_count_;    // Counts next number segments already created 
 
   Model* model_;
   RandomGenerator* random_generator_;
@@ -336,4 +341,17 @@ class Forest
 bool areSame(const double a, const double b, 
              const double epsilon = std::numeric_limits<double>::epsilon());
 
+inline void Forest::registerSecondaryRoot(Node* root) {
+  assert(root->is_root());
+  secondary_roots_.insert(root);  
+};
+  
+inline void Forest::unregisterSecondaryRoot(Node* root) {
+  assert(isRegisteredSecondaryRoot(root));
+  secondary_roots_.erase(root);
+};
+
+inline bool Forest::isRegisteredSecondaryRoot(Node* root) {
+  return secondary_roots_.find(root) != secondary_roots_.end();   
+};
 #endif
