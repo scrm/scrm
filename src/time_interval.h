@@ -104,10 +104,6 @@ class TimeIntervalIterator {
   }
 
   void addToContemporaries(Node* node) { 
-    // Assert that the node is not already in the contemporaries
-    dout << "Adding " << node << std::endl;
-    //assert( contemporaries_.at(node->population()).find(node) == 
-    //        contemporaries_.at(node->population()).end() );
     contemporaries_.at(node->population()).insert(node);
   };
 
@@ -121,9 +117,9 @@ class TimeIntervalIterator {
     }
   }
 
-  void searchContemporariesOfNode(Node *node);
-  void searchContemporariesOfNodeTopDown(Node* node, 
-                                         Node* current_node = NULL);
+  void searchContemporaries(Node* node);
+  void searchContemporariesBottomUp(Node* node);
+  void searchContemporariesTopDown(Node* node, Node* current_node = NULL);
   void updateContemporaries(Node *current_node); 
 
   std::unordered_set<Node*> &contemporaries(const size_t pop = 0) { 

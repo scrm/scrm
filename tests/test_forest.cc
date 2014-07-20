@@ -624,6 +624,7 @@ class TestForest : public CppUnit::TestCase {
 
       Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
       TimeIntervalIterator tii(forest, new_root);
+      CPPUNIT_ASSERT_EQUAL( (size_t)4, tii.numberOfContemporaries() );
       forest->set_active_node(0, new_root);
       forest->set_active_node(1, forest->local_root());
 
@@ -634,10 +635,12 @@ class TestForest : public CppUnit::TestCase {
       forest->tmp_event_.setToCoalescence(new_root, 0);
 
       forest->implementCoalescence(forest->tmp_event_, tii);
+      CPPUNIT_ASSERT( forest->checkTree() );
 
       CPPUNIT_ASSERT( forest->active_node(0) == new_root );
+      std::cout << new_root->parent_height() << std::endl;
       CPPUNIT_ASSERT( new_root->parent_height() == 3 ||
-                     new_root->parent_height() == 10 );
+                      new_root->parent_height() == 10 );
 
       if ( !new_root->local() ) {
         CPPUNIT_ASSERT( new_root->numberOfChildren() == 2 );
@@ -798,4 +801,4 @@ class TestForest : public CppUnit::TestCase {
 
 
 //Uncomment this to activate the test
-//CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );
+CPPUNIT_TEST_SUITE_REGISTRATION( TestForest );

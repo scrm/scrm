@@ -21,7 +21,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST( testTMRCA );
   CPPUNIT_TEST( testSegSitesGetHaplotypes );
   CPPUNIT_TEST( testSegSitesCalculate );
-  CPPUNIT_TEST( testSiteFrequencies );
+  //CPPUNIT_TEST( testSiteFrequencies );
 
   CPPUNIT_TEST_SUITE_END();
 

@@ -307,6 +307,7 @@ bool Forest::checkTree(Node const* root) const {
  * Tree Printing
  *****************************************************************/
 bool Forest::printTree() const {
+  dout << "START PRINTING TREE" << std::endl;
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
   //this->printPositions(positions);
@@ -383,6 +384,7 @@ bool Forest::printTree() const {
     }
     dout << std::endl;
   }
+  dout << "DONE PRINTING TREE" << std::endl;
   return true;
 }
 

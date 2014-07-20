@@ -67,6 +67,9 @@ Forest::Forest(const Forest &current_forest) {
 
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
+    if ((*it)->is_root() && *it != local_root() && *it != primary_root()) {
+     registerSecondaryRoot(*it); 
+    }
   }
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
@@ -88,6 +91,9 @@ Forest::Forest(Forest * current_forest) {
 
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
+    if ((*it)->is_root() && *it != local_root() && *it != primary_root()) {
+     registerSecondaryRoot(*it); 
+    }
   }
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
@@ -195,7 +201,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
+  //dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
@@ -304,7 +310,8 @@ void Forest::buildInitialTree() {
     //Create a new separate little tree of and at height zero
     Node* new_leaf = new Node(model().sample_time(i), i+1);
     new_leaf->set_population(model().sample_population(i));
-    dout << "(" << new_leaf << ")" << std::endl;
+    dout << new_leaf << "(" << new_leaf->population() << ") "
+         << "at height " << new_leaf->height() << std::endl;
     nodes()->add(new_leaf);
     dout << "* starting coalescences" << std::endl;
 
@@ -469,7 +476,9 @@ void Forest::sampleCoalescences(Node *start_node) {
   coalescence_finished_ = false;
 
   // This assertion needs an exception for building the initial tree
-  assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
+  assert ( segment_count_ == 1 || 
+           active_node(1)->in_sample() || 
+           start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
 
@@ -1106,15 +1115,14 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 }
 
 
-bool Forest::pruneNodeIfNeeded(Node* node) {
+bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
   assert(node != NULL);
   if (model().exact_window_length() == -1) return false;
   if (node->in_sample()) return false;
-  dout << "Try pruning " << node << std::endl;
 
   if (node->is_root()) {
     // Orphaned nodes must go
-    if (node->numberOfChildren() == 0) {
+    if (node->numberOfChildren() == 0 && prune_orphans) {
       dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
       assert(node != local_root());
       // If we are removing the primary root, it is difficult to find the new

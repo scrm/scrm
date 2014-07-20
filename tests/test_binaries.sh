@@ -33,6 +33,7 @@ echo "Testing Initial Tree"
  test_scrm 3 1000 -t 5 -L -oSFS || exit 1
  test_scrm 100 20 -T || exit 1
  test_scrm 250 1 || exit 1
+ test_scrm 20 10 -I 3 2 2 2 1.0 -eI 1.0 2 2 2 -eI 2.0 2 3 3 || exit 1
 echo ""
 
 echo "Testing Recombinations"

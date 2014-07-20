@@ -51,8 +51,7 @@
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
-#include <sstream> // This is required by Forest::writeTree, ostringstream
-
+#include <sstream> // This is required by Forest::writeTree, ostringstream 
 #include "node.h"
 #include "event.h"
 #include "model.h"
@@ -256,9 +255,8 @@ class Forest
     return (node == active_node(0) || node == active_node(1));
   }
 
-  bool pruneNodeIfNeeded(Node* node);
+  bool pruneNodeIfNeeded(Node* node, const bool prune_orphans = true);
   void doCompletePruning();
-
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
@@ -346,12 +344,10 @@ bool areSame(const double a, const double b,
 inline void Forest::registerSecondaryRoot(Node* root) {
   assert(root->is_root());
   assert(root != NULL);
-  dout << "Secondary Roots: Adding " << root<< std::endl;
   secondary_roots_.insert(root);  
 };
   
 inline void Forest::unregisterSecondaryRoot(Node* root) {
-  dout << "Secondary Roots: Trying to remove " << root<< std::endl;
   secondary_roots_.erase(root);
 };
 #endif
