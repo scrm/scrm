@@ -69,16 +69,19 @@ TimeIntervalIterator::TimeIntervalIterator() {
   this->node_iterator_ = NULL;
   this->good_ = true;
   this->inside_node_ = NULL;
+  this->prune_ = true;
 }
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
-                                           Node* start_node) {
+                                           Node* start_node,
+                                           bool prune) {
   this->forest_ = forest;
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
+  this->prune_ = prune;
   forest->writable_model()->resetTime();
 
   // Save the contemporaries for each population in an unordered_set
@@ -121,7 +124,7 @@ void TimeIntervalIterator::next() {
     updateContemporaries(*node_iterator_);
 
     // Pruning
-    while ( !(*node_iterator_)->is_last() ) {
+    while ( prune_ && !(*node_iterator_)->is_last() ) {
       // Prunes the next node BEFORE node_iterator_ gets there, 
       // and does there not invalidate it.
       if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
@@ -230,7 +233,6 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
  */
 void TimeIntervalIterator::searchContemporariesTopDown(Node* node, 
                                                        Node* current_node) {
-  //std::cout << "SCTD: " << current_node << std::endl;
   
   if (current_node == NULL) {
     assert(forest_->primary_root() != NULL);
@@ -238,7 +240,6 @@ void TimeIntervalIterator::searchContemporariesTopDown(Node* node,
     searchContemporariesTopDown(node, forest_->primary_root());
     for (auto it = forest_->secondary_roots_.begin();
          it != forest_->secondary_roots_.end(); ++it) {
-      //dout << "SCTD: Subtree root " << *it << std::endl;
       searchContemporariesTopDown(node, *it);
     }
     return;
@@ -253,23 +254,23 @@ void TimeIntervalIterator::searchContemporariesTopDown(Node* node,
     // prune itself away.
     if (current_node->second_child() != NULL) searchContemporariesTopDown(node, current_node->second_child());
     if (current_node->first_child() != NULL) searchContemporariesTopDown(node, current_node->first_child());
-    forest_->pruneNodeIfNeeded(current_node, false);
+    if (prune_) forest_->pruneNodeIfNeeded(current_node, false);
     return;
   } 
 
   // If we are here, current_node is a contemporary, unless it needs to be pruned 
-  Node *first_child = current_node->first_child(),
-       *second_child = current_node->second_child();
-  if (forest_->pruneNodeIfNeeded(current_node, false)) {
-    // We just pruned a node that would have been a contemporary.
-    // If it had only one child, that might be a contemporary now.
-    if (second_child == NULL && first_child != NULL) {
-      //if (forest_->pruneNodeIfNeeded(first_child)) return;
-      //if (!first_child->is_root()) addToContemporaries(first_child);
-      searchContemporariesTopDown(node, first_child);
-    } 
-    // If the node was old or orphaned, there is nothing we have to do. 
-    return;
+  if (prune_) {
+    Node *first_child = current_node->first_child(),
+         *second_child = current_node->second_child();
+    if (forest_->pruneNodeIfNeeded(current_node, false)) {
+      // We just pruned a node that would have been a contemporary.
+      // If it had only one child, that might be a contemporary now.
+      if (second_child == NULL && first_child != NULL) {
+        searchContemporariesTopDown(node, first_child);
+      } 
+      // If the node was old or orphaned, there is nothing we have to do. 
+      return;
+    }
   }
 
   // If it was not pruned, it really is a contemporary

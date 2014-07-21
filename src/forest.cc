@@ -480,7 +480,8 @@ void Forest::sampleCoalescences(Node *start_node) {
            active_node(1)->in_sample() || 
            start_node->height() <= active_node(1)->height() );
 
-  for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
+  // Only prune every second round
+  for (TimeIntervalIterator ti(this, start_node, (segment_count_ % 2) == 0); ti.good(); ++ti) {
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
         << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
