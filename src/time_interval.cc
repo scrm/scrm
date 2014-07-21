@@ -176,8 +176,9 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
  * @return Nothing. Nodes are saved in contemporaries_.
  */
 void TimeIntervalIterator::searchContemporaries(Node *node) {
-  // Prefer top-down search if we have many samples and node is old
-  if (forest_->nodes()->size() < 3000 ||
+  // Prefer top-down search if we have many samples and the node is old.
+  // This values are empirically optimized.
+  if (forest_->nodes()->size() < 2000 ||
       node->height()< 0.0025 * forest_->model().default_pop_size) {
     searchContemporariesBottomUp(node);
   } else {
