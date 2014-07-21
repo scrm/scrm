@@ -176,7 +176,6 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
-  bool printTree_cout();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -283,6 +282,7 @@ class Forest
   // tracking of secondary roots
   void registerSecondaryRoot(Node* root);
   void unregisterSecondaryRoot(Node* root);
+  void clearSecondaryRoots();
 
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
@@ -349,5 +349,9 @@ inline void Forest::registerSecondaryRoot(Node* root) {
   
 inline void Forest::unregisterSecondaryRoot(Node* root) {
   secondary_roots_.erase(root);
+};
+
+inline void Forest::clearSecondaryRoots() {
+  secondary_roots_.clear();  
 };
 #endif

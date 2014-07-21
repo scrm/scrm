@@ -19,6 +19,7 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testRemove );
   CPPUNIT_TEST( testMove );
   CPPUNIT_TEST( testCopyConstructor );
+  CPPUNIT_TEST( testClear );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -220,6 +221,13 @@ class TestNodeContainer : public CppUnit::TestCase {
     for (auto it = nc.iterator(); it.good(); ++it) {
       CPPUNIT_ASSERT( (*it)->label() <= 2 );
     }
+  }
+
+  void testClear() {
+    nc.clear();
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, nc.size() );
+    CPPUNIT_ASSERT( nc.first() == NULL );
+    CPPUNIT_ASSERT( nc.last() == NULL );
   }
 };
 

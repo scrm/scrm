@@ -196,6 +196,7 @@ void NodeContainer::clear() {
   if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
+  this->size_ = 0;
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){

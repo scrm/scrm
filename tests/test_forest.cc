@@ -76,13 +76,20 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testCreateExampleTree() {
-    CPPUNIT_ASSERT( forest->nodes()->size() == 9 );
+    CPPUNIT_ASSERT_EQUAL((size_t)9, forest->nodes()->size());
     CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(8) );
     CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(8) );
     CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
-    CPPUNIT_ASSERT( forest->checkTree() == 1 );
+    CPPUNIT_ASSERT( forest->checkTree() );
+    
+    forest->createExampleTree();
+    CPPUNIT_ASSERT_EQUAL((size_t)9, forest->nodes()->size());
+    CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(8) );
+    CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(8) );
+    CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->checkTree() );
   }
-  
+
   void testCheckTreeLength() {
     CPPUNIT_ASSERT( forest->checkTreeLength() );
   }
@@ -139,7 +146,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(0.0/pop_size, forest->rates_[2]) );   
     CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
     CPPUNIT_ASSERT_EQUAL( (size_t)0, forest->active_nodes_timelines_[1] );   
-    
+
     forest->writable_model()->increaseTime();
     CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
     //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
@@ -159,7 +166,7 @@ class TestForest : public CppUnit::TestCase {
     delete node1;
     delete node2;
   }
-  
+
   void testGetNodeState() { 
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(8), 11) == 1 );
     CPPUNIT_ASSERT( forest->getNodeState(forest->getNodes()->get(6), 11) == 2 );
@@ -176,7 +183,7 @@ class TestForest : public CppUnit::TestCase {
 
     forest->selectFirstTime(-1, 1, current_time, time_line);
     CPPUNIT_ASSERT_EQUAL( -1.0, current_time );
-    
+
     forest->selectFirstTime(5.0, 1, current_time, time_line);
     CPPUNIT_ASSERT_EQUAL( 5.0, current_time );
     CPPUNIT_ASSERT_EQUAL( (size_t)1, time_line );
@@ -209,7 +216,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->writable_model()->resetTime();
 
     TimeIntervalIterator tii(forest2, forest2->nodes()->at(0));
-    
+
     forest2->set_active_node(0, forest2->nodes()->at(0));
     forest2->set_active_node(1, forest2->nodes()->at(2));
     forest2->states_[0] = 1;
@@ -419,7 +426,7 @@ class TestForest : public CppUnit::TestCase {
     forest2.writable_model()->resetTime();
 
     TimeIntervalIterator tii(&forest2, forest2.nodes()->at(0));
-    
+
     forest2.set_active_node(0, forest2.nodes()->at(0));
     forest2.set_active_node(1, forest2.nodes()->at(8));
     forest2.states_[0] = 1;
@@ -427,7 +434,7 @@ class TestForest : public CppUnit::TestCase {
     forest2.calcRates(*tii);
     forest2.active_nodes_timelines_[0] = 0;
     forest2.active_nodes_timelines_[1] = 0;
-    
+
     Event event;
     double tmp_event_time = 0.0;
     size_t tmp_event_line = -1;
@@ -449,7 +456,7 @@ class TestForest : public CppUnit::TestCase {
   void testNodeIsOld() {
     forest->writable_model()->set_exact_window_length(-1);
     forest->set_current_base(15);
-    
+
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
@@ -500,7 +507,7 @@ class TestForest : public CppUnit::TestCase {
     forest->nodes()->add(inbetween1);
     forest->nodes()->add(inbetween2);
     forest->nodes()->add(child);
-    
+
     parent->set_first_child(inbetween1);
     inbetween1->set_first_child(inbetween2);
     inbetween2->set_first_child(child);
@@ -602,7 +609,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( forest->implementRecombination(event, tii) );
 
     CPPUNIT_ASSERT( forest->nodes()->at(9) == forest->active_node(0) || 
-                    forest->nodes()->at(10) == forest->active_node(0) );
+                   forest->nodes()->at(10) == forest->active_node(0) );
 
     CPPUNIT_ASSERT( forest->active_node(0)->local() );
     CPPUNIT_ASSERT( forest->active_node(0)->is_root() );
@@ -624,7 +631,7 @@ class TestForest : public CppUnit::TestCase {
 
       Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
       TimeIntervalIterator tii(forest, new_root);
-      CPPUNIT_ASSERT_EQUAL( (size_t)4, tii.numberOfContemporaries() );
+      CPPUNIT_ASSERT_EQUAL( (size_t)3, tii.numberOfContemporaries() );
       forest->set_active_node(0, new_root);
       forest->set_active_node(1, forest->local_root());
 
@@ -635,12 +642,10 @@ class TestForest : public CppUnit::TestCase {
       forest->tmp_event_.setToCoalescence(new_root, 0);
 
       forest->implementCoalescence(forest->tmp_event_, tii);
-      CPPUNIT_ASSERT( forest->checkTree() );
 
       CPPUNIT_ASSERT( forest->active_node(0) == new_root );
-      std::cout << new_root->parent_height() << std::endl;
       CPPUNIT_ASSERT( new_root->parent_height() == 3 ||
-                      new_root->parent_height() == 10 );
+                     new_root->parent_height() == 10 );
 
       if ( !new_root->local() ) {
         CPPUNIT_ASSERT( new_root->numberOfChildren() == 2 );
@@ -774,10 +779,10 @@ class TestForest : public CppUnit::TestCase {
     Node* node2 = new Node(10);
     forest->registerSecondaryRoot(node2);
     CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
-    
+
     delete node1, node2;
   }
-  
+
   void testUnregisterSecondaryRoot() {
     Node* node1 = new Node(5);
     forest->registerSecondaryRoot(node1);
@@ -794,7 +799,7 @@ class TestForest : public CppUnit::TestCase {
     forest->unregisterSecondaryRoot(node2);
     CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node1) );
     CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node2) );
-    
+
     delete node1, node2;
   }
 };

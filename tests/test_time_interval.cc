@@ -19,6 +19,7 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST( testSplitIntervall );
   CPPUNIT_TEST( testSampleContemporary );
   CPPUNIT_TEST( testRecalculateTI );
+  CPPUNIT_TEST( testFindContemporaries );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -265,6 +266,36 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( ++it );
     CPPUNIT_ASSERT( (*it).start_height() == 1000 ); 
     CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX ); 
+  }
+
+  void testFindContemporaries() {
+    TimeIntervalIterator tii(forest, forest->nodes()->at(0));
+    tii.clearContemporaries();
+
+    tii.searchContemporariesTopDown(forest->nodes()->at(4));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+    tii.searchContemporariesBottomUp(forest->nodes()->at(4));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+
+    tii.searchContemporariesTopDown(forest->nodes()->at(5));
+    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.numberOfContemporaries()); 
+    tii.searchContemporariesBottomUp(forest->nodes()->at(5));
+    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.numberOfContemporaries()); 
+
+    tii.searchContemporariesTopDown(forest->nodes()->at(6));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+    tii.searchContemporariesBottomUp(forest->nodes()->at(6));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+
+    tii.searchContemporariesTopDown(forest->nodes()->at(7));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+    tii.searchContemporariesBottomUp(forest->nodes()->at(7));
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.numberOfContemporaries()); 
+
+    tii.searchContemporariesTopDown(forest->nodes()->at(8));
+    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.numberOfContemporaries()); 
+    tii.searchContemporariesBottomUp(forest->nodes()->at(8));
+    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.numberOfContemporaries()); 
   }
 };
 
