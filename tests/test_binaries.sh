@@ -31,6 +31,8 @@ function test_scrm {
     fi
 
     # Test for reproducibility
+    ./scrm $@ -seed $i
+    ./scrm $@ -seed $i
     hash_1=$(./scrm $@ -seed $i | sha512sum)
     hash_2=$(./scrm $@ -seed $i | sha512sum)
     if [ "$hash_1" != "$hash_2" ]; then
