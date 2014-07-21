@@ -693,16 +693,27 @@ class TestForest : public CppUnit::TestCase {
     forest->createScaledExampleTree();
 
     Forest forest2 = Forest(*forest);
+    Forest forest3 = Forest(forest);
+
+    CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest2.nodes()->size() );
+    CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest3.nodes()->size() );
+    CPPUNIT_ASSERT_EQUAL( forest->secondary_roots_.size(), forest2.secondary_roots_.size() );
+    CPPUNIT_ASSERT_EQUAL( forest->secondary_roots_.size(), forest3.secondary_roots_.size() );
 
     CPPUNIT_ASSERT( forest2.model_ == forest->model_ );
+    CPPUNIT_ASSERT( forest3.model_ == forest->model_ );
+
     for (auto it = forest2.nodes()->iterator(); it.good(); ++it) {
+      CPPUNIT_ASSERT( (*it)->label() <= 4 );
+      CPPUNIT_ASSERT( (*it)->parent() != NULL || (*it)->first_child() != NULL );
+    }
+    for (auto it = forest3.nodes()->iterator(); it.good(); ++it) {
       CPPUNIT_ASSERT( (*it)->label() <= 4 );
       CPPUNIT_ASSERT( (*it)->parent() != NULL || (*it)->first_child() != NULL );
     }
 
     CPPUNIT_ASSERT( forest2.checkTree() );
-    CPPUNIT_ASSERT( forest2.checkLeafsOnLocalTree() );
-    CPPUNIT_ASSERT( forest2.checkInvariants() );
+    CPPUNIT_ASSERT( forest3.checkTree() );
   }
 
   void testCheckForNodeAtHeight() {

@@ -61,22 +61,26 @@ Forest::Forest(const Forest &current_forest) {
   this->set_random_generator(current_forest.random_generator());
   this->set_sample_size(current_forest.sample_size());
   this->set_current_base(current_forest.current_base());
-  this->set_next_base((current_forest.next_base()));
+  this->set_next_base(current_forest.next_base());
   this->segment_count_ = current_forest.segment_count_;
 
-  nodes_ = NodeContainer(*current_forest.getNodes());
-
+  this->nodes_ = NodeContainer(*current_forest.getNodes());
+  this->set_local_root(NULL);
+  this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
-    if ((*it)->is_root() && *it != local_root() && *it != primary_root()) {
+    if ((*it)->is_root()) {
      registerSecondaryRoot(*it); 
     }
   }
+  unregisterSecondaryRoot(local_root());
+  unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_line_ = 0;
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
+  this->coalescence_finished_ = false;
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
   assert(this->printTree());
@@ -95,13 +99,16 @@ Forest::Forest(Forest * current_forest) {
   this->segment_count_ = current_forest->segment_count_;
 
   this->nodes_ = NodeContainer(*current_forest->getNodes());
-
+  this->set_local_root(NULL);
+  this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
-    if ((*it)->is_root() && *it != local_root() && *it != primary_root()) {
+    if ((*it)->is_root()) {
      registerSecondaryRoot(*it); 
     }
   }
+  unregisterSecondaryRoot(local_root());
+  unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_line_ = 0;
@@ -111,8 +118,8 @@ Forest::Forest(Forest * current_forest) {
   
   dout<<"  #################### check copied forest ###############"<<std::endl;
   
-  //assert(this->printTree());
-  //assert(this->printNodes());
+  assert(this->printTree());
+  assert(this->printNodes());
   assert(this->checkTree());
   assert(this->checkLeafsOnLocalTree() );
   

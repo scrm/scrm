@@ -71,9 +71,11 @@ int main(int argc, char *argv[]){
         forest.sampleNextGenealogy();
         forest.printSegmentSumStats(*output);
       }
-
+      
       forest.printLocusSumStats(*output);
+      Forest forest2 = forest;
     }
+
 
     // Clean-up and exit
     rg.clearFastFunc();
