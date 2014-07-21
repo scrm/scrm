@@ -8,9 +8,6 @@
 # Licence:  GPLv3 or later
 #
 
-sha512sum .
-md5sum .
-
 function test_scrm {
   echo -n " scrm $@ "
   for i in `seq 1 10`; do
@@ -39,6 +36,8 @@ function test_scrm {
     if [ "$hash_1" != "$hash_2" ]; then
       echo ""
       echo "Not reproducible: \"./scrm $@ -seed $i\"" 
+      echo "hash1: $hash_1"
+      echo "hash2: $hash_2"
       exit 1
     fi
   done
