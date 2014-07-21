@@ -62,6 +62,7 @@ Forest::Forest(const Forest &current_forest) {
   this->set_sample_size(current_forest.sample_size());
   this->set_current_base(current_forest.current_base());
   this->set_next_base((current_forest.next_base()));
+  this->segment_count_ = current_forest.segment_count_;
 
   nodes_ = NodeContainer(*current_forest.getNodes());
 
@@ -71,6 +72,11 @@ Forest::Forest(const Forest &current_forest) {
      registerSecondaryRoot(*it); 
     }
   }
+
+  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  this->tmp_event_line_ = 0;
+  this->tmp_event_time_ = -1; 
+  this->coalescence_finished_ = true;
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
   assert(this->printTree());
@@ -86,6 +92,7 @@ Forest::Forest(Forest * current_forest) {
   this->set_sample_size(current_forest->sample_size());
   this->set_current_base(current_forest->current_base());
   this->set_next_base((current_forest->next_base()));
+  this->segment_count_ = current_forest->segment_count_;
 
   this->nodes_ = NodeContainer(*current_forest->getNodes());
 
@@ -481,10 +488,10 @@ void Forest::sampleCoalescences(Node *start_node) {
            start_node->height() <= active_node(1)->height() );
 
   // Only prune every second round
-  for (TimeIntervalIterator ti(this, start_node, (segment_count_ % 2) == 0); ti.good(); ++ti) {
+  for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
 
     dout << "* * Time interval: " << (*ti).start_height() << " - "
-        << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
+         << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
     // Assert that we don't accidentally jump in time 
     assert( tmp_event_.time() < 0 || tmp_event_.time() == (*ti).start_height() );
