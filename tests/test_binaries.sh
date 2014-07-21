@@ -30,18 +30,6 @@ function test_scrm {
       exit 1
     fi
 
-    # Test for reproducibility
-    ./scrm $@ -seed $i
-    ./scrm $@ -seed $i
-    hash_1=$(./scrm $@ -seed $i | sha512sum)
-    hash_2=$(./scrm $@ -seed $i | sha512sum)
-    if [ "$hash_1" != "$hash_2" ]; then
-      echo ""
-      echo "Not reproducible: \"./scrm $@ -seed $i\"" 
-      echo "hash1: $hash_1"
-      echo "hash2: $hash_2"
-      exit 1
-    fi
   done
   echo " done."
 }
