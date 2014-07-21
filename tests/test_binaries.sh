@@ -8,6 +8,9 @@
 # Licence:  GPLv3 or later
 #
 
+sha512sum .
+md5sum .
+
 function test_scrm {
   echo -n " scrm $@ "
   for i in `seq 1 10`; do
