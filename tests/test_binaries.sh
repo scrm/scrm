@@ -13,15 +13,29 @@ function test_scrm {
   for i in `seq 1 10`; do
     echo -n "."
 
+    # Test using scrm self-checks
     ./scrm_dbg $@ -seed $i > /dev/null 
     if [ $? -ne 0 ]; then
+      echo ""
       echo "Executing \"./scrm_dbg $@ -seed $i\" failed."
+      echo "Debug Call: ./scrm_dbg $@ -seed $i 2>$1 | less"
       exit 1
     fi
 
+    # Test for memory leaks
     valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
     if [ $? -ne 0 ]; then
+      echo ""
       echo "Valgrind check of \"./scrm $@ -seed $i\" failed."
+      exit 1
+    fi
+
+    # Test for reproducibility
+    hash_1=$(./scrm $@ -seed $i | sha512sum)
+    hash_2=$(./scrm $@ -seed $i | sha512sum)
+    if [ "$hash_1" != "$hash_2" ]; then
+      echo ""
+      echo "Not reproducible: \"./scrm $@ -seed $i\"" 
       exit 1
     fi
   done
@@ -33,7 +47,6 @@ echo "Testing Initial Tree"
  test_scrm 3 1000 -t 5 -L -oSFS || exit 1
  test_scrm 100 20 -T || exit 1
  test_scrm 250 1 || exit 1
- test_scrm 20 10 -I 3 2 2 2 1.0 -eI 1.0 2 2 2 -eI 2.0 2 3 3 || exit 1
 echo ""
 
 echo "Testing Recombinations"
@@ -50,6 +63,7 @@ echo ""
 echo "Testing Migration"
  test_scrm 5 50 -r 5 100 -I 2 3 2 1.2 || exit 1
  test_scrm 10 1 -r 20 200 -I 5 2 2 2 2 2 0.75 -l 5 || exit 1
+ test_scrm 20 10 -r 5 100 -I 3 2 2 2 1.0 -eI 1.0 2 2 2 -eI 2.0 2 3 3 || exit 1
 echo ""
 
 echo "Testing Split"
