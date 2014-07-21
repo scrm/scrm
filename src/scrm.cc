@@ -73,7 +73,6 @@ int main(int argc, char *argv[]){
       }
       
       forest.printLocusSumStats(*output);
-      Forest forest2 = forest;
     }
 
 
