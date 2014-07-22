@@ -82,9 +82,13 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   forest->writable_model()->resetTime();
 
   // Save the contemporaries for each population in an unordered_set
-  std::vector< std::unordered_set<Node*> >(forest->model().population_number());
-  
   this->contemporaries_ = std::vector<std::unordered_set<Node*> >(forest->model().population_number());
+  for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+    // The sample size is an educated guess about the max number of contemporaries,
+    // at least in large trees.
+    (*it).reserve(std::max(forest->sample_size(), (size_t)250));
+  }
+
   this->searchContemporaries(start_node);
   
   // Skip through model changes

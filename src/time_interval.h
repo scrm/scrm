@@ -113,7 +113,7 @@ class TimeIntervalIterator {
 
   void clearContemporaries() {
     for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
-      (*it).clear();
+      if ((*it).size() > 0) (*it).clear();
     }
   }
 
