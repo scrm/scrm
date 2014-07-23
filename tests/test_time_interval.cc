@@ -11,7 +11,7 @@ class TestTimeInterval : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestTimeInterval );
 
-  CPPUNIT_TEST( testAddContemporary );
+  CPPUNIT_TEST( testAddAndRemoveFromContemporary );
   CPPUNIT_TEST( testIteratorCreation );
   CPPUNIT_TEST( testIteratorNext );
   CPPUNIT_TEST( testIteratorCreationWithTimeFrames );
@@ -24,51 +24,90 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE_END();
 
  private:
-  Forest *forest;
-  Model *model;
+  Forest *forest, *forest2;
+  Model *model, *model2;
   MersenneTwister *rg;
 
  public:
   void setUp() {
-    model = new Model(5);
     rg = new MersenneTwister(5);
+    model = new Model(5);
+    model2 = new Model(5);
+    model2->set_population_number(3);
+
     forest = new Forest(model, rg);
     forest->createExampleTree();
+
+    forest2 = new Forest(model2, rg);
+    forest2->createExampleTree();
   }
 
   void tearDown() {
-    delete forest;
-    delete model; 
+    delete forest, forest2;
+    delete model, model2; 
     delete rg;
   }
 
-  void testAddContemporary() {
-    forest->writable_model()->set_population_number(3);
-    TimeIntervalIterator ti(forest, forest->nodes()->at(0));
-    CPPUNIT_ASSERT_EQUAL( (size_t)4, (*ti).numberOfContemporaries() );
+  void testAddAndRemoveFromContemporary() {
+    TimeIntervalIterator ti(forest2, forest2->nodes()->first());
+    ti.clearContemporaries();
+
+    // Test Add
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
 
     Node* node1 = new Node(5);
     ti.addToContemporaries(node1);
-    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
 
     Node* node2 = new Node(10);
     node2->set_population(1);
     ti.addToContemporaries(node2);
-    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
 
     Node* node3 = new Node(10);
     node3->set_population(2);
     ti.addToContemporaries(node3);
-    CPPUNIT_ASSERT_EQUAL( (size_t)5, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(2) );
 
-    delete node1, node2, node3;
+    Node* node4 = new Node(15);
+    node4->set_population(2);
+    ti.addToContemporaries(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, (*ti).numberOfContemporaries(2) );
+
+    // Test Remove
+    ti.removeFromContemporaries(node1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, (*ti).numberOfContemporaries(2) );
+
+    ti.removeFromContemporaries(node3);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(2) );
+
+    ti.removeFromContemporaries(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
+
+    ti.removeFromContemporaries(node2);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, (*ti).numberOfContemporaries(2) );
+
+    delete node1, node2, node3, node4;
   }
 
   void testIteratorCreation() {

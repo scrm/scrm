@@ -44,19 +44,25 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE_END();
 
  private:
-  Forest *forest;
+  Model *model, *model_2pop;
+  Forest *forest, *forest_2pop;
   MersenneTwister *rg;
 
  public:
   void setUp() {
     rg = new MersenneTwister(1234);
-    forest = new Forest(new Model(5), rg);
+    model = new Model(5);
+    model_2pop = new Model(5);
+    model_2pop->set_population_number(2);
+    forest = new Forest(model, rg);
     forest->createExampleTree();
+    forest_2pop = new Forest(model_2pop, rg);
+    forest_2pop->createExampleTree();
   }
 
   void tearDown() {
-    delete forest->writable_model();
-    delete forest;
+    delete forest, forest_2pop;
+    delete model, model_2pop;
     delete rg;
   }
 
@@ -76,17 +82,18 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testCreateExampleTree() {
+    CPPUNIT_ASSERT_EQUAL((size_t)2, forest_2pop->model().population_number() );
     CPPUNIT_ASSERT_EQUAL((size_t)9, forest->nodes()->size());
     CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(8) );
     CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(8) );
-    CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->getLocalTreeLength() == 24 );
     CPPUNIT_ASSERT( forest->checkTree() );
     
     forest->createExampleTree();
     CPPUNIT_ASSERT_EQUAL((size_t)9, forest->nodes()->size());
     CPPUNIT_ASSERT( forest->local_root() == forest->nodes()->get(8) );
     CPPUNIT_ASSERT( forest->primary_root() == forest->nodes()->get(8) );
-    CPPUNIT_ASSERT( forest->local_tree_length() == 24 );
+    CPPUNIT_ASSERT( forest->getLocalTreeLength() == 24 );
     CPPUNIT_ASSERT( forest->checkTree() );
   }
 
@@ -123,45 +130,50 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
 
     // Coalescence with structure 
-    forest->writable_model()->set_population_number(2);
+    forest_2pop->set_active_node(0, node1);
+    forest_2pop->set_active_node(1, node2);
+    forest_2pop->states_[0] = 1;
+    forest_2pop->states_[1] = 1;
+
     node1->set_population(1);
-    forest->nodes()->at(1)->set_population(1);
-    TimeIntervalIterator tii2(forest, forest->nodes()->at(0));
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii2) );
+    forest_2pop->nodes()->at(1)->set_population(1);
+
+    TimeIntervalIterator tii2(forest_2pop, forest_2pop->nodes()->at(0));
+    CPPUNIT_ASSERT_NO_THROW( forest_2pop->calcRates(*tii2) );
     // Only node2 can coalescence
-    CPPUNIT_ASSERT( areSame(4.0/pop_size, forest->rates_[0]) );   
-    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
-    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
+    CPPUNIT_ASSERT( areSame(4.0/pop_size, forest_2pop->rates_[0]) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest_2pop->rates_[1] );
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest_2pop->rates_[2] );
 
     std::vector<double> growth(2, 0.0);
     growth.at(1) = 1.0;
-    forest->writable_model()->addGrowthRates(0, growth);
+    forest_2pop->writable_model()->addGrowthRates(0, growth);
     growth.at(0) = 2.0;
-    forest->writable_model()->addGrowthRates(1, growth);
-    TimeIntervalIterator tii3(forest, forest->nodes()->at(0));
+    forest_2pop->writable_model()->addGrowthRates(1, growth);
+    TimeIntervalIterator tii3(forest_2pop, forest_2pop->nodes()->at(0));
 
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
-    CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[0]) );   
-    CPPUNIT_ASSERT( areSame(1.0/pop_size, forest->rates_[1]) );   
-    CPPUNIT_ASSERT( areSame(0.0/pop_size, forest->rates_[2]) );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)0, forest->active_nodes_timelines_[1] );   
+    CPPUNIT_ASSERT_NO_THROW( forest_2pop->calcRates(*tii3) );
+    CPPUNIT_ASSERT( areSame(3.0/pop_size, forest_2pop->rates_[0]) );   
+    CPPUNIT_ASSERT( areSame(1.0/pop_size, forest_2pop->rates_[1]) );   
+    CPPUNIT_ASSERT( areSame(0.0/pop_size, forest_2pop->rates_[2]) );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest_2pop->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, forest_2pop->active_nodes_timelines_[1] );   
 
-    forest->writable_model()->increaseTime();
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
-    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
-    //CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
-    //CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[2] );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)2, forest->active_nodes_timelines_[1] );   
+    forest_2pop->writable_model()->increaseTime();
+    CPPUNIT_ASSERT_NO_THROW( forest_2pop->calcRates(*tii3) );
+    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest_2pop->rates_[0] );   
+    //CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest_2pop->rates_[1] );   
+    //CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest_2pop->rates_[2] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest_2pop->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, forest_2pop->active_nodes_timelines_[1] );   
 
     node2->set_population(1);
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
-    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
-    //CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[1]) );   
-    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[0] );   
-    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_nodes_timelines_[1] );   
+    CPPUNIT_ASSERT_NO_THROW( forest_2pop->calcRates(*tii3) );
+    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest_2pop->rates_[0] );   
+    //CPPUNIT_ASSERT( areSame(3.0/pop_size, forest_2pop->rates_[1]) );   
+    //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest_2pop->rates_[2] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest_2pop->active_nodes_timelines_[0] );   
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest_2pop->active_nodes_timelines_[1] );   
 
     delete node1;
     delete node2;
@@ -203,9 +215,8 @@ class TestForest : public CppUnit::TestCase {
 
   void testSampleEventType() {
     Event event;
-    Forest *forest2 = new Forest(new Model(5), rg);
-    forest2->createExampleTree();
-    forest2->writable_model()->set_population_number(2);
+    Forest *forest2 = forest_2pop; 
+
     forest2->nodes()->at(0)->set_population(1);
     forest2->nodes()->at(1)->set_population(1);
     forest2->writable_model()->addMigrationRates(1, std::vector<double>(4, 5.0), false, true);

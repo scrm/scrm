@@ -50,19 +50,19 @@ int main(int argc, char *argv[]){
     }
 
     MersenneTwister rg = MersenneTwister(user_para.random_seed());
-
-    //*output << "scrm " << VERSION << " |" << user_para << std::endl;
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
-    // Loop over the independent samples
+    // Create the forest
+    Forest forest = Forest(&model, &rg);
+
+    // Loop over the independent loci/chromosomes
     for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
 
       // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
 
       // Now set up the ARG, and sample the initial tree
-      Forest forest = Forest(&model, &rg);
       forest.buildInitialTree();
       forest.printSegmentSumStats(*output);
 
@@ -73,8 +73,8 @@ int main(int argc, char *argv[]){
       }
       
       forest.printLocusSumStats(*output);
+      forest.clear();
     }
-
 
     // Clean-up and exit
     rg.clearFastFunc();

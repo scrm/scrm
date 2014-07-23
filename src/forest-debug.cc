@@ -24,9 +24,10 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
-  this->nodes()->clear();
-  this->clearSecondaryRoots();
-  this->writable_model()->reset();
+  this->clear();
+  // Only set the number of samples to 4, but keep rest of the model
+  this->writable_model()->sample_times_.clear();
+  this->writable_model()->sample_populations_.clear();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
   Node* leaf1 = new Node(0, 1);
@@ -142,8 +143,8 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *first_child, Node *se
 bool Forest::checkTreeLength() const {
   double local_length = calcTreeLength();
 
-  if ( !areSame(local_length, local_tree_length(), 0.000001) ) {
-    dout << "Error: local tree length is " << this->local_tree_length() << " ";
+  if ( !areSame(local_length, getLocalTreeLength(), 0.000001) ) {
+    dout << "Error: local tree length is " << this->getLocalTreeLength() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
   }

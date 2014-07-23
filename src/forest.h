@@ -108,12 +108,14 @@ class Forest
   double current_base() const { return current_base_; }
   void set_current_base(const double base) { current_base_ = base; }
 
-  double next_base() const {return next_base_;}
-  void set_next_base(const double base){next_base_ = base;}
+  double next_base() const { return next_base_; }
+  void set_next_base(const double base){ next_base_ = base; }
+
+  size_t segment_count() const { return segment_count_; }
 
   // Must be called AFTER the tree was modified.
   void sampleNextBase() {
-    double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
+    double length = random_generator()->sampleExpoLimit(getLocalTreeLength() * model().recombination_rate(),
                                                         model().getNextSequencePosition() - current_base_);
     if (length == -1) {
       // No recombination until the model changes
@@ -140,8 +142,6 @@ class Forest
     else return next_base() - current_base();
   }
 
-  double local_tree_length() const { return local_root()->length_below(); }
-
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
@@ -152,6 +152,8 @@ class Forest
   void buildInitialTree();
   void sampleNextGenealogy();
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
+
+  void clear();
 
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
@@ -324,6 +326,7 @@ class Forest
   Event  tmp_event_;
   size_t tmp_event_line_;
   double tmp_event_time_;
+  std::vector<std::unordered_set<Node*> > tmp_contemporaries_;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];

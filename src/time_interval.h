@@ -76,7 +76,6 @@ class TimeInterval {
 /* WARNING: DON'T USE MULTIPLE OF THESE AT THE SAME TIME */
 class TimeIntervalIterator {
  public:
-  TimeIntervalIterator();
   TimeIntervalIterator(Forest *forest, Node *start_node);
   ~TimeIntervalIterator() {};
 
@@ -100,30 +99,32 @@ class TimeIntervalIterator {
   void recalculateInterval();
 
   void removeFromContemporaries(Node* node) {
-    contemporaries_.at(node->population()).erase(node);
+    contemporaries_->at(node->population()).erase(node);
   }
 
   void addToContemporaries(Node* node) { 
-    contemporaries_.at(node->population()).insert(node);
+    contemporaries_->at(node->population()).insert(node);
   };
 
   size_t numberOfContemporaries(const size_t pop = 0) const { 
-    return contemporaries_.at(pop).size(); 
+    assert( contemporaries_ != NULL );
+    return contemporaries_->at(pop).size(); 
   };
 
   void clearContemporaries() {
-    for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
+    for (auto it = contemporaries_->begin(); it != contemporaries_->end(); ++it) {
       if ((*it).size() > 0) (*it).clear();
     }
   }
 
   void searchContemporaries(Node* node);
   void searchContemporariesBottomUp(Node* node);
-  void searchContemporariesTopDown(Node* node, Node* current_node = NULL);
+  void searchContemporariesTopDown(Node* node);
+  void searchContemporariesTopDown(Node* node, Node* current_node);
   void updateContemporaries(Node *current_node); 
 
   std::unordered_set<Node*> &contemporaries(const size_t pop = 0) { 
-    return contemporaries_.at(pop); 
+    return contemporaries_->at(pop); 
   };
 
   const Forest &forest() const { return *forest_; };
@@ -133,13 +134,14 @@ class TimeIntervalIterator {
 #endif
 
  private:
+  TimeIntervalIterator(Forest *forest);
   TimeIntervalIterator( TimeIntervalIterator const &other );
   TimeIntervalIterator& operator= ( TimeIntervalIterator const &other ); 
 
   Forest* forest_;
   TimeInterval current_interval_;
   double current_time_;
-  std::vector<std::unordered_set<Node*> > contemporaries_;
+  std::vector<std::unordered_set<Node*> > *contemporaries_;
   NodeIterator node_iterator_;
 
   bool good_;
@@ -154,10 +156,12 @@ class TimeIntervalIterator {
 inline const Forest &TimeInterval::forest() const { return tii_->forest(); }
 
 inline size_t TimeInterval::numberOfContemporaries(const size_t pop) const {
+  assert( tii_ != NULL );
   return tii_->numberOfContemporaries(pop); 
 }
 
 inline std::unordered_set<Node*> &TimeInterval::contemporaries(const size_t pop) {
+  assert( tii_ != NULL );
   return tii_->contemporaries(pop); 
 }
 

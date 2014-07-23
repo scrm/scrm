@@ -64,13 +64,17 @@ Node* TimeInterval::getRandomContemporary(const size_t population) {
  * TimeIntervalIterator
  * -------------------------------------------------------------------*/
 
-TimeIntervalIterator::TimeIntervalIterator() {
-  this->forest_ = NULL;
-  this->node_iterator_ = NULL;
-  this->good_ = true;
+TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
+  // Used only for unit testing, and hence private.
+  this->forest_ = forest;
+  this->contemporaries_ = &(forest_->tmp_contemporaries_);
+  this->clearContemporaries();
+  this->node_iterator_ = forest->nodes()->iterator();
+  this->good_ = false;
   this->inside_node_ = NULL;
+  this->current_time_ = 0; 
+  forest->writable_model()->resetTime();
 }
-
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
                                            Node* start_node) {
@@ -79,15 +83,8 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
+  this->contemporaries_ = &(forest_->tmp_contemporaries_);
   forest->writable_model()->resetTime();
-
-  // Save the contemporaries for each population in an unordered_set
-  this->contemporaries_ = std::vector<std::unordered_set<Node*> >(forest->model().population_number());
-  for (auto it = contemporaries_.begin(); it != contemporaries_.end(); ++it) {
-    // The sample size is an educated guess about the max number of contemporaries,
-    // at least in large trees.
-    (*it).reserve(std::max(forest->sample_size(), (size_t)250));
-  }
 
   this->searchContemporaries(start_node);
   
@@ -102,7 +99,7 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 
 // Sets current_interval_ to the next time interval.
 void TimeIntervalIterator::next() {
-  if (this->inside_node_ != NULL ) {
+  if (this->inside_node_ != NULL) {
     this->current_interval_.start_height_ = inside_node_->height();
     this->inside_node_ = NULL;
     return;
@@ -182,14 +179,14 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
  * @return Nothing. Nodes are saved in contemporaries_.
  */
 void TimeIntervalIterator::searchContemporaries(Node *node) {
-  // Prefer top-down search if we have many samples and the node is old.
-  // This values are empirically optimized.
-  if (forest_->nodes()->size() < 2000 ||
-      node->height()< 0.0025 * forest_->model().default_pop_size) {
+  // Prefer top-down search if the target is above .8 coalescence units in
+  // sample space. This is relatively high, but the iterative bottom-up approach
+  // is faster than the recursion.
+  if (node->height() < forest_->model().search_threshold_) {
     searchContemporariesBottomUp(node);
   } else {
     searchContemporariesTopDown(node);
-  } 
+  }
 }
 
 void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
@@ -223,6 +220,7 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
   }
 }
 
+
 /** 
  * Does the same as searchContemporariesOfNode, but works its way recursively
  * down the tree.
@@ -230,31 +228,37 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
  * @param node Node for which we are searching contemporaries
  * @return Nothing. Nodes are saved in contemporaries_.
  */
+void TimeIntervalIterator::searchContemporariesTopDown(Node* node) {
+  // dout << "TopDown Search" << std::endl;
+  assert(forest_->primary_root() != NULL);
+  clearContemporaries();
+  searchContemporariesTopDown(node, forest_->primary_root());
+  for (auto it = forest_->secondary_roots_.begin();
+       it != forest_->secondary_roots_.end(); ++it) {
+    searchContemporariesTopDown(node, *it);
+  }
+}
+
 void TimeIntervalIterator::searchContemporariesTopDown(Node* node, 
                                                        Node* current_node) {
   
-  if (current_node == NULL) {
-    assert(forest_->primary_root() != NULL);
-    clearContemporaries();
-    searchContemporariesTopDown(node, forest_->primary_root());
-    for (auto it = forest_->secondary_roots_.begin();
-         it != forest_->secondary_roots_.end(); ++it) {
-      searchContemporariesTopDown(node, *it);
-    }
-    return;
-  }
-
-  if (node == current_node) return;
-
+  // dout << "TopDown Search: Looking at " << current_node << std::endl;
+  
   // If the current_node is above node's height => no contemporary
-  // This is the most common case
+  // This is by far the most common case
   if (current_node->height() > node->height()) {
-    // It is important that second child comes first here, because it might
-    // prune itself away.
-    if (current_node->second_child() != NULL) searchContemporariesTopDown(node, current_node->second_child());
-    if (current_node->first_child() != NULL) searchContemporariesTopDown(node, current_node->first_child());
+    // It is important that we look at the second child first, because pruning
+    // might occur. It is also important not to optimize the independent
+    // checks for existence away.
+    if (current_node->second_child() != NULL) 
+      searchContemporariesTopDown(node, current_node->second_child());
+    if (current_node->first_child() != NULL)
+      searchContemporariesTopDown(node, current_node->first_child());
     return;
   } 
+
+  // The node we are searching for is never a contemporary;
+  if (current_node == node) return;
 
   // If we are here, current_node is a contemporary, unless it needs to be pruned 
   tmp_child_1_ = current_node->first_child();
@@ -265,12 +269,12 @@ void TimeIntervalIterator::searchContemporariesTopDown(Node* node,
     // If it had only one child, that might be a contemporary now.
     if (tmp_child_2_ == NULL && tmp_child_1_ != NULL) {
       searchContemporariesTopDown(node, tmp_child_1_);
-    } 
+    }
     // If the node was old or orphaned, there is nothing we have to do. 
     return;
   }
 
-  // If it was not pruned, it really is a contemporary
+  // If it was not pruned and is no root, then it really is a contemporary
   if (!current_node->is_root()) {
     this->addToContemporaries(current_node);
   }

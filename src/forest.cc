@@ -47,6 +47,14 @@ void Forest::initialize(Model* model,
   this->set_current_base(1);
   this->set_sample_size(0);
 
+  // Save the contemporaries for each population in an unordered_set
+  this->tmp_contemporaries_ = std::vector<std::unordered_set<Node*> >(model->population_number());
+  for (auto it = tmp_contemporaries_.begin(); it != tmp_contemporaries_.end(); ++it) {
+    // The sample size is an educated guess about the max number of contemporaries,
+    // at least in large trees.
+    (*it).reserve(model->sample_size() + 5);
+  }
+
   tmp_event_time_ = -1;
   tmp_event_line_ = -1;
 }
@@ -306,6 +314,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
  */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
+  assert( this->nodes()->size() == 0 );
   this->set_current_base(0.0);
   this->segment_count_ = 1;
 
@@ -368,8 +377,8 @@ TreePoint Forest::samplePoint(Node* node, double length_left) const {
     assert( this->checkTreeLength() );
 
     node = this->local_root();
-    length_left = random_generator()->sample() * local_tree_length();
-    assert( 0 < length_left && length_left < local_tree_length() );
+    length_left = random_generator()->sample() * getLocalTreeLength();
+    assert( 0 < length_left && length_left < getLocalTreeLength() );
   }
 
   assert( node->local() || node == this->local_root() );
@@ -1274,4 +1283,18 @@ void Forest::doCompletePruning() {
     pruneNodeIfNeeded((*ni)->previous());
   }
   pruneNodeIfNeeded(nodes()->last());
+}
+
+void Forest::clear() {
+  // Clear roots tracking
+  clearSecondaryRoots();
+  set_local_root(NULL);
+  set_primary_root(NULL);
+
+  // Clear nodes
+  nodes()->clear();
+
+  // Reset Position & Segment Counts
+  this->set_current_base(0.0);
+  this->segment_count_ = 0;
 }

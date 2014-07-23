@@ -28,13 +28,13 @@ void SegSites::calculate(const Forest &forest) {
     throw std::logic_error("Problem simulating seg_sites: Did we skip a forest segment?");
 
   double position_at = forest.current_base();
-  position_at += forest.random_generator()->sampleExpo(forest.local_tree_length() * forest.model().mutation_rate());
+  position_at += forest.random_generator()->sampleExpo(forest.getLocalTreeLength() * forest.model().mutation_rate());
 
   while (position_at < forest.next_base()) {
     TreePoint mutation = forest.samplePoint();
     haplotypes_.push_back(getHaplotypes(mutation, forest));
     positions_.push_back(position_at / forest.model().loci_length());
-    position_at += forest.random_generator()->sampleExpo(forest.local_tree_length() * forest.model().mutation_rate());
+    position_at += forest.random_generator()->sampleExpo(forest.getLocalTreeLength() * forest.model().mutation_rate());
   }	
 
   set_position(forest.next_base());
