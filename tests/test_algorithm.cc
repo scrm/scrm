@@ -1,10 +1,12 @@
 /*
- * A sample test case which can be used as a template.
+ * Long running tests that ensure that scrm produces correct results
+ * in various settings.
  */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <valarray>
+#include <cmath>
 #include "../src/forest.h"
 
 class TestAlgorithm : public CppUnit::TestCase {
@@ -12,197 +14,148 @@ class TestAlgorithm : public CppUnit::TestCase {
 	CPPUNIT_TEST_SUITE( TestAlgorithm );
 
 	CPPUNIT_TEST( testInitialTree );
-	CPPUNIT_TEST( testTreeWithGrowth );
-	CPPUNIT_TEST( testTreeAfterRecombination );
-	CPPUNIT_TEST( testTreeWithPruning );
-	CPPUNIT_TEST( testTreeWithFullPruning );
+	CPPUNIT_TEST( testARG );
+	CPPUNIT_TEST( testPruning );
+	CPPUNIT_TEST( testGrowth );
+	CPPUNIT_TEST( testMigration );
 
 	CPPUNIT_TEST_SUITE_END();
 
  private:
   MersenneTwister *rg;
-  Model *model;
+
+  void testTree(Model &model, size_t replicates, 
+                double tmrca_mean, double tmrca_sd,
+                double tree_length_mean, double tree_length_sd) {
+    double tmrca[6] = { 0 }, tree_length[6] = { 0 };
+
+    Forest forest = Forest(&model, this->rg);
+    for (size_t i = 0; i < replicates; ++i) {
+      // Check initial tree
+      forest.buildInitialTree();
+      tmrca[0] += forest.getTMRCA(true);
+      tree_length[0] += forest.getLocalTreeLength(true);
+
+      // Check after recombinations
+      if (model.recombination_rate() > 0) {
+        for (size_t j = 1; j <= 5; j++) {
+          while (forest.next_base() < j*5) {
+            forest.sampleNextGenealogy();
+          }
+          tmrca[j] += forest.getTMRCA(true);
+          tree_length[j] += forest.getLocalTreeLength(true);
+        }
+      }
+
+      // Clear Forest
+      forest.clear();
+    }
+
+    // Allow an relative error of 2.5%. It would be nice to calculate
+    // standard errors, but there's nothing in the std and I'm to lazy to
+    // implement very it myself...
+    for (int i = 0; i <= 5; ++i) {
+      if (i > 0 && tmrca[i] == 0 && tree_length[i] == 0) continue;
+      tmrca[i] /= replicates;
+      tree_length[i] /= replicates; 
+      double SE = tmrca_sd / sqrt(replicates);
+      if (tmrca[i] < tmrca_mean - 3 * SE || tmrca_mean + 3 * SE < tmrca[i]) {
+        std::cout << std::endl 
+                  << "TMRCA outside expected range. Observed: " << tmrca[i] 
+                  << " Expected: " << tmrca_mean << std::endl;  
+        CPPUNIT_ASSERT( false );
+      }
+      SE = tree_length_sd / sqrt(replicates);
+      if (tree_length[i] < tree_length_mean - 3 * SE || tree_length_mean + 3 * SE < tree_length[i]) {
+        std::cout << std::endl 
+                  << "Local Tree Length outside expected range. Observed: " << tree_length[i] 
+                  << " Expected: " << tree_length_mean << std::endl;  
+        CPPUNIT_ASSERT( false );
+      }
+    }
+  }
 
  public:
   void setUp() {
-    model = new Model(10);
-    model->setRecombinationRate(0.0001);
-    model->finalize();
     rg = new MersenneTwister(78361);
   }
 
   void tearDown() {
-    delete model;
     delete rg;
   }
 
   void testInitialTree() {
-    double tmrca = 0;
-    double tree_length = 0;
-    size_t reps = 1000;
+    Model model = Model(5);
+    model.setRecombinationRate(0);
+    testTree(model, 5000, 0.8, 0.53, 2.08, 1.19); 
 
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model, rg);
+    model = Model(10);
+    model.setRecombinationRate(0);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
 
-      forest.buildInitialTree();
-      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
-    }
-    tmrca /= reps;        // Expectation: 0.9
-    tree_length /= reps;  // Expectation: 2.83
-    //std::cout << std::endl << tmrca << std::endl;
-    //std::cout << tree_length << std::endl; 
+    model = Model(20);
+    model.setRecombinationRate(0);
+    testTree(model, 5000, 0.95, 0.54, 3.55, 1.26); 
+  }
+
+  void testARG() {
+    Model model = Model(5);
+    model.setRecombinationRate(1, false, true);
+    testTree(model, 5000, 0.8, 0.53, 2.08, 1.19); 
+
+    model = Model(10);
+    model.setRecombinationRate(1, false, true);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+
+    model = Model(20);
+    model.setRecombinationRate(1, false, true);
+    testTree(model, 5000, 0.95, 0.54, 3.55, 1.26); 
+  }
+
+  void testPruning() {
+    Model model = Model(10);
+    model.setRecombinationRate(1, false, true);
+    model.set_exact_window_length(0);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+
+    model.set_exact_window_length(5);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+
+    model.set_exact_window_length(10);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+  }
+
+  void testGrowth() {
+    Model model = Model(10);
+    model.setRecombinationRate(1, false, true);
+    model.addGrowthRates(0.0, 5, true, true);
+    model.finalize();
+    testTree(model, 5000, 0.321, 0.089, 1.31, 0.28); 
+
+    model.addGrowthRates(0.0, -0.5, true, true);
+    model.addGrowthRates(0.75, 2, true, true);
+    model.finalize();
+    testTree(model, 5000, 0.918, 0.38, 2.95, 1.00); 
+  }
+
+  void testMigration() {
+    Model model = Model(0);
+    model.setRecombinationRate(1, false, true);
+    model.set_population_number(2);
+    std::vector<size_t> sample_size;
+    sample_size.push_back(7);
+    sample_size.push_back(3);
+    model.addSampleSizes(0.0, sample_size);
+    model.addSymmetricMigration(0.0, 0.5, true, true);
+    model.finalize();
+    testTree(model, 5000, 2.76, 1.79, 7.82, 3.86); 
     
-    CPPUNIT_ASSERT( 0.85 <= tmrca && tmrca <= 0.95 );
-    CPPUNIT_ASSERT( 2.75 <= tree_length && tree_length <= 2.95 );
-
-    tmrca = 0;
-    tree_length = 0;
-    Model* model2 = new Model(5);
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model2, rg);
-
-      forest.buildInitialTree();
-      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
-    }
-    tmrca /= reps;        // Expectation: 0.8
-    tree_length /= reps;  // Expectation: 2.08 
-    //std::cout << std::endl << tmrca << std::endl;
-    //std::cout << tree_length << std::endl; 
-    
-    delete model2;
-    CPPUNIT_ASSERT( 0.75 <= tmrca && tmrca <= 0.85 );
-    CPPUNIT_ASSERT( 2.00 <= tree_length && tree_length <= 2.18 );
-
-    tmrca = 0;
-    tree_length = 0;
-    Model* model3 = new Model(20);
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model3, rg);
-
-      forest.buildInitialTree();
-      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
-    }
-    tmrca /= reps;        // Expectation: 0.95
-    tree_length /= reps;  // Expectation: 3.55
-    //std::cout << std::endl << tmrca << std::endl;
-    //std::cout << tree_length << std::endl; 
-    
-    delete model3;
-    CPPUNIT_ASSERT( 0.90 <= tmrca && tmrca <= 1.0 );
-    CPPUNIT_ASSERT( 3.45 <= tree_length && tree_length <= 3.65 );
+    model.addSymmetricMigration(0.3, 1.1, true, true);
+    model.finalize();
+    std::cout << model << std::endl;
+    testTree(model, 5000, 2.24, 1.36, 6.73, 3.04); 
   }
 
-  void testTreeAfterRecombination() {
-    double tmrca[5] = { 0 };
-    double tree_length[5] = { 0 };
-    size_t reps = 10000;
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model, rg);
-      forest.buildInitialTree();
-
-      for (size_t j = 1; j <= 5; j++) {
-        while (forest.next_base() < j*5) {
-          forest.sampleNextGenealogy();
-        }
-        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
-      }
-    }
-
-    for (int i = 0; i < 5; ++i) {
-      tmrca[i] /= reps;          // Expectation: 0.9 
-      tree_length[i] /= reps;    // Expectation: 2.84 
-      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
-      CPPUNIT_ASSERT( 0.88 <= tmrca[i] && tmrca[i] <= 0.92 );
-      CPPUNIT_ASSERT( 2.78 <= tree_length[i] && tree_length[i] <= 2.88 );
-    }
-  }
-
-  void testTreeWithPruning() {
-    double tmrca[5] = { 0 };
-    double tree_length[5] = { 0 };
-    size_t reps = 2000;
-
-    model->set_exact_window_length(5);
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model, rg);
-      forest.buildInitialTree();
-
-      for (size_t j = 1; j <= 5; ++j) {
-        while (forest.next_base() < j*5) {
-          forest.sampleNextGenealogy();
-        }
-        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
-      }
-    }
-
-    for (int i = 0; i < 5; ++i) {
-      tmrca[i] /= reps;          // Expectation: 0.9 
-      tree_length[i] /= reps;    // Expectation: 2.84 
-      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
-      CPPUNIT_ASSERT( 0.85 <= tmrca[i] && tmrca[i] <= 0.95 );
-      CPPUNIT_ASSERT( 2.74 <= tree_length[i] && tree_length[i] <= 2.94 );
-    }
-  }
-
-  void testTreeWithFullPruning() {
-    double tmrca[5] = { 0 };
-    double tree_length[5] = { 0 };
-    size_t reps = 2000;
-
-    model->set_exact_window_length(0);
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model, rg);
-      forest.buildInitialTree();
-
-      for (size_t j = 1; j <= 5; j++) {
-        while (forest.next_base() < j*5) {
-          forest.sampleNextGenealogy();
-        }
-        tmrca[j-1] += forest.local_root()->height() / ( 4 * model->default_pop_size );
-        tree_length[j-1] += forest.local_tree_length() / ( 4 * model->default_pop_size );
-      }
-    }
-
-    for (int i = 0; i < 5; ++i) {
-      tmrca[i] /= reps;          // Expectation: 0.9 
-      tree_length[i] /= reps;    // Expectation: 2.84 
-      //std::cout << tmrca[i] << " " << tree_length[i] << std::endl; 
-      CPPUNIT_ASSERT( 0.85 <= tmrca[i] && tmrca[i] <= 0.95 );
-      CPPUNIT_ASSERT( 2.74 <= tree_length[i] && tree_length[i] <= 2.94 );
-    }
-  }
-
-  void testTreeWithGrowth() {
-    double tmrca = 0 ;
-    double tree_length = 0;
-    size_t reps = 10000;
-
-    model->addGrowthRates(0.0, 5, true, true);
-    model->finalize();
-
-    for (size_t i = 0; i < reps; ++i) {
-      Forest forest = Forest(model, rg);
-      forest.buildInitialTree();
-      tmrca += forest.local_root()->height() / ( 4 * model->default_pop_size );
-      tree_length += forest.local_tree_length() / ( 4 * model->default_pop_size );
-    }
-
-    tmrca /= reps;          // Expectation: 0.3209 
-    tree_length /= reps;    // Expectation: 0.6727
-    //std::cout << tmrca << " " << tree_length << std::endl; 
-    CPPUNIT_ASSERT( 0.30 <= tmrca && tmrca <= 0.34 );
-    CPPUNIT_ASSERT( 1.30 <= tree_length && tree_length <= 1.38 );
-  }
 };
 
 //Uncomment this to activate the test
