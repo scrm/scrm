@@ -11,8 +11,8 @@
 #include <valarray>
 #include <cmath>
 
-#include "../src/forest.h"
-#include "../src/param.h"
+#include "../../src/forest.h"
+#include "../../src/param.h"
 
 
 class TestAlgorithm : public CppUnit::TestCase {

@@ -1,9 +1,9 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../src/param.h"
-#include "../src/model.h"
-#include "../src/forest.h"
+#include "../../src/param.h"
+#include "../../src/model.h"
+#include "../../src/forest.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 

@@ -1,13 +1,11 @@
-/*
- * A sample test case which can be used as a template.
- */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../src/forest.h"
-#include "../src/random/constant_generator.h"
-#include "../src/random/mersenne_twister.h"
-#include "../src/event.h"
-#include "../src/summary_statistics/tmrca.h"
+
+#include "../../src/forest.h"
+#include "../../src/random/constant_generator.h"
+#include "../../src/random/mersenne_twister.h"
+#include "../../src/event.h"
+#include "../../src/summary_statistics/tmrca.h"
 
 class TestForest : public CppUnit::TestCase {
 

@@ -10,10 +10,12 @@ PROG = SCRM
 dist-hook:
 	export VERSION=${VERSION}; cd doc; make
 
+test: unittests
+
 unittests: unit_tests
 	./unit_tests 
 
-algorithmtests: algorithm_tests
+algorithmtest: algorithm_tests
 	./algorithm_tests 
 
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
@@ -43,11 +45,13 @@ scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 debug_src = src/random/constant_generator.cc src/random/constant_generator.h \
 			src/forest-debug.cc src/random/constant_generator.h
 
-unit_test_src = tests/test_forest.cc tests/test_model.cc tests/test_node.cc tests/test_node_container.cc\
-			   	tests/test_runner.cc tests/test_time_interval.cc tests/test_fastfunc.cc tests/test_param.cc\
-				tests/test_random_generator.cc tests/test_summary_statistics.cc 
+unit_test_src = tests/unittests/test_forest.cc tests/unittests/test_model.cc\
+				tests/unittests/test_node.cc tests/unittests/test_node_container.cc\
+			   	tests/cppunit/test_runner.cc tests/unittests/test_time_interval.cc\
+			   	tests/unittests/test_fastfunc.cc tests/unittests/test_param.cc\
+				tests/unittests/test_random_generator.cc tests/unittests/test_summary_statistics.cc 
 
-alg_test_src = tests/test_runner.cc tests/test_algorithm.cc 
+alg_test_src = tests/cppunit/test_runner.cc tests/algorithmtest/test_algorithm.cc 
 
 
 scrm_SOURCES = $(scrm_src) src/scrm.cc

@@ -4,7 +4,8 @@
  * */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../src/forest.h"
+
+#include "../../src/forest.h"
 
 
 class TestNodeContainer : public CppUnit::TestCase {

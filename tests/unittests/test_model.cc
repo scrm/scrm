@@ -7,9 +7,9 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
 
-#include "../src/model.h"
-#include "../src/forest.h"
-#include "../src/summary_statistics/tmrca.h"
+#include "../../src/model.h"
+#include "../../src/forest.h"
+#include "../../src/summary_statistics/tmrca.h"
 
 class TestModel : public CppUnit::TestCase {
 
