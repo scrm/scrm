@@ -147,7 +147,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.addSampleSizes(0.0, sample_size);
     model.addSymmetricMigration(0.0, 0.5, true, true);
     model.finalize();
-    testTree(model, 1000, 2.76, 1.79, 7.82, 3.86); 
+    testTree(model, 2000, 2.76, 1.79, 7.82, 3.86); 
 
     model = Model(0);
     model.setRecombinationRate(1, false, true);
@@ -157,12 +157,12 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.addSymmetricMigration(0.3, 1.1, true, true);
     model.set_exact_window_length(5);
     model.finalize();
-    testTree(model, 1000, 2.24, 1.36, 6.73, 3.04); 
+    testTree(model, 2000, 2.24, 1.36, 6.73, 3.04); 
 
     model = Model(0);
     char *argv[] = { "scrm", "20", "10", "-I", "2", "10", "10", "-ma", "x", "5", "7", "x" };
     Param(12, argv).parse(model);
-    testTree(model, 1000, 1.93, 1.09, 7.24, 2.56); 
+    testTree(model, 2000, 1.93, 1.09, 7.24, 2.56); 
   }
 
   void testSizeChange() {
