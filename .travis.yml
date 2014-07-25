@@ -4,7 +4,7 @@ compiler:
 - clang
 script:
 - make scrm scrm_dbg
-- make unittests
+- make unittest
 - ./tests/test_binaries.sh
 - make algorithmtests
 before_install:
