@@ -4,9 +4,9 @@ compiler:
 - clang
 script:
 - make scrm scrm_dbg
-- make unittest
+- make unittests
 - ./tests/test_binaries.sh
-- make algorithmtests
+- make algorithmtest
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libcppunit-dev valgrind
