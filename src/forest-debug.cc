@@ -528,14 +528,15 @@ bool Forest::checkForNodeAtHeight(const double height) const {
   return false;
 }
 
-// Checks if all nodes in contemporaries are contempoaries.
-bool Forest::checkContemporaries(const TimeInterval &ti) const {
+// Checks if all nodes in contemporaries are contemporaries.
+bool Forest::checkContemporaries(const double time) const {
   // Check if all nodes in contemporaries() are contemporaries
   for (size_t pop = 0; pop < model().population_number(); ++pop) {
-    for (auto it = ti.contemp_iterator(); it != ti.contemp_rev_iterator(); ++it) {
+    for (auto it = tmp_contemporaries_.at(pop).begin(); 
+              it != tmp_contemporaries_.at(pop).end(); ++it) {
 
       if ( *it == NULL ) return 0;
-      if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
+      if ( (*it)->height() > time || (*it)->parent_height() < time ) {
         dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
         return 0;
       }
@@ -563,21 +564,21 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
 
   // Check if all contemporaries are in contemporaries() 
   for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
-    if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
+    if ( (*ni)->height() <= time && time < (*ni)->parent_height()) {
       if ( *ni == active_node(0) && states_[0] == 1 ) continue; 
       if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
       
       bool found = false;
-      for (auto it = ti.contemp_iterator((*ni)->population()); 
-           it != ti.contemp_rev_iterator((*ni)->population()); ++it) {
+      for (auto it = tmp_contemporaries_.at((*ni)->population()).begin(); 
+           it != tmp_contemporaries_.at((*ni)->population()).end(); ++it) {
         if ( *it == *ni ) {
           found = true;
           break;
         }
       } 
       if (!found) { 
-        dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
-        dout << ti.start_height() << " " << ti.end_height() << std::endl;
+        dout << "Node " << *ni << " (height " << (*ni)->height() 
+             << ") not in contemporaries at time " << time << std::endl;
         return 0;
       }
     }

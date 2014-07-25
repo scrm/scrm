@@ -165,7 +165,7 @@ class Forest
   bool checkTreeLength() const;
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
-  bool checkContemporaries(const TimeInterval &ti) const;
+  bool checkContemporaries(const double time) const;
   bool printNodes() const;
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;

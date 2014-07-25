@@ -542,7 +542,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
-    assert( checkContemporaries(*ti) );
+    assert( checkContemporaries((*ti).start_height()) );
 
     // Sample the time at which the next thing happens
     sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
@@ -554,7 +554,10 @@ void Forest::sampleCoalescences(Node *start_node) {
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
       this->implementNoEvent(*ti, coalescence_finished_);
-      if (coalescence_finished_) return;
+      if (coalescence_finished_) {
+        //assert( checkContemporaries(*ti) );
+        return;
+      }
     }
 
     // First take care of pairwise coalescence
@@ -575,7 +578,10 @@ void Forest::sampleCoalescences(Node *start_node) {
     else if ( tmp_event_.isCoalescence() ) {
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
-      if (coalescence_finished_) return;
+      if (coalescence_finished_) {
+        //assert( checkContemporaries(*ti-) );
+        return;
+      }
 
       assert( this->printTree() );
     }
