@@ -7,10 +7,11 @@ fileprefix=${dir}"/"${prefix}
 tree_file_name=${fileprefix}"Trees"
 tree_freq_name=${fileprefix}"TreeFreq"
 tmrca_name=${fileprefix}"Tmrca"
+bl_name=${fileprefix}"BL"
 #first_coal_name=${fileprefix}"FirstCoal"
 
 grep ';' ${fileprefix} | sed -e "s/\\[.*\\]//g" > ${tree_file_name}
 grep ";" ${fileprefix} | sed -e "s/\\[//g" | sed -e "s/\\].*;//g" > ${tree_freq_name}
 hybrid-Lambda -gt ${tree_file_name} -tmrca ${tmrca_name}
-#hybrid-Lambda -gt ${tree_file_name} -firstcoal ${first_coal_name}
+hybrid-Lambda -gt ${tree_file_name} -bl ${bl_name}
 rm ${fileprefix} ${tree_file_name}

@@ -3,16 +3,25 @@ import sys
 if __name__ == "__main__":
     prefix = sys.argv[1]
     seqlen = int(sys.argv[2])
-    
+    _4Ne = float(40000.0)    
+
     tmrca_in_name  = prefix + "Tmrcaraw"
     tmrca_out_name = prefix + "Tmrca"
-    _4Ne = float(40000.0)
     tmrca = [ float(x)/_4Ne for x in open( tmrca_in_name, "r" )]
     print "len(tmrca) = ", len(tmrca)
     tmrca_out = open( tmrca_out_name, "w")
     for tmrca_i in tmrca:
         tmrca_out.write(`tmrca_i`+"\n")
     tmrca_out.close()
+
+    bl_in_name  = prefix + "BLraw"
+    bl_out_name = prefix + "BL"
+    bl = [ float(x)/_4Ne for x in open( bl_in_name, "r" )]
+    print "len(bl) = ", len(bl)
+    bl_out = open( bl_out_name, "w")
+    for bl_i in bl:
+        bl_out.write(`bl_i`+"\n")
+    bl_out.close()
     
     freq_in_name  = prefix + "change"
     freq_out_name = prefix + "TreeFreq"
