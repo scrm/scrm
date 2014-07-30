@@ -41,25 +41,6 @@ TimeInterval::TimeInterval(TimeIntervalIterator* tii, double start_height, doubl
 }
 
 
-// Uniformly samples a random node from the current contemporaries.
-// Distribution checked.
-Node* TimeInterval::getRandomContemporary(const size_t population) {
-  assert( population < forest().model().population_number() );
-  assert( this->numberOfContemporaries(population) > 0 );
-
-  // Sample the position of the Node we return
-  size_t sample = forest().random_generator()->sampleInt(numberOfContemporaries(population));
-  
-  for (auto it = contemporaries(population).begin(); it != contemporaries(population).end(); ++it) {
-    assert( *it != NULL );
-    if ( sample == 0 ) return (*it);
-    --sample;
-  }
-
-  throw std::logic_error("Could not find the contemporary node I wanted to sample :(");
-  return NULL;
-}
-
 /* --------------------------------------------------------------------
  * TimeIntervalIterator
  * -------------------------------------------------------------------*/
@@ -67,8 +48,8 @@ Node* TimeInterval::getRandomContemporary(const size_t population) {
 TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
   // Used only for unit testing, and hence private.
   this->forest_ = forest;
-  this->contemporaries_ = &(forest_->tmp_contemporaries_);
-  this->clearContemporaries();
+  this->contemporaries_ = &(forest->contemporaries_);
+  this->contemporaries_->clear();
   this->node_iterator_ = forest->nodes()->iterator();
   this->good_ = false;
   this->inside_node_ = NULL;
@@ -78,19 +59,22 @@ TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
                                            Node* start_node) {
+
   this->forest_ = forest;
+  this->contemporaries_ = &forest->contemporaries_;
+  this->model_ = forest->model_;
+
   this->good_ = true;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
-  this->contemporaries_ = &(forest_->tmp_contemporaries_);
-  forest->writable_model()->resetTime();
 
+  model_->resetTime();
   this->searchContemporaries(start_node);
   
   // Skip through model changes
-  while ( forest_->model().getNextTime() <= start_node->height() ) { 
-    forest_->writable_model()->increaseTime();
+  while ( model_->getNextTime() <= current_time_ ) { 
+    model_->increaseTime();
   }
 
   next();
@@ -115,7 +99,7 @@ void TimeIntervalIterator::next() {
   // Ensure that both iterators point into the future to determine the end of the
   // interval 
   if ( start_height >= forest_->model().getNextTime() ) { 
-    forest_->writable_model()->increaseTime();
+    model_->increaseTime();
   }
 
   if ( start_height >= node_iterator_.height() ) {
@@ -163,10 +147,10 @@ void TimeIntervalIterator::updateContemporaries(Node* current_node) {
 
   // Don't add root nodes
   assert( current_node != NULL );
-  if (!current_node->is_root()) this->addToContemporaries(current_node);
+  if (!current_node->is_root()) this->contemporaries_->add(current_node);
   if (tmp_child_1_ != NULL) { 
-    this->removeFromContemporaries(tmp_child_1_);
-    if (tmp_child_2_ != NULL) this->removeFromContemporaries(tmp_child_2_);
+    this->contemporaries_->remove(tmp_child_1_);
+    if (tmp_child_2_ != NULL) this->contemporaries_->remove(tmp_child_2_);
   }
 }
 
@@ -190,7 +174,7 @@ void TimeIntervalIterator::searchContemporaries(Node *node) {
 }
 
 void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
-  clearContemporaries();
+  this->contemporaries_->clear();
 
   for (NodeIterator ni = forest_->nodes()->iterator(); *ni != node; ++ni) {
     assert(ni.good());
@@ -210,11 +194,11 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
         // Maybe a child of the node became a contemporary by removing the node
         // This can only happen if the node has only one child.
         if ( tmp_child_1_ != NULL && tmp_child_1_->parent_height() > node->height() ) { 
-          this->addToContemporaries(tmp_child_1_);
+          this->contemporaries()->add(tmp_child_1_);
         }
       } else {
         // No pruning => Just add to contemporaries
-        this->addToContemporaries(*ni);
+        this->contemporaries()->add(*ni);
       }
     }
   }
@@ -231,13 +215,14 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
 void TimeIntervalIterator::searchContemporariesTopDown(Node* node) {
   // dout << "TopDown Search" << std::endl;
   assert(forest_->primary_root() != NULL);
-  clearContemporaries();
+  this->contemporaries()->clear();
   searchContemporariesTopDown(node, forest_->primary_root());
-  for (auto it = forest_->secondary_roots_.begin();
-       it != forest_->secondary_roots_.end(); ++it) {
+  for (auto it = forest()->secondary_roots_.begin();
+       it != forest()->secondary_roots_.end(); ++it) {
     searchContemporariesTopDown(node, *it);
   }
 }
+
 
 void TimeIntervalIterator::searchContemporariesTopDown(Node* node, 
                                                        Node* current_node) {
@@ -276,7 +261,7 @@ void TimeIntervalIterator::searchContemporariesTopDown(Node* node,
 
   // If it was not pruned and is no root, then it really is a contemporary
   if (!current_node->is_root()) {
-    this->addToContemporaries(current_node);
+    this->contemporaries()->add(current_node);
   }
 }
 

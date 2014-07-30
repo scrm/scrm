@@ -18,7 +18,7 @@ function test_scrm {
     if [ $? -ne 0 ]; then
       echo ""
       echo "Executing \"./scrm_dbg $@ -seed $i\" failed."
-      echo "Debug Call: ./scrm_dbg $@ -seed $i 2>$1 | less"
+      echo "Debug Call: make -mj2 scrm_dbg && ./scrm_dbg $@ -seed $i 2>&1 | less"
       exit 1
     fi
 

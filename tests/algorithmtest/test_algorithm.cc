@@ -129,7 +129,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     Model model = Model(10);
     model.setRecombinationRate(1, false, true);
     model.set_exact_window_length(0);
-    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+    testTree(model, 10000, 0.9, 0.53, 2.83, 1.24); 
 
     model.set_exact_window_length(5);
     testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 

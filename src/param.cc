@@ -38,7 +38,7 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  * In scrm, we define time t in number of generations. 
  */
 void Param::parse(Model &model) {
-  model = Model(model.ff());
+  model = Model();
 
   size_t sample_size = 0;
   double par_bool = 0.0;

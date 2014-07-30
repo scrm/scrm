@@ -21,8 +21,9 @@
 #ifndef scrm_src_time_interval
 #define scrm_src_time_interval
 
-#include <unordered_set>
 #include "forest.h"
+#include "contemporaries_container.h"
+#include "model.h"
 
 #ifdef UNITTEST
 #define TI_DEBUG
@@ -50,34 +51,25 @@ class TimeInterval {
   TimeInterval(TimeIntervalIterator* tii, double start_height, double end_height);
   ~TimeInterval() { };
 
-  double start_height() const { return this->start_height_; };
-  double end_height()   const { return this->end_height_; };
-  double length()       const { return (end_height() - start_height()); };
-  const Forest &forest() const;
+  double start_height()  const { return this->start_height_; };
+  double end_height()    const { return this->end_height_; };
+  double length()        const { return (end_height() - start_height()); };
+  const Forest &forest() const { return *(this->forest_); }
 
-  size_t numberOfContemporaries(const size_t pop = 0) const;
-
-  Node* getRandomContemporary(const size_t pop = 0);
-
-  std::unordered_set<Node*> &contemporaries(const size_t pop = 0);
-
-#ifdef TI_DEBUG
-  std::unordered_set<Node*>::const_iterator contemp_iterator(const size_t pop = 0) const;
-  std::unordered_set<Node*>::const_iterator contemp_rev_iterator(const size_t pop = 0) const;
-#endif
+  //std::unordered_set<Node*> &contemporaries(const size_t pop = 0);
 
  private:
   double start_height_;
   double end_height_; 
-  TimeIntervalIterator* tii_;
+  Forest* forest_;
+  TimeIntervalIterator const* tii_;
 };
 
 
 /* WARNING: DON'T USE MULTIPLE OF THESE AT THE SAME TIME */
 class TimeIntervalIterator {
  public:
-  TimeIntervalIterator(Forest *forest, Node *start_node);
-  ~TimeIntervalIterator() {};
+  TimeIntervalIterator(Forest* forest, Node* start_node);
 
   void next();
   bool good() const { return this->good_; }
@@ -93,39 +85,16 @@ class TimeIntervalIterator {
   // second part of the interval.
   void splitCurrentInterval(Node* splitting_node, Node* del_node = NULL) {
     this->inside_node_ = splitting_node;
-    if (del_node != NULL) removeFromContemporaries(del_node);
+    if (del_node != NULL) contemporaries_->remove(del_node);
   };
 
   void recalculateInterval();
-
-  void removeFromContemporaries(Node* node) {
-    contemporaries_->at(node->population()).erase(node);
-  }
-
-  void addToContemporaries(Node* node) { 
-    contemporaries_->at(node->population()).insert(node);
-  };
-
-  size_t numberOfContemporaries(const size_t pop = 0) const { 
-    assert( contemporaries_ != NULL );
-    return contemporaries_->at(pop).size(); 
-  };
-
-  void clearContemporaries() {
-    for (auto it = contemporaries_->begin(); it != contemporaries_->end(); ++it) {
-      if ((*it).size() > 0) (*it).clear();
-    }
-  }
 
   void searchContemporaries(Node* node);
   void searchContemporariesBottomUp(Node* node);
   void searchContemporariesTopDown(Node* node);
   void searchContemporariesTopDown(Node* node, Node* current_node);
   void updateContemporaries(Node *current_node); 
-
-  std::unordered_set<Node*> &contemporaries(const size_t pop = 0) { 
-    return contemporaries_->at(pop); 
-  };
 
   const Forest &forest() const { return *forest_; };
 
@@ -138,10 +107,16 @@ class TimeIntervalIterator {
   TimeIntervalIterator( TimeIntervalIterator const &other );
   TimeIntervalIterator& operator= ( TimeIntervalIterator const &other ); 
 
+  Forest* forest() { return forest_; }
+  ContemporariesContainer* contemporaries() { return contemporaries_; }
+  Model* model() { return model_; }
+
   Forest* forest_;
+  ContemporariesContainer* contemporaries_;
+  Model* model_;
+
   TimeInterval current_interval_;
   double current_time_;
-  std::vector<std::unordered_set<Node*> > *contemporaries_;
   NodeIterator node_iterator_;
 
   bool good_;
@@ -153,26 +128,5 @@ class TimeIntervalIterator {
   Node *tmp_child_1_, *tmp_child_2_, *tmp_prev_node_;
 };
 
-inline const Forest &TimeInterval::forest() const { return tii_->forest(); }
-
-inline size_t TimeInterval::numberOfContemporaries(const size_t pop) const {
-  assert( tii_ != NULL );
-  return tii_->numberOfContemporaries(pop); 
-}
-
-inline std::unordered_set<Node*> &TimeInterval::contemporaries(const size_t pop) {
-  assert( tii_ != NULL );
-  return tii_->contemporaries(pop); 
-}
-
-#ifdef TI_DEBUG
-inline std::unordered_set<Node*>::const_iterator TimeInterval::contemp_iterator(const size_t pop) const {
-  return tii_->contemporaries(pop).begin();
-}
-
-inline std::unordered_set<Node*>::const_iterator TimeInterval::contemp_rev_iterator(const size_t pop) const {
-  return tii_->contemporaries(pop).end();
-}
-#endif
 
 #endif

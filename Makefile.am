@@ -21,7 +21,7 @@ algorithmtest: algorithm_tests
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
 		   src/model.cc src/tree_point.cc \
 		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
-		   src/model.h src/tree_point.h src/event.h
+		   src/model.h src/tree_point.h src/event.h src/contemporaries_container.h
 
 random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
 			 src/random/fastfunc.cc \
@@ -49,7 +49,8 @@ unit_test_src = tests/unittests/test_forest.cc tests/unittests/test_model.cc\
 				tests/unittests/test_node.cc tests/unittests/test_node_container.cc\
 			   	tests/cppunit/test_runner.cc tests/unittests/test_time_interval.cc\
 			   	tests/unittests/test_fastfunc.cc tests/unittests/test_param.cc\
-				tests/unittests/test_random_generator.cc tests/unittests/test_summary_statistics.cc 
+				tests/unittests/test_random_generator.cc tests/unittests/test_summary_statistics.cc\
+			    tests/unittests/test_contemporaries_container.cc	
 
 alg_test_src = tests/cppunit/test_runner.cc tests/algorithmtest/test_algorithm.cc 
 
@@ -64,6 +65,6 @@ scrm_CXXFLAGS= -DNDEBUG -std=c++0x
 scrm_dbg_CXXFLAGS= -std=c++0x
 scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
-algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
+algorithm_tests_CXXFLAGS = -DNDEBUG -std=c++0x 
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports

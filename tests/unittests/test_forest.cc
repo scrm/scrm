@@ -640,7 +640,7 @@ class TestForest : public CppUnit::TestCase {
 
       Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
       TimeIntervalIterator tii(forest, new_root);
-      CPPUNIT_ASSERT_EQUAL( (size_t)3, tii.numberOfContemporaries() );
+      CPPUNIT_ASSERT_EQUAL( (size_t)3, forest->contemporaries_.size(0) );
       forest->set_active_node(0, new_root);
       forest->set_active_node(1, forest->local_root());
 

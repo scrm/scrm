@@ -48,13 +48,9 @@ void Forest::initialize(Model* model,
   this->set_sample_size(0);
 
   // Save the contemporaries for each population in an unordered_set
-  this->tmp_contemporaries_ = std::vector<std::unordered_set<Node*> >(model->population_number());
-  for (auto it = tmp_contemporaries_.begin(); it != tmp_contemporaries_.end(); ++it) {
-    // The sample size is an educated guess about the max number of contemporaries,
-    // at least in large trees.
-    (*it).reserve(model->sample_size() + 5);
-  }
-
+  this->contemporaries_ = ContemporariesContainer(model->population_number(), 
+                                                  model->sample_size(),
+                                                  rg);
   tmp_event_time_ = -1;
   tmp_event_line_ = -1;
 }
@@ -789,7 +785,7 @@ size_t Forest::getNodeState(Node const *node, const double current_time) const {
 
 double Forest::calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const {
   // Rate for each pair is 1/(2N), as N is the diploid population size
-  return ti.numberOfContemporaries(pop) * model().inv_double_pop_size(pop, ti.start_height());
+  return contemporaries_.size(pop) * model().inv_double_pop_size(pop, ti.start_height());
 }
 
 
@@ -875,7 +871,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   Node* coal_node = event.node();
   unregisterSecondaryRoot(coal_node);
-  Node* target = (*tii).getRandomContemporary(coal_node->population());
+  Node* target = contemporaries_.sample(coal_node->population());
 
   dout << "* * * Above node " << target << std::endl;
   assert( target->height() < event.time() ); 
@@ -917,7 +913,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   new_node->set_parent(target->parent());
   if (!target->local()) {
     new_node->make_nonlocal(target->last_update());
-    tii.addToContemporaries(new_node);
+    contemporaries_.add(new_node);
   } else {
     new_node->make_local();
   }

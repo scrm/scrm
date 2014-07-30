@@ -52,12 +52,14 @@
 #include <cfloat>
 #include <cassert>
 #include <sstream> // This is required by Forest::writeTree, ostringstream 
+
 #include "node.h"
 #include "event.h"
 #include "model.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
+#include "contemporaries_container.h"
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
@@ -326,7 +328,7 @@ class Forest
   Event  tmp_event_;
   size_t tmp_event_line_;
   double tmp_event_time_;
-  std::vector<std::unordered_set<Node*> > tmp_contemporaries_;
+  ContemporariesContainer contemporaries_;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];

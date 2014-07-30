@@ -532,8 +532,7 @@ bool Forest::checkForNodeAtHeight(const double height) const {
 bool Forest::checkContemporaries(const double time) const {
   // Check if all nodes in contemporaries() are contemporaries
   for (size_t pop = 0; pop < model().population_number(); ++pop) {
-    for (auto it = tmp_contemporaries_.at(pop).begin(); 
-              it != tmp_contemporaries_.at(pop).end(); ++it) {
+    for (auto it = contemporaries_.begin(pop); it != contemporaries_.end(pop); ++it) {
 
       if ( *it == NULL ) return 0;
       if ( (*it)->height() > time || (*it)->parent_height() < time ) {
@@ -569,8 +568,8 @@ bool Forest::checkContemporaries(const double time) const {
       if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
       
       bool found = false;
-      for (auto it = tmp_contemporaries_.at((*ni)->population()).begin(); 
-           it != tmp_contemporaries_.at((*ni)->population()).end(); ++it) {
+      size_t pop = (*ni)->population();
+      for (auto it = contemporaries_.begin(pop); it != contemporaries_.end(pop); ++it) {
         if ( *it == *ni ) {
           found = true;
           break;
