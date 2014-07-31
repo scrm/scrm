@@ -69,7 +69,7 @@ class TestAlgorithm : public CppUnit::TestCase {
       if (i > 0 && tmrca[i] == 0 && tree_length[i] == 0) continue;
       tmrca[i] /= replicates;
       double SE = tmrca_sd / sqrt(replicates);
-      if (tmrca[i] < tmrca_mean - 3 * SE || tmrca_mean + 3 * SE < tmrca[i]) {
+      if (tmrca[i] < tmrca_mean - 4 * SE || tmrca_mean + 4 * SE < tmrca[i]) {
         std::cout << std::endl 
                   << "TMRCA outside expected range. Observed: " << tmrca[i] 
                   << " Expected: " << tmrca_mean << std::endl;  
@@ -78,7 +78,7 @@ class TestAlgorithm : public CppUnit::TestCase {
 
       tree_length[i] /= replicates; 
       SE = tree_length_sd / sqrt(replicates);
-      if (tree_length[i] < tree_length_mean - 3 * SE || tree_length_mean + 3 * SE < tree_length[i]) {
+      if (tree_length[i] < tree_length_mean - 4 * SE || tree_length_mean + 4 * SE < tree_length[i]) {
         std::cout << std::endl 
                   << "Local Tree Length outside expected range. Observed: " << tree_length[i] 
                   << " Expected: " << tree_length_mean << std::endl;  
@@ -100,29 +100,29 @@ class TestAlgorithm : public CppUnit::TestCase {
   void testInitialTree() {
     Model model = Model(5);
     model.setRecombinationRate(0);
-    testTree(model, 5000, 0.8, 0.53, 2.08, 1.19); 
+    testTree(model, 10000, 0.8, 0.53, 2.08, 1.19); 
 
     model = Model(10);
     model.setRecombinationRate(0);
-    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+    testTree(model, 10000, 0.9, 0.53, 2.83, 1.24); 
 
     model = Model(20);
     model.setRecombinationRate(0);
-    testTree(model, 5000, 0.95, 0.54, 3.55, 1.26); 
+    testTree(model, 10000, 0.95, 0.54, 3.55, 1.26); 
   }
 
   void testARG() {
     Model model = Model(5);
     model.setRecombinationRate(1, false, true);
-    testTree(model, 5000, 0.8, 0.53, 2.08, 1.19); 
+    testTree(model, 10000, 0.8, 0.53, 2.08, 1.19); 
 
     model = Model(10);
     model.setRecombinationRate(1, false, true);
-    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+    testTree(model, 10000, 0.9, 0.53, 2.83, 1.24); 
 
     model = Model(20);
     model.setRecombinationRate(1, false, true);
-    testTree(model, 5000, 0.95, 0.54, 3.55, 1.26); 
+    testTree(model, 10000, 0.95, 0.54, 3.55, 1.26); 
   }
 
   void testPruning() {

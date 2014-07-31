@@ -92,8 +92,6 @@ class TimeIntervalIterator {
 
   void searchContemporaries(Node* node);
   void searchContemporariesBottomUp(Node* node, const bool use_buffer = false);
-  void searchContemporariesTopDown(Node* node);
-  void searchContemporariesTopDown(Node* node, Node* current_node);
 
   const Forest &forest() const { return *forest_; };
 
@@ -127,5 +125,24 @@ class TimeIntervalIterator {
   Node *tmp_child_1_, *tmp_child_2_, *tmp_prev_node_;
 };
 
+/** 
+ * Finds all nodes which code for branches at the height of a given node in the
+ * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
+ * member.
+ * 
+ * @param node Node for which we are searching contemporaries
+ * @return Nothing. Nodes are saved in contemporaries_.
+ */
+inline void TimeIntervalIterator::searchContemporaries(Node *node) {
+  // Prefer top-down search if the target is above .8 coalescence units in
+  // sample space. This is relatively high, but the iterative bottom-up approach
+  // is faster than the recursion.
+  contemporaries()->clear();
+  if (node->height() >= contemporaries()->buffer_time()) {
+    searchContemporariesBottomUp(node, true);
+  } else {
+    searchContemporariesBottomUp(node);
+  }
+}
 
 #endif

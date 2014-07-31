@@ -36,8 +36,10 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrintLocusSumStats );
   CPPUNIT_TEST( testTraversal );
   CPPUNIT_TEST( testSampleNextPosition ); 
+  /*
   CPPUNIT_TEST( testRegisterSecondaryRoot );
   CPPUNIT_TEST( testUnregisterSecondaryRoot );
+  */
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -706,8 +708,10 @@ class TestForest : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest2.nodes()->size() );
     CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest3.nodes()->size() );
+    /*
     CPPUNIT_ASSERT_EQUAL( forest->secondary_roots_.size(), forest2.secondary_roots_.size() );
     CPPUNIT_ASSERT_EQUAL( forest->secondary_roots_.size(), forest3.secondary_roots_.size() );
+    */
 
     CPPUNIT_ASSERT( forest2.model_ == forest->model_ );
     CPPUNIT_ASSERT( forest3.model_ == forest->model_ );
@@ -791,6 +795,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL(1.0, forest->model().recombination_rate());
   }
 
+  /*
   void testRegisterSecondaryRoot() {
     Node* node1 = new Node(5);
     forest->registerSecondaryRoot(node1);
@@ -822,6 +827,7 @@ class TestForest : public CppUnit::TestCase {
 
     delete node1, node2;
   }
+  */
 };
 
 

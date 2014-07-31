@@ -234,36 +234,26 @@ class TestTimeInterval : public CppUnit::TestCase {
     TimeIntervalIterator tii(forest, forest->nodes()->at(0));
     tii.contemporaries()->clear();
 
-    tii.searchContemporariesTopDown(forest->nodes()->at(4));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(4));
     CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.contemporaries()->buffer(forest->nodes()->at(4)->height());
 
-    tii.searchContemporariesTopDown(forest->nodes()->at(5));
-    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(5));
     CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(5), true);
     CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0)); 
     tii.contemporaries()->buffer(forest->nodes()->at(4)->height());
 
-    tii.searchContemporariesTopDown(forest->nodes()->at(6));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(6));
     CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(6), true);
     CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
 
-    tii.searchContemporariesTopDown(forest->nodes()->at(7));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(7));
     CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(7), true);
     CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
 
-    tii.searchContemporariesTopDown(forest->nodes()->at(8));
-    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(8));
     CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0)); 
     tii.searchContemporariesBottomUp(forest->nodes()->at(8), true);

@@ -66,7 +66,7 @@ void Forest::createExampleTree() {
   nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
-  this->registerSecondaryRoot(nl_root);
+  //this->registerSecondaryRoot(nl_root);
   updateAbove(nl_node);
 
   updateAbove(leaf1);
@@ -511,11 +511,13 @@ std::vector<Node const*> Forest::determinePositions() const {
     }
     std::cout << "Local Root:    " << this->local_root() << std::endl;
     std::cout << "Primary Root:  " << this->primary_root() << std::endl;
+    /*
     std::cout << "Secondary Roots:  "; 
     for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
       std::cout << *it << " ";  
     }
     std::cout  << std::endl;
+    */
     return true;
   }
 
@@ -596,11 +598,13 @@ bool Forest::checkContemporaries(const double time) const {
 
 bool Forest::checkRootIsRegistered(Node const* node) const {
   if (!node->is_root()) return true;
+  /*
   if (node == primary_root() || isRegisteredSecondaryRoot(node)) return true;
   else {
     dout << "Error: Root " << node << " is not registered." << std::endl;
     return false;
   }
+  */
 }
 
 bool Forest::checkRoots() const {
@@ -624,6 +628,7 @@ bool Forest::checkRoots() const {
   }
 
   // Check if all secondary roots are still roots:
+  /*
   for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
     if (!(*it)->is_root()) {
       dout << *it << " is in secondary roots, but it is no root." << std::endl;
@@ -638,15 +643,18 @@ bool Forest::checkRoots() const {
       return false;
     }
   }
+  */
 
   return true;
 }
 
 // Stupid slow implementation needed because it cannot be const otherwise (it's
 // debug only...)
+/*
 bool Forest::isRegisteredSecondaryRoot(Node const* root) const {
   for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
     if (*it == root) return true;
   }
   return false;
 };
+*/

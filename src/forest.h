@@ -172,7 +172,7 @@ class Forest
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;
   bool checkRoots() const;
-  bool isRegisteredSecondaryRoot(Node const* root) const;
+  //bool isRegisteredSecondaryRoot(Node const* root) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;

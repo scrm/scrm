@@ -141,28 +141,10 @@ void TimeIntervalIterator::next() {
                                          current_time_);
 }
 
-/** 
- * Finds all nodes which code for branches at the height of a given node in the
- * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
- * member.
- * 
- * @param node Node for which we are searching contemporaries
- * @return Nothing. Nodes are saved in contemporaries_.
- */
-void TimeIntervalIterator::searchContemporaries(Node *node) {
-  // Prefer top-down search if the target is above .8 coalescence units in
-  // sample space. This is relatively high, but the iterative bottom-up approach
-  // is faster than the recursion.
-  contemporaries()->clear();
-  if (node->height() >= contemporaries()->buffer_time()) {
-    searchContemporariesBottomUp(node, true);
-  } else {
-    searchContemporariesBottomUp(node);
-  }
-}
-
 void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool use_buffer) {
+  contemporaries()->clear();
   Node* start_node = NULL;
+
   if ( use_buffer ) {
     assert( node->height() >= contemporaries()->buffer_time() ); 
     // check if the buffered contemporaries are contemporaries of node
