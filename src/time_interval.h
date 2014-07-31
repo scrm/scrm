@@ -137,7 +137,6 @@ inline void TimeIntervalIterator::searchContemporaries(Node *node) {
   // Prefer top-down search if the target is above .8 coalescence units in
   // sample space. This is relatively high, but the iterative bottom-up approach
   // is faster than the recursion.
-  contemporaries()->clear();
   if (node->height() >= contemporaries()->buffer_time()) {
     searchContemporariesBottomUp(node, true);
   } else {

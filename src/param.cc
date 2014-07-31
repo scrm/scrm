@@ -297,10 +297,6 @@ void Param::parse(Model &model) {
       first_last_tmrca = true;
     }
 
-    else if (argv_i == "-sh"){
-      model.search_threshold_ = readNextInput<double>();
-    }
-
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------

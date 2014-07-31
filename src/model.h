@@ -374,7 +374,6 @@ class Model
    }
 
   void addPopulation();
-  double search_threshold_;
 
   private:
    std::vector<double> change_times_;

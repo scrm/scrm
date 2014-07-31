@@ -115,7 +115,6 @@ void Model::init() {
   this->set_exact_window_length(-1);
 
   this->set_finite_sites(true);
-  this->search_threshold_ = 0.8 * 4 * default_pop_size;
 
   this->resetTime();
   this->resetSequencePosition();
