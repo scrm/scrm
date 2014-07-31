@@ -232,65 +232,6 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
 }
 
 
-/** 
- * Does the same as searchContemporariesOfNode, but works its way recursively
- * down the tree.
- *
- * @param node Node for which we are searching contemporaries
- * @return Nothing. Nodes are saved in contemporaries_.
- */
-void TimeIntervalIterator::searchContemporariesTopDown(Node* node) {
-  // dout << "TopDown Search" << std::endl;
-  assert(forest_->primary_root() != NULL);
-  this->contemporaries()->clear();
-  searchContemporariesTopDown(node, forest_->primary_root());
-  for (auto it = forest()->secondary_roots_.begin();
-       it != forest()->secondary_roots_.end(); ++it) {
-    searchContemporariesTopDown(node, *it);
-  }
-}
-
-
-void TimeIntervalIterator::searchContemporariesTopDown(Node* node, 
-                                                       Node* current_node) {
-  
-  // dout << "TopDown Search: Looking at " << current_node << std::endl;
-  
-  // If the current_node is above node's height => no contemporary
-  // This is by far the most common case
-  if (current_node->height() > node->height()) {
-    // It is important that we look at the second child first, because pruning
-    // might occur. It is also important not to optimize the independent
-    // checks for existence away.
-    if (current_node->second_child() != NULL) 
-      searchContemporariesTopDown(node, current_node->second_child());
-    if (current_node->first_child() != NULL)
-      searchContemporariesTopDown(node, current_node->first_child());
-    return;
-  } 
-
-  // The node we are searching for is never a contemporary;
-  if (current_node == node) return;
-
-  // If we are here, current_node is a contemporary, unless it needs to be pruned 
-  tmp_child_1_ = current_node->first_child();
-  tmp_child_2_ = current_node->second_child();
-
-  if (forest_->pruneNodeIfNeeded(current_node, false)) {
-    // We just pruned a node that would have been a contemporary.
-    // If it had only one child, that might be a contemporary now.
-    if (tmp_child_2_ == NULL && tmp_child_1_ != NULL) {
-      searchContemporariesTopDown(node, tmp_child_1_);
-    }
-    // If the node was old or orphaned, there is nothing we have to do. 
-    return;
-  }
-
-  // If it was not pruned and is no root, then it really is a contemporary
-  if (!current_node->is_root()) {
-    this->contemporaries()->add(current_node);
-  }
-}
 
 // Recalculates the borders of the current interval. 
 // Used after one or more nodes where created inside the interval due to events

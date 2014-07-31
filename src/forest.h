@@ -282,10 +282,10 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
-  // tracking of secondary roots
-  void registerSecondaryRoot(Node* root);
-  void unregisterSecondaryRoot(Node* root);
-  void clearSecondaryRoots();
+  // tracking of secondary roots (no longer needed)
+  // void registerSecondaryRoot(Node* root);
+  // void unregisterSecondaryRoot(Node* root);
+  // void clearSecondaryRoots();
 
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
@@ -298,7 +298,7 @@ class Forest
   Node* primary_root_;
 
   // secondary roots: roots of trees that contain only non-local nodes
-  std::unordered_set<Node*> secondary_roots_;
+  // std::unordered_set<Node*> secondary_roots_;
 
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
@@ -344,6 +344,7 @@ class Forest
 bool areSame(const double a, const double b, 
              const double epsilon = std::numeric_limits<double>::epsilon());
 
+/*
 inline void Forest::registerSecondaryRoot(Node* root) {
   assert(root->is_root());
   assert(root != NULL);
@@ -357,4 +358,5 @@ inline void Forest::unregisterSecondaryRoot(Node* root) {
 inline void Forest::clearSecondaryRoots() {
   secondary_roots_.clear();  
 };
+*/
 #endif
