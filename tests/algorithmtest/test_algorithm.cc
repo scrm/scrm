@@ -170,6 +170,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     Model model = Model(0);
     char *argv[] = { "scrm", "10", "1", "-I", "3", "3", "3", "4", "0.5",                                                                                                                                                          "-eN", "0.1", "0.05", "-eN", "0.2", "0.5" };
     Param(15, argv).parse(model);
+    model.setRecombinationRate(1, false, true);
     testTree(model, 1000, 3.75, 2.68, 9.31, 5.67); 
 
     model.set_exact_window_length(5);
@@ -182,16 +183,18 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.setRecombinationRate(1, false, true);
     model.addGrowthRates(0.0, 5, true, true);
     model.finalize();
-    testTree(model, 5000, 0.321, 0.089, 1.31, 0.28); 
+    testTree(model, 2500, 0.321, 0.089, 1.31, 0.28); 
 
     char *argv0[] = { "scrm", "10", "30", "-G", "-0.5", "-eG", "0.75", "2" };
     Param(8, argv0).parse(model);
+    model.setRecombinationRate(1, false, true);
     model.set_exact_window_length(5);
     testTree(model, 2500, 0.918, 0.38, 2.95, 1.00); 
 
     char *argv[] = { "scrm", "4", "30", "-G", "-2.5", "-eN", "1", "0.25",
                      "-eG", "2", "0.0", "-eN", "2.5", "0.25" };
     Param(14, argv).parse(model);
+    model.setRecombinationRate(1, false, true);
     testTree(model, 1000, 0.964, 0.34, 2.48, 0.97); 
   }
 

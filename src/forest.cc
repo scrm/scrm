@@ -52,7 +52,6 @@ void Forest::initialize(Model* model,
                                                   model->sample_size(),
                                                   rg);
   tmp_event_time_ = -1;
-  tmp_event_line_ = -1;
 }
 
 /**
@@ -81,7 +80,6 @@ Forest::Forest(const Forest &current_forest) {
   unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_line_ = 0;
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
   this->coalescence_finished_ = false;
@@ -115,7 +113,6 @@ Forest::Forest(Forest * current_forest) {
   unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_line_ = 0;
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
   
@@ -443,6 +440,10 @@ void Forest::sampleNextGenealogy() {
     return;
   }
 
+  dout << tmp_event_time_ << std::endl;
+  assert( tmp_event_time_ >= 0 );
+  this->contemporaries_.buffer(tmp_event_time_);
+
   ++segment_count_;
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
   dout << "Segment Nr: " << segment_count_ << std::endl;
@@ -515,8 +516,11 @@ void Forest::sampleCoalescences(Node *start_node) {
     // Fixed time events (e.g pop splits/merges & single migration events first
     if (model().hasFixedTimeEvent((*ti).start_height())) implementFixedTimeEvent(ti);
 
+    // Calculate the rates of events in this time interval
+    assert( checkContemporaries((*ti).start_height()) );
     calcRates(*ti);
 
+    // Some debug checks
     dout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
         << "(p" << active_node(0)->population() << ")" 
         << " a1:" << active_node(1) << ":s" << states_[1] 
@@ -538,10 +542,8 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
-    assert( checkContemporaries((*ti).start_height()) );
-
-    // Sample the time at which the next thing happens
-    sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
+    // Sample the time at which the next event happens (if any)
+    sampleEvent(*ti, tmp_event_time_, tmp_event_);
     dout << "* * * " << tmp_event_ << std::endl;
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
@@ -550,10 +552,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
       this->implementNoEvent(*ti, coalescence_finished_);
-      if (coalescence_finished_) {
-        //assert( checkContemporaries(*ti) );
-        return;
-      }
+      if (coalescence_finished_) return;
     }
 
     // First take care of pairwise coalescence
@@ -574,11 +573,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     else if ( tmp_event_.isCoalescence() ) {
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
-      if (coalescence_finished_) {
-        //assert( checkContemporaries(*ti-) );
-        return;
-      }
-
+      if (coalescence_finished_) return;
       assert( this->printTree() );
     }
   }
@@ -657,25 +652,24 @@ void Forest::calcRates(const TimeInterval &ti) {
  * \param ti The current time interval
  * \returns the event that has happened (can also be a "NoEvent" event)
  */
-void Forest::sampleEvent(const TimeInterval &ti, double tmp_event_time, 
-                         size_t tmp_event_line, Event &return_event) const {
-  tmp_event_time = -1;
-  tmp_event_line = -1;
+void Forest::sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const {
+  event_time = -1;
+  size_t event_line = -1;
 
   // Sample on which time and time line the event happens (if any)
   for (size_t i = 0; i < 3; ++i) {
     if (rates_[i] == 0.0) continue;
     selectFirstTime(random_generator()->sampleExpoExpoLimit(rates_[i], getTimeLineGrowth(i), ti.length()), 
-                    i, tmp_event_time, tmp_event_line );
+                    i, event_time, event_line);
   }
 
   // Correct the time from relative to the time interval to absolute 
-  if (tmp_event_time != -1) tmp_event_time += ti.start_height();
-  assert( (tmp_event_time == -1) || 
-         (ti.start_height() <= tmp_event_time && tmp_event_time <= ti.end_height()) );
+  if (event_time != -1) event_time += ti.start_height();
+  assert( (event_time == -1) || 
+         (ti.start_height() <= event_time && event_time <= ti.end_height()) );
 
   // Sample the event type
-  sampleEventType(tmp_event_time, tmp_event_line, ti, return_event);
+  sampleEventType(event_time, event_line, ti, return_event);
 }
 
 
@@ -839,6 +833,10 @@ void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished
       dout << "* * * Active Node 0 hit a local node. Done" << std::endl;
       updateAbove(active_node(0));
       coalescence_finished = true;
+      tmp_event_time_ = active_node(0)->height();
+      contemporaries_.replace(active_node(0), 
+                              active_node(0)->first_child(), 
+                              active_node(0)->second_child());
       return;
     }
   }
@@ -852,6 +850,9 @@ void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished
         << ". Done." << std::endl;
     updateAbove(active_node(0));
     coalescence_finished = true;
+    // Update contemporaries for reuse
+    contemporaries_.replaceChildren(active_node(0));
+    tmp_event_time_ = active_node(0)->height();
   }
 }
 
@@ -880,7 +881,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   assert( getOtherNode() != NULL );
 
   Node* new_node;
-
 
   // ---------------------------------------------
   // Actually implement the coalescence
@@ -960,6 +960,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     dout << "* * * We hit the local tree. Done." << std::endl;
     updateAbove(getEventNode()); 
     coalescence_finished_ = true;
+    contemporaries_.replace(new_node, coal_node, target);
     return;
   }
 

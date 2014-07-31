@@ -267,8 +267,7 @@ class Forest
   double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti);
 
-  void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
-                   size_t tmp_event_line, Event &return_event) const;
+  void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
 
   void sampleEventType(const double time, const size_t time_line, 
                        const TimeInterval &ti, Event &return_event) const;
@@ -326,7 +325,6 @@ class Forest
   size_t states_[2];
   Node* active_nodes_[2];
   Event  tmp_event_;
-  size_t tmp_event_line_;
   double tmp_event_time_;
   ContemporariesContainer contemporaries_;
 

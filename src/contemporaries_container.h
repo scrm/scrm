@@ -27,7 +27,6 @@
 #include <unordered_set>
 #include <cassert>
 
-
 #include "node.h"
 #include "random/random_generator.h"
 
@@ -40,7 +39,29 @@
 
 class ContemporariesIterator {
  public:
-  ContemporariesIterator(std::unordered_set<Node*>::const_iterator it) {
+  ContemporariesIterator(std::unordered_set<Node*>::iterator it) {
+    it_set_ = it; 
+  };
+
+  Node* operator*() const { return *it_set_; }
+  Node* operator++() { ++it_set_; return *it_set_; }
+  Node* operator++(int) { Node* node = *it_set_; ++it_set_; return node; }
+  
+  bool operator==(const ContemporariesIterator &other) const {
+    return (it_set_ == other.it_set_); 
+  }
+
+  bool operator!=(const ContemporariesIterator &other) const {
+    return !(*this == other);
+  }
+
+ private:
+  std::unordered_set<Node*>::iterator it_set_;
+};
+
+class ContemporariesConstIterator {
+ public:
+  ContemporariesConstIterator(std::unordered_set<Node*>::const_iterator it) {
     it_set_ = it; 
   };
 
@@ -48,11 +69,11 @@ class ContemporariesIterator {
   Node const* operator++() { ++it_set_; return *it_set_; }
   Node const* operator++(int) { Node* node = *it_set_; ++it_set_; return node; }
   
-  bool operator==(const ContemporariesIterator &other) const {
+  bool operator==(const ContemporariesConstIterator &other) const {
     return (it_set_ == other.it_set_); 
   }
 
-  bool operator!=(const ContemporariesIterator &other) const {
+  bool operator!=(const ContemporariesConstIterator &other) const {
     return !(*this == other);
   }
 
@@ -69,69 +90,141 @@ class ContemporariesContainer {
 
   void add(Node* node);
   void remove(Node *node);
-  void replace(Node *del_node, Node *add_node);
+  void replaceChildren(Node *add_node);
+  void replace(Node *add_node, Node *del_node_1, Node *del_node_2 = NULL);
   void clear();
+  void buffer(const double current_time);
+
 
   Node* sample(const size_t pop) const;
   size_t size(const size_t pop) const;
+  double buffer_time() const { return buffer_time_; }
+  bool empty() const;
 
-  ContemporariesIterator begin(const size_t pop) const { 
-    return ContemporariesIterator(contemporaries_set_.at(pop).cbegin()); 
+  ContemporariesConstIterator begin(const size_t pop) const { 
+    return ContemporariesConstIterator(contemporaries_set().at(pop).cbegin()); 
   }
-  ContemporariesIterator end(const size_t pop) const { 
-    return ContemporariesIterator(contemporaries_set_.at(pop).cend()); 
+  ContemporariesConstIterator end(const size_t pop) const { 
+    return ContemporariesConstIterator(contemporaries_set().at(pop).cend()); 
+  }
+
+  ContemporariesConstIterator buffer_begin(const size_t pop) const { 
+    return ContemporariesConstIterator(buffer_set().at(pop).cbegin()); 
+  }
+  ContemporariesConstIterator buffer_end(const size_t pop) const { 
+    return ContemporariesConstIterator(buffer_set().at(pop).cend()); 
+  }
+  ContemporariesIterator buffer_begin(const size_t pop) { 
+    return ContemporariesIterator(buffer_set().at(pop).begin()); 
+  }
+  ContemporariesIterator buffer_end(const size_t pop) { 
+    return ContemporariesIterator(buffer_set().at(pop).end()); 
   }
 
  private:
-  std::vector<std::unordered_set<Node*> > contemporaries_set_;
+  std::vector<std::unordered_set<Node*> > &contemporaries_set() {
+    if (use_first_) return contemporaries_set1_;
+    else return contemporaries_set2_;
+  }
+  const std::vector<std::unordered_set<Node*> > &contemporaries_set() const {
+    if (use_first_) return contemporaries_set1_;
+    else return contemporaries_set2_;
+  }
+  std::vector<std::unordered_set<Node*> > &buffer_set() {
+    if (!use_first_) return contemporaries_set1_;
+    else return contemporaries_set2_;
+  }
+  const std::vector<std::unordered_set<Node*> > &buffer_set() const {
+    if (!use_first_) return contemporaries_set1_;
+    else return contemporaries_set2_;
+  }
+
+  std::vector<std::unordered_set<Node*> > contemporaries_set1_;
+  std::vector<std::unordered_set<Node*> > contemporaries_set2_;
+  bool use_first_;
+  double buffer_time_;
   RandomGenerator* rg_;
 };
 
 inline ContemporariesContainer::ContemporariesContainer() {
-  contemporaries_set_ = std::vector<std::unordered_set<Node*> >(1, std::unordered_set<Node*>(100));
+  contemporaries_set1_ = std::vector<std::unordered_set<Node*> >(1, std::unordered_set<Node*>(100));
+  contemporaries_set2_ = std::vector<std::unordered_set<Node*> >(1, std::unordered_set<Node*>(100));
   rg_ = NULL;
+  use_first_ = true;
+  buffer_time_ = -1;
 }
 
 inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number, 
                                                         const size_t sample_number,
                                                         RandomGenerator* rg) {
   size_t bucket_nr = std::ceil((sample_number + 200) * 1.4);
-  contemporaries_set_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
+  contemporaries_set1_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
+  contemporaries_set2_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
   this->rg_ = rg;
+  use_first_ = true;
+  buffer_time_ = DBL_MAX;
 }
-
 
 inline void ContemporariesContainer::add(Node* node) {
   assert(node != NULL);
-  contemporaries_set_.at(node->population()).insert(node);
+  assert(!node->is_root());
+  contemporaries_set().at(node->population()).insert(node);
 };
 
 inline void ContemporariesContainer::remove(Node* node) {
   assert(node != NULL);
-  contemporaries_set_.at(node->population()).erase(node);
+  contemporaries_set().at(node->population()).erase(node);
 }
 
+inline void ContemporariesContainer::replaceChildren(Node *add_node) {
+  replace(add_node, add_node->first_child(), add_node->second_child());  
+};
+
+inline void ContemporariesContainer::replace(Node *add_node, Node *del_node_1, Node *del_node_2) {
+  assert(add_node != NULL);
+  if (del_node_1 != NULL) remove(del_node_1);
+  if (del_node_2 != NULL) remove(del_node_2);
+  if (!add_node->is_root()) add(add_node);
+};
+
 inline void ContemporariesContainer::clear() {
-  for (auto it = contemporaries_set_.begin(); it != contemporaries_set_.end(); ++it) {
+  for (auto it = contemporaries_set().begin(); it != contemporaries_set().end(); ++it) {
     if ((*it).size() > 0) (*it).clear();
   }
 }
 
 inline size_t ContemporariesContainer::size(const size_t pop) const {
-  return contemporaries_set_.at(pop).size();
+  return contemporaries_set().at(pop).size();
+};
+
+/**
+ * @brief Function that buffers the current state of contemporaries for later
+ * use. 
+ *
+ * Be careful not to change the tree at the time of buffer, as this
+ * will not be reflected in the buffered contemporaries.
+ *
+ * @param current_time The time for with the current state is valid.
+ *
+ * @return 
+ */
+inline void ContemporariesContainer::buffer(const double current_time) {
+  buffer_time_ = current_time;
+  use_first_ = 1 - use_first_; 
+  this->clear();
 };
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
 inline Node* ContemporariesContainer::sample(const size_t pop) const {
-  assert( pop < contemporaries_set_.size() );
+  assert( pop < contemporaries_set().size() );
   assert( this->size(pop) > 0 );
 
   // Sample the position of the Node we return
   size_t sample = rg_->sampleInt(this->size(pop));
   
-  for (auto it = contemporaries_set_.at(pop).begin(); 
-       it != contemporaries_set_.at(pop).end(); ++it) {
+  for (auto it = contemporaries_set().at(pop).begin(); 
+       it != contemporaries_set().at(pop).end(); ++it) {
     assert( *it != NULL );
     if ( sample == 0 ) return (*it);
     --sample;
@@ -141,4 +234,10 @@ inline Node* ContemporariesContainer::sample(const size_t pop) const {
   return NULL;
 }
 
+inline bool ContemporariesContainer::empty() const {
+  for (auto pop_container : contemporaries_set()) {
+    if ( !pop_container.empty() ) return false;
+  }
+  return true;
+};
 #endif

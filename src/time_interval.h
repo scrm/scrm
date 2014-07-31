@@ -91,10 +91,9 @@ class TimeIntervalIterator {
   void recalculateInterval();
 
   void searchContemporaries(Node* node);
-  void searchContemporariesBottomUp(Node* node);
+  void searchContemporariesBottomUp(Node* node, const bool use_buffer = false);
   void searchContemporariesTopDown(Node* node);
   void searchContemporariesTopDown(Node* node, Node* current_node);
-  void updateContemporaries(Node *current_node); 
 
   const Forest &forest() const { return *forest_; };
 

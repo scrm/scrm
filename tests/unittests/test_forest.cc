@@ -448,7 +448,7 @@ class TestForest : public CppUnit::TestCase {
     double tmp_event_time = 0.0;
     size_t tmp_event_line = -1;
     for (size_t i = 0; i < 1000; ++i) {
-      forest2.sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
+      forest2.sampleEvent(*tii, tmp_event_time, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( 0 <= event.time() && event.time() < forest2.nodes()->at(4)->height() ) );
       CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }
@@ -456,7 +456,7 @@ class TestForest : public CppUnit::TestCase {
     ++tii;
     forest2.calcRates(*tii);
     for (size_t i = 0; i < 1000; ++i) {
-      forest2.sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
+      forest2.sampleEvent(*tii, tmp_event_time, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( forest2.nodes()->at(4)->height() <= event.time() && event.time() < forest2.nodes()->at(5)->height() ) );
       CPPUNIT_ASSERT( event.isNoEvent() || event.isCoalescence() );
     }

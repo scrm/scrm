@@ -533,9 +533,17 @@ bool Forest::checkContemporaries(const double time) const {
   // Check if all nodes in contemporaries() are contemporaries
   for (size_t pop = 0; pop < model().population_number(); ++pop) {
     for (auto it = contemporaries_.begin(pop); it != contemporaries_.end(pop); ++it) {
+      if ( *it == NULL ) {
+        dout << "NULL in contemporaries" << std::endl; 
+        return 0;
+      }
 
-      if ( *it == NULL ) return 0;
-      if ( (*it)->height() > time || (*it)->parent_height() < time ) {
+      if ( (*it)->is_root() ) {
+        dout << "Root " << *it << " in contemporaries" << std::endl; 
+        return 0;
+      }
+
+      if ( (*it)->height() > time || (*it)->parent_height() <= time ) {
         dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
         return 0;
       }

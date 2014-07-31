@@ -103,7 +103,8 @@ void TimeIntervalIterator::next() {
   }
 
   if ( start_height >= node_iterator_.height() ) {
-    updateContemporaries(*node_iterator_);
+    // Update contemporaries 
+    contemporaries()->replaceChildren(*node_iterator_);
 
     // Pruning
     while ( !(*node_iterator_)->is_last() ) {
@@ -140,20 +141,6 @@ void TimeIntervalIterator::next() {
                                          current_time_);
 }
 
-
-void TimeIntervalIterator::updateContemporaries(Node* current_node) {
-  tmp_child_1_ = current_node->first_child();
-  tmp_child_2_ = current_node->second_child();
-
-  // Don't add root nodes
-  assert( current_node != NULL );
-  if (!current_node->is_root()) this->contemporaries_->add(current_node);
-  if (tmp_child_1_ != NULL) { 
-    this->contemporaries_->remove(tmp_child_1_);
-    if (tmp_child_2_ != NULL) this->contemporaries_->remove(tmp_child_2_);
-  }
-}
-
 /** 
  * Finds all nodes which code for branches at the height of a given node in the
  * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
@@ -166,17 +153,57 @@ void TimeIntervalIterator::searchContemporaries(Node *node) {
   // Prefer top-down search if the target is above .8 coalescence units in
   // sample space. This is relatively high, but the iterative bottom-up approach
   // is faster than the recursion.
-  if (node->height() < forest_->model().search_threshold_) {
-    searchContemporariesBottomUp(node);
+  contemporaries()->clear();
+  if (node->height() >= contemporaries()->buffer_time()) {
+    searchContemporariesBottomUp(node, true);
   } else {
-    searchContemporariesTopDown(node);
+    searchContemporariesBottomUp(node);
   }
 }
 
-void TimeIntervalIterator::searchContemporariesBottomUp(Node* node) {
-  this->contemporaries_->clear();
+void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool use_buffer) {
+  Node* start_node = NULL;
+  if ( use_buffer ) {
+    assert( node->height() >= contemporaries()->buffer_time() ); 
+    // check if the buffered contemporaries are contemporaries of node
+    double highest_time = -1;
+    for (size_t pop = 0; pop < model()->population_number(); ++pop) {
+      auto end = contemporaries()->buffer_end(pop);
+      for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
+        assert(!(*it)->is_root());
+        //std::cout << "Checking " << *it << std::endl;
+        // Prune the node if needed
+        tmp_child_1_ = (*it);
+        tmp_child_2_ = (*it)->first_child();
+        while (tmp_child_1_->numberOfChildren() == 1 && forest_->pruneNodeIfNeeded(tmp_child_1_)) {
+          tmp_child_1_ = tmp_child_2_;
+          if (tmp_child_1_ == NULL ) break;
+          tmp_child_2_ = tmp_child_2_->first_child();
+        }
+        if (tmp_child_1_ == NULL || forest_->pruneNodeIfNeeded(tmp_child_1_)) continue;
 
-  for (NodeIterator ni = forest_->nodes()->iterator(); *ni != node; ++ni) {
+        // And add it if it is a contemporary
+        if (tmp_child_1_->height() <= node->height() && node->height() < tmp_child_1_->parent_height()) {
+          contemporaries()->add(tmp_child_1_);
+        }
+
+        // Find the oldest buffered node
+        if (tmp_child_1_->height() > highest_time) {
+          highest_time = tmp_child_1_->height();
+          start_node = tmp_child_1_;
+        }
+      }
+    }
+    // The node after the oldest node in the buffer should be the first node
+    // above the buffers_height.
+    assert( start_node != NULL );
+    start_node = start_node->next();
+    assert( start_node->height() >= contemporaries()->buffer_time() );
+  } else {
+    start_node = forest()->nodes()->first(); 
+  }
+
+  for (NodeIterator ni = forest_->nodes()->iterator(start_node); *ni != node; ++ni) {
     assert(ni.good());
 
     // Check if *ni is a contemporary of node 
