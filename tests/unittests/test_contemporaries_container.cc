@@ -39,7 +39,35 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     delete node1, node2, node3, node4;
   }
 
-  void add() { ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
+  void add() { 
+    // Vector
+    ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node2);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node3);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(2) );
+
+    cc.add(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, cc.size(2) );
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
@@ -66,8 +94,38 @@ class TestContemporariesContainer : public CppUnit::TestCase {
   }
 
   void remove() {
-    // Test Remove
+    // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
+    cc.add(node1);
+    cc.add(node2);
+    cc.add(node3);
+    cc.add(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, cc.size(2) );
+
+    cc.remove(node1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, cc.size(2) );
+
+    cc.remove(node3);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(2) );
+
+    cc.remove(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.remove(node2);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
     cc.add(node1);
     cc.add(node2);
     cc.add(node3);
@@ -108,9 +166,21 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+    
+    cc = ContemporariesContainer(3, 1000, rg);
+    cc.add(node1);
+    cc.add(node2);
+    cc.add(node3);
+    cc.add(node4);
+
+    cc.clear();
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
   }
 
   void iterator() {
+    // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
     cc.add(node1);
     cc.add(node2);
@@ -135,9 +205,36 @@ class TestContemporariesContainer : public CppUnit::TestCase {
       ++count;
     }
     CPPUNIT_ASSERT_EQUAL((size_t)4, count);
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
+    cc.add(node1);
+    cc.add(node2);
+    cc.add(node3);
+    cc.add(node4);
+
+    count = 0;
+    for (auto it = cc.begin(0); it != cc.end(0); ++it) {
+      CPPUNIT_ASSERT( *it == node1 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)1, count);
+
+    for (auto it = cc.begin(2); it != cc.end(2); ++it) {
+      CPPUNIT_ASSERT( *it == node4 || *it == node3 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)3, count);
+
+    for (auto it = cc.begin(1); it != cc.end(1); ++it) {
+      CPPUNIT_ASSERT( *it == node2 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)4, count);
   }
 
   void sample() {
+    // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
     cc.add(node1);
     cc.add(node2);
@@ -148,8 +245,29 @@ class TestContemporariesContainer : public CppUnit::TestCase {
       CPPUNIT_ASSERT_EQUAL(node1, cc.sample(0));
       CPPUNIT_ASSERT_EQUAL(node2, cc.sample(1));
     } 
-  
+
     double count = 0;
+    for (size_t i = 0; i < 10000; ++i) {
+      Node* node = cc.sample(2);
+      CPPUNIT_ASSERT( node == node3 || node == node4 );
+      if (node == node3) ++count;
+    } 
+    count /= 10000;
+    CPPUNIT_ASSERT( 0.49 < count && count < 0.51 ); 
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
+    cc.add(node1);
+    cc.add(node2);
+    cc.add(node3);
+    cc.add(node4);
+
+    for (size_t i = 0; i < 1000; ++i) {
+      CPPUNIT_ASSERT_EQUAL(node1, cc.sample(0));
+      CPPUNIT_ASSERT_EQUAL(node2, cc.sample(1));
+    } 
+
+    count = 0;
     for (size_t i = 0; i < 10000; ++i) {
       Node* node = cc.sample(2);
       CPPUNIT_ASSERT( node == node3 || node == node4 );
@@ -160,6 +278,7 @@ class TestContemporariesContainer : public CppUnit::TestCase {
   }
 
   void buffer() {
+    // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
     cc.add(node1);
     cc.add(node2);
@@ -201,10 +320,70 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     for (auto it = cc.buffer_begin(1); it != cc.buffer_end(1); ++it) ++count;
     for (auto it = cc.buffer_begin(2); it != cc.buffer_end(2); ++it) ++count;
     CPPUNIT_ASSERT_EQUAL((size_t)0, count);
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
+    cc.add(node1);
+    cc.add(node2);
+    cc.add(node3);
+    cc.add(node4);
+
+    cc.buffer(17.5);
+    CPPUNIT_ASSERT_EQUAL( 17.5, cc.buffer_time() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    count = 0;
+    for (auto it = cc.buffer_begin(0); it != cc.buffer_end(0); ++it) {
+      CPPUNIT_ASSERT( *it == node1 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)1, count);
+
+    for (auto it = cc.buffer_begin(2); it != cc.buffer_end(2); ++it) {
+      CPPUNIT_ASSERT( *it == node4 || *it == node3 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)3, count);
+
+    for (auto it = cc.buffer_begin(1); it != cc.buffer_end(1); ++it) {
+      CPPUNIT_ASSERT( *it == node2 );
+      ++count;
+    }
+    CPPUNIT_ASSERT_EQUAL((size_t)4, count);
+
+    cc.buffer(20.2);
+    CPPUNIT_ASSERT_EQUAL( 20.2, cc.buffer_time() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+    count = 0;
+    for (auto it = cc.buffer_begin(0); it != cc.buffer_end(0); ++it) ++count;
+    for (auto it = cc.buffer_begin(1); it != cc.buffer_end(1); ++it) ++count;
+    for (auto it = cc.buffer_begin(2); it != cc.buffer_end(2); ++it) ++count;
+    CPPUNIT_ASSERT_EQUAL((size_t)0, count);
   }
 
   void empty() {
+    // Vector 
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
+    CPPUNIT_ASSERT( cc.empty() );
+    cc.add(node1);
+    CPPUNIT_ASSERT( !cc.empty() );
+
+    cc.clear();
+    CPPUNIT_ASSERT( cc.empty() );
+    cc.add(node2);
+    CPPUNIT_ASSERT( !cc.empty() );
+
+    cc.clear();
+    CPPUNIT_ASSERT( cc.empty() );
+    cc.add(node3);
+    CPPUNIT_ASSERT( !cc.empty() );
+
+    // Set
+    cc = ContemporariesContainer(3, 1000, rg);
     CPPUNIT_ASSERT( cc.empty() );
     cc.add(node1);
     CPPUNIT_ASSERT( !cc.empty() );
