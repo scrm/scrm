@@ -1,4 +1,4 @@
-scrm Version Histroy
+scrm Version History
 ========================
 
 Version 1.0.1 
