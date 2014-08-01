@@ -2,8 +2,8 @@
 #$ -cwd
 #$ -V
 #$ -P bsg.prjb -q short.qb
-#$ -e ErrFiles
-#$ -o OutFiles
+#$ -e msErrFiles
+#$ -o msOutFiles
 #$ -N ms 
 #$ -t 1-1000
 #$ -j y

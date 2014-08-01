@@ -59,19 +59,23 @@ class parameter:
         print "jobs:", self.jobs
         
 
-def extract_all_info ( job_prefix, num_rep):
+def extract_all_info ( job_prefix, num_rep, process_BL = False):
     data = []
     for rep in range(1, num_rep+1):
-        out = extract_info ( job_prefix, rep )
+        out = extract_info ( job_prefix, rep, process_BL )
         data.append( out )
     return data
     
     
-def extract_info (job_prefix, ith_rep): 
+def extract_info (job_prefix, ith_rep, process_BL = False ): 
     prefix = job_prefix + `ith_rep` + "/" + job_prefix + `ith_rep`
     tree_file_name  = prefix + "Trees"
     tree_freq_name  = prefix + "TreeFreq"
+    
     tmrca_name      = prefix + "Tmrca"
+    if process_BL:
+        tmrca_name      = prefix + "BL"
+    
     tree_freq = [ float(x) for x in open( tree_freq_name, "r" ) ]    
     tmrca = [ float(x) for x in open( tmrca_name, "r" )]
     timeFile_name = prefix+"time.text"
@@ -279,19 +283,36 @@ if __name__ == "__main__":
     _use_param.printing()
     
     for job in _use_param.jobs:
-        print job
+        
+        print job, "TMRCA"
         data = extract_all_info (job, _use_param.rep)
         #print "len(data) = ", len(data)
         #print "len(data[0]) = ", len(data[0])
         #print data
         processed_data = process_data (data, _use_param.small_delta)
         mean_time, std_time = process_time (data)
-        f = open ( job+"Processed", "w" )
+        f = open ( job+"Processed_TMRCA", "w" )
         f.write(`processed_data[0]`+"\n")
         f.write(`processed_data[1]`+"\n")
         f.write(`processed_data[2]`+"\n")
         f.write(`[mean_time, std_time]`+"\n")
         f.close()
+
+
+        print job, "BL"
+        data = extract_all_info (job, _use_param.rep, True)
+        #print "len(data) = ", len(data)
+        #print "len(data[0]) = ", len(data[0])
+        #print data
+        processed_data = process_data (data, _use_param.small_delta)
+        mean_time, std_time = process_time (data)
+        f = open ( job+"Processed_BL", "w" )
+        f.write(`processed_data[0]`+"\n")
+        f.write(`processed_data[1]`+"\n")
+        f.write(`processed_data[2]`+"\n")
+        f.write(`[mean_time, std_time]`+"\n")
+        f.close()
+
 
         #print "sum over sum = ", processed_data[0]
         #print "mean = ", processed_data[1]
