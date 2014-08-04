@@ -242,9 +242,10 @@ inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number,
                                                         const size_t sample_number,
                                                         RandomGenerator* rg) {
 
-  // Use vectors for the storage if the number of samples is below 500
-  // This threshold is mostly arbitrary, but slight data backed...
-  if (sample_number <= 500) {
+  // Use vectors for the storage if the number of samples is below 750.
+  // This threshold is mostly arbitrary, with simulation supporting it in
+  // special situations. 
+  if (sample_number <= 750) {
     contemporaries_vec1_ = std::vector<std::vector<Node*> >(pop_number);
     for ( auto it : contemporaries_vec1_ ) it.reserve(sample_number + 200);
     contemporaries_vec2_ = std::vector<std::vector<Node*> >(pop_number);
