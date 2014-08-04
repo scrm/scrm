@@ -3,8 +3,8 @@
  */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
-#include "../src/node.h"
-#include "../src/forest.h"
+#include "../../src/node.h"
+#include "../../src/forest.h"
 
 class TestNode : public CppUnit::TestCase {
 

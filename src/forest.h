@@ -41,18 +41,17 @@
 #ifndef NDEBUG
 #define dout std::cout
 #else
-#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
-#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>
+#include <unordered_set>
 #include <valarray>
 #include <iomanip>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
-#include <sstream> // This is required by Forest::writeTree, ostringstream
+#include <sstream> // This is required by Forest::writeTree, ostringstream 
 
 #include "node.h"
 #include "event.h"
@@ -60,6 +59,7 @@
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
+#include "contemporaries_container.h"
 #include "random/random_generator.h"
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
@@ -110,12 +110,14 @@ class Forest
   double current_base() const { return current_base_; }
   void set_current_base(const double base) { current_base_ = base; }
 
-  double next_base() const {return next_base_;}
-  void set_next_base(const double base){next_base_ = base;}
+  double next_base() const { return next_base_; }
+  void set_next_base(const double base){ next_base_ = base; }
+
+  size_t segment_count() const { return segment_count_; }
 
   // Must be called AFTER the tree was modified.
   void sampleNextBase() {
-    double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
+    double length = random_generator()->sampleExpoLimit(getLocalTreeLength() * model().recombination_rate(),
                                                         model().getNextSequencePosition() - current_base_);
     if (length == -1) {
       // No recombination until the model changes
@@ -142,8 +144,6 @@ class Forest
     else return next_base() - current_base();
   }
 
-  double local_tree_length() const { return local_root()->length_below(); }
-
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
@@ -155,6 +155,8 @@ class Forest
   void sampleNextGenealogy();
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
+  void clear();
+
   //Debugging Tools
   void addNodeToTree(Node *node, Node *parent, Node *first_child, Node *second_child);
   void createExampleTree();
@@ -165,9 +167,12 @@ class Forest
   bool checkTreeLength() const;
   bool checkInvariants(Node const* node = NULL) const;
   bool checkNodeProperties() const;
-  bool checkContemporaries(const TimeInterval &ti) const;
+  bool checkContemporaries(const double time) const;
   bool printNodes() const;
   bool checkForNodeAtHeight(const double height) const;
+  bool checkRootIsRegistered(Node const* node) const;
+  bool checkRoots() const;
+  //bool isRegisteredSecondaryRoot(Node const* root) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -175,7 +180,6 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
-  bool printTree_cout();
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -254,9 +258,8 @@ class Forest
     return (node == active_node(0) || node == active_node(1));
   }
 
-  bool pruneNodeIfNeeded(Node* node);
+  bool pruneNodeIfNeeded(Node* node, const bool prune_orphans = true);
   void doCompletePruning();
-
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
@@ -264,8 +267,7 @@ class Forest
   double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti);
 
-  void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
-                   size_t tmp_event_line, Event &return_event) const;
+  void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
 
   void sampleEventType(const double time, const size_t time_line, 
                        const TimeInterval &ti, Event &return_event) const;
@@ -280,22 +282,28 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
+  // tracking of secondary roots (no longer needed)
+  // void registerSecondaryRoot(Node* root);
+  // void unregisterSecondaryRoot(Node* root);
+  // void clearSecondaryRoots();
 
-  //Private variables
+  // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
 
-  // We have 2 different roots that are important:
-  // - local_root: root of the smallest subtree containing all local sequences
-  // - primary_root: root of the tree that contains all local sequences (do we
-  //   need this one?)
-
+  // We have 3 different kind of roots that are important:
+  // local root: root of the smallest subtree containing all local sequences
   Node* local_root_;
+
+  // primary root: root of the tree that contains all local sequences
   Node* primary_root_;
+
+  // secondary roots: roots of trees that contain only non-local nodes
+  // std::unordered_set<Node*> secondary_roots_;
 
   double current_base_;     // The current position of the sequence we are simulating
   double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t segment_count_;     // Counts next number segments already created 
+  size_t segment_count_;    // Counts next number segments already created 
 
   Model* model_;
   RandomGenerator* random_generator_;
@@ -317,8 +325,8 @@ class Forest
   size_t states_[2];
   Node* active_nodes_[2];
   Event  tmp_event_;
-  size_t tmp_event_line_;
   double tmp_event_time_;
+  ContemporariesContainer contemporaries_;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];
@@ -336,4 +344,19 @@ class Forest
 bool areSame(const double a, const double b, 
              const double epsilon = std::numeric_limits<double>::epsilon());
 
+/*
+inline void Forest::registerSecondaryRoot(Node* root) {
+  assert(root->is_root());
+  assert(root != NULL);
+  secondary_roots_.insert(root);  
+};
+  
+inline void Forest::unregisterSecondaryRoot(Node* root) {
+  secondary_roots_.erase(root);
+};
+
+inline void Forest::clearSecondaryRoots() {
+  secondary_roots_.clear();  
+};
+*/
 #endif

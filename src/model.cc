@@ -120,7 +120,6 @@ void Model::init() {
   this->resetSequencePosition();
 }
 
-
 void Model::reset() {
   deleteParList(pop_sizes_list_);
   deleteParList(growth_rates_list_);

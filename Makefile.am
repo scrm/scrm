@@ -10,19 +10,18 @@ PROG = SCRM
 dist-hook:
 	export VERSION=${VERSION}; cd doc; make
 
+test: unittests
+
 unittests: unit_tests
 	./unit_tests 
 
-algorithmtests: algorithm_tests
+algorithmtest: algorithm_tests
 	./algorithm_tests 
-
-travis-test: unittests algorithmtests scrm scrm_dbg
-	./tests/test_binaries.sh
 
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
 		   src/model.cc src/tree_point.cc \
 		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
-		   src/model.h src/tree_point.h src/event.h
+		   src/model.h src/tree_point.h src/event.h src/contemporaries_container.h
 
 random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
 			 src/random/fastfunc.cc \
@@ -46,11 +45,14 @@ scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 debug_src = src/random/constant_generator.cc src/random/constant_generator.h \
 			src/forest-debug.cc src/random/constant_generator.h
 
-unit_test_src = tests/test_forest.cc tests/test_model.cc tests/test_node.cc tests/test_node_container.cc\
-			   	tests/test_runner.cc tests/test_time_interval.cc tests/test_fastfunc.cc tests/test_param.cc\
-				tests/test_random_generator.cc tests/test_summary_statistics.cc 
+unit_test_src = tests/unittests/test_forest.cc tests/unittests/test_model.cc\
+				tests/unittests/test_node.cc tests/unittests/test_node_container.cc\
+			   	tests/cppunit/test_runner.cc tests/unittests/test_time_interval.cc\
+			   	tests/unittests/test_fastfunc.cc tests/unittests/test_param.cc\
+				tests/unittests/test_random_generator.cc tests/unittests/test_summary_statistics.cc\
+			    tests/unittests/test_contemporaries_container.cc	
 
-alg_test_src = tests/test_runner.cc tests/test_algorithm.cc 
+alg_test_src = tests/cppunit/test_runner.cc tests/algorithmtest/test_algorithm.cc 
 
 
 scrm_SOURCES = $(scrm_src) src/scrm.cc
@@ -63,6 +65,6 @@ scrm_CXXFLAGS= -DNDEBUG -std=c++0x
 scrm_dbg_CXXFLAGS= -std=c++0x
 scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
 unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
-algorithm_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
+algorithm_tests_CXXFLAGS = -DNDEBUG -std=c++0x 
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports

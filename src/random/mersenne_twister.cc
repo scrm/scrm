@@ -30,13 +30,15 @@ void MersenneTwister::construct_common(const size_t seed){
 }
 
 MersenneTwister::MersenneTwister() {
-  unif_ = std::uniform_real_distribution<>(0, 1);
-  expo_ = std::exponential_distribution<>(1);
-  this->set_seed(generateRandomSeed());
+  this->construct_common(-1);
 }
 
 MersenneTwister::MersenneTwister(const size_t seed){
   this->construct_common(seed);
+}
+
+MersenneTwister::MersenneTwister(FastFunc* ff):RandomGenerator(ff) {
+  this->construct_common(-1);
 }
 
 MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerator( ff ) {

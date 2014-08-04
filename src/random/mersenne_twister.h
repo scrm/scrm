@@ -30,8 +30,9 @@ class MersenneTwister : public RandomGenerator
 {
  public:
   MersenneTwister();
+  MersenneTwister(FastFunc* ff);
   MersenneTwister(const size_t seed);
-  MersenneTwister(const size_t seed, FastFunc* ff );
+  MersenneTwister(const size_t seed, FastFunc* ff);
   virtual ~MersenneTwister() {};
 
   void initialize() {};

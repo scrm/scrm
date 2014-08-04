@@ -1,9 +1,9 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../src/param.h"
-#include "../src/model.h"
-#include "../src/forest.h"
+#include "../../src/param.h"
+#include "../../src/model.h"
+#include "../../src/forest.h"
 
 #pragma GCC diagnostic ignored "-Wwrite-strings"
 
@@ -107,6 +107,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( pars2.parse(model) ); 
     CPPUNIT_ASSERT( !pars2.help() );
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)20, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(10), (size_t)1 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
@@ -116,6 +117,7 @@ class TestParam : public CppUnit::TestCase {
     char *argv32[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "5.0", "-T"};
     CPPUNIT_ASSERT_NO_THROW( Param(12, argv32).parse(model) ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)20, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(10), (size_t)1 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
@@ -128,6 +130,7 @@ class TestParam : public CppUnit::TestCase {
     char *argv33[] = { "scrm", "20", "10", "-t", "3.74", "-I", "3", "7", "8", "5", "5.0"};
     CPPUNIT_ASSERT_NO_THROW( Param(11, argv33).parse(model) ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)20, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(4), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(10), (size_t)1 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
@@ -140,6 +143,7 @@ class TestParam : public CppUnit::TestCase {
     char *argv34[] = { "scrm", "2", "1", "-t", "3.74", "-I", "2", "1", "1", "5.0"};
     CPPUNIT_ASSERT_NO_THROW( Param(10, argv34).parse(model) ); 
     CPPUNIT_ASSERT_EQUAL( (size_t)2, model.population_number() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(0), (size_t)0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_population(1), (size_t)1 );
 
