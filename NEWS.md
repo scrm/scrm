@@ -1,13 +1,14 @@
 scrm Version History
 ========================
 
-Version 1.0.1 
+Version 1.1.0
 ------------------------
-Released: Not yet
+Released: 2014-08-04
 
 ### Improvements
 + Improved the handling & storage of contemporary nodes. This gives a huge
   performance boost if scrm is used with large sample sizes (>1000) (#20). 
++ Optimized scrm for use with many populations (#20). 
 + Added more automatic tests of the produced distribution of trees (#20).
 
 
@@ -46,7 +47,7 @@ Released: 2014-06-02
 
 
 
-Version 0.9-2
+
 ------------------------
 
 ### New Features
