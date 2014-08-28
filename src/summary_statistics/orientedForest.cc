@@ -19,15 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "newick_tree.h"
+#include "orientedForest.h"
 
 void OrientedForest::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {
-    output_buffer_ << generateTree(forest.local_root(), forest) << ";\n";  
+    output_buffer_ << generateTree(forest) << ";\n";  
   } else {
     if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
     output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
-                   << generateTree(forest.local_root(), forest) << ";\n";  
+                   << generateTree(forest) << ";\n";  
   }
 }
 
@@ -44,23 +44,32 @@ void OrientedForest::printLocusOutput(std::ostream &output) {
  *
  * @return A part of the tree in newick format
  */
-std::string OrientedForest::generateTree(Node *node, const Forest &forest) {
-  if(node->in_sample()){
-    std::ostringstream label_strm;
-    label_strm<<node->label();
-    return label_strm.str();
-  }
-  else{
-    Node *left = forest.trackLocalNode(node->first_child());
-    double t1 = node->height() - left->height();
-    std::ostringstream t1_strm;
-    t1_strm << t1 / (4 * forest.model().default_pop_size);
+std::string OrientedForest::generateTree(const Forest &forest) {
+  // Initialize the first parent node to tip node 1, as the number of tips plus one.
+  this->tmp_label = forest.model().sample_size();
+  // a node can either be in sample (labelled), or not in sample, 
+  // if it is insample, check if its parent is labelled.
+  for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
+    if ( !(*it)->local() ) continue;
+    Node* tmp_parent = (*it)->parent();
+    if ( (*it)->in_sample() && !tmp_parent->OF_label() ) {
+        this->tmp_label++;
+        tmp_parent->set_OF_label(this->tmp_label);
+        cout << (*it)->label() << "("<< tmp_parent->OF_label() << ")" << ",";
+    }
+    else if (  (*it)->in_sample()  ){
+        cout << (*it)->label() <<"("<<tmp_parent->OF_label()<<")" << ",";
+        }
+    else if ( !tmp_parent->OF_label() ){ // (*it)->in_sample() 
+        this->tmp_label++;
+        tmp_parent->set_OF_label(this->tmp_label);
+        cout << (*it)->OF_label()<<"("<<tmp_parent->OF_label()<<")" << ",";
+        }
+    else {
+        cout << (*it)->OF_label()<<"("<<tmp_parent->OF_label()<<")" << ",";
+        }
+    }
+    cout<<endl;
 
-    Node *right = forest.trackLocalNode(node->second_child());
-    double t2 = node->height() - right->height();
-    std::ostringstream t2_strm;
-    t2_strm << t2 / (4 * forest.model().default_pop_size);
-
-    return "("+this->generateTree(left, forest)+":"+t1_strm.str()+","+ this->generateTree(right, forest)+":"+t2_strm.str() +")";
-  }
+  return std::string("ok");
 }

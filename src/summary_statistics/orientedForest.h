@@ -20,8 +20,8 @@
 
 */
 
-#ifndef scrm_src_summary_statistic_newick_tree
-#define scrm_src_summary_statistic_newick_tree
+#ifndef scrm_src_summary_statistic_oriented_forest
+#define scrm_src_summary_statistic_oriented_forest
 
 #include <sstream>
 #include <iostream>
@@ -41,7 +41,8 @@ class OrientedForest : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   std::string generateTree(Node *node, const Forest &forest);
+   size_t tmp_label;
+   std::string generateTree(const Forest &forest);
    std::ostringstream output_buffer_;
 };
 
