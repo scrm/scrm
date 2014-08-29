@@ -53,16 +53,16 @@ std::string OrientedForest::generateTree(const Forest &forest) {
     if ( !(*it)->local() ) continue;
     Node* tmp_parent = (*it)->parent();
     if ( (*it)->in_sample() && !tmp_parent->OF_label() ) {
-        this->tmp_label++;
-        tmp_parent->set_OF_label(this->tmp_label);
-        cout << (*it)->label() << "("<< tmp_parent->OF_label() << ")" << ",";
+        if ( !tmp_parent->is_root() ) this->tmp_label++;
+        tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
+        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
     }
     else if (  (*it)->in_sample()  ){
-        cout << (*it)->label() <<"("<<tmp_parent->OF_label()<<")" << ",";
+        cout << (*it)->OF_label() <<"("<<tmp_parent->OF_label()<<")" << ",";
         }
     else if ( !tmp_parent->OF_label() ){ // (*it)->in_sample() 
-        this->tmp_label++;
-        tmp_parent->set_OF_label(this->tmp_label);
+        if ( !tmp_parent->is_root() ) this->tmp_label++;
+        tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
         cout << (*it)->OF_label()<<"("<<tmp_parent->OF_label()<<")" << ",";
         }
     else {
