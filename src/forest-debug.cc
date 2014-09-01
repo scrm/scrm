@@ -145,7 +145,7 @@ bool Forest::checkTreeLength() const {
   double local_length = calcTreeLength();
 
   if ( !areSame(local_length, local_tree_length(), 0.000001) ) {
-    dout << "Error: local tree length is " << this->local_tree_length() << " ";
+    scrmdout << "Error: local tree length is " << this->local_tree_length() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
   }
@@ -387,7 +387,7 @@ bool Forest::printTree() const {
   return true;
 }
 
-bool Forest::printTree_cout() {
+void Forest::printTree_cout() const {
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
   //this->printPositions(positions);
@@ -397,6 +397,12 @@ bool Forest::printTree_cout() {
          end_height = getNodes()->get(0)->height();
 
   for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
+    if ( !(*ni)->is_root() && (*ni)->height_above() == 0.0 ) {
+      std::cout << "A rare situation occurred were a parent and a child have exactly "
+           << "the same height. We can't print such trees here, the algorithm however"
+           << "should not be affected." << std::endl; 
+      //return 1;
+    }
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
@@ -449,13 +455,16 @@ bool Forest::printTree_cout() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        if ((*position)->label() != 0) dout << (*position)->label() << ":";
-        std::cout << *position << "(" << (*position)->population() << ") ";
+        if ((*position)->label() != 0) std::cout << (*position)->label() << ":";
+        if (!(*position)->is_migrating()) std::cout << *position << "(" << (*position)->population() << ") ";
+        else std::cout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) std::cout << "old ";
       }
     }
     std::cout << std::endl;
   }
-  return true;
+  //return true;
 }
 
 
@@ -554,7 +563,7 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
   bool Forest::printNodes() const {
-    dout << std::setw(10) << std::right << "Node";
+    scrmdout << std::setw(10) << std::right << "Node";
     dout << std::setw(10) << std::right << "Height";
     dout << std::setw(6) << std::right << "label";
     dout << std::setw(10) << std::right << "Parent";
@@ -568,7 +577,7 @@ std::vector<Node const*> Forest::determinePositions() const {
     dout << std::endl;
 
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-      dout << std::setw(10) << std::right << this->getNodes()->get(i);
+      scrmdout << std::setw(10) << std::right << this->getNodes()->get(i);
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
       dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       if (!getNodes()->get(i)->is_root()) 
@@ -583,8 +592,8 @@ std::vector<Node const*> Forest::determinePositions() const {
       dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
       dout << std::endl;
     }
-    dout << "Local Root:    " << this->local_root() << std::endl;
-    dout << "Primary Root:  " << this->primary_root() << std::endl;
+    scrmdout << "Local Root:    " << this->local_root() << std::endl;
+    scrmdout << "Primary Root:  " << this->primary_root() << std::endl;
     return true;
   }
 
@@ -643,7 +652,7 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
         }
       } 
       if (!found) { 
-        dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
+        scrmdout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
         dout << ti.start_height() << " " << ti.end_height() << std::endl;
         return 0;
       }

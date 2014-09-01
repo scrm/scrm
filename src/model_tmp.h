@@ -189,8 +189,8 @@ class Model
     * @return The current unscaled, backwards migration rate.
     */
    double migration_rate(const size_t source, const size_t sink) const {
-     if (sink == source) return 0.0;
      if (current_mig_rates_ == NULL) return default_mig_rate;
+     if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 
@@ -253,20 +253,13 @@ class Model
 
    size_t exact_window_length() const { return exact_window_length_; }
    size_t population_number() const { return pop_number_; }
-     
+  
+   
    double getCurrentTime() const { return change_times_.at(current_time_idx_); }
    double getNextTime() const { 
     if ( current_time_idx_ + 1 >= change_times_.size() ) return DBL_MAX;
     else return change_times_.at(current_time_idx_ + 1);
    }
-   size_t getTimeIdx( double time ) const { // time intervals are half-open [start,end).  First interval is of form [0,end)
-	    assert (time >= 0);
-		size_t idx = 0;
-		for (;idx < change_times_.size(); idx++) {
-			if (time < change_times_.at(idx)) break;
-		}
-		return idx - 1;
-   }			
 
    double getCurrentSequencePosition() const { 
 		// Returns position of the next (recombination) rate change
@@ -331,14 +324,8 @@ class Model
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
    };
 
-   size_t getNumEpochs() const { return change_times_.size(); }
-
    void increaseSequencePosition() {
     ++current_seq_idx_;
-   }
-
-   void decreaseSequencePosition() {
-    --current_seq_idx_;
    }
   
    void print(std::ostream &os) const;

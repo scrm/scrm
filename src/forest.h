@@ -36,14 +36,6 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Unless compiled with options NDEBUG, we will produce a debug output using 
-//'dout' instead of cout and execute (expensive) assert statements.
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>
@@ -64,6 +56,7 @@
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
 #include "summary_statistics/summary_statistic.h"
+extern int recombination_counter; //DEBUG
 
 class TimeInterval;
 class TimeIntervalIterator;
@@ -117,17 +110,31 @@ class Forest
 
   // Must be called AFTER the tree was modified.
   void sampleNextBase() {
+      // TODO: should the call to model().recombination_rate() not include the current sequence index,
+      //       so that the actual recombination rate can change?
     double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
                                                         model().getNextSequencePosition() - current_base_);
     if (length == -1) {
       // No recombination until the model changes
       set_next_base(model().getNextSequencePosition());
-      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
+      if (next_base_ < model().loci_length()) 
+		writable_model()->increaseSequencePosition();
     } else {
       // Recombination in the sequence segment
-      next_base_ = current_base_ + length;
+      set_next_base(current_base_ + length);
     }
-  } 
+  }
+
+  // Resamples next recombination base, in case a state was duplicated
+  // Note that current_base_ must be up to date
+  void resampleNextBase() {
+      // first undo any (now possibly premature) change in the recombination rate
+      if (next_base_ == model().getCurrentSequencePosition()) {
+          writable_model()->decreaseSequencePosition();
+      }
+      // the remainder is the same as for sampleNextBase; the previous next_base_ is overwritten
+      sampleNextBase();
+  }
 
   /**
    * @brief Returns the length of the sequence for with the current tree is
@@ -154,7 +161,7 @@ class Forest
 
   // Central functions
   void buildInitialTree();
-  void sampleNextGenealogy();
+  void sampleNextGenealogy( bool recordEvents = false );
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
   //Debugging Tools
@@ -177,7 +184,7 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
-  bool printTree_cout();
+  void printTree_cout() const;
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -194,29 +201,21 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //segegrating sites
+  virtual std::string newick(Node *node){ (void)node; return ""; } ;
+
+  //segregating sites
   std::valarray<int> find_haplotypes(Node *node); 
   void traversal(Node const* node, std::valarray<bool> &haplotype) const;
   std::ostream &generateSegData(std::ostream &output, int total_mut);
 
   Node* trackLocalNode(Node *node) const; 
 
-  //derived class from Forest
-  virtual void record_Recombevent(size_t pop_i, 
-    //double start_time, 
-    //double end_time, 
-    double opportunity, 
-    eventCode event_code){
-    (void)pop_i;
-    //(void)start_time;
-    //(void)end_time;
-    (void)opportunity;
-    (void)event_code;  
-  }
-  virtual void record_all_event( TimeInterval const &ti){
-    (void) ti;   
-  }
-
+  //record events
+  virtual void record_Recombevent_b4_extension ( ) { }
+  virtual void record_Recombevent_atNewGenealogy ( double event_height ){ }
+  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ) { }
+  double recomb_opp_x_within_scrm; // DEBUG
+  
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
   void printSegmentSumStats(ostream &output) const;
@@ -232,7 +231,7 @@ class Forest
                    const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node);
+  void sampleCoalescences(Node *start_node,  bool recordEvents = true );
   size_t getNodeState(Node const *node, const double current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
@@ -264,7 +263,7 @@ class Forest
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcRecombinationRate(Node const* node) const;
-  void calcRates(const TimeInterval &ti);
+  void calcRates(const TimeInterval &ti, double &recomb_opp_x_within_scrm);
 
   void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
                    size_t tmp_event_line, Event &return_event) const;
