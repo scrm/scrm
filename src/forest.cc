@@ -428,6 +428,9 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   assert( this->printTree() );
 
+  // update current time index
+  this->writable_model()->resetTime( rec_point.height() );
+
   // record recombination event - we pass the population, but disregard for now, 
   // since the opportunity is calculated overall rather than per-population. 
   this->record_Recombevent(0, 
@@ -435,6 +438,7 @@ void Forest::sampleNextGenealogy() {
                             //rec_point.height(), 
                             recomb_opportunity, 
                             EVENT );
+
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 

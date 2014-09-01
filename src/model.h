@@ -287,6 +287,23 @@ class Model
      current_time_idx_ = 0;
    };
 
+   void resetTime( double current_time ) {
+     current_time_idx_ = 0;
+     while (getNextTime() <= current_time ) {
+        if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
+        ++current_time_idx_;
+     }
+     // is the check for non-NULL-ness redundant?  Change into an assert?
+     if ( pop_sizes_list_.at(current_time_idx_) != NULL )
+       current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
+     if ( growth_rates_list_.at(current_time_idx_) != NULL )
+       current_growth_rates_ = growth_rates_list_.at(current_time_idx_);
+     if ( mig_rates_list_.at(current_time_idx_) != NULL )
+       current_mig_rates_ = mig_rates_list_.at(current_time_idx_);
+     if ( total_mig_rates_list_.at(current_time_idx_) != NULL )
+       current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_);
+   }
+
    void resetSequencePosition() {
      current_seq_idx_ = 0; 
    }
@@ -295,6 +312,7 @@ class Model
      if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
      ++current_time_idx_;
 
+     // is the check for non-NULL-ness redundant?  Change into an assert?
      if ( pop_sizes_list_.at(current_time_idx_) != NULL ) 
        current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
      if ( growth_rates_list_.at(current_time_idx_) != NULL ) 
