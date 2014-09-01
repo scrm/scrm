@@ -41,6 +41,8 @@ class OrientedForest : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
+   vector <size_t> OF_labels;
+   void init_OF_label( const Forest &forest );
    size_t tmp_label;
    std::string generateTree(const Forest &forest);
    std::ostringstream output_buffer_;

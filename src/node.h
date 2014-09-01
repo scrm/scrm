@@ -118,6 +118,8 @@ class Node
 
   void set_OF_label(size_t OF_label) { OF_label_ = OF_label; }
   size_t OF_label() const { return OF_label_; }
+  void set_parent_OF_label(size_t OF_label) { this->parent_->set_OF_label(OF_label_); this->parent_OF_label_ = OF_label;}
+  size_t parent_OF_label() const { return this->parent_OF_label_; }
   
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
@@ -160,6 +162,7 @@ class Node
 
   size_t label_;
   size_t OF_label_;
+  size_t parent_OF_label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if

@@ -1305,3 +1305,10 @@ void Forest::clear() {
   this->set_current_base(0.0);
   this->segment_count_ = 0;
 }
+
+
+void Forest::reset_OF_label(){
+  for (auto it = nodes()->iterator(); it.good(); ++it) {
+    (*it)->set_parent_OF_label( (size_t)0 );
+  }
+}
