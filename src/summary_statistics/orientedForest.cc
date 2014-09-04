@@ -50,41 +50,51 @@ std::string OrientedForest::generateTree(const Forest &forest) {
   // a node can either be in sample (labelled), or not in sample, 
   // if it is insample, check if its parent is labelled.
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
+    if ((*it)->is_root()) cout << (*it)->OF_label() << "("<< 0 << ")" << ",";
     if ( !(*it)->local() ) continue;
     Node* tmp_parent = (*it)->parent();
-    if ( (*it)->in_sample() && (*it)->parent_OF_label() == 0 ) {
-        if ( !tmp_parent->is_root() ) this->tmp_label++;
+    if ( (*it)->in_sample() && tmp_parent->OF_label() == 0 ) {
+        //if ( !tmp_parent->is_root() ) this->tmp_label++;
+        this->tmp_label++;
         //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
-        tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
-        cout << (*it)->OF_label() << "("<< (*it)->parent_OF_label() << ")" << ",";
+        //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
+        tmp_parent->set_OF_label( this->tmp_label );
+        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
     }
     else if (  (*it)->in_sample()  ){
-        cout << (*it)->OF_label() << "("<< (*it)->parent_OF_label() << ")" << ",";
+        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
         }
-    else if ( (*it)->parent_OF_label() == 0 ){ // (*it)->in_sample() 
-        if ( !tmp_parent->is_root() ) this->tmp_label++;
-        tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
-        cout << (*it)->OF_label() << "("<< (*it)->parent_OF_label() << ")" << ",";
+    else if ( tmp_parent->OF_label() == 0 ){ // (*it)->in_sample() 
+        //if ( !tmp_parent->is_root() ) this->tmp_label++;
+        this->tmp_label++;
+        //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
+        tmp_parent->set_OF_label( this->tmp_label );
+        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
         }
     else {
-        cout << (*it)->OF_label() << "("<< (*it)->parent_OF_label() << ")" << ",";
+        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
         }
+    this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();    
     }
     cout<<endl;
-
+  for ( size_t i = 0 ; i < this->OF_labels.size() ; i++){
+    cout << i+1 <<"("<< this->OF_labels[i]<<") ";
+  }
+  cout << endl;
   return std::string("ok");
 }
 
 
 void OrientedForest::init_OF_label( const Forest &forest ){
   this->OF_labels.clear();
-  //forest.reset_OF_label();
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
+    if ( (*it)->is_root() ) this->OF_labels.push_back( (size_t)0 );
     if ( !(*it)->local() ) continue;
-    //(*it)->set_OF_label( (*it)->in_sample() ? (*it)->label():0 );
-    //(*it)->set_parent_OF_label( (size_t)0 );
-    this->OF_labels.push_back( (size_t)0);    
+    Node* tmp_parent = (*it)->parent();
+    tmp_parent->set_OF_label( (size_t)0 );
+    this->OF_labels.push_back( (size_t)0 );
   }
-    // Initialize the first parent node to tip node 1, as the number of tips plus one.
+    // Initialize the first parent node to the first tip node
   this->tmp_label = forest.model().sample_size();
+
 }

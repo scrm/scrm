@@ -223,10 +223,7 @@ class Forest
   void calcSegmentSumStats() const;
   void printSegmentSumStats(ostream &output) const;
   void printLocusSumStats(ostream &output) const;
-
-  // Oriented Forest output format
-  void reset_OF_label();
-
+  
  private:
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
