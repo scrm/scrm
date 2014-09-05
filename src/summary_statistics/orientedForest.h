@@ -42,9 +42,11 @@ class OrientedForest : public SummaryStatistic
 
  private:
    vector <size_t> OF_labels;
+   vector <double> heights;
    void init_OF_label( const Forest &forest );
+   void update_OF_label( const Forest &forest );
    size_t tmp_label;
-   std::string generateTree(const Forest &forest);
+   void generateTree(const Forest &forest);
    std::ostringstream output_buffer_;
 };
 

@@ -23,11 +23,15 @@
 
 void OrientedForest::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {
-    output_buffer_ << generateTree(forest) << ";\n";  
+    output_buffer_ << "{" ;
+    generateTree(forest);
+    output_buffer_ << "}\n";  
   } else {
     if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-    output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
-                   << generateTree(forest) << ";\n";  
+    output_buffer_ << "{" ;
+    output_buffer_ << "\"duration\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
+    generateTree(forest);
+    output_buffer_ << "}\n";  
   }
 }
 
@@ -38,19 +42,37 @@ void OrientedForest::printLocusOutput(std::ostream &output) {
 }
 
 /**
- * @brief Prints a part of the tree in newick format
+ * @brief Prints the entire local tree as in oriented forest format, with JSON annotation
  *
- * @param node The root of the subtree that will be printed
+ * @param forest 
  *
- * @return A part of the tree in newick format
+ * @return STR = ' FLT, "pi" : [INT, INT, ... ], "height" : [FLT, FLT, ... ] '
+ * Note space doesn't mean anything
  */
-std::string OrientedForest::generateTree(const Forest &forest) {
+void OrientedForest::generateTree(const Forest &forest) {
   this->init_OF_label( forest );
+  this->update_OF_label( forest );
+    
+  output_buffer_ << "\"pi\":[" ;
+  for ( size_t i = 0 ; i < this->OF_labels.size() ; i++){
+    output_buffer_ << this->OF_labels[i] <<  ((i < this->OF_labels.size()-1) ? ",":"" );
+  }
+  output_buffer_ << "], " ;
 
-  // a node can either be in sample (labelled), or not in sample, 
-  // if it is insample, check if its parent is labelled.
+  output_buffer_ << "\"heights\":[" ;
+  for ( size_t i = 0 ; i < this->heights.size() ; i++){
+    output_buffer_ << this->heights[i] <<  ((i < this->heights.size()-1) ? ",":"" );
+  }
+  output_buffer_ << "]" ;
+}
+
+
+void OrientedForest::update_OF_label( const Forest &forest ){
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
-    if ((*it)->is_root()) cout << (*it)->OF_label() << "("<< 0 << ")" << ",";
+    if ( (*it) == forest.local_root() )  {
+        this->heights[(*it)->OF_label()-1] = (*it)->height();
+        //cout << (*it)->OF_label() << "("<< 0 << ")" << ",";
+    }
     if ( !(*it)->local() ) continue;
     if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
 
@@ -60,48 +82,60 @@ std::string OrientedForest::generateTree(const Forest &forest) {
         }
 
     if ( (*it)->in_sample() && tmp_parent->OF_label() == 0 ) {
-        //if ( !tmp_parent->is_root() ) this->tmp_label++;
         this->tmp_label++;
-        //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
-        //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
         tmp_parent->set_OF_label( this->tmp_label );
-        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
+        //cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
     }
     else if (  (*it)->in_sample()  ){
-        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
-        }
-    else if ( tmp_parent->OF_label() == 0 ){ // (*it)->in_sample() 
-        //if ( !tmp_parent->is_root() ) this->tmp_label++;
-        this->tmp_label++;
-        //tmp_parent->set_OF_label( tmp_parent->is_root() ? 0:this->tmp_label );
-        tmp_parent->set_OF_label( this->tmp_label );
-        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
-        }
-    else {
-        cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
-        }
-    this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();    
+        if (tmp_parent == forest.local_root() ) this->tmp_label++;
+        //cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
     }
-    cout<<endl;
-  for ( size_t i = 0 ; i < this->OF_labels.size() ; i++){
-    cout << i+1 <<"("<< this->OF_labels[i]<<") ";
+    else if ( tmp_parent->OF_label() == 0 ){ 
+        this->tmp_label++;
+        tmp_parent->set_OF_label( this->tmp_label );
+        //cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
+    }
+    //else {
+        //cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ",";
+    //}
+    this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();
+    this->heights[(*it)->OF_label()-1] = (*it)->height();
   }
-  cout << endl;
-  return std::string("ok");
+  
+  //cout<<endl;
+  //for ( size_t i = 0 ; i < this->OF_labels.size() ; i++){
+    //cout<<i+1<<"(" << this->OF_labels[i]  <<") " ;
+  //}
+  //cout<<endl;
+  
+  //for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
+    //if ( (*it) == forest.local_root() )  {
+        //this->heights[(*it)->OF_label()-1] = (*it)->height();
+    //}
+    //if ((*it)->OF_label()>0) this->heights[(*it)->OF_label()-1] = (*it)->height();
+  //}
+  
 }
-
 
 void OrientedForest::init_OF_label( const Forest &forest ){
   this->OF_labels.clear();
+  this->heights.clear();
   size_t n = 0;
   //cout << "number of nodes:"<<endl;
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
-    if ( (*it)->is_root() ) this->OF_labels.push_back( (size_t)0 );
+    // Include the local root
+    if ( (*it) == forest.local_root() ) {
+      this->OF_labels.push_back( (size_t)0 ); 
+      this->heights.push_back( (double)0 );
+    }
+    // Exclude all the non-local nodes
     if ( !(*it)->local() ) continue;
+    // Exclude all the intermedia local nodes ( nodes which only have one child, 1 parent)
     if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
     Node* tmp_parent = (*it)->parent();
     tmp_parent->set_OF_label( (size_t)0 );
     this->OF_labels.push_back( (size_t)0 );
+    this->heights.push_back( (double)0 );
     //cout << n++<< " "<<(*it)<<" " <<tmp_parent<<endl;
   }
   //cout << n++<< " " << forest.local_root()<<endl;
