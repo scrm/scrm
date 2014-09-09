@@ -436,7 +436,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 void Forest::sampleNextGenealogy() {
 
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
-  double opportunity_y = this -> local_tree_length();
+  double opportunity_y = this -> getLocalTreeLength();
   double recomb_opportunity = recomb_opportunity_x * opportunity_y;
 
   this->set_current_base(next_base_);

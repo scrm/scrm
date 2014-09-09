@@ -146,8 +146,6 @@ class Forest
     else return next_base() - current_base();
   }
 
-  double local_tree_length() const { return local_root()->length_below(); }
-
   void set_random_generator(RandomGenerator *rg) {
     this->random_generator_ = rg; }
   RandomGenerator* random_generator() const { return this->random_generator_; }
