@@ -49,6 +49,7 @@ Model::Model(const Model& model) {
   default_loci_length = model.default_loci_length;
   default_growth_rate = model.default_growth_rate;
   default_mig_rate = model.default_mig_rate;
+  scaling_factor_ = model.scaling_factor_;
   
   mutation_rates_ = model.mutation_rates_;
   recombination_rates_ = model.recombination_rates_;
@@ -87,6 +88,7 @@ void Model::init() {
   default_loci_length = 100000;
   default_growth_rate = 0.0;
   default_mig_rate = 0.0;
+  scaling_factor_ = 1.0 / (4 * default_pop_size);
 
   sample_times_ = std::vector<double>();
   sample_populations_ = std::vector<size_t>();
@@ -119,7 +121,6 @@ void Model::init() {
   this->resetTime();
   this->resetSequencePosition();
 }
-
 
 void Model::reset() {
   deleteParList(pop_sizes_list_);
@@ -334,7 +335,7 @@ void Model::addGrowthRates(const double time, const std::vector<double> &growth_
   std::vector<double>* growth_rates_heap = new std::vector<double>(growth_rates);
   if (rate_scaled) {
     for (auto it = growth_rates_heap->begin(); it != growth_rates_heap->end(); ++it) { 
-      *it /= 4 * default_pop_size;
+      *it *= scaling_factor();
     }
   }
   if (growth_rates_list_[position] != NULL) delete growth_rates_list_[position];    
@@ -376,7 +377,7 @@ void Model::addGrowthRates(const double time, const double growth_rate,
 void Model::addGrowthRate(const double time, const size_t population, 
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
   size_t position = addChangeTime(time, time_scaled);
-  if (rate_scaled) growth_rate /= 4 * default_pop_size;
+  if (rate_scaled) growth_rate *= scaling_factor();
   if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace"), time_scaled); 
   growth_rates_list_.at(position)->at(population) = growth_rate;
 }
@@ -407,7 +408,7 @@ void Model::addGrowthRate(const double time, const size_t population,
 void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
                              const bool &scaled_time, const bool &scaled_rates) {
   size_t position = addChangeTime(time, scaled_time);
-  if (scaled_rates) mig_rate /= 4 * default_pop_size;
+  if (scaled_rates) mig_rate *= scaling_factor();
   if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, nan("value to replace"), scaled_time); 
   mig_rates_list_.at(position)->at(getMigMatrixIndex(source, sink)) = mig_rate;  
 }
@@ -437,7 +438,7 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
                               const bool &scaled_time, const bool &scaled_rates) {
   double popnr = population_number();
   double scaling = 1;
-  if (scaled_rates) scaling = 1 / ( 4 * default_pop_size );
+  if (scaled_rates) scaling = scaling_factor();
   if ( mig_rates.size() != population_number()*population_number() ) 
     throw std::logic_error("Migration rates values do not meet the number of populations");
   std::vector<double>* mig_rates_heap = new std::vector<double>();
@@ -619,7 +620,7 @@ void Model::calcPopSizes() {
       
       // Else copy the last value we had...
       if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
-        pop_sizes_list_.at(i)->at(pop) = 1.0/(2*default_pop_size);
+        pop_sizes_list_.at(i)->at(pop) = scaling_factor() * 2;
       else
         pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
 

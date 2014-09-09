@@ -1,4 +1,4 @@
-AC_INIT([scrm], [1.0.1],[https://github.com/paulstaab/scrm/issues])
+AC_INIT([scrm], [1.2.0],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 dnl AC_CONFIG_SRCDIR([simu.c])
 #AC_CONFIG_SRCDIR([main.cpp])

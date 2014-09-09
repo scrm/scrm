@@ -51,6 +51,7 @@ void Param::parse(Model &model) {
   bool tmrca = false,
        first_last_tmrca = false,
        trees = false,
+       orientedForest = false,
        sfs = false; 
 
 
@@ -285,6 +286,10 @@ void Param::parse(Model &model) {
       model.set_finite_sites(false);
     }
 
+    else if (argv_i == "-O"){
+      orientedForest = true;
+    }
+    
     else if (argv_i == "-L"){
       tmrca = true;
     }
@@ -364,6 +369,7 @@ void Param::parse(Model &model) {
 
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
+  if (orientedForest) model.addSummaryStatistic(new OrientedForest());
   if (tmrca) model.addSummaryStatistic(new TMRCA());
   if (first_last_tmrca) model.addSummaryStatistic(new FirstLastTMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);

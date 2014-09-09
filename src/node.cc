@@ -39,7 +39,8 @@ void Node::init(double height, size_t label) {
   this->set_height(height);
   this->set_label(label);
   if (label == 0) this->set_samples_below(1);
-  else this->set_samples_below(0);
+  else this->set_samples_below(0); 
+  this->set_OF_label(label);
   this->set_length_below(0);
 
   this->set_parent(NULL);

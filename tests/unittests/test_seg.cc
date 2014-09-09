@@ -3,10 +3,10 @@
  */
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
-
 #include <valarray>
-#include "../src/seg.h"
-#include "../src/forest.h"
+
+#include "../../src/seg.h"
+#include "../../src/forest.h"
 
 class TestSeg : public CppUnit::TestCase {
 

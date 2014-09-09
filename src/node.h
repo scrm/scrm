@@ -52,7 +52,6 @@ class Node
   friend class TestForest;
   friend class TestNode;
 #endif
-  //size_t index; // this is the index of the node in the node container...
   
   Node();
   Node(double height);
@@ -119,6 +118,9 @@ class Node
   void set_mutation_state(bool state){mutation_state_ = state;}
   bool mutation_state() const { return mutation_state_ ; }
 
+  void set_OF_label(size_t OF_label) { OF_label_ = OF_label; }
+  size_t OF_label() const { return OF_label_; }
+  
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
     return ( this->label() != 0 ); 
@@ -159,6 +161,7 @@ class Node
   void set_last_update(const double position) { last_update_ = position; }; 
 
   size_t label_;
+  size_t OF_label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if

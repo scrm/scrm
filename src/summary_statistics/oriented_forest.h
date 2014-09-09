@@ -20,21 +20,20 @@
 
 */
 
-#ifndef scrm_src_summary_statistic_newick_tree
-#define scrm_src_summary_statistic_newick_tree
+#ifndef scrm_src_summary_statistic_oriented_forest
+#define scrm_src_summary_statistic_oriented_forest
 
 #include <sstream>
 #include <iostream>
-#include <string>
 
 #include "summary_statistic.h"
 #include "../forest.h"
 
-class NewickTree : public SummaryStatistic
+class OrientedForest : public SummaryStatistic
 {
  public:
-   NewickTree() {};
-   ~NewickTree() {};
+   OrientedForest() {};
+   ~OrientedForest() {};
 
    //Virtual methods
    void calculate(const Forest &forest);
@@ -42,7 +41,13 @@ class NewickTree : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   std::string generateTree(Node *node, const Forest &forest);
+   void init_OF_label( const Forest &forest );
+   void update_OF_label( const Forest &forest );
+   void generateTree( const Forest &forest );
+
+   vector <size_t> OF_labels;
+   vector <double> heights;
+   size_t tmp_label;
    std::ostringstream output_buffer_;
 };
 

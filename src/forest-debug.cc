@@ -7,11 +7,7 @@
  * 
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * the Free Software Foundation, either version 3 of the License, or * (at your option) any later version.  * * This program is distributed in the hope that it will be useful, * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
@@ -28,8 +24,10 @@
  *****************************************************************/
 
 void Forest::createExampleTree() {
-  this->nodes()->clear();
-  this->writable_model()->reset();
+  this->clear();
+  // Only set the number of samples to 4, but keep rest of the model
+  this->writable_model()->sample_times_.clear();
+  this->writable_model()->sample_populations_.clear();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
   Node* leaf1 = new Node(0, 1);
@@ -68,6 +66,7 @@ void Forest::createExampleTree() {
   nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
+  //this->registerSecondaryRoot(nl_root);
   updateAbove(nl_node);
 
   updateAbove(leaf1);
@@ -144,8 +143,8 @@ void Forest::addNodeToTree(Node *node, Node *parent, Node *first_child, Node *se
 bool Forest::checkTreeLength() const {
   double local_length = calcTreeLength();
 
-  if ( !areSame(local_length, local_tree_length(), 0.000001) ) {
-    dout << "Error: local tree length is " << this->local_tree_length() << " ";
+  if ( !areSame(local_length, getLocalTreeLength(), 0.000001) ) {
+    dout << "Error: local tree length is " << this->getLocalTreeLength() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
   }
@@ -244,18 +243,20 @@ bool Forest::checkNodeProperties() const {
 bool Forest::checkTree(Node const* root) const {
   if (root == NULL) {
     bool good = true;
-    //Default when called without argument
+    // Default when called without argument
     for (ConstNodeIterator it = getNodes()->iterator(); it.good(); ++it) {
-      if ( (*it)->is_root() ) good = checkTree(*it);
+      if ( (*it)->is_root() ) good *= checkTree(*it);
     }
 
-    assert( this->checkInvariants() );
-    assert( this->checkNodeProperties() );
-    assert( this->checkTreeLength() );
+    good *= this->checkInvariants();
+    good *= this->checkNodeProperties();
+    good *= this->checkTreeLength();
+    good *= this->checkRoots();
     return good;
   }
   assert( root != NULL );
 
+  if (!checkRootIsRegistered(root)) return false;  
   Node* h_child = root->second_child();
   Node* l_child = root->first_child();
 
@@ -318,85 +319,11 @@ bool Forest::printTree() const {
 
   for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
     if ( !(*ni)->is_root() && (*ni)->height_above() == 0.0 ) {
-      dout << "A rare situation occurred were a parent and a child have exactly "
+      std::cout << "A rare situation occurred were a parent and a child have exactly "
            << "the same height. We can't print such trees here, the algorithm however"
            << "should not be affected." << std::endl; 
       return 1;
     }
-    h_line = 0;
-    start_height = end_height;
-    while ( ni.height() <= end_height ) ++ni;
-    end_height = ni.height(); 
-    //std::cout << start_height << " - " << end_height << std::endl;
-
-    for (position = positions.begin(); position != positions.end(); ++position) {
-      assert( *position != NULL );
-      if ( (*position)->height() == start_height ) {
-        if ( (*position)->local() || *position == local_root() ) dout << "╦";
-        else dout << "┬";
-        if ( (*position)->numberOfChildren() == 2 ) {
-          h_line = 1 + !((*position)->local());
-          if ( *position == local_root() ) h_line = 1;
-        }
-        if ( (*position)->numberOfChildren() == 1 ) {
-          h_line = 0;
-        }
-      } 
-      else if ( (*position)->height() < start_height &&
-                (*position)->parent_height() >= end_height ) {
-        if ( (*position)->local() ) dout << "║";
-        else dout << "│";
-
-      } 
-      else if ( (*position)->parent_height() == start_height ) {
-        if ( *position == (*position)->parent()->first_child() ) {
-          if ( (*position)->local() ) { 
-            dout << "╚";
-            h_line = 1;
-          }
-          else {
-            dout << "└";
-            h_line = 2;
-          }
-        }
-        else {
-          if ( (*position)->local() ) dout << "╝";
-          else dout << "┘";
-          h_line = 0;
-        }
-      }
-      else {
-        if ( h_line == 0 ) dout << " ";
-        else if ( h_line == 1 ) dout << "═";
-        else dout << "─";
-      }
-    }
-    dout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
-    for (position = positions.begin(); position != positions.end(); ++position) {
-      if (*position == NULL) continue;
-      if ( (*position)->height() == start_height ) {
-        if ((*position)->label() != 0) dout << (*position)->label() << ":";
-        if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
-        else dout << *position << "(" << (*position)->first_child()->population()
-                  << "->" << (*position)->population() << ") ";
-        if (nodeIsOld(*position)) dout << "old ";
-      }
-    }
-    dout << std::endl;
-  }
-  return true;
-}
-
-bool Forest::printTree_cout() {
-  //this->printNodes();
-  std::vector<Node const*> positions = this->determinePositions();
-  //this->printPositions(positions);
-  std::vector<Node const*>::iterator position;
-  int h_line;
-  double start_height = 0, 
-         end_height = getNodes()->get(0)->height();
-
-  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
@@ -449,18 +376,17 @@ bool Forest::printTree_cout() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        if ((*position)->label() != 0) dout << (*position)->label() << ":";
-        std::cout << *position << "(" << (*position)->population() << ") ";
+        if ((*position)->label() != 0) std::cout << (*position)->label() << ":";
+        if (!(*position)->is_migrating()) std::cout << *position << "(" << (*position)->population() << ") ";
+        else std::cout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) std::cout << "old ";
       }
     }
     std::cout << std::endl;
   }
   return true;
 }
-
-
-
-
 
 /**
  *  For printing the tree, each node gets assigned its own column in the printed area, 
@@ -554,37 +480,44 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
   bool Forest::printNodes() const {
-    dout << std::setw(10) << std::right << "Node";
-    dout << std::setw(10) << std::right << "Height";
-    dout << std::setw(6) << std::right << "label";
-    dout << std::setw(10) << std::right << "Parent";
-    dout << std::setw(10) << std::right << "1th_child";
-    dout << std::setw(10) << std::right << "2nd_child";
-    dout << std::setw(6) << std::right << "local";
-    dout << std::setw(6) << std::right << "pop";
-    dout << std::setw(10) << std::right << "l_upd";
-    dout << std::setw(6) << std::right << "s_bel";
-    dout << std::setw(10) << std::right << "l_bel";
-    dout << std::endl;
+    std::cout << std::setw(10) << std::right << "Node";
+    std::cout << std::setw(10) << std::right << "Height";
+    std::cout << std::setw(6) << std::right << "label";
+    std::cout << std::setw(10) << std::right << "Parent";
+    std::cout << std::setw(10) << std::right << "1th_child";
+    std::cout << std::setw(10) << std::right << "2nd_child";
+    std::cout << std::setw(6) << std::right << "local";
+    std::cout << std::setw(6) << std::right << "pop";
+    std::cout << std::setw(10) << std::right << "l_upd";
+    std::cout << std::setw(6) << std::right << "s_bel";
+    std::cout << std::setw(10) << std::right << "l_bel";
+    std::cout << std::endl;
 
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-      dout << std::setw(10) << std::right << this->getNodes()->get(i);
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
-      dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i);
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
+      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       if (!getNodes()->get(i)->is_root()) 
-        dout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
-      else dout << std::setw(10) << std::right << 0;
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
-      dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
-      dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
-      dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
-      dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
-      dout << std::endl;
+        std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
+      else std::cout << std::setw(10) << std::right << 0;
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
+      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
+      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
+      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
+      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
+      std::cout << std::endl;
     }
-    dout << "Local Root:    " << this->local_root() << std::endl;
-    dout << "Primary Root:  " << this->primary_root() << std::endl;
+    std::cout << "Local Root:    " << this->local_root() << std::endl;
+    std::cout << "Primary Root:  " << this->primary_root() << std::endl;
+    /*
+    std::cout << "Secondary Roots:  "; 
+    for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+      std::cout << *it << " ";  
+    }
+    std::cout  << std::endl;
+    */
     return true;
   }
 
@@ -597,54 +530,64 @@ bool Forest::checkForNodeAtHeight(const double height) const {
   return false;
 }
 
-// Checks if all nodes in contemporaries are contempoaries.
-bool Forest::checkContemporaries(const TimeInterval &ti) const {
+// Checks if all nodes in contemporaries are contemporaries.
+bool Forest::checkContemporaries(const double time) const {
   // Check if all nodes in contemporaries() are contemporaries
-  for (std::vector<Node*>::const_iterator it = ti.contemporaries().begin(); 
-       it != ti.contemporaries().end(); ++it) {
-
-    if ( *it == NULL ) return 0;
-    if ( (*it)->height() > ti.start_height() || (*it)->parent_height() < ti.end_height() ) {
-      dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
-      return 0;
-    }
-
-    if ( nodeIsOld(*it) ) { 
-      if ( *it == local_root() ) {
-        if ( !(*it)->is_root() ) {
-          dout << "Branch above local root should be pruned but is not" << std::endl;
-          return 0;
-        }
-      } else {
-        dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+  for (size_t pop = 0; pop < model().population_number(); ++pop) {
+    for (auto it = contemporaries_.begin(pop); it != contemporaries_.end(pop); ++it) {
+      if ( *it == NULL ) {
+        dout << "NULL in contemporaries" << std::endl; 
         return 0;
       }
-    }
 
-    for (size_t i = 0; i < 2; ++i) {
-      if ( *it == active_node(i) && states_[i] == 1 ) {
-        dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
+      if ( (*it)->is_root() ) {
+        dout << "Root " << *it << " in contemporaries" << std::endl; 
         return 0;
+      }
+
+      if ( (*it)->height() > time || (*it)->parent_height() <= time ) {
+        dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
+        return 0;
+      }
+
+      if ( nodeIsOld(*it) ) { 
+        if ( *it == local_root() ) {
+          if ( !(*it)->is_root() ) {
+            dout << "Branch above local root should be pruned but is not" << std::endl;
+            return 0;
+          }
+        } else {
+          dout << "Contemporary node " << *it << " should be pruned by now!" << std::endl;
+          return 0;
+        }
+      }
+
+      for (size_t i = 0; i < 2; ++i) {
+        if ( *it == active_node(i) && states_[i] == 1 ) {
+          dout << "Coalescing node a" << i << " in contemporaries!" << std::endl;
+          return 0;
+        }
       }
     }
   }
 
   // Check if all contemporaries are in contemporaries() 
   for (auto ni = getNodes()->iterator(); ni.good(); ++ni) {
-    if ( (*ni)->height() <= ti.start_height() && ti.end_height() <= (*ni)->parent_height()) {
+    if ( (*ni)->height() <= time && time < (*ni)->parent_height()) {
       if ( *ni == active_node(0) && states_[0] == 1 ) continue; 
       if ( *ni == active_node(1) && states_[1] == 1 ) continue; 
       
       bool found = false;
-      for (auto it = ti.contemporaries().begin(); it != ti.contemporaries().end(); ++it) {
+      size_t pop = (*ni)->population();
+      for (auto it = contemporaries_.begin(pop); it != contemporaries_.end(pop); ++it) {
         if ( *it == *ni ) {
           found = true;
           break;
         }
       } 
       if (!found) { 
-        dout << "Node " << *ni << " (height " << (*ni)->height() <<") not in contemporaries." << std::endl;
-        dout << ti.start_height() << " " << ti.end_height() << std::endl;
+        dout << "Node " << *ni << " (height " << (*ni)->height() 
+             << ") not in contemporaries at time " << time << std::endl;
         return 0;
       }
     }
@@ -652,3 +595,66 @@ bool Forest::checkContemporaries(const TimeInterval &ti) const {
 
   return 1;
 }
+
+bool Forest::checkRootIsRegistered(Node const* node) const {
+  if (!node->is_root()) return true;
+  /*
+  if (node == primary_root() || isRegisteredSecondaryRoot(node)) return true;
+  else {
+    dout << "Error: Root " << node << " is not registered." << std::endl;
+    return false;
+  }
+  */
+}
+
+bool Forest::checkRoots() const {
+  // Check that local_root() really is the local root:
+  if (local_root()->samples_below() != sample_size() ||
+      local_root()->first_child() == NULL ||
+      local_root()->second_child() == NULL ||
+      (!local_root()->first_child()->local()) ||
+      (!local_root()->second_child()->local()) ) {
+    dout << local_root() << " is registered as local root, but is not." << std::endl;
+    return false;
+  } 
+  
+  // Check that primary_root() really is the primary root:
+  Node* node = local_root();
+  while (!node->is_root()) node = node->parent(); 
+  if (node != primary_root()) {
+    dout << primary_root() << " is registered as primary root, but "
+         << node << " is." << std::endl;
+    return false;
+  }
+
+  // Check if all secondary roots are still roots:
+  /*
+  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+    if (!(*it)->is_root()) {
+      dout << *it << " is in secondary roots, but it is no root." << std::endl;
+      return false;
+    }
+    if (*it == local_root()) {
+      dout << *it << " is in secondary roots, but it is the local root." << std::endl;
+      return false;
+    }
+    if (*it == primary_root()) {
+      dout << *it << " is in secondary roots, but it is the primary root." << std::endl;
+      return false;
+    }
+  }
+  */
+
+  return true;
+}
+
+// Stupid slow implementation needed because it cannot be const otherwise (it's
+// debug only...)
+/*
+bool Forest::isRegisteredSecondaryRoot(Node const* root) const {
+  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
+    if (*it == root) return true;
+  }
+  return false;
+};
+*/

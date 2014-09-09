@@ -1,8 +1,8 @@
 #include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "../src/random/fastfunc.h"
-#include "../src/random/mersenne_twister.h"
+#include "../../src/random/fastfunc.h"
+#include "../../src/random/mersenne_twister.h"
 
 class TestFastFunc : public CppUnit::TestCase {
 
