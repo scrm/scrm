@@ -55,11 +55,27 @@ void NewickTree::printLocusOutput(std::ostream &output) {
 std::string NewickTree::generateTree(Node *node, const Forest &forest) {
   if (node->in_sample()) return labels_.at(node->label()-1);
 
+  std::string tree;
+
+  std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
+  if (it != buffer_.end()) {
+    if (node->samples_below() == it->second.sample_below &&
+        node->length_below() == it->second.length_below) {
+      std::cout << "Using Buffer" << std::endl;
+      return it->second.tree;
+    }
+  }
+
   Node *left = forest.trackLocalNode(node->first_child());
   Node *right = forest.trackLocalNode(node->second_child());
 
-  return "(" + generateTree(left, forest) + ":" + 
+  tree = "(" + generateTree(left, forest) + ":" + 
          std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
          "," + generateTree(right, forest) + ":" + 
          std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+
+  NewickBuffer buf = { node->samples_below(), node->length_below(), tree };
+  buffer_[node] = buf; 
+
+  return tree;
 }

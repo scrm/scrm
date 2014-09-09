@@ -26,9 +26,16 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <map>
 
 #include "summary_statistic.h"
 #include "../forest.h"
+
+struct NewickBuffer {
+  size_t sample_below;
+  double length_below;
+  std::string tree;
+};
 
 class NewickTree : public SummaryStatistic
 {
@@ -46,6 +53,7 @@ class NewickTree : public SummaryStatistic
    std::string generateTree(Node *node, const Forest &forest);
    std::ostringstream output_buffer_;
    std::vector<std::string> labels_;
+   std::map<Node const*, NewickBuffer> buffer_;  
 };
 
 #endif
