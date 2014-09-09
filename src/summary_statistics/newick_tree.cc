@@ -20,11 +20,9 @@
 */
 
 #include "newick_tree.h"
+
 NewickTree::NewickTree(const size_t sample_size) {
-  labels_.reserve(sample_size);
-  for (size_t i=1; i <= sample_size; ++i) {
-    labels_.push_back(std::to_string(i));
-  } 
+
 };
 
 void NewickTree::calculate(const Forest &forest) {
@@ -43,6 +41,7 @@ void NewickTree::printLocusOutput(std::ostream &output) {
   output << output_buffer_.str();  
   output_buffer_.str("");
   output_buffer_.clear();
+  buffer_.clear();
 }
 
 /**
@@ -52,30 +51,42 @@ void NewickTree::printLocusOutput(std::ostream &output) {
  *
  * @return A part of the tree in newick format
  */
-std::string NewickTree::generateTree(Node *node, const Forest &forest) {
-  if (node->in_sample()) return labels_.at(node->label()-1);
-
-  std::string tree;
-
+std::string NewickTree::generateTree(Node *node, const Forest &forest, const bool use_buffer) {
+  if (use_buffer) dout << "Node: " << node << " " <<  node->length_below() << std::endl;
+  // Use tree from buffer if possible
   std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
-  if (it != buffer_.end()) {
+  if (use_buffer && it != buffer_.end()) {
     if (node->samples_below() == it->second.sample_below &&
-        node->length_below() == it->second.length_below) {
-      std::cout << "Using Buffer" << std::endl;
+        node->length_below() == it->second.length_below &&
+        node->first_child() == it->second.first_child &&
+        node->second_child() == it->second.second_child) {
+      // The equal comparison between doubles is intentional to be as sure as
+      // possible that the subtree did not change.
+      dout << "Tree from buffer: " << it->second.tree << std::endl;
+      dout << "Real Tree:        " << generateTree(node, forest, false) << std::endl;
+      assert(it->second.tree.compare(generateTree(node, forest, false)) == 0);
       return it->second.tree;
     }
   }
 
-  Node *left = forest.trackLocalNode(node->first_child());
-  Node *right = forest.trackLocalNode(node->second_child());
+  // Generate a new tree
+  std::string tree;
+  if (node->in_sample()) tree = std::to_string(node->label());
+  else { 
+    Node *left = forest.trackLocalNode(node->first_child());
+    Node *right = forest.trackLocalNode(node->second_child());
+    tree = "(" + generateTree(left, forest, use_buffer) + ":" + 
+           std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
+           "," + generateTree(right, forest, use_buffer) + ":" + 
+           std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+  }
 
-  tree = "(" + generateTree(left, forest) + ":" + 
-         std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
-         "," + generateTree(right, forest) + ":" + 
-         std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
-
-  NewickBuffer buf = { node->samples_below(), node->length_below(), tree };
-  buffer_[node] = buf; 
+  // And add to to the buffer
+  if (use_buffer) {
+    NewickBuffer buf = {node->samples_below(), node->length_below(),
+                        node->first_child(), node->second_child(), tree};
+    buffer_[node] = buf; 
+  }
 
   return tree;
 }

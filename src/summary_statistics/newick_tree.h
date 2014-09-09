@@ -34,6 +34,8 @@
 struct NewickBuffer {
   size_t sample_below;
   double length_below;
+  Node const* first_child;
+  Node const* second_child;
   std::string tree;
 };
 
@@ -50,9 +52,9 @@ class NewickTree : public SummaryStatistic
 
  private:
    NewickTree() {};
-   std::string generateTree(Node *node, const Forest &forest);
+   std::string generateTree(Node *node, const Forest &forest,
+                            const bool use_buffer = true);
    std::ostringstream output_buffer_;
-   std::vector<std::string> labels_;
    std::map<Node const*, NewickBuffer> buffer_;  
 };
 
