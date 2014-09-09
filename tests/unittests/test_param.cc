@@ -183,15 +183,15 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(model.default_pop_size, model.population_size(0)) );
     CPPUNIT_ASSERT( areSame(0.3*model.default_pop_size, model.population_size(1)) );
     CPPUNIT_ASSERT( areSame(model.default_pop_size, (size_t)model.population_size(2)) );
-    CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(1) );
-    CPPUNIT_ASSERT_EQUAL( 1.5 / 4 / model.default_pop_size, model.growth_rate(2) );
+    CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(0)) );
+    CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(1)) );
+    CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(2)) );
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.1 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(1.1 * 4 * model.default_pop_size, model.getCurrentTime()) );
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.5 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(1.5 * 4 * model.default_pop_size, model.getCurrentTime()) );
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(2.0 * 4 * model.default_pop_size, model.getCurrentTime()) );
     CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(0) );
     CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)(0.10*model.default_pop_size), (size_t)model.population_size(2) );
@@ -356,12 +356,12 @@ class TestParam : public CppUnit::TestCase {
       "-G", "2", "-eG", "1", "3", "-M", "5.0" };
     CPPUNIT_ASSERT_NO_THROW( Param(16, argv).parse(model); );
     model.resetTime();
-    CPPUNIT_ASSERT_EQUAL( 2.0 / 4 / model.default_pop_size, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 2.0 / 4 / model.default_pop_size, model.growth_rate(1) );
+    CPPUNIT_ASSERT( areSame(2.0 / 4 / model.default_pop_size, model.growth_rate(0)) );
+    CPPUNIT_ASSERT( areSame(2.0 / 4 / model.default_pop_size, model.growth_rate(1)) );
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 3.0 / 4 / model.default_pop_size, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( 3.0 / 4 / model.default_pop_size, model.growth_rate(1) );
+    CPPUNIT_ASSERT( areSame(1.0 * 4 * model.default_pop_size, model.getCurrentTime()) );
+    CPPUNIT_ASSERT( areSame(3.0 / 4 / model.default_pop_size, model.growth_rate(0)) );
+    CPPUNIT_ASSERT( areSame(3.0 / 4 / model.default_pop_size, model.growth_rate(1)) );
 
     // -g && -eg
     char *argv2[] = { 
