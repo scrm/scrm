@@ -71,12 +71,12 @@ void OrientedForest::update_OF_label( const Forest &forest ){
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
     if ( (*it) == forest.local_root() )  {
       this->heights[(*it)->OF_label()-1] = (*it)->height();
-      //cout << (*it)->OF_label() << "("<< 0 << ")" << ","; // DEBUG
+      return; // There is no local node above the local root.
     }
     if ( !(*it)->local() ) continue;
     if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
 
-    // Exclude all the intermedia local nodes ( nodes which only have one child, 1 parent)
+    // Exclude all the intermediate local nodes ( nodes which only have one child, 1 parent)
     Node* tmp_parent = (*it)->parent();
     while ( ( tmp_parent->second_child() == NULL || !( tmp_parent->second_child()->local())  || !(tmp_parent->first_child()->local() ))  ){
       tmp_parent = tmp_parent->parent();
@@ -87,31 +87,32 @@ void OrientedForest::update_OF_label( const Forest &forest ){
       tmp_parent->set_OF_label( this->tmp_label );
     }
 
-    //cout << (*it)->OF_label() << "("<< tmp_parent->OF_label() << ")" << ", "; // DEBUG
     this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();
     this->heights[(*it)->OF_label()-1] = (*it)->height();
   }
-  //cout<<endl; // DEBUG
 }
 
 void OrientedForest::init_OF_label( const Forest &forest ){
   this->OF_labels.clear();
   this->heights.clear();
   size_t n = 0;
+  Node* tmp_parent;
+
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
     // Include the local root
     if ( (*it) == forest.local_root() ) {
-      this->OF_labels.push_back( (size_t)0 ); 
-      this->heights.push_back( (double)0 );
+      this->OF_labels.push_back(0); 
+      this->heights.push_back(0.0);
+      break; // There are no local nodes above the local root.
     }
     // Exclude all the non-local nodes
     if ( !(*it)->local() ) continue;
-    Node* tmp_parent = (*it)->parent();
-    tmp_parent->set_OF_label( (size_t)0 );
+    tmp_parent = (*it)->parent();
+    tmp_parent->set_OF_label(0);
     // Exclude all the intermedia local nodes ( nodes which only have one child, 1 parent)
     if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
-    this->OF_labels.push_back( (size_t)0 );
-    this->heights.push_back( (double)0 );
+    this->OF_labels.push_back(0);
+    this->heights.push_back(0.0);
   }
   // Initialize the first parent node to the first tip node
   this->tmp_label = forest.model().sample_size();
