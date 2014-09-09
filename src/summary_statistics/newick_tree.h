@@ -32,10 +32,7 @@
 #include "../forest.h"
 
 struct NewickBuffer {
-  size_t sample_below;
-  double length_below;
-  Node const* first_child;
-  Node const* second_child;
+  double position;
   std::string tree;
 };
 

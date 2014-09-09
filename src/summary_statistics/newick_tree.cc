@@ -56,10 +56,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   // Use tree from buffer if possible
   std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
   if (use_buffer && it != buffer_.end()) {
-    if (node->samples_below() == it->second.sample_below &&
-        node->length_below() == it->second.length_below &&
-        node->first_child() == it->second.first_child &&
-        node->second_child() == it->second.second_child) {
+    if (it->second.position > node->last_change()) {
       // The equal comparison between doubles is intentional to be as sure as
       // possible that the subtree did not change.
       dout << "Tree from buffer: " << it->second.tree << std::endl;
@@ -83,8 +80,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
 
   // And add to to the buffer
   if (use_buffer) {
-    NewickBuffer buf = {node->samples_below(), node->length_below(),
-                        node->first_child(), node->second_child(), tree};
+    NewickBuffer buf = {forest.current_base(), tree};
     buffer_[node] = buf; 
   }
 

@@ -42,6 +42,7 @@ void Node::init(double height, size_t label) {
   else this->set_samples_below(0); 
   this->set_OF_label(label);
   this->set_length_below(0);
+  this->set_last_change(0);
 
   this->set_parent(NULL);
   this->set_second_child(NULL);
