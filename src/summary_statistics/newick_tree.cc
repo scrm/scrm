@@ -20,6 +20,12 @@
 */
 
 #include "newick_tree.h"
+NewickTree::NewickTree(const size_t sample_size) {
+  labels_.reserve(sample_size);
+  for (size_t i=1; i <= sample_size; ++i) {
+    labels_.push_back(std::to_string(i));
+  } 
+};
 
 void NewickTree::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {
@@ -47,7 +53,7 @@ void NewickTree::printLocusOutput(std::ostream &output) {
  * @return A part of the tree in newick format
  */
 std::string NewickTree::generateTree(Node *node, const Forest &forest) {
-  if (node->in_sample()) return std::to_string(node->label());
+  if (node->in_sample()) return labels_.at(node->label()-1);
 
   Node *left = forest.trackLocalNode(node->first_child());
   Node *right = forest.trackLocalNode(node->second_child());

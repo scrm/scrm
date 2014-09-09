@@ -33,7 +33,7 @@
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree() {};
+   NewickTree(const size_t sample_size);
    ~NewickTree() {};
 
    //Virtual methods
@@ -42,8 +42,10 @@ class NewickTree : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
+   NewickTree() {};
    std::string generateTree(Node *node, const Forest &forest);
    std::ostringstream output_buffer_;
+   std::vector<std::string> labels_;
 };
 
 #endif
