@@ -12,6 +12,10 @@ Released: Not jet
     Theoretical Population Biology, Volume 95, August2014, Pages 13-23, 
     ISSN 0040-5809, http://dx.doi.org/10.1016/j.tpb.2014.05.001. 
 
+### Improvements
++ Optimized the generation of newick trees (#22).
+
+
 
  
 Version 1.1.0
