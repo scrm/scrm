@@ -95,7 +95,6 @@ void OrientedForest::update_OF_label( const Forest &forest ){
 void OrientedForest::init_OF_label( const Forest &forest ){
   this->OF_labels.clear();
   this->heights.clear();
-  size_t n = 0;
   Node* tmp_parent;
 
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
