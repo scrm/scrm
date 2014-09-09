@@ -14,6 +14,7 @@
 #include "../../src/summary_statistics/summary_statistic.h"
 #include "../../src/summary_statistics/frequency_spectrum.h"
 #include "../../src/summary_statistics/oriented_forest.h"
+#include "../../src/summary_statistics/newick_tree.h"
 
 class TestSummaryStatistics : public CppUnit::TestCase {
 
@@ -24,6 +25,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST( testSegSitesCalculate );
   CPPUNIT_TEST( testSiteFrequencies );
   CPPUNIT_TEST( testOrientedForest );
+  CPPUNIT_TEST( testNewickTree );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -207,6 +209,25 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.calculate(forest);
     of.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("{\"duration\":10, \"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
+  }
+
+  void testNewickTree() {
+    forest->createScaledExampleTree();
+    forest->set_current_base(0.0);
+    forest->set_next_base(10.0);
+    
+    NewickTree of;
+    ostringstream output;
+    of.calculate(forest);
+    of.printLocusOutput(output);
+    CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
+    
+    output.str("");
+    output.clear();
+    forest->writable_model()->setRecombinationRate(0.0001);
+    of.calculate(forest);
+    of.printLocusOutput(output);
+    CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
   }
 };
 
