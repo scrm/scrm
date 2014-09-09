@@ -49,6 +49,7 @@ Model::Model(const Model& model) {
   default_loci_length = model.default_loci_length;
   default_growth_rate = model.default_growth_rate;
   default_mig_rate = model.default_mig_rate;
+  scaling_factor_ = model.scaling_factor_;
   
   mutation_rates_ = model.mutation_rates_;
   recombination_rates_ = model.recombination_rates_;
@@ -87,6 +88,7 @@ void Model::init() {
   default_loci_length = 100000;
   default_growth_rate = 0.0;
   default_mig_rate = 0.0;
+  scaling_factor_ = 1.0 / (4 * default_pop_size);
 
   sample_times_ = std::vector<double>();
   sample_populations_ = std::vector<size_t>();

@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <string>
 
 #include "summary_statistic.h"
 #include "../forest.h"
