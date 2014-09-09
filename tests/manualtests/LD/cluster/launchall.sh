@@ -12,7 +12,7 @@
 #"submit_scrm300000.sh" "submit_scrm500000.sh" "submit_scrm700000.sh" "submit_scrm1000000.sh" \
 #)
 
-joblist=("submit_scrm0.sh" "submit_scrm500.sh" "submit_scrm1000.sh" \ 
+joblist=("submit_scrm0.sh" "submit_scrm500.sh" "submit_scrm1000.sh" \
 "submit_scrm3000.sh" "submit_scrm5000.sh" "submit_scrm7000.sh" "submit_scrm10000.sh" \
 "submit_scrm30000.sh" "submit_scrm50000.sh" "submit_scrm70000.sh" "submit_scrm100000.sh" \
 "submit_scrm300000.sh" "submit_scrm500000.sh" "submit_scrm700000.sh" "submit_scrm1000000.sh" \
