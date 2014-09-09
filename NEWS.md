@@ -7,6 +7,7 @@ Released: Not jet
 
 ### New Features
 + New `oriented forest` summary statistic as suggested by 
+
     J. Kelleher, A.M. Etheridge, N.H. Barton (2014) Coalescent simulation in 
     continuous space: Algorithms for large neighbourhood size, 
     Theoretical Population Biology, Volume 95, August2014, Pages 13-23, 
