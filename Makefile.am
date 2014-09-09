@@ -39,7 +39,8 @@ sumstat_src = src/summary_statistics/tmrca.cc \
 			  src/summary_statistics/summary_statistic.h \
 			  src/summary_statistics/first_last_tmrca.cc \
 			  src/summary_statistics/first_last_tmrca.h \
-			  src/summary_statistics/orientedForest.cc
+			  src/summary_statistics/oriented_forest.cc \
+			  src/summary_statistics/oriented_forest.h
  
 scrm_src = $(nrml_src) $(random_src) $(sumstat_src)
 

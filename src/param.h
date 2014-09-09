@@ -41,7 +41,7 @@
 #include "summary_statistics/seg_sites.h"
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
-#include "summary_statistics/orientedForest.h"
+#include "summary_statistics/oriented_forest.h"
 
 class Param {
  public:

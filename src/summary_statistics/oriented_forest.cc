@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "orientedForest.h"
+#include "oriented_forest.h"
 
 void OrientedForest::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {

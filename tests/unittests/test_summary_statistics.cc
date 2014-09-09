@@ -13,6 +13,7 @@
 #include "../../src/summary_statistics/seg_sites.h"
 #include "../../src/summary_statistics/summary_statistic.h"
 #include "../../src/summary_statistics/frequency_spectrum.h"
+#include "../../src/summary_statistics/oriented_forest.h"
 
 class TestSummaryStatistics : public CppUnit::TestCase {
 
@@ -21,7 +22,8 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST( testTMRCA );
   CPPUNIT_TEST( testSegSitesGetHaplotypes );
   CPPUNIT_TEST( testSegSitesCalculate );
-  //CPPUNIT_TEST( testSiteFrequencies );
+  CPPUNIT_TEST( testSiteFrequencies );
+  CPPUNIT_TEST( testOrientedForest );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -186,6 +188,14 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
 
     delete seg_sites;
+  }
+
+  void testOrientedForest() {
+    forest->createScaledExampleTree();
+    forest->writable_model()->setMutationRate(0.0001);
+    forest->set_current_base(0.0);
+    forest->set_next_base(10.0);
+
   }
 };
 
