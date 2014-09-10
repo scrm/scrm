@@ -3,7 +3,7 @@ scrm Version History
 
 Version 1.2.0
 ------------------------
-Released: Not jet
+Released: 2014-09-10
 
 ### New Features
 + New `oriented forest` summary statistic as suggested by 
