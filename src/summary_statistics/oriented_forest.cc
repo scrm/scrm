@@ -29,7 +29,7 @@ void OrientedForest::calculate(const Forest &forest) {
   } else {
     if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
     output_buffer_ << "{" ;
-    output_buffer_ << "\"duration\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
+    output_buffer_ << "\"length\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
     generateTree(forest);
     output_buffer_ << "}\n";  
   }
@@ -53,13 +53,13 @@ void OrientedForest::generateTree( const Forest &forest ) {
   this->init_OF_label( forest );
   this->update_OF_label( forest );
     
-  output_buffer_ << "\"pi\":[" ;
+  output_buffer_ << "\"parents\":[0," ;
   for ( size_t i = 0 ; i < this->OF_labels.size() ; i++ ){
     output_buffer_ << this->OF_labels[i] <<  ((i < this->OF_labels.size()-1) ? ",":"" );
   }
   output_buffer_ << "], " ;
 
-  output_buffer_ << "\"heights\":[" ;
+  output_buffer_ << "\"node_times\":[-1," ;
   for ( size_t i = 0 ; i < this->heights.size() ; i++){
     output_buffer_ << this->heights[i] <<  ((i < this->heights.size()-1) ? ",":"" );
   }
@@ -70,7 +70,7 @@ void OrientedForest::generateTree( const Forest &forest ) {
 void OrientedForest::update_OF_label( const Forest &forest ){
   for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
     if ( (*it) == forest.local_root() )  {
-      this->heights[(*it)->OF_label()-1] = (*it)->height();
+      this->heights[(*it)->OF_label()-1] = (*it)->height() * forest.model().scaling_factor() ;
       return; // There is no local node above the local root.
     }
     if ( !(*it)->local() ) continue;
@@ -88,7 +88,7 @@ void OrientedForest::update_OF_label( const Forest &forest ){
     }
 
     this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();
-    this->heights[(*it)->OF_label()-1] = (*it)->height();
+    this->heights[(*it)->OF_label()-1] = (*it)->height() * forest.model().scaling_factor() ;
   }
 }
 
