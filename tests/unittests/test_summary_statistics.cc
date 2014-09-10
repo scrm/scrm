@@ -216,7 +216,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    NewickTree of(4);
+    NewickTree of;
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);

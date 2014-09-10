@@ -20,12 +20,6 @@
 */
 
 #include "newick_tree.h"
-NewickTree::NewickTree(const size_t sample_size) {
-  labels_.reserve(sample_size);
-  for (size_t i=1; i <= sample_size; ++i) {
-    labels_.push_back(std::to_string(i));
-  } 
-};
 
 void NewickTree::calculate(const Forest &forest) {
   if (forest.model().recombination_rate() == 0.0) {
@@ -43,6 +37,7 @@ void NewickTree::printLocusOutput(std::ostream &output) {
   output << output_buffer_.str();  
   output_buffer_.str("");
   output_buffer_.clear();
+  buffer_.clear();
 }
 
 /**
@@ -52,14 +47,34 @@ void NewickTree::printLocusOutput(std::ostream &output) {
  *
  * @return A part of the tree in newick format
  */
-std::string NewickTree::generateTree(Node *node, const Forest &forest) {
-  if (node->in_sample()) return labels_.at(node->label()-1);
+std::string NewickTree::generateTree(Node *node, const Forest &forest, const bool use_buffer) {
+  // Use tree from buffer if possible
+  std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
+  if (use_buffer && it != buffer_.end()) {
+    if (it->second.position > node->last_change()) {
+      // Check that the buffered tree is correct.
+      assert(it->second.tree.compare(generateTree(node, forest, false)) == 0);
+      return it->second.tree;
+    }
+  }
 
-  Node *left = forest.trackLocalNode(node->first_child());
-  Node *right = forest.trackLocalNode(node->second_child());
+  // Generate a new tree
+  std::string tree;
+  if (node->in_sample()) tree = std::to_string(node->label());
+  else { 
+    Node *left = forest.trackLocalNode(node->first_child());
+    Node *right = forest.trackLocalNode(node->second_child());
+    tree = "(" + generateTree(left, forest, use_buffer) + ":" + 
+           std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
+           "," + generateTree(right, forest, use_buffer) + ":" + 
+           std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+  }
 
-  return "(" + generateTree(left, forest) + ":" + 
-         std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
-         "," + generateTree(right, forest) + ":" + 
-         std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+  // And add to to the buffer
+  if (use_buffer) {
+    NewickBuffer buf = {forest.current_base(), tree};
+    buffer_[node] = buf; 
+  }
+
+  return tree;
 }

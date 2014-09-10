@@ -14,8 +14,7 @@ Released: Not jet
     ISSN 0040-5809, http://dx.doi.org/10.1016/j.tpb.2014.05.001. 
 
 ### Improvements
-+ Optimized the generation of newick trees (#22).
-
++ Optimized the generation of newick trees (#22) and use a buffer (#23)
 
 
  

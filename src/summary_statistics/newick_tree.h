@@ -26,14 +26,24 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <map>
 
 #include "summary_statistic.h"
 #include "../forest.h"
 
+/**
+ * @brief Save buffered tree along with the sequence position at which
+ * they where created. 
+ */
+struct NewickBuffer {
+  double position;  ///< The sequence position at which the subtree was created.
+  std::string tree; ///< The subtree itself.
+};
+
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree(const size_t sample_size);
+   NewickTree() {};
    ~NewickTree() {};
 
    //Virtual methods
@@ -42,10 +52,15 @@ class NewickTree : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   NewickTree() {};
-   std::string generateTree(Node *node, const Forest &forest);
+   std::string generateTree(Node *node, const Forest &forest,
+                            const bool use_buffer = true);
    std::ostringstream output_buffer_;
-   std::vector<std::string> labels_;
+
+   /**
+    * A map to buffer already created subtrees indexed by their 
+    * root.
+    */
+   std::map<Node const*, NewickBuffer> buffer_;
 };
 
 #endif
