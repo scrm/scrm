@@ -5,6 +5,7 @@ compiler:
 script:
 - make scrm scrm_dbg
 - make unittests
+- make doxygen-run
 - ./tests/test_binaries.sh
 - make algorithmtest
 before_install:
