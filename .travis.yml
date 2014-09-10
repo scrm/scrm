@@ -10,6 +10,6 @@ script:
 - make algorithmtest
 before_install:
 - sudo apt-get update -qq
-- sudo apt-get install -qq libcppunit-dev valgrind
+- sudo apt-get install -qq libcppunit-dev valgrind doxygen
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
