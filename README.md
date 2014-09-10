@@ -22,12 +22,12 @@ You can also install `scrm` directly from the git repository. Here, you need to 
 
 On Debian/Ubuntu based systems:
 ```bash
-apt-get install build-essential autoconf autoconf-archive doxygen libcppunit-dev
+apt-get install build-essential autoconf autoconf-archive libcppunit-dev
 ```
 
 On Mac OS:
 ```bash
-port install automake autoconf autoconf-archive doxygen cppunit 
+port install automake autoconf autoconf-archive cppunit 
 ```
 
 Afterwards you can build the binary using 
