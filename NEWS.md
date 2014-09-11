@@ -3,7 +3,7 @@ scrm Version History
 
 Version 1.2.0
 ------------------------
-Released: Not jet
+Released: 2014-09-10
 
 ### New Features
 + New `oriented forest` summary statistic as suggested by 
@@ -14,8 +14,7 @@ Released: Not jet
     ISSN 0040-5809, http://dx.doi.org/10.1016/j.tpb.2014.05.001. 
 
 ### Improvements
-+ Optimized the generation of newick trees (#22).
-
++ Optimized the generation of newick trees (#22) and use a buffer (#23)
 
 
  

@@ -1,5 +1,4 @@
-include aminclude.am 
-EXTRA_DIST = doc/manual.html doc/scrm.1 m4/ac_doxygen.m4
+EXTRA_DIST = doc/manual.html doc/scrm.1 
 bin_PROGRAMS = scrm 
 man_MANS = doc/scrm.1
 

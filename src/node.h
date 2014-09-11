@@ -99,6 +99,9 @@ class Node
 
   double last_update() const { return last_update_; }
 
+  double last_change() const { return last_change_; }
+  void set_last_change(const double pos) { last_change_ = pos; }
+
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
 
@@ -166,6 +169,8 @@ class Node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if
                          // the node is local 
+
+  double last_change_;
 
   size_t population_;    // The number of the population the node belong to. 
   
