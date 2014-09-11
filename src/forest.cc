@@ -220,7 +220,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  //dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
+  dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
@@ -239,6 +239,8 @@ void Forest::updateAbove(Node* node, bool above_local_root,
     if ( recursive ) updateAbove(node->parent(), true, true);
     return;
   }
+
+  node->set_last_change(current_base());
 
   // Calculate new values for samples_below and length_below for the current
   // node

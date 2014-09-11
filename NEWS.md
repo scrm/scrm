@@ -1,6 +1,23 @@
 scrm Version History
 ========================
 
+Version 1.2.0
+------------------------
+Released: 2014-09-10
+
+### New Features
++ New `oriented forest` summary statistic as suggested by 
+
+    J. Kelleher, A.M. Etheridge, N.H. Barton (2014) Coalescent simulation in 
+    continuous space: Algorithms for large neighbourhood size, 
+    Theoretical Population Biology, Volume 95, August2014, Pages 13-23, 
+    ISSN 0040-5809, http://dx.doi.org/10.1016/j.tpb.2014.05.001. 
+
+### Improvements
++ Optimized the generation of newick trees (#22) and use a buffer (#23)
+
+
+ 
 Version 1.1.0
 ------------------------
 Released: 2014-08-04

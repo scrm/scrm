@@ -52,7 +52,6 @@ class Node
   friend class TestForest;
   friend class TestNode;
 #endif
-  //size_t index; // this is the index of the node in the node container...
   
   Node();
   Node(double height);
@@ -100,6 +99,9 @@ class Node
 
   double last_update() const { return last_update_; }
 
+  double last_change() const { return last_change_; }
+  void set_last_change(const double pos) { last_change_ = pos; }
+
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
 
@@ -116,6 +118,9 @@ class Node
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
 
+  void set_OF_label(size_t OF_label) { OF_label_ = OF_label; }
+  size_t OF_label() const { return OF_label_; }
+  
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
     return ( this->label() != 0 ); 
@@ -156,10 +161,13 @@ class Node
   void set_last_update(const double position) { last_update_ = position; }; 
 
   size_t label_;
+  size_t OF_label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if
                          // the node is local 
+
+  double last_change_;
 
   size_t population_;    // The number of the population the node belong to. 
   

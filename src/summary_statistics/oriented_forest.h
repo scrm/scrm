@@ -20,31 +20,20 @@
 
 */
 
-#ifndef scrm_src_summary_statistic_newick_tree
-#define scrm_src_summary_statistic_newick_tree
+#ifndef scrm_src_summary_statistic_oriented_forest
+#define scrm_src_summary_statistic_oriented_forest
 
 #include <sstream>
 #include <iostream>
-#include <string>
-#include <map>
 
 #include "summary_statistic.h"
 #include "../forest.h"
 
-/**
- * @brief Save buffered tree along with the sequence position at which
- * they where created. 
- */
-struct NewickBuffer {
-  double position;  ///< The sequence position at which the subtree was created.
-  std::string tree; ///< The subtree itself.
-};
-
-class NewickTree : public SummaryStatistic
+class OrientedForest : public SummaryStatistic
 {
  public:
-   NewickTree() {};
-   ~NewickTree() {};
+   OrientedForest() {};
+   ~OrientedForest() {};
 
    //Virtual methods
    void calculate(const Forest &forest);
@@ -52,15 +41,14 @@ class NewickTree : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   std::string generateTree(Node *node, const Forest &forest,
-                            const bool use_buffer = true);
-   std::ostringstream output_buffer_;
+   void init_OF_label( const Forest &forest );
+   void update_OF_label( const Forest &forest );
+   void generateTree( const Forest &forest );
 
-   /**
-    * A map to buffer already created subtrees indexed by their 
-    * root.
-    */
-   std::map<Node const*, NewickBuffer> buffer_;
+   vector <size_t> OF_labels;
+   vector <double> heights;
+   size_t tmp_label;
+   std::ostringstream output_buffer_;
 };
 
 #endif

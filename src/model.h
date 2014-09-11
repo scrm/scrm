@@ -87,6 +87,13 @@ class Model
    // Getters & Setters
 
    /**
+    * @brief Returns the scaling factor for times and many parameters
+    *
+    * @return 1 / ( 4 * default_pop_size);
+    */
+   double scaling_factor() const { return scaling_factor_; };
+
+   /**
     * @brief Returns the mutation rate per base pair per generation for the
     * currently active sequence position.
     *
@@ -427,6 +434,8 @@ class Model
                           size_t new_pop,
                           double default_value = nan("value to replace"));
   void addPopToVectorList(std::vector<std::vector<double>*> &vector_list);
+
+   double scaling_factor_; // 1 / (4N0);
 
    // Stores information about samples. Each index represents a sample.
    std::vector<size_t> sample_populations_;
