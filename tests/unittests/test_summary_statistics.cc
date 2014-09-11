@@ -193,7 +193,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testOrientedForest() {
-    forest->createExampleTree();
+    forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
@@ -201,14 +201,14 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 );
     
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
     of.calculate(forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"duration\":10, \"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 );
   }
 
   void testNewickTree() {
