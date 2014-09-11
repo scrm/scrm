@@ -267,7 +267,7 @@ inline void ContemporariesContainer::add(Node* node) {
   assert(!node->is_root());
   if (use_set_) contemporaries_set().at(node->population()).insert(node);
   else contemporaries_vector().at(node->population()).push_back(node);
-};
+}
 
 inline void ContemporariesContainer::remove(Node* node) {
   assert(node != NULL);
@@ -285,14 +285,14 @@ inline void ContemporariesContainer::remove(Node* node) {
 
 inline void ContemporariesContainer::replaceChildren(Node *add_node) {
   replace(add_node, add_node->first_child(), add_node->second_child());  
-};
+}
 
 inline void ContemporariesContainer::replace(Node *add_node, Node *del_node_1, Node *del_node_2) {
   assert(add_node != NULL);
   if (del_node_1 != NULL) remove(del_node_1);
   if (del_node_2 != NULL) remove(del_node_2);
   if (!add_node->is_root()) add(add_node);
-};
+}
 
 inline void ContemporariesContainer::clear() {
   if (use_set_) {
@@ -309,7 +309,7 @@ inline void ContemporariesContainer::clear() {
 inline size_t ContemporariesContainer::size(const size_t pop) const {
   if (use_set_) return contemporaries_set().at(pop).size();
   else return contemporaries_vector().at(pop).size();
-};
+}
 
 /**
  * @brief Function that buffers the current state of contemporaries for later
@@ -326,7 +326,7 @@ inline void ContemporariesContainer::buffer(const double current_time) {
   buffer_time_ = current_time;
   use_first_ = 1 - use_first_; 
   this->clear();
-};
+}
 
 // Uniformly samples a random node from the current contemporaries.
 // Distribution checked.
@@ -365,5 +365,5 @@ inline bool ContemporariesContainer::empty() const {
     }
   }
   return true;
-};
+}
 #endif
