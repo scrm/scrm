@@ -605,6 +605,7 @@ bool Forest::checkRootIsRegistered(Node const* node) const {
     return false;
   }
   */
+  return false;
 }
 
 bool Forest::checkRoots() const {
