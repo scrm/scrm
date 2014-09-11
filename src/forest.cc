@@ -72,14 +72,7 @@ Forest::Forest(const Forest &current_forest) {
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
-    /*
-    if ((*it)->is_root()) {
-     registerSecondaryRoot(*it); 
-    }
-    */
   }
-  //unregisterSecondaryRoot(local_root());
-  //unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_time_ = -1; 
@@ -107,14 +100,7 @@ Forest::Forest(Forest * current_forest) {
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
-    /*
-    if ((*it)->is_root()) {
-     registerSecondaryRoot(*it); 
-    }
-    */
   }
-  //unregisterSecondaryRoot(local_root());
-  //unregisterSecondaryRoot(primary_root());
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_time_ = -1; 
@@ -230,9 +216,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
     // Update the primary root if needed
     if ( node->is_root() ) {
       if (node != primary_root()) {
-        //if ( primary_root() != NULL && primary_root()->is_root() ) registerSecondaryRoot(primary_root());  
         set_primary_root(node);
-        //unregisterSecondaryRoot(node);
       }
       return;
     } 
@@ -278,12 +262,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
         set_local_root(node);
       }
       if ( node->is_root() && node != primary_root() ) {
-        // node is the new primary root. Maybe the old primary root is a
-        // secondary root now. We check if this is the case:
-        //if ( primary_root() != NULL && primary_root()->is_root() ) registerSecondaryRoot(primary_root());  
-        // And register node as the new primary root
         set_primary_root(node);
-        //unregisterSecondaryRoot(node);
       }
       above_local_root = true;
     }
@@ -877,7 +856,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
   assert( event.node() == active_node(event.active_node_nr()) );
 
   Node* coal_node = event.node();
-  //unregisterSecondaryRoot(coal_node);
   Node* target = contemporaries_.sample(coal_node->population());
 
   dout << "* * * Above node " << target << std::endl;
@@ -997,8 +975,6 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   // Both roots are now local
   root_1->make_local();
   root_2->make_local();
-  //unregisterSecondaryRoot(root_1);
-  //unregisterSecondaryRoot(root_2);
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
@@ -1089,9 +1065,6 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
 
     // Now make the event node local
     event.node()->make_local();
-
-    // and unregister it from the roots
-    //unregisterSecondaryRoot(event.node());
   }
   // Recalculate the interval
   if (recalculate) ti.recalculateInterval();
@@ -1162,7 +1135,6 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
       // primary root. It should however be automatically set during the updates
       // of the current coalescence.
       if (node == primary_root()) set_primary_root(NULL);
-      //unregisterSecondaryRoot(node);
       nodes()->remove(node);
       return true; 
     }
@@ -1183,7 +1155,6 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
         // and separates the subtree below from the main tree
         Node* parent = node->parent();
         node->set_parent(NULL);
-        //registerSecondaryRoot(node);
         updateAbove(parent, false, true, true);
       }
       return true;
@@ -1296,7 +1267,6 @@ void Forest::doCompletePruning() {
 
 void Forest::clear() {
   // Clear roots tracking
-  //clearSecondaryRoots();
   set_local_root(NULL);
   set_primary_root(NULL);
 
