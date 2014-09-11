@@ -30,6 +30,7 @@ void OrientedForest::calculate(const Forest &forest) {
     if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
     output_buffer_ << "{" ;
     output_buffer_ << "\"length\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
+    //output_buffer_ << "\"length\":" << forest.calcSegmentLength(forest.model().finite_sites()) / forest.model().loci_length() << ", " ;
     generateTree(forest);
     output_buffer_ << "}\n";  
   }
@@ -52,14 +53,16 @@ void OrientedForest::printLocusOutput(std::ostream &output) {
 void OrientedForest::generateTree( const Forest &forest ) {
   this->init_OF_label( forest );
   this->update_OF_label( forest );
-    
-  output_buffer_ << "\"parents\":[0," ;
+  
+  output_buffer_ << "\"parents\":[" ;
+  //output_buffer_ << "\"parents\":[0," ;
   for ( size_t i = 0 ; i < this->OF_labels.size() ; i++ ){
     output_buffer_ << this->OF_labels[i] <<  ((i < this->OF_labels.size()-1) ? ",":"" );
   }
   output_buffer_ << "], " ;
 
-  output_buffer_ << "\"node_times\":[-1," ;
+  output_buffer_ << "\"node_times\":[" ;
+  //output_buffer_ << "\"node_times\":[-1," ;
   for ( size_t i = 0 ; i < this->heights.size() ; i++){
     output_buffer_ << this->heights[i] <<  ((i < this->heights.size()-1) ? ",":"" );
   }
