@@ -202,20 +202,4 @@ inline size_t Node::countChildren(const bool only_local) const {
   }
 }
 
-inline Node* Node::getLocalParent() const {
-  assert( this->local() );
-  assert( !this->is_root() );
-  return NULL;
-}
-
-inline Node* Node::getLocalChild1() const {
-  assert( this->local() );
-  return NULL;
-}
-
-inline Node* Node::getLocalChild2() const {
-  assert( this->local() );
-  return NULL;
-}
-
 #endif

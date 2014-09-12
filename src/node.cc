@@ -79,3 +79,34 @@ void Node::remove_child(Node* child) {
 
   throw std::invalid_argument("Can't find child to delete");
 }
+
+Node* Node::getLocalParent() const {
+  assert( this->local() );
+  assert( !this->is_root());
+  assert( this->parent()->countChildren() > 0 );
+  if (parent()->countChildren(true) == 2) return parent(); 
+  return parent()->getLocalParent();
+}
+
+Node* Node::getLocalChild1() const {
+  assert( this->local() );
+  if (first_child() == NULL || !first_child()->local()) return NULL;
+  if (first_child()->countChildren(true) == 1) {
+    if (first_child()->first_child()->local()) return first_child()->getLocalChild1();
+    else return first_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return first_child();
+}
+
+Node* Node::getLocalChild2() const {
+  assert( this->local() );
+  if (second_child() == NULL || !second_child()->local()) return NULL;
+  if (second_child()->countChildren(true) == 1) {
+    if (second_child()->first_child()->local()) return second_child()->getLocalChild1();
+    else return second_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return second_child();
+}
+

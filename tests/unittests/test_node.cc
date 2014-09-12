@@ -16,6 +16,7 @@ class TestNode : public CppUnit::TestCase {
   CPPUNIT_TEST( testSamplesBelow );
   CPPUNIT_TEST( testLengthBelow );
   CPPUNIT_TEST( testCountChildren );
+  CPPUNIT_TEST( testLocalNavigation );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -140,6 +141,33 @@ class TestNode : public CppUnit::TestCase {
 
     forest->nodes()->at(4)->make_nonlocal(1.0);
     CPPUNIT_ASSERT( forest->nodes()->get(8)->countChildren(true) == 1 );
+  }
+
+  void testLocalNavigation() {
+    Node* n1 = new Node(7.5);
+    n1->make_local();
+    Node* n2 = new Node(6.5);
+    n2->make_nonlocal(1.0);
+
+    Node *n3 = forest->nodes()->at(4), 
+         *root = forest->local_root(),
+         *n4 = forest->nodes()->at(5);
+
+    root->remove_child(n3);
+    forest->addNodeToTree(n1, root, n3, NULL);
+    forest->addNodeToTree(n2, n1, NULL, NULL);
+
+    CPPUNIT_ASSERT(n1->countChildren() == 2);
+    CPPUNIT_ASSERT(n1->countChildren(true) == 1);
+    CPPUNIT_ASSERT(n1->getLocalParent() == root);
+    CPPUNIT_ASSERT(n3->getLocalParent() == root);
+
+    CPPUNIT_ASSERT( (root->getLocalChild1() == n3 && root->getLocalChild2() == n4) || 
+                    (root->getLocalChild1() == n4 && root->getLocalChild2() == n3) );
+
+    CPPUNIT_ASSERT(forest->nodes()->at(0)->getLocalChild1() == NULL);
+    CPPUNIT_ASSERT(forest->nodes()->at(1)->getLocalChild1() == NULL);
+    CPPUNIT_ASSERT(n4->getLocalParent() == root);
   }
 };
 
