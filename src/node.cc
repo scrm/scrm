@@ -89,7 +89,6 @@ Node* Node::getLocalParent() const {
 }
 
 Node* Node::getLocalChild1() const {
-  assert( this->local() || this->is_root() );
   if (first_child() == NULL || !first_child()->local()) return NULL;
   if (first_child()->countChildren(true) == 1) {
     if (first_child()->first_child()->local()) return first_child()->getLocalChild1();
@@ -100,7 +99,6 @@ Node* Node::getLocalChild1() const {
 }
 
 Node* Node::getLocalChild2() const {
-  assert( this->local() || this->is_root() );
   if (second_child() == NULL || !second_child()->local()) return NULL;
   if (second_child()->countChildren(true) == 1) {
     if (second_child()->first_child()->local()) return second_child()->getLocalChild1();
