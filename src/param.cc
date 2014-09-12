@@ -369,7 +369,7 @@ void Param::parse(Model &model) {
 
   // Add summary statistics in order of their output
   if (trees) model.addSummaryStatistic(new NewickTree());
-  if (orientedForest) model.addSummaryStatistic(new OrientedForest());
+  if (orientedForest) model.addSummaryStatistic(new OrientedForest(model.sample_size()));
   if (tmrca) model.addSummaryStatistic(new TMRCA());
   if (first_last_tmrca) model.addSummaryStatistic(new FirstLastTMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);

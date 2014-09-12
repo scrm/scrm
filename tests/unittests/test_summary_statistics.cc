@@ -25,6 +25,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST( testSegSitesGetHaplotypes );
   CPPUNIT_TEST( testSegSitesCalculate );
   CPPUNIT_TEST( testSiteFrequencies );
+  CPPUNIT_TEST( testOrientedForestGenerateTreeData );
   CPPUNIT_TEST( testOrientedForest );
   CPPUNIT_TEST( testNewickTree );
 
@@ -232,25 +233,55 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     delete seg_sites;
   }
 
+  void testOrientedForestGenerateTreeData() {
+    OrientedForest of(4);
+    size_t pos = 2*forest->sample_size()-2;
+    of.generateTreeData(forest->local_root(), pos, 0); 
+    CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(1) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(2) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(3) == 0.0 );
+    CPPUNIT_ASSERT( of.parents_.at(4) == 7 );
+    CPPUNIT_ASSERT( of.parents_.at(5) == 7 );
+    CPPUNIT_ASSERT( of.heights_.at(6) == 10.0 && of.parents_.at(6) == 0 );
+
+    CPPUNIT_ASSERT( of.heights_.at(4) == 1.0 || of.heights_.at(4) == 3.0 );
+    if ( of.heights_.at(4) == 1.0 ) {
+      CPPUNIT_ASSERT( of.parents_.at(0) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(1) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(2) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(3) == 6 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 3.0 );
+    } else {
+      CPPUNIT_ASSERT( of.parents_.at(0) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(1) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(2) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(3) == 5 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 1.0 );
+    }
+  }
+
   void testOrientedForest() {
     forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    OrientedForest of;
+    OrientedForest of(4);
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 );
-    //CPPUNIT_ASSERT( output.str().compare("{\"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 );
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"parents\":[0,6,6,5,5,7,7,0], \"node_times\":[-1,0,0,0,0,3,1,10]}\n") == 0 );
     
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
     of.calculate(forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 );
-    //CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 );
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"length\":10, \"parents\":[0,6,6,5,5,7,7,0], \"node_times\":[-1,0,0,0,0,3,1,10]}\n") == 0 );
   }
 
   void testNewickTree() {
