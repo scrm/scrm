@@ -1232,31 +1232,6 @@ void Forest::printLocusSumStats(ostream &output) const {
   }
 }
 
-void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
-  if (node->in_sample()){
-    haplotype[node->label()-1]=1;
-  }
-  else if (node->second_child() == NULL) {
-    traversal(node->first_child(), haplotype);
-  }
-  else if (node->first_child()->local() && node->second_child()->local()){
-    Node *left = trackLocalNode(node->first_child());
-    traversal(left, haplotype);
-    Node *right = trackLocalNode(node->second_child());
-    traversal(right, haplotype);
-  }
-  else if (!node->first_child()->local() ){
-    traversal(node->second_child(), haplotype);
-  }
-  else if (!node->second_child()->local()) {
-    traversal(node->first_child(), haplotype);
-  }
-  else {
-    assert( 0 );
-  }
-  //std::cout << "end" << std::endl;
-}
-
 void Forest::doCompletePruning() {
   dout << "Pruning Tree:" << std::endl;
   for (NodeIterator ni = nodes()->iterator(nodes()->first()->next()); ni.good(); ++ni) {

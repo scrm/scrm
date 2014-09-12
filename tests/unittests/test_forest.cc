@@ -34,7 +34,6 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckForNodeAtHeight );
   CPPUNIT_TEST( testCalcSegmentSummaryStatistics );
   CPPUNIT_TEST( testPrintLocusSumStats );
-  CPPUNIT_TEST( testTraversal );
   CPPUNIT_TEST( testSampleNextPosition ); 
   /*
   CPPUNIT_TEST( testRegisterSecondaryRoot );
@@ -766,24 +765,6 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( output.str() == "" );
     forest->printLocusSumStats(output);
     CPPUNIT_ASSERT( output.str() != "" );
-  }
-
-  void testTraversal() {
-    std::valarray <bool>haplotype(4);
-    //traversal(forest->nodes()->at(4), haplotype);
-    forest->traversal(forest->nodes()->at(4), haplotype);
-    CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
-    CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
-    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
-    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
-
-    haplotype *= 0;
-    //traversal(forest->nodes()->at(5), haplotype);
-    forest->traversal(forest->nodes()->at(5), haplotype);
-    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
-    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
-    CPPUNIT_ASSERT_EQUAL( true, haplotype[2] );
-    CPPUNIT_ASSERT_EQUAL( true, haplotype[3] );
   }
 
   void testSampleNextPosition() {

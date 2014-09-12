@@ -196,10 +196,6 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //segegrating sites
-  std::valarray<int> find_haplotypes(Node *node); 
-  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
-  std::ostream &generateSegData(std::ostream &output, int total_mut);
 
   Node* trackLocalNode(Node *node) const; 
 
