@@ -196,9 +196,6 @@ class Forest
     else return local_root()->length_below();
   }
 
-
-  Node* trackLocalNode(Node *node) const; 
-
   //derived class from Forest
   virtual void record_Recombevent(size_t pop_i, 
     //double start_time, 

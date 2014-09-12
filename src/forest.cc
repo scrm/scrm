@@ -1185,35 +1185,6 @@ bool areSame(const double a, const double b, const double epsilon) {
 }
 
 
-/**
- * @brief Goes down in the tree as long as we are on the same "local branch"
- *
- * In the ARG, there are many bifurcations were a non-local branch splits from
- * the local tree. If we only print the local tree, we can ignore them. This
- * functions goes down in the tree, until it hit a true bifurcation of the local
- * tree.
- *
- * @param node The node we are following downwards
- *
- * @return The next true local bifurcation
- */
-Node* Forest::trackLocalNode(Node *node) const { 
-  assert( node->local() );
-  if (node->countChildren() == 0) return node;
-  if (node->countChildren() == 1) return trackLocalNode(node->first_child());
-
-  assert( node->countChildren() == 2 );
-  assert( node->first_child()->local() || node->second_child()->local() );
-
-  if ( node->first_child()->local() ) {
-    if (node->second_child()->local()) return node;
-    else return trackLocalNode(node->first_child()); 
-  }
-  else return trackLocalNode(node->second_child());
-}
-
-
-
 void Forest::calcSegmentSumStats() const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
