@@ -333,11 +333,11 @@ bool Forest::printTree() const {
       if ( (*position)->height() == start_height ) {
         if ( (*position)->local() || *position == local_root() ) std::cout << "╦";
         else std::cout << "┬";
-        if ( (*position)->numberOfChildren() == 2 ) {
+        if ( (*position)->countChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
           if ( *position == local_root() ) h_line = 1;
         }
-        if ( (*position)->numberOfChildren() == 1 ) {
+        if ( (*position)->countChildren() == 1 ) {
           h_line = 0;
         }
       } 
