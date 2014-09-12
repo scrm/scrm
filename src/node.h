@@ -107,11 +107,7 @@ class Node
   void set_length_below(const double length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
-  int  numberOfChildren() const { 
-    if (first_child() == NULL) return 0;
-    else if (second_child() == NULL) return 1;
-    else return 2;
-  }
+  size_t countChildren(const bool only_local = false) const;
   
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
@@ -133,7 +129,7 @@ class Node
   // top branch of a tree after it got cut away from the primary tree. 
   // These Nodes can be reused or removed if they are involved in an event.
   bool is_unimportant() const {
-    return (this->numberOfChildren() == 1 && !this->is_migrating()); 
+    return (this->countChildren() == 1 && !this->is_migrating()); 
   }
 
   bool is_contemporary(const double time) {
@@ -153,6 +149,11 @@ class Node
 
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
+
+  // Navigate on local tree
+  Node *getLocalParent() const;
+  Node *getLocalChild1() const;
+  Node *getLocalChild2() const;
 
  private:
   void init(double heigh=-1, size_t label=0);
@@ -182,7 +183,39 @@ class Node
 };
 
 inline bool Node::is_migrating() const { 
-  if ( this->numberOfChildren() != 1 ) return false;
+  if ( this->countChildren() != 1 ) return false;
   return ( this->population() != this->first_child()->population() );
 } 
+
+inline size_t Node::countChildren(const bool only_local) const { 
+  if (first_child() == NULL) return 0;
+  if (!only_local) {
+    if (second_child() == NULL) return 1;
+    else return 2;
+  } else {
+    if (second_child() == NULL) {
+      if (first_child()->local()) return 1; 
+      else return 0;
+    } else {
+      return first_child()->local() + second_child()->local();
+    }
+  }
+}
+
+inline Node* Node::getLocalParent() const {
+  assert( this->local() );
+  assert( !this->is_root() );
+  return NULL;
+}
+
+inline Node* Node::getLocalChild1() const {
+  assert( this->local() );
+  return NULL;
+}
+
+inline Node* Node::getLocalChild2() const {
+  assert( this->local() );
+  return NULL;
+}
+
 #endif

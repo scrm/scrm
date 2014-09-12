@@ -532,7 +532,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( parent->is_root() );
     CPPUNIT_ASSERT( parent->first_child() == inbetween1 );
     CPPUNIT_ASSERT( inbetween1->first_child() == child );
-    CPPUNIT_ASSERT( child->numberOfChildren() == 0 );
+    CPPUNIT_ASSERT( child->countChildren() == 0 );
 
     forest->nodes()->at(0)->set_parent(NULL);
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(0)) );
@@ -585,7 +585,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL((size_t)11, forest->nodes()->size());
     CPPUNIT_ASSERT( new_root->local() );
     CPPUNIT_ASSERT( new_root->is_root() );
-    CPPUNIT_ASSERT_EQUAL(1, new_root->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL((size_t)1, new_root->countChildren() );
     CPPUNIT_ASSERT_EQUAL(3.5, new_root->height() );
 
     CPPUNIT_ASSERT( base_node->parent() == new_root );
@@ -594,7 +594,7 @@ class TestForest : public CppUnit::TestCase {
     Node* single_branch = forest->local_root()->first_child();
     CPPUNIT_ASSERT( !single_branch->local() );
     CPPUNIT_ASSERT_EQUAL( forest->current_base(), single_branch->last_update() );
-    CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, single_branch->countChildren() );
     CPPUNIT_ASSERT_EQUAL( 3.5, single_branch->height() );
   }
 
@@ -624,14 +624,14 @@ class TestForest : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT( forest->active_node(0)->local() );
     CPPUNIT_ASSERT( forest->active_node(0)->is_root() );
-    CPPUNIT_ASSERT_EQUAL( 1, forest->active_node(0)->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, forest->active_node(0)->countChildren() );
 
     Node* single_branch = forest->nodes()->at(9);
     if( forest->nodes()->at(9) == forest->active_node(0) ) 
       single_branch = forest->nodes()->at(10);
 
     CPPUNIT_ASSERT( !single_branch->local() );
-    CPPUNIT_ASSERT_EQUAL( 0, single_branch->numberOfChildren() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, single_branch->countChildren() );
     CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
   }
 
@@ -659,7 +659,7 @@ class TestForest : public CppUnit::TestCase {
                      new_root->parent_height() == 10 );
 
       if ( !new_root->local() ) {
-        CPPUNIT_ASSERT( new_root->numberOfChildren() == 2 );
+        CPPUNIT_ASSERT( new_root->countChildren() == 2 );
         CPPUNIT_ASSERT( !(new_root->first_child()->local() && new_root->second_child()->local()) ); 
         Node* child = new_root->first_child();
         if (!new_root->second_child()->local()) child = new_root->second_child();
