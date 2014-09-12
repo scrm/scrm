@@ -58,6 +58,20 @@ void SegSites::printLocusOutput(std::ostream &output) {
 
 std::valarray<bool> SegSites::getHaplotypes(TreePoint mutation, const Forest &forest) {
   std::valarray<bool> haplotype(forest.model().sample_size());
-  forest.traversal(mutation.base_node(), haplotype);
+  traversal(mutation.base_node(), haplotype);
   return haplotype;
+}
+
+
+void SegSites::traversal(Node const* node, std::valarray<bool> &haplotype) const {
+  if (node->in_sample()) {
+    haplotype[node->label()-1]=1;
+    return;
+  }
+  
+  Node *left = node->getLocalChild1();
+  Node *right = node->getLocalChild2();
+
+  if (left != NULL) traversal(left, haplotype);
+  if (right != NULL) traversal(right, haplotype);
 }
