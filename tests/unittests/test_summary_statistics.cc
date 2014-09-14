@@ -21,6 +21,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestSummaryStatistics );
 
   CPPUNIT_TEST( testTMRCA );
+  CPPUNIT_TEST( testSegSitesTraversal );
   CPPUNIT_TEST( testSegSitesGetHaplotypes );
   CPPUNIT_TEST( testSegSitesCalculate );
   CPPUNIT_TEST( testSiteFrequencies );
@@ -54,6 +55,45 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     SummaryStatistic* tmrca2 = new TMRCA();
     tmrca2->calculate(*forest);
     delete tmrca2;
+  }
+
+  void testSegSitesTraversal() {
+    SegSites seg_sites = SegSites();
+
+    std::valarray <bool>haplotype(4);
+    seg_sites.traversal(forest->nodes()->at(4), haplotype);
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(5), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(8), haplotype);
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(0), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(1), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
   }
 
   void testSegSitesGetHaplotypes() {

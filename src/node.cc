@@ -79,3 +79,67 @@ void Node::remove_child(Node* child) {
 
   throw std::invalid_argument("Can't find child to delete");
 }
+
+/**
+ * @brief Returns is the parent of this node on the local tree.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return The node that is this node's parent on the local tree. 
+ */
+Node* Node::getLocalParent() const {
+  assert( this->local() );
+  assert( !this->is_root());
+  assert( this->parent()->countChildren() > 0 );
+  if (parent()->countChildren(true) == 2) return parent(); 
+  return parent()->getLocalParent();
+}
+
+/**
+ * @brief Returns one child of this node when looking 
+ * only at the local tree.
+ * 
+ * The up to two children of a node are in basically 
+ * arbitrary order. The only difference between child_1 and
+ * child_2 is that if a node has only one child, than
+ * it is always child_1.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return NULL if this node has no children on the local tree,
+ * or a pointer to the child otherwise. 
+ */
+Node* Node::getLocalChild1() const {
+  if (first_child() == NULL || !first_child()->local()) return NULL;
+  if (first_child()->countChildren(true) == 1) {
+    if (first_child()->first_child()->local()) return first_child()->getLocalChild1();
+    else return first_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return first_child();
+}
+
+/**
+ * @brief Returns one child of this node when looking 
+ * only at the local tree.
+ * 
+ * The up to two children of a node are in basically 
+ * arbitrary order. The only difference between child_1 and
+ * child_2 is that if a node has only one child, than
+ * it is always child_1.
+ *
+ * This should only be executed on local nodes!
+ *
+ * @return NULL if this node has less than two children on the local tree,
+ * or a pointer to the child otherwise. 
+ */
+Node* Node::getLocalChild2() const {
+  if (second_child() == NULL || !second_child()->local()) return NULL;
+  if (second_child()->countChildren(true) == 1) {
+    if (second_child()->first_child()->local()) return second_child()->getLocalChild1();
+    else return second_child()->getLocalChild2();
+  }
+  // Child has 0 or 2 local children => it is part of local tree 
+  return second_child();
+}
+

@@ -257,7 +257,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
       if ( node->local() ) node->make_nonlocal(current_base());
 
       // Are we the local root?
-      if (node->numberOfChildren() == 2 && 
+      if (node->countChildren() == 2 && 
           l_child->samples_below() > 0 && h_child->samples_below() > 0) {
         set_local_root(node);
       }
@@ -889,7 +889,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
 
   // Look if we can reuse the root that coalesced for marking the point of 
   // coalescence
-  if ( coal_node->numberOfChildren() == 1 && !coal_node->is_migrating() ){
+  if ( coal_node->countChildren() == 1 && !coal_node->is_migrating() ){
     assert( coal_node->local() );
     new_node = coal_node;
     coal_node = coal_node->first_child();
@@ -995,8 +995,8 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
 
   // both nodes may or may not mark the end of a single branch at the top of their tree,
   // which we don't need anymore.
-  if (root_1->numberOfChildren() == 1 && !root_1->is_migrating()) {
-    if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
+  if (root_1->countChildren() == 1 && !root_1->is_migrating()) {
+    if (root_2->countChildren() == 1 && !root_2->is_migrating()) {
       // both trees have a single branch => delete one
       root_2 = root_2->first_child();
       this->nodes()->remove(root_2->parent());
@@ -1010,7 +1010,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
     root_1 = root_1->first_child();
     assert( root_1 != NULL );
   } 
-  else if (root_2->numberOfChildren() == 1 && !root_2->is_migrating()) {
+  else if (root_2->countChildren() == 1 && !root_2->is_migrating()) {
     // only root_2 has a single branch => use as new root
     this->nodes()->move(root_2, time);
     new_root = root_2;
@@ -1145,7 +1145,7 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
 
   if (node->is_root()) {
     // Orphaned nodes must go
-    if (node->numberOfChildren() == 0 && prune_orphans) {
+    if (node->countChildren() == 0 && prune_orphans) {
       dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
       assert(node != local_root());
       // If we are removing the primary root, it is difficult to find the new
@@ -1165,7 +1165,7 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
       assert(!node->is_root());
 
       node->parent()->change_child(node, NULL);
-      if (node->numberOfChildren() == 0) nodes()->remove(node); 
+      if (node->countChildren() == 0) nodes()->remove(node); 
       else { 
         // Remove link between `node` and its parent,
         // which effectively removes the branch, 
@@ -1177,7 +1177,7 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
       return true;
     } 
 
-    else if (node->numberOfChildren() == 1 && !node->is_migrating()) {
+    else if (node->countChildren() == 1 && !node->is_migrating()) {
       // Unneeded nodes 
       dout << "* * * PRUNING: Removing node " << node << " from tree (unneeded)" << std::endl;
       assert(!node->is_migrating());
@@ -1202,35 +1202,6 @@ bool areSame(const double a, const double b, const double epsilon) {
 }
 
 
-/**
- * @brief Goes down in the tree as long as we are on the same "local branch"
- *
- * In the ARG, there are many bifurcations were a non-local branch splits from
- * the local tree. If we only print the local tree, we can ignore them. This
- * functions goes down in the tree, until it hit a true bifurcation of the local
- * tree.
- *
- * @param node The node we are following downwards
- *
- * @return The next true local bifurcation
- */
-Node* Forest::trackLocalNode(Node *node) const { 
-  assert( node->local() );
-  if (node->numberOfChildren() == 0) return node;
-  if (node->numberOfChildren() == 1) return trackLocalNode(node->first_child());
-
-  assert( node->numberOfChildren() == 2 );
-  assert( node->first_child()->local() || node->second_child()->local() );
-
-  if ( node->first_child()->local() ) {
-    if (node->second_child()->local()) return node;
-    else return trackLocalNode(node->first_child()); 
-  }
-  else return trackLocalNode(node->second_child());
-}
-
-
-
 void Forest::calcSegmentSumStats() const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
@@ -1247,31 +1218,6 @@ void Forest::printLocusSumStats(ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
-}
-
-void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
-  if (node->in_sample()){
-    haplotype[node->label()-1]=1;
-  }
-  else if (node->second_child() == NULL) {
-    traversal(node->first_child(), haplotype);
-  }
-  else if (node->first_child()->local() && node->second_child()->local()){
-    Node *left = trackLocalNode(node->first_child());
-    traversal(left, haplotype);
-    Node *right = trackLocalNode(node->second_child());
-    traversal(right, haplotype);
-  }
-  else if (!node->first_child()->local() ){
-    traversal(node->second_child(), haplotype);
-  }
-  else if (!node->second_child()->local()) {
-    traversal(node->first_child(), haplotype);
-  }
-  else {
-    assert( 0 );
-  }
-  //std::cout << "end" << std::endl;
 }
 
 void Forest::doCompletePruning() {
