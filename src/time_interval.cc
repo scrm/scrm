@@ -68,15 +68,18 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
-
-  model_->resetTime();
+cout<<"within TimeIntervalIterator constructor"<<endl;
+  //model_->resetTime();
+  model_->resetTime(current_time_);
+cout<<"after reset time"<<endl;
   this->searchContemporaries(start_node);
-  
+  cout<<"after searchContemporaries"<<endl;
   // Skip through model changes
-  while ( model_->getNextTime() <= current_time_ ) { 
-    model_->increaseTime();
-  }
-
+  //cout << "model_->getNextTime() = " <<model_->getNextTime()<<endl;
+  //while ( model_->getNextTime() <= current_time_ ) { 
+    //model_->increaseTime();
+  //}
+//cout<<"move to model mext time"<<endl;
   next();
 }
 
