@@ -153,13 +153,17 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
     // check if the buffered contemporaries are contemporaries of node
     double highest_time = -1;
     for (size_t pop = 0; pop < model()->population_number(); ++pop) {
+        cout <<" model()->population_number() = "<<pop<<endl;
       auto end = contemporaries()->buffer_end(pop);
       for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
+          
         assert(!(*it)->is_root());
-        //std::cout << "Checking " << *it << std::endl;
+        std::cout << "Checking " << *it << std::endl;
         // Prune the node if needed
-        tmp_child_1_ = (*it);
+        tmp_child_1_ = (*it); // ERROR: tmp_child_1_ can be null, then it will throw a seg fault
+        std::cout << "tmp_child_1_ " << tmp_child_1_ << std::endl;
         tmp_child_2_ = (*it)->first_child();
+        std::cout << "tmp_child_1_ " << tmp_child_1_ << std::endl;
         while (tmp_child_1_->countChildren() == 1 && forest_->pruneNodeIfNeeded(tmp_child_1_)) {
           tmp_child_1_ = tmp_child_2_;
           if (tmp_child_1_ == NULL ) break;
