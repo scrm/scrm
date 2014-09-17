@@ -23,18 +23,19 @@
 
 void OrientedForest::calculate(const Forest &forest) {
   size_t pos = 2*forest.sample_size()-2;
-  generateTreeData(forest.local_root(), pos, -1); 
+  generateTreeData(forest.local_root(), pos, 0); 
 
   output_buffer_ << "{" ;
 
   if (forest.model().recombination_rate() > 0.0) {
-    output_buffer_ << "\"length\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
+    output_buffer_ << "\"length\":" << ( scale_seqlen_ZeroOne_ ? forest.calcSegmentLength(forest.model().finite_sites()) / forest.model().loci_length():
+                                                                 forest.calcSegmentLength(forest.model().finite_sites()) ) << ", " ;
   } 
 
   // Print parents
   output_buffer_ << "\"parents\":[" ;
   for (int parent : parents_) { 
-    output_buffer_ << parent << ( parent != -1 ? "," : "" );
+    output_buffer_ << parent << ( parent != 0 ? "," : "" );
   }
   output_buffer_ << "], ";
 

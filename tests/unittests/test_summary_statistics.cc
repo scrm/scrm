@@ -234,7 +234,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testOrientedForestGenerateTreeData() {
-    OrientedForest of(4);
+    OrientedForest of(4, false);
     size_t pos = 2*forest->sample_size()-2;
     of.generateTreeData(forest->local_root(), pos, 0); 
     CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
@@ -266,13 +266,13 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    OrientedForest of(4);
+    OrientedForest of(4, false);
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,-1], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
-                    output.str().compare("{\"parents\":[6,6,5,5,7,7,-1], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
     
     output.str("");
     output.clear();
@@ -280,8 +280,8 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,-1], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
-                    output.str().compare("{\"length\":10, \"parents\":[6,6,5,5,7,7,-1], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"length\":10, \"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
   }
 
   void testNewickTree() {
@@ -289,7 +289,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    NewickTree of;
+    NewickTree of( false );
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);

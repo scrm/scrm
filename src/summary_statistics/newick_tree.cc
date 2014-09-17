@@ -27,7 +27,8 @@ void NewickTree::calculate(const Forest &forest) {
                    << ";" << std::endl;  
   } else {
     if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-    output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
+    output_buffer_ << "[" << ( scale_seqlen_ZeroOne_ ? forest.calcSegmentLength(forest.model().finite_sites()) / forest.model().loci_length():
+                                                                 forest.calcSegmentLength(forest.model().finite_sites()) ) << "]" 
                    << generateTree(forest.local_root(), forest)
                    << ";" << std::endl;
   }
