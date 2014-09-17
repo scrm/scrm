@@ -142,6 +142,8 @@ class ContemporariesContainer {
                           const size_t sample_number,
                           RandomGenerator *rg);
 
+  ContemporariesContainer(const ContemporariesContainer &Cc);
+
   void add(Node* node);
   void remove(Node *node);
   void replaceChildren(Node *add_node);
@@ -227,6 +229,21 @@ class ContemporariesContainer {
   double buffer_time_;
   RandomGenerator* rg_;
 };
+
+
+inline ContemporariesContainer::ContemporariesContainer(const ContemporariesContainer &Cc) {
+  this->contemporaries_set1_ = Cc.contemporaries_set1_;
+  this->contemporaries_set2_ = Cc.contemporaries_set1_;
+  
+  this->contemporaries_vec1_ = Cc.contemporaries_vec1_;
+  this->contemporaries_vec2_ = Cc.contemporaries_vec2_;
+
+  this->use_first_ = Cc.use_first_;
+  this->use_set_   = Cc.use_set_;
+  this->buffer_time_ = Cc.buffer_time_;
+  this->rg_; // hmmm... what am i going to do with you ...
+    
+}
 
 inline ContemporariesContainer::ContemporariesContainer() {
   contemporaries_vec1_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(100));
