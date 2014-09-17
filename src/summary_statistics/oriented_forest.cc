@@ -23,7 +23,7 @@
 
 void OrientedForest::calculate(const Forest &forest) {
   size_t pos = 2*forest.sample_size()-2;
-  generateTreeData(forest.local_root(), pos, 0); 
+  generateTreeData(forest.local_root(), pos, -1); 
 
   output_buffer_ << "{" ;
 
@@ -32,13 +32,19 @@ void OrientedForest::calculate(const Forest &forest) {
   } 
 
   // Print parents
-  output_buffer_ << "\"parents\":[0" ;
-  for (size_t parent : parents_) output_buffer_ << "," << parent;
+  output_buffer_ << "\"parents\":[" ;
+  for (int parent : parents_) { 
+    output_buffer_ << parent << ( parent != -1 ? "," : "" );
+  }
   output_buffer_ << "], ";
 
   // Print heights
-  output_buffer_ << "\"node_times\":[-1" ;
-  for (size_t height : heights_) output_buffer_ << "," << height * forest.model().scaling_factor();
+  output_buffer_ << "\"node_times\":[" ;
+  double tmrca = heights_.at(2*forest.sample_size()-2);
+  for (double height : heights_) {
+    output_buffer_ << height * forest.model().scaling_factor()
+                   << ( height != tmrca ? "," : "" );
+  }
   output_buffer_ << "]}" << std::endl;
 }
 
@@ -48,7 +54,7 @@ void OrientedForest::printLocusOutput(std::ostream &output) {
   output_buffer_.clear();
 }
 
-void OrientedForest::generateTreeData(Node const* node, size_t &pos, size_t parent_pos) {
+void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_pos) {
   // Samples have a fixed position in the arrays, given by their label.
   if (node->in_sample()) {
     heights_.at(node->label()-1) = node->height();

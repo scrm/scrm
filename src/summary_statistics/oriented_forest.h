@@ -33,7 +33,7 @@ class OrientedForest : public SummaryStatistic
 {
  public:
    OrientedForest(const size_t sample_size) {
-    parents_ = vector<size_t>(2*sample_size-1, 0);
+    parents_ = vector<int>(2*sample_size-1, 0);
     heights_ = vector<double>(2*sample_size-1, 0.0);
    }
    ~OrientedForest() {}
@@ -49,9 +49,9 @@ class OrientedForest : public SummaryStatistic
 
  private:
    OrientedForest() {}
-   void generateTreeData(Node const* node, size_t &pos, size_t parent_pos);
+   void generateTreeData(Node const* node, size_t &pos, int parent_pos);
 
-   vector<size_t> parents_;
+   vector<int> parents_;
    vector<double> heights_;
    std::ostringstream output_buffer_;
 };

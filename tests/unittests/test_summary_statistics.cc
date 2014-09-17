@@ -271,8 +271,8 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 ||
-                    output.str().compare("{\"parents\":[0,6,6,5,5,7,7,0], \"node_times\":[-1,0,0,0,0,3,1,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,-1], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"parents\":[6,6,5,5,7,7,-1], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
     
     output.str("");
     output.clear();
@@ -280,8 +280,8 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[0,5,5,6,6,7,7,0], \"node_times\":[-1,0,0,0,0,1,3,10]}\n") == 0 ||
-                    output.str().compare("{\"length\":10, \"parents\":[0,6,6,5,5,7,7,0], \"node_times\":[-1,0,0,0,0,3,1,10]}\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,-1], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"length\":10, \"parents\":[6,6,5,5,7,7,-1], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
   }
 
   void testNewickTree() {
