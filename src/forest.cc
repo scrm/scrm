@@ -51,7 +51,8 @@ void Forest::initialize(Model* model,
   this->contemporaries_ = ContemporariesContainer(model->population_number(), 
                                                   model->sample_size(),
                                                   rg);
-  tmp_event_time_ = -1;
+  //tmp_event_time_ = -1;
+  tmp_event_time_ = 0;
 }
 
 /**
@@ -68,6 +69,7 @@ Forest::Forest(const Forest &current_forest) {
   this->segment_count_ = current_forest.segment_count_;
 
   this->nodes_ = NodeContainer(*current_forest.getNodes());
+  this->contemporaries_ = ContemporariesContainer ( *current_forest.getContemp());
   this->set_local_root(NULL);
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
@@ -76,6 +78,7 @@ Forest::Forest(const Forest &current_forest) {
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_time_ = -1; 
+    //this->tmp_event_time_ = current_forest.tmp_event_time_; 
   this->coalescence_finished_ = true;
   this->coalescence_finished_ = false;
 
@@ -96,6 +99,8 @@ Forest::Forest(Forest * current_forest) {
   this->segment_count_ = current_forest->segment_count_;
 
   this->nodes_ = NodeContainer(*current_forest->getNodes());
+  this->contemporaries_ = ContemporariesContainer ( *current_forest->getContemp());
+
   this->set_local_root(NULL);
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
@@ -104,6 +109,7 @@ Forest::Forest(Forest * current_forest) {
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_time_ = -1; 
+  //this->tmp_event_time_ = current_forest->tmp_event_time_; 
   this->coalescence_finished_ = true;
   
   
@@ -415,7 +421,6 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
-  cout <<"here within sampleNextGenealogy"<<endl;
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
   double opportunity_y = this -> getLocalTreeLength();
   double recomb_opportunity = recomb_opportunity_x * opportunity_y;
@@ -429,14 +434,14 @@ void Forest::sampleNextGenealogy() {
     this->calcSegmentSumStats();
     return;
   }
-  cout << tmp_event_time_ << std::endl;
+  cout << "tmp_event_time_ = "<< tmp_event_time_ << std::endl;
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
 
   ++segment_count_;
-  cout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
-  cout << "Segment Nr: " << segment_count_ << std::endl;
-  cout << "Sequence position: " << this->current_base() << std::endl;
+  dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
+  dout << "Segment Nr: " << segment_count_ << std::endl;
+  dout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
 
   // Sample the recombination point
@@ -462,9 +467,9 @@ void Forest::sampleNextGenealogy() {
                             recomb_opportunity, 
                             EVENT );
 
-  cout << "* Starting coalescence" << std::endl;
+  dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
-cout << "* Starting coalescence finished" << std::endl;
+  dout << "* Starting coalescence finished" << std::endl;
   assert( this->checkLeafsOnLocalTree() );
   assert( this->checkTree() );
   assert( this->printTree() );
@@ -485,7 +490,6 @@ cout << "* Starting coalescence finished" << std::endl;
  *                   of a tree.
  */
 void Forest::sampleCoalescences(Node *start_node) {
-    cout<<"failed here 1"<<endl;
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
@@ -495,16 +499,13 @@ void Forest::sampleCoalescences(Node *start_node) {
   // Initialize Temporary Variables
   tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
-cout<<"failed here 2"<<endl;
   // This assertion needs an exception for building the initial tree
   assert ( segment_count_ == 1 || 
            active_node(1)->in_sample() || 
            start_node->height() <= active_node(1)->height() );
-cout<<"failed here 3"<<endl;
   // Only prune every second round
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
-cout<<"failed here 4"<<endl;
-    cout << "* * Time interval: " << (*ti).start_height() << " - "
+    dout << "* * Time interval: " << (*ti).start_height() << " - "
          << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
     // Assert that we don't accidentally jump in time 
@@ -522,7 +523,7 @@ cout<<"failed here 4"<<endl;
     calcRates(*ti);
 
     // Some debug checks
-    cout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
+    dout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
         << "(p" << active_node(0)->population() << ")" 
         << " a1:" << active_node(1) << ":s" << states_[1] 
         << "(p" << active_node(1)->population() << ")" << std::endl

@@ -15,13 +15,14 @@ class TestContemporariesContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( sample );
   CPPUNIT_TEST( buffer );
   CPPUNIT_TEST( empty );
+  CPPUNIT_TEST( testCopyConstructor );
 
   CPPUNIT_TEST_SUITE_END();
 
  private:
   MersenneTwister *rg;
   Node *node1, *node2, *node3, *node4;
-
+  
  public:
   void setUp() {
     rg = new MersenneTwister(5);
@@ -397,6 +398,42 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( cc.empty() );
     cc.add(node3);
     CPPUNIT_ASSERT( !cc.empty() );
+  }
+  
+  void testCopyConstructor(){
+    ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node1);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node2);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
+
+    cc.add(node3);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(2) );
+
+    cc.add(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, cc.size(2) );
+    
+    ContemporariesContainer cc1(cc);
+    //cc.add(node1);
+    //cc.add(node2);
+    //cc.add(node3);
+    //cc.add(node4);
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc1.size(0) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, cc1.size(1) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)2, cc1.size(2) );
   }
 };
 CPPUNIT_TEST_SUITE_REGISTRATION( TestContemporariesContainer );

@@ -151,6 +151,7 @@ class Forest
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
   NodeContainer const *getNodes() const { return &nodes_; };
+  ContemporariesContainer const *getContemp() const { return &contemporaries_; };
 
   // Central functions
   void buildInitialTree();
