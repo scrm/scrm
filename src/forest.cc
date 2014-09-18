@@ -429,7 +429,7 @@ void Forest::sampleNextGenealogy() {
 
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
-    cout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+    //cout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
