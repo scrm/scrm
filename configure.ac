@@ -5,12 +5,18 @@ AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
 AM_SILENT_RULES([yes])
 
+# Load macros in 'm4'-dir
+AC_CONFIG_MACRO_DIR([m4])
+
 AC_PROG_INSTALL
 AC_PREREQ
 AC_CANONICAL_HOST
 
 # Checks for programs.
 AC_PROG_RANLIB
+
+# Check for C++11
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 # Checks for libraries
 AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L/opt/local/lib)

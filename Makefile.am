@@ -62,10 +62,10 @@ scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
 unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
 algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
  
-scrm_CXXFLAGS= -DNDEBUG -std=c++0x
-scrm_dbg_CXXFLAGS= -std=c++0x
-scrm_prof_CXXFLAGS= -pg -DNDEBUG -std=c++0x
-unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG -std=c++0x 
-algorithm_tests_CXXFLAGS = -DNDEBUG -std=c++0x 
+scrm_CXXFLAGS= -DNDEBUG
+scrm_dbg_CXXFLAGS=
+scrm_prof_CXXFLAGS= -pg -DNDEBUG
+unit_tests_CXXFLAGS = -DUNITTEST -DNDEBUG
+algorithm_tests_CXXFLAGS = -DNDEBUG
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports
