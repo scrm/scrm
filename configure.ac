@@ -16,7 +16,8 @@ AC_CANONICAL_HOST
 AC_PROG_RANLIB
 
 # Check for C++11
-AX_CXX_COMPILE_STDCXX_11([noext])
+#AX_CXX_COMPILE_STDCXX_11([noext])
+AX_CXX_COMPILE_STDCXX_11()
 
 # Checks for libraries
 AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L/opt/local/lib)
