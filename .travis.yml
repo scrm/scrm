@@ -11,7 +11,7 @@ before_install:
 - sudo add-apt-repository -y ppa:dns/gnu
 - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 - sudo apt-get update -qq
-- sudo apt-get install -qqy automake gcc-4.8 libcppunit-dev valgrind
+- sudo apt-get install -qqy automake g++-4.8 libcppunit-dev valgrind
 - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 - g++ --version
 before_script:
