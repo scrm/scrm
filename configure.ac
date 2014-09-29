@@ -16,11 +16,10 @@ AC_CANONICAL_HOST
 AC_PROG_RANLIB
 
 # Check for C++11
-#AX_CXX_COMPILE_STDCXX_11([noext])
 AX_CXX_COMPILE_STDCXX_11()
 
 # Checks for libraries
-AC_CHECK_LIB(cppunit,TestCase,[],LDFLAGS=-L/opt/local/lib)
+AC_CHECK_LIB(cppunit,TestCase,[])
 
 # Checks for header files for scrm.
 AC_HEADER_STDC
@@ -32,8 +31,8 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
-AC_FUNC_REALLOC
+#AC_FUNC_MALLOC (breaks cross-compilate for windows)
+#AC_FUNC_REALLOC
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
