@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include "summary_statistic.h"
 #include "../forest.h"
@@ -45,8 +46,8 @@ class OrientedForest : public SummaryStatistic
    void update_OF_label( const Forest &forest );
    void generateTree( const Forest &forest );
 
-   vector <size_t> OF_labels;
-   vector <double> heights;
+   std::vector<size_t> OF_labels;
+   std::vector<double> heights;
    size_t tmp_label;
    std::ostringstream output_buffer_;
 };

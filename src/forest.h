@@ -38,29 +38,24 @@
 
 #include <vector>
 #include <unordered_set>
-#include <valarray>
-#include <iomanip>
 #include <stdexcept>
-#include <cfloat>
 #include <cassert>
-#include <sstream> // This is required by Forest::writeTree, ostringstream 
+#include <iostream> // ostreams
+#include <iomanip>  // Used for debug output
 
-#include "macros.h"
-#include "node.h"
+#include "contemporaries_container.h"
 #include "event.h"
 #include "model.h"
+#include "macros.h"
+#include "node.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
-#include "contemporaries_container.h"
 #include "random/random_generator.h"
-#include "random/constant_generator.h"
-#include "random/mersenne_twister.h"
 #include "summary_statistics/summary_statistic.h"
 
 class TimeInterval;
 class TimeIntervalIterator;
-//enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
 enum eventCode { NOEVENT, EVENT, INIT_NULL};
 
 class Forest
@@ -207,8 +202,8 @@ class Forest
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
-  void printSegmentSumStats(ostream &output) const;
-  void printLocusSumStats(ostream &output) const;
+  void printSegmentSumStats(std::ostream &output) const;
+  void printLocusSumStats(std::ostream &output) const;
   
  private:
   //Operations on the Tree

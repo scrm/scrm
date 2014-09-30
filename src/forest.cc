@@ -1191,13 +1191,13 @@ void Forest::calcSegmentSumStats() const {
   }
 }
 
-void Forest::printSegmentSumStats(ostream &output) const {
+void Forest::printSegmentSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printSegmentOutput(output);
   }
 }
 
-void Forest::printLocusSumStats(ostream &output) const {
+void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }

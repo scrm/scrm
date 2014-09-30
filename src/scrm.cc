@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
     rg.clearFastFunc();
     return EXIT_SUCCESS;
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
     std::cerr << "Try 'scrm --help' for more information." << std::endl;
