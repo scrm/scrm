@@ -31,13 +31,6 @@
 #include "node.h"
 #include "random/random_generator.h"
 
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
-
 class ContemporariesIterator {
  public:
   ContemporariesIterator(std::unordered_set<Node*>::iterator it) {

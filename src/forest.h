@@ -36,14 +36,6 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Unless compiled with options NDEBUG, we will produce a debug output using 
-//'dout' instead of cout and execute (expensive) assert statements.
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#define dout 0 && std::cout
-#endif
-
 #include <vector>
 #include <unordered_set>
 #include <valarray>
@@ -53,6 +45,7 @@
 #include <cassert>
 #include <sstream> // This is required by Forest::writeTree, ostringstream 
 
+#include "macros.h"
 #include "node.h"
 #include "event.h"
 #include "model.h"
