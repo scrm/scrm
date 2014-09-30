@@ -1179,25 +1179,19 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
 }
 
 
-bool areSame(const double a, const double b, const double epsilon) {
-  // from Knuths "The art of computer programming"
-  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-}
-
-
 void Forest::calcSegmentSumStats() const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
-void Forest::printSegmentSumStats(ostream &output) const {
+void Forest::printSegmentSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printSegmentOutput(output);
   }
 }
 
-void Forest::printLocusSumStats(ostream &output) const {
+void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }

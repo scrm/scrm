@@ -100,7 +100,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     SegSites seg_sites = SegSites();
 
     TreePoint mutation = TreePoint(forest->nodes()->at(4), 1, true);
-    valarray<bool> haplotype = seg_sites.getHaplotypes(mutation, *forest);
+    std::valarray<bool> haplotype = seg_sites.getHaplotypes(mutation, *forest);
     CPPUNIT_ASSERT_EQUAL( (size_t)4, haplotype.size() );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
@@ -213,7 +213,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     seg_sites->set_position(forest->next_base());
 
     FrequencySpectrum sfs(seg_sites, forest->model());
-    ostringstream output;
+    std::ostringstream output;
 
     // Check values for example locus
     sfs.calculate(forest);
@@ -238,7 +238,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_next_base(10.0);
     
     OrientedForest of;
-    ostringstream output;
+    std::ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("{\"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
@@ -257,7 +257,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_next_base(10.0);
     
     NewickTree of;
-    ostringstream output;
+    std::ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
