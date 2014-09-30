@@ -9,4 +9,10 @@
 #define dout 0 && std::cout
 #endif
 
+// from Knuths "The art of computer programming"
+inline bool areSame(const double a, const double b, 
+                    const double epsilon = std::numeric_limits<double>::epsilon()) {
+  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
+}
+
 #endif

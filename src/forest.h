@@ -160,7 +160,6 @@ class Forest
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;
   bool checkRoots() const;
-  //bool isRegisteredSecondaryRoot(Node const* root) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -173,7 +172,6 @@ class Forest
 
   NodeContainer *nodes() { return &(this->nodes_); }
 
-  //printing tree
   double getTMRCA(const bool &scaled = false) const {
     if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
     else return local_root()->height();
@@ -186,13 +184,9 @@ class Forest
 
   //derived class from Forest
   virtual void record_Recombevent(size_t pop_i, 
-    //double start_time, 
-    //double end_time, 
     double opportunity, 
     eventCode event_code){
     (void)pop_i;
-    //(void)start_time;
-    //(void)end_time;
     (void)opportunity;
     (void)event_code;  
   }
@@ -316,8 +310,5 @@ class Forest
 
   bool coalescence_finished_;
 };
-
-bool areSame(const double a, const double b, 
-             const double epsilon = std::numeric_limits<double>::epsilon());
 
 #endif
