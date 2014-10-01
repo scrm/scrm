@@ -23,16 +23,34 @@
 
 #include "param.h"
 
+Param::Param(std::string arg) { 
+  std::istringstream iss(arg);
+
+  std::string token;
+  char *tmp;
+  while(iss >> token) {
+    tmp = new char[token.size() + 1];
+    copy(token.begin(), token.end(), tmp);
+    tmp[token.size()] = '\0';
+    argv_vec_.push_back(tmp);
+  }
+  argv_vec_.push_back(0);
+
+  argv_ = &argv_vec_[0];
+  argc_ = argv_vec_.size() - 1;
+  init();
+};
+
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
   for (int i = 1; i < param.argc_; ++i) {
-    stream << " " << param.argv_[i];
+    stream << "|||" << param.argv_[i];
   }
   return stream;
 }
 
 /*! 
- * \brief Read in ms parameters and convert to scrm parameters
+ * \brief Read in ms parameters and jonvert to scrm parameters
  * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
  * and -ej options in ms are time t in unit of 4N_0 generations. 
  * In scrm, we define time t in number of generations. 
@@ -102,7 +120,6 @@ void Param::parse(Model &model) {
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
       if (directly_called_ && seg_sites == NULL){
-        //seg_sites = shared_ptr<SegSites>(new SegSites());
         seg_sites = new SegSites();
       }
     }

@@ -23,6 +23,7 @@
 #ifndef scrm_param
 #define scrm_param
 
+#include <vector>
 #include <iostream>
 #include <iomanip>      
 #include <string>
@@ -51,6 +52,7 @@ class Param {
 
   // Constructors
   Param() : argc_(0), argv_(NULL) { init(); }
+  Param(std::string arg);
   Param(int argc, char *argv[], bool directly_called=true) : 
       argc_(argc), argv_(argv), directly_called_(directly_called) {
         init();
@@ -84,11 +86,10 @@ class Param {
       throw std::invalid_argument(std::string("Not enough parameters when parsing options: ") + argv_[argc_i-1]);
     }
 
-    char c;
     T input;
     std::stringstream ss(argv_[argc_i]);
     ss >> input;
-    if (ss.fail() || ss.get(c)) {
+    if (ss.fail()) {
       throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
     }
     return input;
@@ -105,5 +106,6 @@ class Param {
   bool directly_called_;
   bool help_;
   bool version_;
+  std::vector<char*> argv_vec_;
 };
 #endif
