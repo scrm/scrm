@@ -52,11 +52,40 @@ class Param {
 
   // Constructors
   Param() : argc_(0), argv_(NULL) { init(); }
-  Param(std::string arg);
+  Param(const std::string &arg);
   Param(int argc, char *argv[], bool directly_called=true) : 
       argc_(argc), argv_(argv), directly_called_(directly_called) {
         init();
-      }
+  }
+
+  ~Param() {
+    for (char* arg : argv_vec_) delete arg;
+  }
+ 
+  /** Move Operator */
+  Param(Param&& other) {
+    argc_ = other.argc_;
+    argc_i = other.argc_i;
+    argv_ = other.argv_;
+    random_seed_ = other.random_seed_;  
+    directly_called_ = other.directly_called_;
+    help_ = other.help_;
+    version_ = other.version_;
+    std::swap(argv_vec_, other.argv_vec_);
+  }
+
+  /** Copy Assignment Operator */
+  Param& operator=(Param other) {
+    argc_ = other.argc_;
+    argc_i = other.argc_i;
+    argv_ = other.argv_;
+    random_seed_ = other.random_seed_;  
+    directly_called_ = other.directly_called_;
+    help_ = other.help_;
+    version_ = other.version_;
+    std::swap(argv_vec_, other.argv_vec_);
+    return *this;
+  }
 
   void init() {
     this->set_random_seed(-1);
@@ -96,6 +125,8 @@ class Param {
   }
 
  private:
+  Param(const Param &other);
+  
   void set_help(const bool help) { this->help_ = help; } 
   void set_version(const bool version) { this->version_ = version; } 
 

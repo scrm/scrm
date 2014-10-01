@@ -23,7 +23,7 @@
 
 #include "param.h"
 
-Param::Param(std::string arg) { 
+Param::Param(const std::string &arg) { 
   std::istringstream iss(arg);
 
   std::string token;
@@ -44,7 +44,7 @@ Param::Param(std::string arg) {
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
   for (int i = 1; i < param.argc_; ++i) {
-    stream << "|||" << param.argv_[i];
+    stream << " " << param.argv_[i];
   }
   return stream;
 }
