@@ -36,6 +36,8 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
+#include "macros.h" // Needs to be before cassert
+
 #include <vector>
 #include <unordered_set>
 #include <stdexcept>
