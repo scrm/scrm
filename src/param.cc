@@ -39,7 +39,7 @@ Param::Param(const std::string &arg) {
   argv_ = &argv_vec_[0];
   argc_ = argv_vec_.size() - 1;
   init();
-};
+}
 
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
