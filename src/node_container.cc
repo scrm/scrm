@@ -217,40 +217,28 @@ void NodeContainer::add_before(Node* add, Node* next_node){
 bool NodeContainer::sorted() const {
   Node* current = first();
   if ( !current->is_first() ) {
-    std::cout << "NodeContainer: First Node is not first" << std::endl;
+    dout << "NodeContainer: First Node is not first" << std::endl;
     return 0;
   }
 
   while ( !current->is_last() ) {
     current = current->next();
     if ( current->height() < current->previous()->height() ) {
-      std::cout << "NodeContainer: Nodes not sorted" << std::endl;
+      dout << "NodeContainer: Nodes not sorted" << std::endl;
       return 0;
     }
     if ( current == current->previous() ) {
-      std::cout << "NodeContainer: Fatal loop detected" << std::endl;
+      dout << "NodeContainer: Fatal loop detected" << std::endl;
       return 0;
     }
   }
   
   if ( !current->is_last() ) {
-    std::cout << "NodeContainer: Last Node not last" << std::endl;
+    dout << "NodeContainer: Last Node not last" << std::endl;
     return 0;
   }
 
   return 1;
-}
-
-
-bool NodeContainer::print() const {
-  //std::cout << "NodeContainer with " << this->size() << " Nodes" << std::endl;
-  for ( ConstNodeIterator it = this->iterator(); it.good(); ++it ) {
-    std::cout << *it << ": ";
-    if (*it != first()) std::cout << "Prev " << (*it)->previous(); 
-    if (*it != last()) std::cout << " Next " << (*it)->next(); 
-    std::cout << std::endl;
-  }
-  return true;
 }
 
 
@@ -261,3 +249,13 @@ void swap(NodeContainer& first, NodeContainer& second) {
   swap(first.size_, second.size_);
   swap(first.unsorted_node_, second.unsorted_node_);
 }
+
+
+std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc) {
+  for ( ConstNodeIterator it = nc.iterator(); it.good(); ++it ) {
+    stream << *it << "(" << (*it)->height() << ")";
+    if (*it != nc.last()) stream << " <--> "; 
+  }
+  return stream;
+}
+
