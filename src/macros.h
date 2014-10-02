@@ -25,8 +25,16 @@
 // Unless compiled with options NDEBUG, we will produce a debug output using 
 // 'dout' instead of cout and execute (expensive) assert statements.
 #ifndef NDEBUG
+
+// Debug mode
+#ifdef UNITTEST // No debug output in unittests
+#define dout 0 && std::cout
+#else           // Produce debug output
 #define dout std::cout
+#endif
+
 #else
+// Normal Mode
 #define dout 0 && std::cout
 #endif
 
