@@ -7,12 +7,9 @@
 // Include Rcpp Headers for Rcout.
 #include "Rcpp.h"
 
-// Use Rcout for debug output.
-#ifndef NDEBUG
-#define dout Rcpp::Rcout
-#else
+// Suppress debug output.
+#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && Rcpp::Rcout
-#endif
 
 // Assure that assertions are deactivated.
 #ifndef NDEBUG
@@ -28,6 +25,7 @@
 
 // Debug mode
 #ifdef UNITTEST // No debug output in unittests
+#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #else           // Produce debug output
 #define dout std::cout
@@ -35,6 +33,7 @@
 
 #else
 // Normal Mode
+#pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
 
