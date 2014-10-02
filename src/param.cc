@@ -82,7 +82,7 @@ void Param::parse(Model &model) {
 
   if (argc_ == 0) return;
   if (!directly_called_) {
-    std::cout << "Indirectly called" << std::endl;
+    dout << "Indirectly called" << std::endl;
   } else {
     // Check that have have at least one argument
     if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
