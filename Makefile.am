@@ -36,8 +36,6 @@ sumstat_src = src/summary_statistics/tmrca.cc \
 			  src/summary_statistics/frequency_spectrum.h \
 			  src/summary_statistics/newick_tree.h \
 			  src/summary_statistics/summary_statistic.h \
-			  src/summary_statistics/first_last_tmrca.cc \
-			  src/summary_statistics/first_last_tmrca.h \
 			  src/summary_statistics/oriented_forest.cc \
 			  src/summary_statistics/oriented_forest.h
  

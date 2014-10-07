@@ -388,7 +388,6 @@ void Param::parse(Model &model) {
   if (trees) model.addSummaryStatistic(new NewickTree());
   if (orientedForest) model.addSummaryStatistic(new OrientedForest());
   if (tmrca) model.addSummaryStatistic(new TMRCA());
-  if (first_last_tmrca) model.addSummaryStatistic(new FirstLastTMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
     if (seg_sites == NULL) 
