@@ -262,6 +262,7 @@ class Model
    }
 
    double getCurrentSequencePosition() const { 
+		// Returns position of the next (recombination) rate change
     if ( current_seq_idx_ >= change_position_.size() ) return loci_length();
     return change_position_.at(current_seq_idx_); 
    }

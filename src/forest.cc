@@ -405,6 +405,11 @@ void Forest::sampleNextGenealogy() {
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+	this->record_Recombevent(0, 
+							//rec_point.height(), 
+                            //rec_point.height(), 
+                            recomb_opportunity, 
+                            NOEVENT );
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
@@ -488,7 +493,8 @@ void Forest::sampleCoalescences(Node *start_node) {
     states_[1] = getNodeState(active_node(1), (*ti).start_height());
 
     // Fixed time events (e.g pop splits/merges & single migration events first
-    if (model().hasFixedTimeEvent((*ti).start_height())) implementFixedTimeEvent(ti);
+    if (model().hasFixedTimeEvent((*ti).start_height())) 
+		implementFixedTimeEvent(ti);
 
     calcRates(*ti);
 
