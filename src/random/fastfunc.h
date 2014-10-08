@@ -48,7 +48,7 @@ class FastFunc {
  protected:
   double* build_fastlog_double_table( int );
   
-  static constexpr double LN2 = std::log(2);
+  static constexpr double LN2 = 0.693147180559945309417; //ln(2)
   static constexpr double EXP_A = 1048576/LN2;
   static constexpr long long EXP_C_LO = 90254;
   static constexpr long long EXP_C_UP = -1;
