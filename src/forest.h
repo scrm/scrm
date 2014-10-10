@@ -206,12 +206,14 @@ class Forest
     //double start_time, 
     //double end_time, 
     double opportunity, 
-    eventCode event_code){
+    eventCode event_code,
+    double start_base){
     (void)pop_i;
     //(void)start_time;
     //(void)end_time;
     (void)opportunity;
-    (void)event_code;  
+    (void)event_code;
+    (void)start_base;  
   }
   virtual void record_all_event( TimeInterval const &ti){
     (void) ti;   

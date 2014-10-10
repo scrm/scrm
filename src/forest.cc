@@ -399,7 +399,7 @@ void Forest::sampleNextGenealogy() {
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
   double opportunity_y = this -> local_tree_length();
   double recomb_opportunity = recomb_opportunity_x * opportunity_y;
-
+  double previous_base = this->current_base_;
   this->set_current_base(next_base_);
 
   if (current_base_ == model().getCurrentSequencePosition()) {
@@ -409,7 +409,7 @@ void Forest::sampleNextGenealogy() {
 							//rec_point.height(), 
                             //rec_point.height(), 
                             recomb_opportunity, 
-                            NOEVENT );
+                            NOEVENT, previous_base);
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
@@ -442,7 +442,7 @@ void Forest::sampleNextGenealogy() {
                             //rec_point.height(), 
                             //rec_point.height(), 
                             recomb_opportunity, 
-                            EVENT );
+                            EVENT, previous_base);
 
   dout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
