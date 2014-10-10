@@ -397,20 +397,17 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 void Forest::sampleNextGenealogy() {
 
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
-  double opportunity_y = this -> local_tree_length();
-  double recomb_opportunity = recomb_opportunity_x * opportunity_y;
-  double previous_base = this->current_base_;
+  //double opportunity_y = this -> local_tree_length();
+  //double recomb_opportunity = recomb_opportunity_x * opportunity_y;
+  //double previous_base = this->current_base_;
   this->set_current_base(next_base_);
+  this->compute_opportunity_y_s ();
 
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-	this->record_Recombevent(0, 
-							//rec_point.height(), 
-                            //rec_point.height(), 
-                            recomb_opportunity, 
-                            NOEVENT, previous_base);
+    this->record_Recombevent_atNewGenealogy( recomb_opportunity_x, false );
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
@@ -422,10 +419,12 @@ void Forest::sampleNextGenealogy() {
   scrmdout << "Segment Nr: " << segment_count_ << std::endl;
   scrmdout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
+assert( this->printTree() );
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
   assert( rec_point.base_node()->local() );
+assert( this->printTree() );
 
   scrmdout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;
@@ -437,14 +436,14 @@ void Forest::sampleNextGenealogy() {
 
   // update current time index
   this->writable_model()->resetTime( rec_point.height() );
-
+  this->record_Recombevent_atNewGenealogy( recomb_opportunity_x, true);
   // record recombination event - we pass the population, but disregard for now, 
   // since the opportunity is calculated overall rather than per-population. 
-  this->record_Recombevent(0, 
-                            //rec_point.height(), 
-                            //rec_point.height(), 
-                            recomb_opportunity, 
-                            EVENT, previous_base);
+  //this->record_Recombevent(0, 
+                            ////rec_point.height(), 
+                            ////rec_point.height(), 
+                            //recomb_opportunity, 
+                            //EVENT, previous_base);
 
   scrmdout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
