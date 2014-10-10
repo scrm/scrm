@@ -36,14 +36,6 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Unless compiled with options NDEBUG, we will produce a debug output using 
-//'dout' instead of cout and execute (expensive) assert statements.
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 #pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <vector>

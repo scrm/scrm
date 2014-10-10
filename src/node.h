@@ -44,6 +44,13 @@
 #define dout 0 && std::cout
 #endif
 
+#ifndef NDEBUG
+#define scrmdout (std::cout << "      scrm ")
+#else
+#pragma GCC diagnostic ignored "-Wunused-value"
+#define scrmdout 0 && (std::cout << "      scrm ")
+#endif
+
 class Node
 {
  public:                       
