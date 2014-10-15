@@ -67,7 +67,6 @@ void Param::parse(Model &model) {
   // be added in the correct order.
   SegSites* seg_sites = NULL;
   bool tmrca = false,
-       first_last_tmrca = false,
        trees = false,
        orientedForest = false,
        sfs = false; 

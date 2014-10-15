@@ -49,6 +49,8 @@ class SegSites : public SummaryStatistic
   size_t countMutations() const { return positions_.size(); };
 
   double position() const { return position_; };
+  std::vector<double> const* positions() const { return &positions_; };
+
   std::valarray<bool> const* getHaplotype(const size_t mutation) const {
     return &(haplotypes_.at(mutation));
   }
