@@ -22,7 +22,7 @@
 #include "tmrca.h"
 
 void TMRCA::calculate(const Forest &forest) {
-  if (forest.calcSegmentLength(forest.model().finite_sites()) == 0) return;
+  if (forest.calcSegmentLength() == 0) return;
   output_buffer_ << "time:\t" << forest.getTMRCA(true) << " \t" << forest.getLocalTreeLength(true) << "\n";  
 }
 

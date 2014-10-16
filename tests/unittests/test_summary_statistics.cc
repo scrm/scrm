@@ -234,7 +234,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testOrientedForestGenerateTreeData() {
-    OrientedForest of(4, false);
+    OrientedForest of(4);
     size_t pos = 2*forest->sample_size()-2;
     of.generateTreeData(forest->local_root(), pos, 0); 
     CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
@@ -266,7 +266,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    OrientedForest of(4, false);
+    OrientedForest of(4);
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
@@ -289,7 +289,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    NewickTree of( false );
+    NewickTree of;
     ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);

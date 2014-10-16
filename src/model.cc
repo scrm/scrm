@@ -115,8 +115,7 @@ void Model::init() {
   this->setRecombinationRate(0.0);
 
   this->set_exact_window_length(-1);
-
-  this->set_finite_sites(true);
+  this->setSequenceScaling(ms);
 
   this->resetTime();
   this->resetSequencePosition();

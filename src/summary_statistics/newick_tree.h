@@ -43,7 +43,7 @@ struct NewickBuffer {
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree( bool scale_seqlen_ZeroOne):scale_seqlen_ZeroOne_(scale_seqlen_ZeroOne) {};
+   NewickTree() {};
    ~NewickTree() {};
 
    //Virtual methods
@@ -52,7 +52,6 @@ class NewickTree : public SummaryStatistic
    void printLocusOutput(std::ostream &output);
 
  private:
-   bool scale_seqlen_ZeroOne_;
    std::string generateTree(Node *node, const Forest &forest,
                             const bool use_buffer = true);
    std::ostringstream output_buffer_;

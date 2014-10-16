@@ -32,10 +32,9 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
-   OrientedForest(const size_t sample_size, bool scale_seqlen_ZeroOne) {
+   OrientedForest(const size_t sample_size) {
     parents_ = vector<int>(2*sample_size-1, 0);
     heights_ = vector<double>(2*sample_size-1, 0.0);
-    scale_seqlen_ZeroOne_ = scale_seqlen_ZeroOne;
    }
    ~OrientedForest() {}
 
@@ -49,7 +48,6 @@ class OrientedForest : public SummaryStatistic
 #endif
 
  private:
-   bool scale_seqlen_ZeroOne_;
    OrientedForest() {}
    void generateTreeData(Node const* node, size_t &pos, int parent_pos);
 
