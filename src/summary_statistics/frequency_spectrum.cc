@@ -27,7 +27,7 @@ void FrequencySpectrum::calculate(const Forest &forest) {
   assert(seg_sites_->position() == forest.next_base()); 
 }
 
-void FrequencySpectrum::printLocusOutput(std::ostream &output) {
+void FrequencySpectrum::printLocusOutput(std::ostream &output) const {
   std::vector<size_t> sfs(model_.sample_size() - 1, 0);
   size_t haplotype;
 

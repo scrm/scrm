@@ -42,7 +42,6 @@
 #include <stdexcept>
 #include <cassert>
 #include <cmath>
-#include <memory>
 
 #include "summary_statistics/summary_statistic.h"
 
@@ -370,15 +369,11 @@ class Model
      return summary_statistics_.size(); 
    }
 
-   std::shared_ptr<SummaryStatistic> getSummaryStatistic(const size_t i) const {
+   SummaryStatistic const* getSummaryStatistic(const size_t i) const {
      return summary_statistics_.at(i);
    }
 
    void addSummaryStatistic(SummaryStatistic* sum_stat) {
-     summary_statistics_.push_back(std::shared_ptr<SummaryStatistic>(sum_stat));
-   }
-
-   void addSummaryStatistic(std::shared_ptr<SummaryStatistic> sum_stat) {
      summary_statistics_.push_back(sum_stat);
    }
 
@@ -484,7 +479,7 @@ class Model
 
    bool finite_sites_;
 
-   std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
+   std::vector<SummaryStatistic*> summary_statistics_;
 };
 
 

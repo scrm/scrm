@@ -35,12 +35,14 @@
 class FrequencySpectrum : public SummaryStatistic
 {
  public:
-   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites), model_(model) { };
+   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites), model_(model) { }
+   FrequencySpectrum(const FrequencySpectrum &sp) : seg_sites_(sp.seg_sites_), model_(sp.model_) { }
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
+   void printLocusOutput(std::ostream &output) const;
+   void clear() { }
+   FrequencySpectrum* clone() const { return new FrequencySpectrum(*this); }
 
  private:
    SegSites* const seg_sites_;

@@ -59,13 +59,21 @@ struct NewickBuffer {
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree() {};
-   ~NewickTree() {};
+   NewickTree() {}
+   //NewickTree(const NewickTree &nt) { (void)nt; }
+   ~NewickTree() {}
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
+   void printLocusOutput(std::ostream &output) const;
+
+   NewickTree* clone() const { return new NewickTree(); };
+
+   void clear() {
+     output_buffer_.str("");
+     output_buffer_.clear();
+     buffer_.clear();
+   }
 
  private:
    std::string generateTree(Node *node, const Forest &forest,
