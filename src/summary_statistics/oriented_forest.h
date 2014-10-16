@@ -33,22 +33,27 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
-   OrientedForest() {};
-   ~OrientedForest() {};
+   OrientedForest(const size_t sample_size) {
+    parents_ = std::vector<int>(2*sample_size-1, 0);
+    heights_ = std::vector<double>(2*sample_size-1, 0.0);
+   }
+   ~OrientedForest() {}
 
    //Virtual methods
    void calculate(const Forest &forest);
    void printSegmentOutput(std::ostream &output) { (void)output; }
    void printLocusOutput(std::ostream &output);
 
- private:
-   void init_OF_label( const Forest &forest );
-   void update_OF_label( const Forest &forest );
-   void generateTree( const Forest &forest );
+#ifdef UNITTEST
+   friend class TestSummaryStatistics;
+#endif
 
-   std::vector<size_t> OF_labels;
-   std::vector<double> heights;
-   size_t tmp_label;
+ private:
+   OrientedForest() {}
+   void generateTreeData(Node const* node, size_t &pos, int parent_pos);
+
+   std::vector<int> parents_;
+   std::vector<double> heights_;
    std::ostringstream output_buffer_;
 };
 

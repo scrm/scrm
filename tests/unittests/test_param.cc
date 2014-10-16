@@ -22,6 +22,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseUnsupportedMsArguments );
   CPPUNIT_TEST( testParseSplitOptions );
   CPPUNIT_TEST( testParseMergeOptions );
+  CPPUNIT_TEST( testParseSequenceScaling );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -315,17 +316,14 @@ class TestParam : public CppUnit::TestCase {
     char *argv[] = { "scrm", "20", "10", "-T" };
     CPPUNIT_ASSERT_NO_THROW( Param(4, argv).parse(model); );
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
-    CPPUNIT_ASSERT( model.finite_sites() );
 
-    char *argv2[] = { "scrm", "20", "10", "-Tfs" };
+    char *argv2[] = { "scrm", "20", "10", "-O" };
     CPPUNIT_ASSERT_NO_THROW( Param(4, argv2).parse(model); );
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
-    CPPUNIT_ASSERT( model.finite_sites() );
 
-    char *argv3[] = { "scrm", "20", "10", "-Tifs" };
-    CPPUNIT_ASSERT_NO_THROW( Param(4, argv3).parse(model); );
-    CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
-    CPPUNIT_ASSERT( !model.finite_sites() );
+    char *argv3[] = { "scrm", "20", "10", "-T", "-O" };
+    CPPUNIT_ASSERT_NO_THROW( Param(5, argv3).parse(model); );
+    CPPUNIT_ASSERT( model.summary_statistics_.size() == 2 );
 
     char *argv4[] = { "scrm", "20", "10", "-t", "5" };
     CPPUNIT_ASSERT_NO_THROW( Param(5, argv4).parse(model); );
@@ -468,6 +466,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(6, argv4).parse(model), std::invalid_argument ); 
   }
 
+<<<<<<< HEAD
   void testStringConstructor() {
     Param pars = Param("scrm 4 7 -t 40.04 -r 0.5 1001 -l 1000");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
@@ -478,6 +477,28 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
+=======
+  void testParseSequenceScaling() {
+    char *argv1[] = { "scrm", "4", "7", "-SC", "ms"};
+    Param pars = Param(5, argv1);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( model.getSequenceScaling() == ms );
+
+    char *argv2[] = { "scrm", "4", "7", "-SC", "rel"};
+    pars = Param(5, argv2);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( model.getSequenceScaling() == relative );
+
+    char *argv3[] = { "scrm", "4", "7", "-SC", "abs"};
+    pars = Param(5, argv3);
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+    CPPUNIT_ASSERT( model.getSequenceScaling() == absolute );
+
+    char *argv4[] = { "scrm", "4", "7", "-SC", "blub"};
+    CPPUNIT_ASSERT_THROW( Param(5, argv4).parse(model), std::invalid_argument );
+    char *argv5[] = { "scrm", "4", "7", "-SC"};
+    CPPUNIT_ASSERT_THROW( Param(4, argv5).parse(model), std::invalid_argument );
+>>>>>>> master
   }
 };
 
