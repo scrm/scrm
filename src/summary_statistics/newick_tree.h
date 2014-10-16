@@ -31,6 +31,22 @@
 #include "summary_statistic.h"
 #include "../forest.h"
 
+/** Use the slower implementation below for std::to_string if compiled with 
+ * '-DNTOSTRING'. This is useful for (cross) compiling with mingw, because it
+ * misses support for std::to_string. */
+#ifdef NTOSTRING
+template <typename T> 
+std::string to_string(T value)
+{
+  std::ostringstream os ;
+  os << value ;
+  return os.str() ;
+}
+#else
+using std::to_string;
+#endif
+
+
 /**
  * @brief Save buffered tree along with the sequence position at which
  * they where created. 
