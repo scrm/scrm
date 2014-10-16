@@ -36,6 +36,7 @@ Param::Param(const std::string &arg) {
   }
   argv_vec_.push_back(0);
 
+  directly_called_ = false;
   argv_ = &argv_vec_[0];
   argc_ = argv_vec_.size() - 1;
   init();

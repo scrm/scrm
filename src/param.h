@@ -53,8 +53,8 @@ class Param {
   Param() : argc_(0), argv_(NULL) { init(); }
   Param(const std::string &arg);
   Param(int argc, char *argv[], bool directly_called=true) : 
-      argc_(argc), argv_(argv), directly_called_(directly_called) {
-        init();
+    argc_(argc), argv_(argv), directly_called_(directly_called) {
+    init();
   }
 
   ~Param() {
