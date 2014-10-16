@@ -221,9 +221,11 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
 
-    // Check that it is reseged at a new locus
+    // Check that it is reset at a new locus
     output.str("");
     output.clear();
+
+    forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
     sfs.calculate(forest);

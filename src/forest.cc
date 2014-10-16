@@ -425,9 +425,6 @@ void Forest::sampleNextGenealogy() {
     return;
   }
 
-  // Clear Summary Statistics
-  this->clearSumStats();
-
   dout << tmp_event_time_ << std::endl;
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
@@ -1219,4 +1216,7 @@ void Forest::clear() {
   // Reset Position & Segment Counts
   this->set_current_base(0.0);
   this->segment_count_ = 0;
+
+  // Clear Summary Statistics
+  this->clearSumStats();
 }
