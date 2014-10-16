@@ -51,7 +51,9 @@ class Param {
   }
 
   ~Param() {
-    for (char* arg : argv_vec_) delete arg;
+    for (size_t i = 0; i < argv_vec_.size(); ++i) {
+      delete[] argv_vec_[i];
+    }
   }
  
   /** Move Operator */
