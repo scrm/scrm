@@ -8,6 +8,7 @@ Released: Not yet
 ### Improvements
 + Improved the autotools configuration to support more compilers and operating
   systems (#10, #27).
++ Changed the Oriented Forest summary statistic (#25).
 
 
 
