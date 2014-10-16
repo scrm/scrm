@@ -273,10 +273,11 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
                     output.str().compare("{\"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
-    
+
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
+    of.clear();
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
@@ -293,13 +294,16 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     std::ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
     
     output.str("");
     output.clear();
+    of.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
     of.calculate(forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
   }
 };

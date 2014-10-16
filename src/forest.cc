@@ -425,6 +425,9 @@ void Forest::sampleNextGenealogy() {
     return;
   }
 
+  // Clear Summary Statistics
+  this->clearSumStats();
+
   dout << tmp_event_time_ << std::endl;
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
@@ -1179,15 +1182,15 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
 }
 
 
-void Forest::calcSegmentSumStats() const {
+void Forest::calcSegmentSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
-void Forest::printSegmentSumStats(std::ostream &output) const {
+void Forest::clearSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
-    model().getSummaryStatistic(i)->printSegmentOutput(output);
+    model().getSummaryStatistic(i)->clear();
   }
 }
 

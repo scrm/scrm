@@ -26,8 +26,6 @@ void TMRCA::calculate(const Forest &forest) {
   output_buffer_ << "time:\t" << forest.getTMRCA(true) << " \t" << forest.getLocalTreeLength(true) << "\n";  
 }
 
-void TMRCA::printLocusOutput(std::ostream &output) {
+void TMRCA::printLocusOutput(std::ostream &output) const {
   output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
 }

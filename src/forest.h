@@ -200,8 +200,8 @@ class Forest
   }
 
   // Calc & Print Summary Statistics
-  void calcSegmentSumStats() const;
-  void printSegmentSumStats(std::ostream &output) const;
+  void calcSegmentSumStats();
+  void clearSumStats();
   void printLocusSumStats(std::ostream &output) const;
   
  private:

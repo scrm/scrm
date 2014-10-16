@@ -466,7 +466,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(6, argv4).parse(model), std::invalid_argument ); 
   }
 
-<<<<<<< HEAD
   void testStringConstructor() {
     Param pars = Param("scrm 4 7 -t 40.04 -r 0.5 1001 -l 1000");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
@@ -477,7 +476,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
     CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
-=======
+  }
+
   void testParseSequenceScaling() {
     char *argv1[] = { "scrm", "4", "7", "-SC", "ms"};
     Param pars = Param(5, argv1);
@@ -498,7 +498,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(5, argv4).parse(model), std::invalid_argument );
     char *argv5[] = { "scrm", "4", "7", "-SC"};
     CPPUNIT_ASSERT_THROW( Param(4, argv5).parse(model), std::invalid_argument );
->>>>>>> master
   }
 };
 

@@ -64,12 +64,10 @@ int main(int argc, char *argv[]){
 
       // Now set up the ARG, and sample the initial tree
       forest.buildInitialTree();
-      forest.printSegmentSumStats(*output);
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
-        forest.printSegmentSumStats(*output);
       }
       
       forest.printLocusSumStats(*output);

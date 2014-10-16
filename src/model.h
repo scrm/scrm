@@ -361,7 +361,7 @@ class Model
      return summary_statistics_.size(); 
    }
 
-   SummaryStatistic const* getSummaryStatistic(const size_t i) const {
+   SummaryStatistic* getSummaryStatistic(const size_t i) const {
      return summary_statistics_.at(i);
    }
 

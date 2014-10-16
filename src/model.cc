@@ -76,7 +76,7 @@ Model::Model(const Model& model) {
 
   // Summary Statistics
   for (SummaryStatistic* sum_stat : model.summary_statistics_) {
-    this->summary_statistics_.push_back(sum_stat.clone());  
+    this->summary_statistics_.push_back(sum_stat->clone());  
   }
 
   // Pointers
