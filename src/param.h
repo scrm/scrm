@@ -25,15 +25,8 @@
 
 #include <vector>
 #include <iostream>
-#include <iomanip>      
 #include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <stdlib.h>  
-#include <stdio.h>
 #include <stdexcept>
-#include <memory>
 
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
