@@ -75,6 +75,8 @@ class NewickTree : public SummaryStatistic
      buffer_.clear();
    }
 
+   std::string getTrees() const { return output_buffer_.str(); }
+
  private:
    std::string generateTree(Node *node, const Forest &forest,
                             const bool use_buffer = true);
