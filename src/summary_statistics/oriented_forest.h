@@ -51,6 +51,8 @@ class OrientedForest : public SummaryStatistic
      return new OrientedForest(this->parents_.size());
    }
 
+   std::string getTrees() const { return output_buffer_.str(); }
+
 #ifdef UNITTEST
    friend class TestSummaryStatistics;
 #endif
