@@ -25,7 +25,7 @@
 
 #include <sstream>
 #include <iostream>
-#include <memory>
+#include <vector>
 
 #include "summary_statistic.h"
 #include "seg_sites.h"
@@ -35,18 +35,29 @@
 class FrequencySpectrum : public SummaryStatistic
 {
  public:
-   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites), model_(model) { }
-   FrequencySpectrum(const FrequencySpectrum &sp) : seg_sites_(sp.seg_sites_), model_(sp.model_) { }
+   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites) {
+     sfs_ = std::vector<size_t>(model.sample_size() - 1, 0);
+     at_mutation_ = 0;
+     //total_sfs_ = std::vector<size_t>(model_.sample_size() - 1, 0);
+   }
+
+   FrequencySpectrum(const FrequencySpectrum &sp) : seg_sites_(sp.seg_sites_) { }
 
    //Virtual methods
    void calculate(const Forest &forest);
    void printLocusOutput(std::ostream &output) const;
-   void clear() { }
+   void clear() { 
+     for (size_t i = 0; i < sfs_.size(); ++i) sfs_.at(i) = 0;
+     at_mutation_ = 0;
+   }
    FrequencySpectrum* clone() const { return new FrequencySpectrum(*this); }
+   std::vector<size_t> const & sfs() const { return sfs_; }
 
  private:
    SegSites* const seg_sites_;
-   const Model &model_;
+   std::vector<size_t> sfs_;
+   //std::vector<size_t> total_sfs_;
+   size_t at_mutation_;
 };
 
 #endif

@@ -231,6 +231,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     output.str("");
     output.clear();
 
+    sfs.clear();
     forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
