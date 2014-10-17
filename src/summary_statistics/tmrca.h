@@ -46,8 +46,8 @@ class TMRCA : public SummaryStatistic
    
    TMRCA* clone() const { return new TMRCA(); } 
 
-   std::vector<double> tmrca() { return tmrca_; }
-   std::vector<double> tree_length() { return tree_length_; }
+   const std::vector<double> & tmrca() const { return tmrca_; }
+   const std::vector<double> & tree_length() const { return tree_length_; }
 
  private:
    std::vector<double> tmrca_;
