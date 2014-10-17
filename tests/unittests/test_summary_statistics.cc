@@ -49,13 +49,19 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testTMRCA() {
-    TMRCA* tmrca = new TMRCA();
-    tmrca->calculate(*forest);
-    delete tmrca;
+    forest->createScaledExampleTree();
+    TMRCA tmrca = TMRCA();
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(0) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(0) );
 
-    SummaryStatistic* tmrca2 = new TMRCA();
-    tmrca2->calculate(*forest);
-    delete tmrca2;
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(1) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(1) );
+    
+    tmrca.clear();
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tmrca().size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tree_length().size() );
   }
 
   void testSegSitesTraversal() {

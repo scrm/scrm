@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include "summary_statistic.h"
 #include "../forest.h"
@@ -39,14 +40,18 @@ class TMRCA : public SummaryStatistic
    void calculate(const Forest &forest);
    void printLocusOutput(std::ostream &output) const;
    void clear() {
-     output_buffer_.str("");
-     output_buffer_.clear();
+     tmrca_.clear();
+     tree_length_.clear();
    }
    
    TMRCA* clone() const { return new TMRCA(); } 
 
+   std::vector<double> tmrca() { return tmrca_; }
+   std::vector<double> tree_length() { return tree_length_; }
+
  private:
-   std::ostringstream output_buffer_;
+   std::vector<double> tmrca_;
+   std::vector<double> tree_length_;
 };
 
 #endif
