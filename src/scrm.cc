@@ -34,8 +34,8 @@ int main(int argc, char *argv[]){
     // Organize output
     std::ostream *output = &std::cout;
 
-    Param user_para("scrm 10 2 -t 5");
-
+    // Parse command line arguments
+    Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
 
