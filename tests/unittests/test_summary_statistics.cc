@@ -211,21 +211,29 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     seg_sites->positions_.push_back(0.8);
 
     std::valarray<bool> ht = {1, 0, 0, 0};
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singleton
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // doubleton
     ht = 0;
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singletion
     seg_sites->set_position(forest->next_base());
 
     FrequencySpectrum sfs(seg_sites, forest->model());
     std::ostringstream output;
 
-    // Check values for example locus
+    // Check values for example segment
     sfs.calculate(forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
+
+    // Add another segment
+    seg_sites->positions_.push_back(0.9);
+    seg_sites->haplotypes_.push_back(ht);
+    sfs.calculate(forest);
+    CPPUNIT_ASSERT_EQUAL((size_t)3, sfs.sfs().at(0));
+    CPPUNIT_ASSERT_EQUAL((size_t)1, sfs.sfs().at(1));
+    CPPUNIT_ASSERT_EQUAL((size_t)0, sfs.sfs().at(2));
 
     // Check that it is reset at a new locus
     output.str("");

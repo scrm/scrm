@@ -35,7 +35,7 @@ void FrequencySpectrum::calculate(const Forest &forest) {
     sfs_.at(haplotype - 1) += 1; 
   }
 
-  at_mutation_ = seg_sites_->countMutations() - 1;
+  at_mutation_ = seg_sites_->countMutations();
 }
 
 void FrequencySpectrum::printLocusOutput(std::ostream &output) const {

@@ -27,6 +27,9 @@
 #include <iostream>
 #include <vector>
 
+#include "../macros.h"
+#include <cassert>
+
 #include "summary_statistic.h"
 #include "seg_sites.h"
 #include "../model.h"
