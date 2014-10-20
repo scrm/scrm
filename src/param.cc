@@ -23,6 +23,25 @@
 
 #include "param.h"
 
+Param::Param(const std::string &arg) { 
+  std::istringstream iss(arg);
+
+  std::string token;
+  char *tmp;
+  while(iss >> token) {
+    tmp = new char[token.size() + 1];
+    copy(token.begin(), token.end(), tmp);
+    tmp[token.size()] = '\0';
+    argv_vec_.push_back(tmp);
+  }
+  argv_vec_.push_back(0);
+
+  directly_called_ = true;
+  argv_ = &argv_vec_[0];
+  argc_ = argv_vec_.size() - 1;
+  init();
+}
+
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
   for (int i = 1; i < param.argc_; ++i) {
@@ -32,7 +51,7 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
 }
 
 /*! 
- * \brief Read in ms parameters and convert to scrm parameters
+ * \brief Read in ms parameters and jonvert to scrm parameters
  * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
  * and -ej options in ms are time t in unit of 4N_0 generations. 
  * In scrm, we define time t in number of generations. 
@@ -49,7 +68,6 @@ void Param::parse(Model &model) {
   // be added in the correct order.
   SegSites* seg_sites = NULL;
   bool tmrca = false,
-       first_last_tmrca = false,
        newick_trees = false,
        orientedForest = false,
        sfs = false; 
@@ -64,7 +82,7 @@ void Param::parse(Model &model) {
 
   if (argc_ == 0) return;
   if (!directly_called_) {
-    std::cout << "Indirectly called" << std::endl;
+    dout << "Indirectly called" << std::endl;
   } else {
     // Check that have have at least one argument
     if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
@@ -102,7 +120,6 @@ void Param::parse(Model &model) {
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
       if (directly_called_ && seg_sites == NULL){
-        //seg_sites = shared_ptr<SegSites>(new SegSites());
         seg_sites = new SegSites();
       }
     }
@@ -304,10 +321,6 @@ void Param::parse(Model &model) {
       sfs = true;
     }
 
-    else if (argv_i == "-oFLTMRCA"){
-      first_last_tmrca = true;
-    }
-
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------
@@ -377,7 +390,6 @@ void Param::parse(Model &model) {
   if (newick_trees) model.addSummaryStatistic(new NewickTree());
   if (orientedForest) model.addSummaryStatistic(new OrientedForest(model.sample_size()));
   if (tmrca) model.addSummaryStatistic(new TMRCA());
-  if (first_last_tmrca) model.addSummaryStatistic(new FirstLastTMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
     if (seg_sites == NULL) 

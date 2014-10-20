@@ -23,6 +23,8 @@
 #ifndef scrm_src_node_container
 #define scrm_src_node_container
 
+#include "macros.h" // Needs to be before cassert
+
 #include <vector>
 #include <stdexcept>
 #include <cfloat>
@@ -69,7 +71,6 @@ class NodeContainer {
   
   size_t size() const { return size_; };  
   bool sorted() const; 
-  bool print() const;
 
 #ifdef UNITTEST
   friend class TestNodeContainer;
@@ -77,6 +78,7 @@ class NodeContainer {
   friend class NodeIterator;
   friend class ConstNodeIterator;
   friend class ReverseConstNodeIterator;
+  friend std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc);
 
  private:
   friend void swap(NodeContainer& first, NodeContainer& second);

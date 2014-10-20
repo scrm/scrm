@@ -36,6 +36,8 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
+#include "macros.h" // Needs to be before cassert
+
 #include <vector>
 #include <unordered_set>
 #include <stdexcept>
@@ -198,8 +200,8 @@ class Forest
   }
 
   // Calc & Print Summary Statistics
-  void calcSegmentSumStats() const;
-  void printSegmentSumStats(std::ostream &output) const;
+  void calcSegmentSumStats();
+  void clearSumStats();
   void printLocusSumStats(std::ostream &output) const;
   
  private:

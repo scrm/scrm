@@ -32,7 +32,6 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST( testCopyConstructor );
   CPPUNIT_TEST( testCheckForNodeAtHeight );
-  CPPUNIT_TEST( testCalcSegmentSummaryStatistics );
   CPPUNIT_TEST( testPrintLocusSumStats );
   CPPUNIT_TEST( testSampleNextPosition ); 
   /*
@@ -743,26 +742,12 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !forest->checkForNodeAtHeight( 20.0 ) );
   }
 
-  void testCalcSegmentSummaryStatistics() {
-    ostringstream output;
-    forest->calcSegmentSumStats();
-    forest->printSegmentSumStats(output);
-    CPPUNIT_ASSERT( output.str() == "" );
-
-    forest->writable_model()->addSummaryStatistic(new TMRCA());
-    forest->calcSegmentSumStats();
-    forest->printSegmentSumStats(output);
-    CPPUNIT_ASSERT( output.str() == "" );
-  }
-
   void testPrintLocusSumStats() {
     ostringstream output;
     forest->printLocusSumStats(output);
 
     forest->writable_model()->addSummaryStatistic(new TMRCA());
     forest->calcSegmentSumStats();
-    forest->printSegmentSumStats(output);
-    CPPUNIT_ASSERT( output.str() == "" );
     forest->printLocusSumStats(output);
     CPPUNIT_ASSERT( output.str() != "" );
   }

@@ -45,7 +45,7 @@ void SegSites::calculate(const Forest &forest) {
 }
 
 
-void SegSites::printLocusOutput(std::ostream &output) {
+void SegSites::printLocusOutput(std::ostream &output) const {
   output << "segsites: "<< countMutations() << std::endl;
   if ( countMutations() == 0 ) return;
 

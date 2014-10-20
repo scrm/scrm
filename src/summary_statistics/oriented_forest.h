@@ -41,8 +41,17 @@ class OrientedForest : public SummaryStatistic
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
+   void printLocusOutput(std::ostream &output) const;
+   void clear() {
+     output_buffer_.str("");
+     output_buffer_.clear();
+   }
+
+   OrientedForest* clone() const {
+     return new OrientedForest(this->parents_.size());
+   }
+
+   std::string getTrees() const { return output_buffer_.str(); }
 
 #ifdef UNITTEST
    friend class TestSummaryStatistics;

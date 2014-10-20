@@ -34,8 +34,8 @@ int main(int argc, char *argv[]){
     // Organize output
     std::ostream *output = &std::cout;
 
+    // Parse command line arguments
     Param user_para(argc, argv);
-
     Model model;
     user_para.parse(model);
 
@@ -64,12 +64,10 @@ int main(int argc, char *argv[]){
 
       // Now set up the ARG, and sample the initial tree
       forest.buildInitialTree();
-      forest.printSegmentSumStats(*output);
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
-        forest.printSegmentSumStats(*output);
       }
       
       forest.printLocusSumStats(*output);

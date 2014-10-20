@@ -48,10 +48,8 @@ void OrientedForest::calculate(const Forest &forest) {
   output_buffer_ << "]}" << std::endl;
 }
 
-void OrientedForest::printLocusOutput(std::ostream &output) {
+void OrientedForest::printLocusOutput(std::ostream &output) const {
   output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
 }
 
 void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_pos) {

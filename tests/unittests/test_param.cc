@@ -11,6 +11,7 @@ class TestParam : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestParam );
 
+  CPPUNIT_TEST( testStringConstructor );
   CPPUNIT_TEST( testParseBasicCmdStructure );
   CPPUNIT_TEST( testParseSeeds );
   CPPUNIT_TEST( testParseCommonOptions );
@@ -447,17 +448,14 @@ class TestParam : public CppUnit::TestCase {
   }
 
   void testParseSeeds() {
-    char *argv1[] = { "scrm", "4", "7", "-seed", "123", "-t", "5"};
-    Param pars = Param(7, argv1);
+    Param pars = Param("scrm 4 7 -seed 123 -t 5");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
     CPPUNIT_ASSERT_EQUAL( (size_t)123, pars.random_seed() );
 
-    char *argv2[] = { "scrm", "4", "7", "-seed", "1", "2", "3", "-t", "5"};
-    pars = Param(9, argv2);
+    pars = Param("scrm 4 7 -seed 1 2 3 -t 5");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
     size_t seed = pars.random_seed();
-
-    pars = Param(9, argv2);
+    pars = Param("scrm 4 7 -seed 1 2 3 -t 5");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
     CPPUNIT_ASSERT_EQUAL( seed, pars.random_seed() );
 
@@ -466,6 +464,18 @@ class TestParam : public CppUnit::TestCase {
 
     char *argv4[] = { "scrm", "20", "10", "-seed", "-t", "2"};
     CPPUNIT_ASSERT_THROW( Param(6, argv4).parse(model), std::invalid_argument ); 
+  }
+
+  void testStringConstructor() {
+    Param pars = Param("scrm 4 7 -t 40.04 -r 0.5 1001 -l 1000");
+    CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
+
+    CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)7, model.loci_number() );
+    CPPUNIT_ASSERT( areSame(40.04/(4*model.default_pop_size*1001), model.mutation_rate()) );
+    CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size*1000), model.recombination_rate()) );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
   }
 
   void testParseSequenceScaling() {

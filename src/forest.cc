@@ -206,7 +206,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
+  //dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
@@ -1179,15 +1179,15 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
 }
 
 
-void Forest::calcSegmentSumStats() const {
+void Forest::calcSegmentSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
-void Forest::printSegmentSumStats(std::ostream &output) const {
+void Forest::clearSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
-    model().getSummaryStatistic(i)->printSegmentOutput(output);
+    model().getSummaryStatistic(i)->clear();
   }
 }
 
@@ -1216,4 +1216,7 @@ void Forest::clear() {
   // Reset Position & Segment Counts
   this->set_current_base(0.0);
   this->segment_count_ = 0;
+
+  // Clear Summary Statistics
+  this->clearSumStats();
 }

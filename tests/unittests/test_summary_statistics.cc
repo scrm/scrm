@@ -49,13 +49,19 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testTMRCA() {
-    TMRCA* tmrca = new TMRCA();
-    tmrca->calculate(*forest);
-    delete tmrca;
+    forest->createScaledExampleTree();
+    TMRCA tmrca = TMRCA();
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(0) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(0) );
 
-    SummaryStatistic* tmrca2 = new TMRCA();
-    tmrca2->calculate(*forest);
-    delete tmrca2;
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(1) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(1) );
+    
+    tmrca.clear();
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tmrca().size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tree_length().size() );
   }
 
   void testSegSitesTraversal() {
@@ -205,25 +211,36 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     seg_sites->positions_.push_back(0.8);
 
     std::valarray<bool> ht = {1, 0, 0, 0};
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singleton
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // doubleton
     ht = 0;
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singletion
     seg_sites->set_position(forest->next_base());
 
     FrequencySpectrum sfs(seg_sites, forest->model());
     std::ostringstream output;
 
-    // Check values for example locus
+    // Check values for example segment
     sfs.calculate(forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
 
-    // Check that it is reseged at a new locus
+    // Add another segment
+    seg_sites->positions_.push_back(0.9);
+    seg_sites->haplotypes_.push_back(ht);
+    sfs.calculate(forest);
+    CPPUNIT_ASSERT_EQUAL((size_t)3, sfs.sfs().at(0));
+    CPPUNIT_ASSERT_EQUAL((size_t)1, sfs.sfs().at(1));
+    CPPUNIT_ASSERT_EQUAL((size_t)0, sfs.sfs().at(2));
+
+    // Check that it is reset at a new locus
     output.str("");
     output.clear();
+
+    sfs.clear();
+    forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
     sfs.calculate(forest);
@@ -273,10 +290,11 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
                     output.str().compare("{\"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
-    
+
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
+    of.clear();
     of.calculate(forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
@@ -293,13 +311,16 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     std::ostringstream output;
     of.calculate(forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
     
     output.str("");
     output.clear();
+    of.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
     of.calculate(forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
   }
 };
