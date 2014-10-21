@@ -1,6 +1,20 @@
 scrm Version History
 ========================
 
+Version 1.3.0
+------------------------
+Released: 2014-10-21
+
+### Improvements
++ Improved the autotools configuration to support more compilers and operating
+  systems (#10, #27).
++ Changed the Oriented Forest summary statistic (#25).
++ Various minor cleanups in the codebase to simplify creation of an R package
+  containing scrm (#29).
+
+
+
+
 Version 1.2.0
 ------------------------
 Released: 2014-09-10
@@ -18,6 +32,7 @@ Released: 2014-09-10
 
 
  
+
 Version 1.1.0
 ------------------------
 Released: 2014-08-04
@@ -30,12 +45,14 @@ Released: 2014-08-04
 
 
 
+
 Version 1.0.0 
 ------------------------
 Released: 2014-07-09
 
 ### Bug fixes
 + Fixed an access to unmapped memory
+
 
 
 
@@ -47,6 +64,7 @@ Released: 2014-06-18
 + Fix file permissions
 + Remove clang warning suppression
 + Added a man page
+
 
 
 
@@ -62,13 +80,9 @@ Released: 2014-06-02
 + Added help and version information.
 + Small performance tweaks.
 
-
-
-
-------------------------
-
 ### New Features
 + Added variable recombination & mutation rates
+
 
 
 
@@ -82,7 +96,9 @@ Version 0.9-1
 
 
 
+
 Version 0.9-0
 ------------------------
 
 Algorithm passes all tests now, starting explicit versioning.
+

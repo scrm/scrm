@@ -22,12 +22,13 @@
 #include "tmrca.h"
 
 void TMRCA::calculate(const Forest &forest) {
-  if (forest.calcSegmentLength(forest.model().finite_sites()) == 0) return;
-  output_buffer_ << "time:\t" << forest.getTMRCA(true) << " \t" << forest.getLocalTreeLength(true) << "\n";  
+  if (forest.calcSegmentLength() == 0) return;
+  tmrca_.push_back(forest.getTMRCA(true));
+  tree_length_.push_back(forest.getLocalTreeLength(true));
 }
 
-void TMRCA::printLocusOutput(std::ostream &output) {
-  output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
+void TMRCA::printLocusOutput(std::ostream &output) const {
+  for (size_t i = 0; i < tmrca_.size(); ++i) {
+    output << "time:\t" << tmrca_.at(i) << " \t" << tree_length_.at(i) << "\n";  
+  }
 }

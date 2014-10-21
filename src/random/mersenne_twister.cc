@@ -53,7 +53,7 @@ MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerat
  */
 size_t MersenneTwister::generateRandomSeed() const {
   std::random_device rd;
-  std::uniform_int_distribution<size_t> dist(0, 4294967296); //2^32
+  std::uniform_int_distribution<size_t> dist(0, 4294967295); // 0 - 2^32-1
   return( dist(rd) );
 }
 

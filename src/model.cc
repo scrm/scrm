@@ -40,6 +40,8 @@ Model::~Model() {
   deleteParList(mig_rates_list_);
   deleteParList(total_mig_rates_list_);
   deleteParList(single_mig_probs_list_);
+
+  for (SummaryStatistic* sum_stat : this->summary_statistics_) delete sum_stat;
 }
 
 // Copy constructor
@@ -72,7 +74,10 @@ Model::Model(const Model& model) {
   total_mig_rates_list_ = copyVectorList(model.total_mig_rates_list_);
   single_mig_probs_list_ = copyVectorList(model.single_mig_probs_list_);
 
-  summary_statistics_ = std::vector<std::shared_ptr<SummaryStatistic>>(model.summary_statistics_);
+  // Summary Statistics
+  for (SummaryStatistic* sum_stat : model.summary_statistics_) {
+    this->summary_statistics_.push_back(sum_stat->clone());  
+  }
 
   // Pointers
   current_time_idx_ = model.current_time_idx_; 
@@ -115,8 +120,7 @@ void Model::init() {
   this->setRecombinationRate(0.0);
 
   this->set_exact_window_length(-1);
-
-  this->set_finite_sites(true);
+  this->setSequenceScaling(ms);
 
   this->resetTime();
   this->resetSequencePosition();
@@ -128,6 +132,10 @@ void Model::reset() {
   deleteParList(mig_rates_list_);
   deleteParList(total_mig_rates_list_);
   deleteParList(single_mig_probs_list_);
+
+  for (SummaryStatistic* sum_stat : this->summary_statistics_) {
+    delete sum_stat;
+  }
 
   init();
 }
