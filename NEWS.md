@@ -3,12 +3,14 @@ scrm Version History
 
 Version 1.3.0
 ------------------------
-Released: Not yet
+Released: 2014-10-21
 
 ### Improvements
 + Improved the autotools configuration to support more compilers and operating
   systems (#10, #27).
 + Changed the Oriented Forest summary statistic (#25).
++ Various minor cleanups in the codebase to simplify creation of an R package
+  containing scrm (#29).
 
 
 
