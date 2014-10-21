@@ -1,4 +1,4 @@
-EXTRA_DIST = doc/manual.html doc/scrm.1 
+EXTRA_DIST = doc/create-manual.sh doc/knitr.css doc/scrm.1 
 bin_PROGRAMS = scrm 
 man_MANS = doc/scrm.1
 
@@ -6,11 +6,9 @@ TESTS = unit_tests algorithm_tests
 check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
 PROG = SCRM
 
-doc/manual.html: $(normal_src)
-	./doc/create-manual.sh
-
 dist-hook: 
-	./doc/create-manual.sh
+	chmod u+w $(distdir)/doc
+	cd $(distdir); ./doc/create-manual.sh $(VERSION)
 
 test: unittests
 
