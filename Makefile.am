@@ -20,7 +20,8 @@ algorithmtest: algorithm_tests
 nrml_src = src/param.cc src/forest.cc src/node.cc src/node_container.cc src/time_interval.cc \
 		   src/model.cc src/tree_point.cc \
 		   src/param.h src/forest.h src/node.h src/node_container.h src/time_interval.h \
-		   src/model.h src/tree_point.h src/event.h src/contemporaries_container.h
+		   src/model.h src/tree_point.h src/event.h src/contemporaries_container.h \
+		   src/macros.h
 
 random_src = src/random/random_generator.cc src/random/mersenne_twister.cc \
 			 src/random/fastfunc.cc \
