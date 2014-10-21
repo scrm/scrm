@@ -454,6 +454,17 @@ void Param::printHelp(std::ostream& out) {
   out << "  -eG <t> <a>      Change the exponential growth rate of all populations to a" << std::endl
       << "                   at time t." << std::endl;
 
+  out << std::endl << "Summary Statistics:" << std::endl;
+  out << "  -t <theta>       Set the mutation rate to theta = 4N0*mu, where mu is the " << std::endl
+      << "                   neutral mutation rate per locus." << std::endl;
+  out << "  -T               Print the simulated local genealogies in Newick format." << std::endl;
+  out << "  -O               Print the simulated local genealogies in Oriented Forest format." << std::endl;
+  out << "  -L               Print the TMRCA and the local tree length for each segment." << std::endl;
+  out << "  -oSFS            Print the Site Frequency Spectrum for each locus." << std::endl;
+  out << "  -SC [ms|rel|abs] Scaling of sequence positions. Either" << std::endl 
+      << "                   relative (rel) to the locus length between 0 and 1," << std::endl 
+      << "                   absolute (abs) in base pairs or as in ms (default)." << std::endl;
+
   out << std::endl << "Other:" << std::endl;
   out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
       << "                   integer numbers." << std::endl;

@@ -110,6 +110,27 @@ Set the exponential growth rate of all populations to a.
 \fB\-eG\fR \fIt\fR \fIa\fR
 Change the exponential growth rate of all populations to a
 at time t.
+.SS "Summary Statistics:"
+.TP
+\fB\-t\fR \fITHETA\fR  
+Set the mutation rate to THETA = 4N_0u, where u is the
+neutral mutation rate per locus.
+.TP
+\fB\-T\fR
+Print the local genealogies in newick format.
+.TP
+\fB\-O\fR
+Print the local genealogies in the Oriented Forest format.
+.TP
+\fB\-L\fR
+Print the TMRCA and the local tree length for each segment.
+.TP
+\fB\-oSFS\fR
+Print the site frequency spectrum. Requires to set the mutation rate.
+.TP
+\fB\-SC\fR \fI[ms|rel|abs]\fR 
+Scaling of sequence positions. Either relative to the locus
+length between 0 and 1 (rel), absolute in base pairs (abs) or ms-like (ms).
 .SS "Other:"
 .TP
 \fB\-seed\fR \fISEED\fR [\fISEED2\fR \fISEED3\fR]
