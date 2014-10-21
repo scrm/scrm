@@ -6,8 +6,11 @@ TESTS = unit_tests algorithm_tests
 check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
 PROG = SCRM
 
-dist-hook:
-	export VERSION=${VERSION}; cd doc; make
+doc/manual.html: $(normal_src)
+	./doc/create-manual.sh
+
+dist-hook: 
+	./doc/create-manual.sh
 
 test: unittests
 
