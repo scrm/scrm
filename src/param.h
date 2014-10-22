@@ -27,6 +27,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <random>
 
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
