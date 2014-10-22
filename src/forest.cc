@@ -653,6 +653,7 @@ void Forest::sampleEvent(const TimeInterval &ti, double &event_time, Event &retu
   assert( (event_time == -1) || 
          (ti.start_height() <= event_time && event_time <= ti.end_height()) );
 
+  assert( (event_line == -1 && event_time == -1) || (event_line != -1 && event_time != -1));
   // Sample the event type
   sampleEventType(event_time, event_line, ti, return_event);
 }
@@ -668,7 +669,9 @@ void Forest::sampleEventType(const double time, const size_t time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("An event with rate 0 has happened!");
+  if ( time_line != -1 && rates_[time_line] == 0.0 ) {
+    throw std::logic_error("An event with rate 0 has happened!");
+  }
 
   // Situation where it is clear what happened:
   if (time == -1) return;
