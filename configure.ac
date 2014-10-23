@@ -1,4 +1,4 @@
-AC_INIT([scrm], [1.3.0],[https://github.com/paulstaab/scrm/issues])
+AC_INIT([scrm], [1.3.1],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 
 # Suppress output at compilation
