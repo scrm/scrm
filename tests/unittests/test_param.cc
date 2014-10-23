@@ -240,6 +240,24 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
+
+    CPPUNIT_ASSERT_NO_THROW( Param("scrm 20 1 -I 2 13 7 -m 1 2 1.5").parse(model) );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(1, 0)) );
+
+    CPPUNIT_ASSERT_NO_THROW( Param("scrm 20 1 -I 2 13 7 -m 1 2 1.5 -m 2 1 0.5").parse(model) );
+    CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
+    CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
+
+    CPPUNIT_ASSERT_NO_THROW( Param("scrm 20 1 -I 2 13 7 -em 1.0 2 1 0.5 -em 2.0 2 1 0.6").parse(model) );
+    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(0, 1)) );
+    model.increaseTime();
+    CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(0, 1)) );
+    model.increaseTime();
+    CPPUNIT_ASSERT( areSame(0.6/(4*model.default_pop_size), model.migration_rate(1, 0)) );
+    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(0, 1)) );
   }
 
   void testParseMergeOptions() {
