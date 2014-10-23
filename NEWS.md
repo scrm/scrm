@@ -1,6 +1,13 @@
 scrm Version History
 ========================
 
+Version 1.4.0
+------------------------
+Released: Not yet
+
+* Bug fix: Implement missing '-m' and '-em' arguments (#32).
+
+
 Version 1.3.0
 ------------------------
 Released: 2014-10-21

@@ -417,7 +417,9 @@ void Model::addMigrationRate(double time, size_t source, size_t sink, double mig
                              const bool &scaled_time, const bool &scaled_rates) {
   size_t position = addChangeTime(time, scaled_time);
   if (scaled_rates) mig_rate *= scaling_factor();
-  if (mig_rates_list_.at(position) == NULL) addSymmetricMigration(time, nan("value to replace"), scaled_time); 
+  if (mig_rates_list_.at(position) == NULL) { 
+    addSymmetricMigration(time, nan("value to replace"), scaled_time); 
+  }
   mig_rates_list_.at(position)->at(getMigMatrixIndex(source, sink)) = mig_rate;  
 }
 

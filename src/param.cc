@@ -62,6 +62,7 @@ void Param::parse(Model &model) {
   size_t sample_size = 0;
   double par_bool = 0.0;
   double time = 0.0;
+  size_t source_pop, sink_pop;
 
   // Placeholders for summary statistics.
   // Statistics are added only after all parameters are parse, so that they will
@@ -238,6 +239,21 @@ void Param::parse(Model &model) {
       model.addMigrationRates(time, migration_rates, true, true);
     }
 
+    else if (argv_i == "-m" || argv_i == "-em") {
+      if (argv_i == "-em") {
+        time = readNextInput<double>();
+      }
+      else time = 0.0;
+      if (time < min_time) {
+        throw std::invalid_argument(std::string("If you use '-m' or '-em' in a model with population merges ('-es'),") +
+                                    std::string("then you need to sort both arguments by time."));
+      }
+      source_pop = readNextInput<size_t>() - 1;
+      sink_pop = readNextInput<size_t>() - 1;
+
+      model.addMigrationRate(time, source_pop, sink_pop, readNextInput<double>(), true, true);
+    }
+
     else if (argv_i == "-M" || argv_i == "-eM") {
       if (argv_i == "-eM") {
         time = readNextInput<double>();
@@ -260,8 +276,8 @@ void Param::parse(Model &model) {
                                     std::string("by the time they occur."));
       }
       min_time = time;
-      size_t source_pop = readNextInput<size_t>() - 1;
-      size_t sink_pop = model.population_number();
+      source_pop = readNextInput<size_t>() - 1;
+      sink_pop = model.population_number();
       double fraction = readNextInput<double>();
 
       model.addPopulation();
@@ -274,8 +290,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
-      size_t source_pop = readNextInput<size_t>() - 1;
-      size_t sink_pop = readNextInput<size_t>() - 1;
+      source_pop = readNextInput<size_t>() - 1;
+      sink_pop = readNextInput<size_t>() - 1;
       model.addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
       for (size_t i = 0; i < model.population_number(); ++i) {
         if (i == source_pop) continue;
