@@ -22,97 +22,53 @@
 #include "oriented_forest.h"
 
 void OrientedForest::calculate(const Forest &forest) {
-  if (forest.model().recombination_rate() == 0.0) {
-    output_buffer_ << "{" ;
-    generateTree(forest);
-    output_buffer_ << "}\n";  
-  } else {
-    if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-    output_buffer_ << "{" ;
-    output_buffer_ << "\"duration\":" << forest.calcSegmentLength(forest.model().finite_sites()) << ", " ;
-    generateTree(forest);
-    output_buffer_ << "}\n";  
+  size_t pos = 2*forest.sample_size()-2;
+  generateTreeData(forest.local_root(), pos, 0); 
+
+  output_buffer_ << "{" ;
+
+  if (forest.model().recombination_rate() > 0.0) {
+    output_buffer_ << "\"length\":" << forest.calcSegmentLength() << ", " ;
+  } 
+
+  // Print parents
+  output_buffer_ << "\"parents\":[" ;
+  for (int parent : parents_) { 
+    output_buffer_ << parent << ( parent != 0 ? "," : "" );
   }
+  output_buffer_ << "], ";
+
+  // Print heights
+  output_buffer_ << "\"node_times\":[" ;
+  double tmrca = heights_.at(2*forest.sample_size()-2);
+  for (double height : heights_) {
+    output_buffer_ << height * forest.model().scaling_factor()
+                   << ( height != tmrca ? "," : "" );
+  }
+  output_buffer_ << "]}" << std::endl;
 }
 
-void OrientedForest::printLocusOutput(std::ostream &output) {
+void OrientedForest::printLocusOutput(std::ostream &output) const {
   output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
 }
 
-/**
- * @brief Prints the entire local tree as in oriented forest format, with JSON annotation
- *
- * @param forest 
- *
- * @return STR = ' FLT, "pi" : [INT, INT, ... ], "height" : [FLT, FLT, ... ] '
- * Note space doesn't mean anything
- */
-void OrientedForest::generateTree( const Forest &forest ) {
-  this->init_OF_label( forest );
-  this->update_OF_label( forest );
-    
-  output_buffer_ << "\"pi\":[" ;
-  for ( size_t i = 0 ; i < this->OF_labels.size() ; i++ ){
-    output_buffer_ << this->OF_labels[i] <<  ((i < this->OF_labels.size()-1) ? ",":"" );
+void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_pos) {
+  // Samples have a fixed position in the arrays, given by their label.
+  if (node->in_sample()) {
+    heights_.at(node->label()-1) = node->height();
+    parents_.at(node->label()-1) = parent_pos;
+    return;
   }
-  output_buffer_ << "], " ;
 
-  output_buffer_ << "\"heights\":[" ;
-  for ( size_t i = 0 ; i < this->heights.size() ; i++){
-    output_buffer_ << this->heights[i] <<  ((i < this->heights.size()-1) ? ",":"" );
+  // Otherwise take the position given by pos and decrease it.
+  heights_.at(pos) = node->height();
+  parents_.at(pos) = parent_pos;
+  parent_pos = pos--;
+
+  if (node->getLocalChild1() != NULL) {
+    generateTreeData(node->getLocalChild1(), pos, parent_pos+1);
+    if (node->getLocalChild2() != NULL) {
+      generateTreeData(node->getLocalChild2(), pos, parent_pos+1);
+    }
   }
-  output_buffer_ << "]" ;
-}
-
-
-void OrientedForest::update_OF_label( const Forest &forest ){
-  for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
-    if ( (*it) == forest.local_root() )  {
-      this->heights[(*it)->OF_label()-1] = (*it)->height();
-      return; // There is no local node above the local root.
-    }
-    if ( !(*it)->local() ) continue;
-    if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
-
-    // Exclude all the intermediate local nodes ( nodes which only have one child, 1 parent)
-    Node* tmp_parent = (*it)->parent();
-    while ( ( tmp_parent->second_child() == NULL || !( tmp_parent->second_child()->local())  || !(tmp_parent->first_child()->local() ))  ){
-      tmp_parent = tmp_parent->parent();
-    }
-
-    if ( tmp_parent->OF_label() == 0 ){
-      this->tmp_label++;
-      tmp_parent->set_OF_label( this->tmp_label );
-    }
-
-    this->OF_labels[(*it)->OF_label()-1] = tmp_parent->OF_label();
-    this->heights[(*it)->OF_label()-1] = (*it)->height();
-  }
-}
-
-void OrientedForest::init_OF_label( const Forest &forest ){
-  this->OF_labels.clear();
-  this->heights.clear();
-  Node* tmp_parent;
-
-  for (auto it = forest.getNodes()->iterator(); it.good(); ++it) {
-    // Include the local root
-    if ( (*it) == forest.local_root() ) {
-      this->OF_labels.push_back(0); 
-      this->heights.push_back(0.0);
-      break; // There are no local nodes above the local root.
-    }
-    // Exclude all the non-local nodes
-    if ( !(*it)->local() ) continue;
-    tmp_parent = (*it)->parent();
-    tmp_parent->set_OF_label(0);
-    // Exclude all the intermedia local nodes ( nodes which only have one child, 1 parent)
-    if ( !(*it)->in_sample() && ( (*it)->second_child() == NULL || !( (*it)->second_child()->local())  || ! ((*it)->first_child()->local() )) ) continue;
-    this->OF_labels.push_back(0);
-    this->heights.push_back(0.0);
-  }
-  // Initialize the first parent node to the first tip node
-  this->tmp_label = forest.model().sample_size();
 }

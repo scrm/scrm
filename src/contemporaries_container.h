@@ -23,6 +23,8 @@
 #ifndef scrm_src_contemporaries_container
 #define scrm_src_contemporaries_container
 
+#include "macros.h" // Needs to be before cassert
+
 #include <vector>
 #include <unordered_set>
 #include <cassert>
@@ -30,13 +32,6 @@
 
 #include "node.h"
 #include "random/random_generator.h"
-
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 
 class ContemporariesIterator {
  public:

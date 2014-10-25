@@ -31,18 +31,13 @@
 #ifndef scrm_node
 #define scrm_node
 
+#include "macros.h" // Needs to be before cassert
+
 #include <cstddef>
 #include <cfloat>
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 
 class Node
 {
@@ -112,9 +107,6 @@ class Node
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
 
-  void set_OF_label(size_t OF_label) { OF_label_ = OF_label; }
-  size_t OF_label() const { return OF_label_; }
-  
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
     return ( this->label() != 0 ); 
@@ -160,7 +152,6 @@ class Node
   void set_last_update(const double position) { last_update_ = position; }; 
 
   size_t label_;
-  size_t OF_label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if

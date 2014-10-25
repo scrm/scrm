@@ -1,7 +1,30 @@
 scrm Version History
 ========================
 
-Version 1.2.0
+scrm 1.3.1
+------------------------
+Released: 2014-10-23
+
++ Bug fix: Implement missing '-m' and '-em' arguments (#32).
+
+
+
+
+scrm 1.3.0
+------------------------
+Released: 2014-10-21
+
+### Improvements
++ Improved the autotools configuration to support more compilers and operating
+  systems (#10, #27).
++ Changed the Oriented Forest summary statistic (#25).
++ Various minor cleanups in the code base to simplify creation of an R package
+  containing scrm (#29).
+
+
+
+
+scrm 1.2.0
 ------------------------
 Released: 2014-09-10
 
@@ -18,7 +41,8 @@ Released: 2014-09-10
 
 
  
-Version 1.1.0
+
+scrm 1.1.0
 ------------------------
 Released: 2014-08-04
 
@@ -30,7 +54,8 @@ Released: 2014-08-04
 
 
 
-Version 1.0.0 
+
+scrm 1.0.0 
 ------------------------
 Released: 2014-07-09
 
@@ -39,7 +64,8 @@ Released: 2014-07-09
 
 
 
-Version 1.0-beta2
+
+scrm 1.0-beta2
 ------------------------
 Released: 2014-06-18
 
@@ -50,29 +76,26 @@ Released: 2014-06-18
 
 
 
-Version 1.0-beta1
+
+scrm 1.0-beta1
 ------------------------
 Released: 2014-06-02
 
 ### Bug fixes:
 + Option '-es' is now ms-compatible (#16).
-+ It's now possible to use 3 seeds (as in ms).
++ It is now possible to use 3 seeds (as in ms).
 
 ### Improvements:
 + Added help and version information.
 + Small performance tweaks.
-
-
-
-
-------------------------
 
 ### New Features
 + Added variable recombination & mutation rates
 
 
 
-Version 0.9-1
+
+scrm 0.9-1
 ------------------------
 
 ### Bug fixes
@@ -82,7 +105,9 @@ Version 0.9-1
 
 
 
-Version 0.9-0
+
+scrm 0.9-0
 ------------------------
 
 Algorithm passes all tests now, starting explicit versioning.
+

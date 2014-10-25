@@ -43,23 +43,26 @@ class SegSites : public SummaryStatistic
 
   //Virtual methods
   void calculate(const Forest &forest);
-  void printSegmentOutput(std::ostream &output) { (void)output; }
-  void printLocusOutput(std::ostream &output);
+  void printLocusOutput(std::ostream &output) const;
+  SegSites* clone() const { return new SegSites(*this); }
+
+  void clear() { 
+    positions_.clear();
+    haplotypes_.clear();  
+    set_position(0.0);
+  };
 
   size_t countMutations() const { return positions_.size(); };
 
   double position() const { return position_; };
+  std::vector<double> const* positions() const { return &positions_; };
+
   std::valarray<bool> const* getHaplotype(const size_t mutation) const {
     return &(haplotypes_.at(mutation));
   }
 
  private:
   std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
-  void clear() { 
-    positions_.clear();
-    haplotypes_.clear();  
-    set_position(0.0);
-  };
 
   std::vector<double> positions_;
   std::vector<std::valarray<bool>> haplotypes_;	

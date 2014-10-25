@@ -23,6 +23,8 @@
 #ifndef scrm_src_random_random_generator
 #define scrm_src_random_random_generator
 
+#include "../macros.h" // Needs to be before cassert
+
 #include <cassert>
 #include <cmath>
 

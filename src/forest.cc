@@ -206,7 +206,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 void Forest::updateAbove(Node* node, bool above_local_root, 
                          const bool &recursive, const bool &invariants_only) {
 
-  dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
+  //dout << "Updating: " << node << " above_local_root: " << above_local_root << std::endl;
   
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
@@ -653,6 +653,7 @@ void Forest::sampleEvent(const TimeInterval &ti, double &event_time, Event &retu
   assert( (event_time == -1) || 
          (ti.start_height() <= event_time && event_time <= ti.end_height()) );
 
+  assert( (event_line == -1 && event_time == -1) || (event_line != -1 && event_time != -1));
   // Sample the event type
   sampleEventType(event_time, event_line, ti, return_event);
 }
@@ -668,7 +669,9 @@ void Forest::sampleEventType(const double time, const size_t time_line,
                              const TimeInterval &ti, Event &event) const {
   event = Event(time);
 
-  if ( rates_[time_line] == 0.0 ) throw std::logic_error("An event with rate 0 has happened!");
+  if ( time_line != -1 && rates_[time_line] == 0.0 ) {
+    throw std::logic_error("An event with rate 0 has happened!");
+  }
 
   // Situation where it is clear what happened:
   if (time == -1) return;
@@ -1179,25 +1182,19 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
 }
 
 
-bool areSame(const double a, const double b, const double epsilon) {
-  // from Knuths "The art of computer programming"
-  return fabs(a - b) <= ( (fabs(a) > fabs(b) ? fabs(b) : fabs(a)) * epsilon);
-}
-
-
-void Forest::calcSegmentSumStats() const {
+void Forest::calcSegmentSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->calculate(*this);
   }
 }
 
-void Forest::printSegmentSumStats(ostream &output) const {
+void Forest::clearSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
-    model().getSummaryStatistic(i)->printSegmentOutput(output);
+    model().getSummaryStatistic(i)->clear();
   }
 }
 
-void Forest::printLocusSumStats(ostream &output) const {
+void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
@@ -1222,4 +1219,7 @@ void Forest::clear() {
   // Reset Position & Segment Counts
   this->set_current_base(0.0);
   this->segment_count_ = 0;
+
+  // Clear Summary Statistics
+  this->clearSumStats();
 }
