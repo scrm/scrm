@@ -38,20 +38,23 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <string>
 
-class NewickNode;
 
 class Node
 {
- public:                       
-
+ public:
+ void extract_bl_and_label ( std::string::iterator in_it );
+ double bl_;
+ double bl() const { return this->bl_; }
+ void set_bl ( double bl ) { this->bl_ = bl; }
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
 #endif
   
   Node();
-  Node( NewickNode &newick_node );
+  //Node( NewickNode &newick_node );
   Node(double height);
   Node(double height, size_t label);
 
@@ -153,7 +156,8 @@ class Node
  private:
   void init(double heigh=-1, size_t label=0);
   void set_last_update(const double position) { last_update_ = position; }; 
-
+  
+  //double extract_height_and_label ( std::string::iterator in_it );
   size_t label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node

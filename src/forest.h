@@ -65,7 +65,8 @@ enum eventCode { NOEVENT, EVENT, INIT_NULL};
 class Forest
 {
  public:
-  std::string::iterator readNewick( std::string &in_str, std::string::iterator current_it );
+std::string::iterator readNewickNode( std::string &in_str, std::string::iterator current_it );
+void readNewick(std::string &in_str);
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;

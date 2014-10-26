@@ -76,6 +76,25 @@ Node* NodeContainer::at(size_t nr) const {
   return current;
 }
 
+// Adds 'node' to the container
+void NodeContainer::push_back( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_previous(this->last());
+    node->set_next(NULL);
+    this->last()->set_next(node);
+    this->set_last(node);
+    return;
+
+}
+
 
 // Adds 'node' to the container
 // If you know that the node is higher in the tree than a other node,

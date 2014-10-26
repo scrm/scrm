@@ -29,9 +29,24 @@
 #include "random/mersenne_twister.h"
 
 #include <string>
-std::string::iterator Forest::readNewick( std::string &in_str, std::string::iterator current_it ){
+void Node::extract_bl_and_label ( std::string::iterator in_it ){
+    std::string::iterator bl_start = in_it;
+    for (; (*(bl_start-1)) != ':'; --bl_start ){ }
+    double bl = strtod( &(*bl_start), NULL );
+    this->set_bl ( bl );
+
+    std::string::iterator label_start = (bl_start-2);
+    while ( (*(label_start)) != ',' &&  (*(label_start)) != '(' &&  (*(label_start)) != ')' ){
+        --label_start;
+    }
+    
+    this->set_label ( ( (*(label_start)) == ')' ? 0 : strtol ( &(*(label_start+1)), NULL , 10)) );
+    if ( this->in_sample() ) this->set_height ( 0 );
+}
+
+std::string::iterator Forest::readNewickNode( std::string &in_str, std::string::iterator current_it ){
     Node * node = new Node();
-    this->nodes()->add(node);
+    this->nodes()->push_back(node);
     std::string::iterator it = current_it;
     if ( (it+1) == in_str.end() ) return it;
     std::cout << "[ A new node starts at \""<< *it <<"\" " ;
@@ -39,18 +54,26 @@ std::string::iterator Forest::readNewick( std::string &in_str, std::string::iter
         
         std::cout << (*it) ;
         if      ( (*it) == '(' )  { // Start of a internal node, extract a new node
-            //num_b++;
-            it = this->readNewick ( in_str, it+1 );
+            it = this->readNewickNode ( in_str, it+1 );
             node->set_first_child ( this->nodes()->first() );
+            std::cout <<  "first child has bl "<< node->first_child()->bl();
+            if ( node->first_child () != NULL ){
+                node->set_height ( node->first_child()->height() + node->first_child()->bl() );
+            }
+            std::cout << " with height " << node->height() <<"] ";
         }
-        else if ( (*(it+1)) == ',' ){
-            std::cout << " Node finishes at "<< (*it) << "]";
-            it = this->readNewick ( in_str, it + 2 );
+        else if ( (*(it+1)) == ',' ){ //             
+            node->extract_bl_and_label(it);
+            std::cout << " first child node finishes at "<< (*it) << ", with branch length " << node->bl() <<", and with the label "<< node->label();
+            // Before extract the second node, extract the branch length of the first child, and set the height for the first one
+            it = this->readNewickNode ( in_str, it + 2 );
             node->set_second_child ( this->nodes()->first() );
-            //return (it);
         }
-        else if ( (*(it+1)) == ')'  ){
-            std::cout << " Node finishes at "<< (*it) << "]";
+        else if ( (*(it+1)) == ')'  ){ 
+            
+            // Before return, extract the branch length for the second node
+            node->extract_bl_and_label(it);
+            std::cout << " first child node finishes at "<< (*it) << ", with branch length " << node->bl() <<", and with the label "<< node->label();
             return (it);
         }
 
@@ -66,6 +89,23 @@ std::string::iterator Forest::readNewick( std::string &in_str, std::string::iter
     
 }
 
+void Forest::readNewick( std::string &in_str ){
+  this->set_current_base(0.0);
+  this->segment_count_ = 1;
+
+    std::string::iterator a = this->readNewickNode( in_str, in_str.begin() );
+  this->set_local_root( this->nodes()->last() );
+  this->set_primary_root(this->nodes()->last() );
+
+    std::cout<< this->nodes()->size()<<std::endl;
+    (void)this->nodes()->sorted();
+    assert(this->printTree());
+
+    this->sampleNextBase();
+    this->calcSegmentSumStats();
+}
+
+
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
@@ -73,8 +113,8 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
     //std::string tre_str ( "((1:1,2:2):4,3:3);" );
-    std::string tre_str ( "((1:1,2:2):6,(3:3,4:4):5);" );
-
+    std::string tre_str ( "((11:1.111,22:22.22):6,(33:3.33,44:4.44):5.55);" );
+std::cout << tre_str << std::endl;
     //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
     MersenneTwister rg = MersenneTwister(1);
@@ -82,8 +122,8 @@ int main(int argc, char *argv[]){
     Forest forest = Forest(&model, &rg);
 
     std::ostream *output = &std::cout;
-    std::string::iterator a = forest.readNewick( tre_str, tre_str.begin() );
-    std::cout<< forest.nodes()->size()<<std::endl;
+    forest.readNewick ( tre_str );
+    
     forest.printLocusSumStats(*output);
     rg.clearFastFunc();
     return EXIT_SUCCESS;
