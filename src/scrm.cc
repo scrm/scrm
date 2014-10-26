@@ -28,51 +28,108 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 
+#include <string>
+std::string::iterator Forest::readNewick( std::string &in_str, std::string::iterator current_it ){
+    Node * node = new Node();
+    this->nodes()->add(node);
+    std::string::iterator it = current_it;
+    if ( (it+1) == in_str.end() ) return it;
+    std::cout << "[ A new node starts at \""<< *it <<"\" " ;
+    for (  ; it != in_str.end(); ++it){
+        
+        std::cout << (*it) ;
+        if      ( (*it) == '(' )  { // Start of a internal node, extract a new node
+            //num_b++;
+            it = this->readNewick ( in_str, it+1 );
+            node->set_first_child ( this->nodes()->first() );
+        }
+        else if ( (*(it+1)) == ',' ){
+            std::cout << " Node finishes at "<< (*it) << "]";
+            it = this->readNewick ( in_str, it + 2 );
+            node->set_second_child ( this->nodes()->first() );
+            //return (it);
+        }
+        else if ( (*(it+1)) == ')'  ){
+            std::cout << " Node finishes at "<< (*it) << "]";
+            return (it);
+        }
+
+		else if ( (*(it)) == ';' ) {
+            std::cout << "Ended at " << *(it)<<"]"<<std::endl;
+            return (it-1);
+        }
+        else {
+                continue;
+        }
+        
+    }
+    
+}
+
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
-    // Organize output
-    std::ostream *output = &std::cout;
-
-    // Parse command line arguments
-    Param user_para(argc, argv);
+      Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
+    //std::string tre_str ( "((1:1,2:2):4,3:3);" );
+    std::string tre_str ( "((1:1,2:2):6,(3:3,4:4):5);" );
 
-    // Print help if user asked for it
-    if (user_para.help()) {
-      user_para.printHelp(*output); 
-      return EXIT_SUCCESS;
-    }
-    if (user_para.version()) {
-      *output << "scrm " << VERSION << std::endl;
-      return EXIT_SUCCESS;
-    }
+    //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
-    *output << user_para << std::endl;
-    *output << rg.seed() << std::endl;
+    MersenneTwister rg = MersenneTwister(1);
 
-    // Create the forest
     Forest forest = Forest(&model, &rg);
 
-    // Loop over the independent loci/chromosomes
-    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
+    std::ostream *output = &std::cout;
+    std::string::iterator a = forest.readNewick( tre_str, tre_str.begin() );
+    std::cout<< forest.nodes()->size()<<std::endl;
+    forest.printLocusSumStats(*output);
+    rg.clearFastFunc();
+    return EXIT_SUCCESS;
+    //assert(forest.printTree());
+    //// Organize output
+    //std::ostream *output = &std::cout;
 
-      // Mark the start of a new independent sample
-      *output << std::endl << "//" << std::endl;
+    //// Parse command line arguments
+    //Param user_para(argc, argv);
+    //Model model;
+    //user_para.parse(model);
 
-      // Now set up the ARG, and sample the initial tree
-      forest.buildInitialTree();
+    //// Print help if user asked for it
+    //if (user_para.help()) {
+      //user_para.printHelp(*output); 
+      //return EXIT_SUCCESS;
+    //}
+    //if (user_para.version()) {
+      //*output << "scrm " << VERSION << std::endl;
+      //return EXIT_SUCCESS;
+    //}
 
-      while (forest.next_base() < model.loci_length()) { 
-        // Sample next genealogy
-        forest.sampleNextGenealogy();
-      }
+    //MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    //*output << user_para << std::endl;
+    //*output << rg.seed() << std::endl;
+
+    //// Create the forest
+    //Forest forest = Forest(&model, &rg);
+
+    //// Loop over the independent loci/chromosomes
+    //for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
+
+      //// Mark the start of a new independent sample
+      //*output << std::endl << "//" << std::endl;
+
+      //// Now set up the ARG, and sample the initial tree
+      //forest.buildInitialTree();
+
+      //while (forest.next_base() < model.loci_length()) { 
+        //// Sample next genealogy
+        //forest.sampleNextGenealogy();
+      //}
       
-      forest.printLocusSumStats(*output);
-      forest.clear();
-    }
+      //forest.printLocusSumStats(*output);
+      //forest.clear();
+    //}
 
     // Clean-up and exit
     rg.clearFastFunc();

@@ -36,6 +36,8 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
+#include <string>
+
 #include "macros.h" // Needs to be before cassert
 
 #include <vector>
@@ -63,7 +65,7 @@ enum eventCode { NOEVENT, EVENT, INIT_NULL};
 class Forest
 {
  public:
-
+  std::string::iterator readNewick( std::string &in_str, std::string::iterator current_it );
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;

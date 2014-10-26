@@ -20,12 +20,21 @@
 
 */
 
-void Forest::readInitialTree( std::string &tree_str ){
-    ReadNewick* basic_info = new ReadNewick (tree_str);
-    this->build_inintial_nodes ( basic_info );
-    this->connect_graph () ;
-    delete basic_info;
+void Forest::readInitialTree( std::string in_str, std::string::iterator current_it ){
+    size_t num_b = 0;
+	for ( size_t i = 0; i < in_str.size(); i++){
+		if      (in_str[i] == '(') num_b++;
+		else if (in_str[i] == ')') num_b--;
+        else continue;
+	}
+	if ( num_b != 0 ) throw std::invalid_argument(in_str + "Parenthesis not balanced!" );
+    //ReadNewick* basic_info = new ReadNewick (tree_str);
+    //this->build_inintial_nodes ( basic_info );
+    //this->connect_graph () ;
+    //delete basic_info;
 }
+
+
 
 void Forest::build_inintial_nodes ( ReadNewick * basic_info ){
     for ( size_t i = 0 ; i < Tree_info->brchlens.size(); i++ ){

@@ -39,6 +39,8 @@
 #include <iostream>
 #include <cassert>
 
+class NewickNode;
+
 class Node
 {
  public:                       
@@ -49,6 +51,7 @@ class Node
 #endif
   
   Node();
+  Node( NewickNode &newick_node );
   Node(double height);
   Node(double height, size_t label);
 
