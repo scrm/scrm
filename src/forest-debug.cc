@@ -370,7 +370,7 @@ bool Forest::printTree() const {
         else std::cout << "─";
       }
     }
-    std::cout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
+    std::cout << " - " << std::setw(7) << std::setprecision(7) << std::right << start_height << " - "; 
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {

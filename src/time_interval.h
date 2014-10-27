@@ -21,6 +21,8 @@
 #ifndef scrm_src_time_interval
 #define scrm_src_time_interval
 
+#include "macros.h" // Needs to be before cassert
+
 #include "forest.h"
 #include "contemporaries_container.h"
 #include "model.h"

@@ -5,7 +5,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "../../src/forest.h"
-#include "../../src/random/constant_generator.h"
+#include "../../src/random/mersenne_twister.h"
 
 
 class TestTimeInterval : public CppUnit::TestCase {

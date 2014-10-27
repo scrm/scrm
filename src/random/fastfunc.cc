@@ -21,7 +21,6 @@
 */
 
 #include "fastfunc.h"
-#include "mersenne_twister.h"
 
 double* FastFunc::build_fastlog_double_table( int size ) {
   double * table = (double*) malloc( (size+1)*sizeof(double) );

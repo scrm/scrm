@@ -13,6 +13,7 @@
 
 #include "../../src/forest.h"
 #include "../../src/param.h"
+#include "../../src/random/mersenne_twister.h"
 
 
 class TestAlgorithm : public CppUnit::TestCase {

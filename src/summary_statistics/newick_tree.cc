@@ -26,18 +26,15 @@ void NewickTree::calculate(const Forest &forest) {
     output_buffer_ << generateTree(forest.local_root(), forest) 
                    << ";" << std::endl;  
   } else {
-    if (forest.calcSegmentLength(forest.model().finite_sites()) == 0.0) return;
-    output_buffer_ << "[" << forest.calcSegmentLength(forest.model().finite_sites()) << "]" 
+    if (forest.calcSegmentLength() == 0.0) return;
+    output_buffer_ << "[" << forest.calcSegmentLength() << "]" 
                    << generateTree(forest.local_root(), forest)
                    << ";" << std::endl;
   }
 }
 
-void NewickTree::printLocusOutput(std::ostream &output) {
+void NewickTree::printLocusOutput(std::ostream &output) const {
   output << output_buffer_.str();  
-  output_buffer_.str("");
-  output_buffer_.clear();
-  buffer_.clear();
 }
 
 /**
@@ -60,15 +57,15 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
 
   // Generate a new tree
   std::string tree;
-  if (node->in_sample()) tree = std::to_string(node->label());
+  if (node->in_sample()) tree = to_string(node->label());
   else { 
     Node *left = node->getLocalChild1();
     Node *right = node->getLocalChild2();
 
     tree = "(" + generateTree(left, forest, use_buffer) + ":" + 
-           std::to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
+           to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
            "," + generateTree(right, forest, use_buffer) + ":" + 
-           std::to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+           to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
   }
 
   // And add to to the buffer
