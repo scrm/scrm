@@ -1224,3 +1224,78 @@ void Forest::clear() {
   // Clear Summary Statistics
   this->clearSumStats();
 }
+
+
+
+Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
+  Node * node = new Node( (double)0.0, (size_t)0 );
+  node->set_parent ( parent );
+  node->make_local();
+  //this->nodes()->push_front( node );
+  dout << "Node " << node
+       << " starts from [ " << std::endl;
+  for (  ; it != in_str.end(); ++it){
+    dout << "\""<<(*it) <<"\"" ;
+    if        ( (*it) == '(' )  { // Start of a internal node, extract a new node
+      parenthesis_balance++;
+      Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
+      node->set_first_child ( child_1 );
+      this->nodes()->add( child_1 );
+      if ( node->first_child() != NULL)
+        node->set_height ( node->first_child()->height() + 40000*node->first_child()->bl()  ) ;
+    } else if ( (*(it+1)) == ',' ){ //
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has first child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ',' ){ //
+      Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
+      node->set_second_child ( child_2 );
+      this->nodes()->add( child_2 );
+    } else if ( (*(it+1)) == ')'  ){
+      // Before return, extract the branch length for the second node
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has second child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ';' ) {
+      dout <<" Node " << node << " closed " << std::endl;
+      this->nodes()->add( node );
+      node->make_nonlocal( this->current_base() );
+      return node;
+    } else {
+      continue;
+    }
+  }
+}
+
+
+void Forest::readNewick( std::string &in_str ){
+  this->set_current_base(0.0);
+  this->segment_count_ = 1;
+  std::string::iterator it = in_str.begin();
+  (void)this->readNewickNode( in_str, it );
+  this->set_local_root( this->nodes()->last() );
+  this->set_primary_root(this->nodes()->last() );
+  dout << std::endl<<"there are "<< this->nodes()->size() << " nodes " << std::endl;
+  (void)this->nodes()->sorted();
+  for (auto it = nodes()->iterator(); it.good(); ++it) {
+    updateAbove(*it, false, false);
+  }
+  assert(this->printNodes());
+  assert(this->printTree());
+std::cout  << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
+  this->sampleNextBase();
+  this->calcSegmentSumStats();
+  this->tmp_event_time_ = 0;
+}
