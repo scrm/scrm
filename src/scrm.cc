@@ -50,7 +50,7 @@ void Node::extract_bl_and_label ( std::string::iterator in_it ){
 Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
   Node * node = new Node( (double)0.0, (size_t)0 );
   node->set_parent ( parent );
-  this->nodes()->push_front( node );
+  //this->nodes()->push_front( node );
   dout << "Node " << node 
        << " starts from [ " << std::endl; 
   for (  ; it != in_str.end(); ++it){
@@ -59,6 +59,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
       parenthesis_balance++;
       Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
       node->set_first_child ( child_1 );
+      this->nodes()->add( child_1 );
       if ( node->first_child() != NULL)
         node->set_height ( node->first_child()->height() + 40000*node->first_child()->bl()  ) ;
     } else if ( (*(it+1)) == ',' ){ //
@@ -69,10 +70,12 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
            << ", and with the label "  << node->label()
            << ", height "              << node->height()
            << " ]  Node " << node << " closed " << std::endl;
+           
       return node;
     } else if ( (*(it)) == ',' ){ //
       Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
       node->set_second_child ( child_2 );
+      this->nodes()->add( child_2 );
     } else if ( (*(it+1)) == ')'  ){
       // Before return, extract the branch length for the second node
       node->extract_bl_and_label(it);
@@ -82,9 +85,11 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
            << ", and with the label "  << node->label()
            << ", height "              << node->height()
            << " ]  Node " << node << " closed " << std::endl;
+           
       return node;
     } else if ( (*(it)) == ';' ) {
-      dout <<" Node " << node << " closed " << std::endl;            
+      dout <<" Node " << node << " closed " << std::endl;
+      this->nodes()->add( node );
       return node;
     } else {
       continue;
@@ -120,9 +125,9 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
     //std::string tre_str ( "((1:1,2:1):3,3:4);" );
-    std::string tre_str ( "((1:1.1,2:1.1):6,(3:3.3,4:3.3):3.8);" );
-    dout << tre_str << std::endl;
-    //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
+    //std::string tre_str ( "((1:1.1,2:1.1):6,(3:3.3,4:3.3):3.8);" );
+    //dout << tre_str << std::endl;
+    std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
     MersenneTwister rg = MersenneTwister(1);
 
@@ -133,6 +138,11 @@ int main(int argc, char *argv[]){
     forest.readNewick ( tre_str );
     
     forest.printLocusSumStats(*output);
+          while (forest.next_base() < model.loci_length()) { 
+        // Sample next genealogy
+        forest.sampleNextGenealogy();
+      }
+    
     rg.clearFastFunc();
     return EXIT_SUCCESS;
     //assert(forest.printTree());
