@@ -323,6 +323,7 @@ void Forest::buildInitialTree() {
     assert(this->checkTree());
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
+    assert(this->printNodes());
   }
   this->sampleNextBase();
   this->calcSegmentSumStats();

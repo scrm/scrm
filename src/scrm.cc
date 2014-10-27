@@ -50,6 +50,7 @@ void Node::extract_bl_and_label ( std::string::iterator in_it ){
 Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
   Node * node = new Node( (double)0.0, (size_t)0 );
   node->set_parent ( parent );
+  node->make_local();
   //this->nodes()->push_front( node );
   dout << "Node " << node 
        << " starts from [ " << std::endl; 
@@ -70,7 +71,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
            << ", and with the label "  << node->label()
            << ", height "              << node->height()
            << " ]  Node " << node << " closed " << std::endl;
-           
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
       return node;
     } else if ( (*(it)) == ',' ){ //
       Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
@@ -85,11 +86,12 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
            << ", and with the label "  << node->label()
            << ", height "              << node->height()
            << " ]  Node " << node << " closed " << std::endl;
-           
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
       return node;
     } else if ( (*(it)) == ';' ) {
       dout <<" Node " << node << " closed " << std::endl;
       this->nodes()->add( node );
+      node->make_nonlocal( this->current_base() );
       return node;
     } else {
       continue;
@@ -112,28 +114,32 @@ void Forest::readNewick( std::string &in_str ){
   }
   assert(this->printNodes());
   assert(this->printTree());
-
+std::cout  << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
   this->sampleNextBase();
   this->calcSegmentSumStats();
+  this->tmp_event_time_ = 0;
 }
 
 
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
-      Param user_para(argc, argv);
+    //Organize output
+    std::ostream *output = &std::cout;
+
+    // Parse command line arguments
+    Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
-    //std::string tre_str ( "((1:1,2:1):3,3:4);" );
+
+   std::string tre_str ( "((1:1,2:1):3,3:4);" );
     //std::string tre_str ( "((1:1.1,2:1.1):6,(3:3.3,4:3.3):3.8);" );
     //dout << tre_str << std::endl;
-    std::string tre_str ( "(6:6,(3:3,4:4):5);" );
+    //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
     MersenneTwister rg = MersenneTwister(1);
 
     Forest forest = Forest(&model, &rg);
-
-    std::ostream *output = &std::cout;
 
     forest.readNewick ( tre_str );
     
@@ -143,18 +149,11 @@ int main(int argc, char *argv[]){
         forest.sampleNextGenealogy();
       }
     
-    rg.clearFastFunc();
-    return EXIT_SUCCESS;
-    //assert(forest.printTree());
-    //// Organize output
-    //std::ostream *output = &std::cout;
+     
 
-    //// Parse command line arguments
-    //Param user_para(argc, argv);
-    //Model model;
-    //user_para.parse(model);
 
-    //// Print help if user asked for it
+
+     ////Print help if user asked for it
     //if (user_para.help()) {
       //user_para.printHelp(*output); 
       //return EXIT_SUCCESS;
@@ -181,6 +180,8 @@ int main(int argc, char *argv[]){
 
       //// Now set up the ARG, and sample the initial tree
       //forest.buildInitialTree();
+//std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
+////cout << forest.contemporaries()->size(0) <<std::endl;
 
       //while (forest.next_base() < model.loci_length()) { 
         //// Sample next genealogy
