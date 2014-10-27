@@ -59,7 +59,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
             parenthesis_balance++;
             Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
             node->set_first_child ( child_1 );
-            if ( node->first_child() != NULL){ node->set_height ( node->first_child()->height() +node->first_child()->bl()  ) ;}
+            if ( node->first_child() != NULL){ node->set_height ( node->first_child()->height() + 40000*node->first_child()->bl()  ) ;}
         }
         else if ( (*(it+1)) == ',' ){ //
             node->extract_bl_and_label(it);            
@@ -116,8 +116,6 @@ void Forest::readNewick( std::string &in_str ){
   this->set_current_base(0.0);
   this->segment_count_ = 1;
 
-    //Node * node = new Node( 0, 0.0 );
-    //this->nodes()->push_back( node );
 std::string::iterator it = in_str.begin();
   (void)this->readNewickNode( in_str, it );
   this->set_local_root( this->nodes()->first() );
@@ -127,7 +125,7 @@ std::string::iterator it = in_str.begin();
     
     (void)this->nodes()->sorted();
 assert(this->printNodes());
-    assert(this->printTree());
+    //assert(this->printTree());
 
     this->sampleNextBase();
     this->calcSegmentSumStats();
@@ -140,8 +138,8 @@ int main(int argc, char *argv[]){
       Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
-    //std::string tre_str ( "((1:1,2:2):4,3:3);" );
-    std::string tre_str ( "((11:1.1,22:22.22):6,(33:3.33,44:4.44):5.55);" );
+    std::string tre_str ( "((1:1,2:1):3,3:4);" );
+    //std::string tre_str ( "((11:1.1,22:22.22):6,(33:3.33,44:4.44):5.55);" );
 std::cout << tre_str << std::endl;
     //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
