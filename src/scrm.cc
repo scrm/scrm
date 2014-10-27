@@ -41,45 +41,68 @@ void Node::extract_bl_and_label ( std::string::iterator in_it ){
     }
     
     this->set_label ( ( (*(label_start)) == ')' ? 0 : strtol ( &(*(label_start+1)), NULL , 10)) );
-    if ( this->in_sample() ) this->set_height ( 0 );
+    //if ( this->in_sample() ) this->set_height ( 0 );
+        //if ( this->in_sample() ) this->set_height ( this->bl()   );
 }
 
-std::string::iterator Forest::readNewickNode( std::string &in_str, std::string::iterator current_it ){
-    Node * node = new Node();
-    this->nodes()->push_back(node);
-    std::string::iterator it = current_it;
-    if ( (it+1) == in_str.end() ) return it;
-    std::cout << "[ A new node starts at \""<< *it <<"\" " ;
+Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
+    Node * node = new Node( 0, 0.0 );
+    node->set_parent ( parent );
+
+    this->nodes()->push_back( node );
+    //std::string::iterator it = current_it;
+    
+    std::cout << "Node " << node <<" starts from [ " << std::endl;//\""<< *it <<"\" " ;
     for (  ; it != in_str.end(); ++it){
-        
-        std::cout << (*it) ;
+        std::cout << "\""<<(*it) <<"\"" ;
         if      ( (*it) == '(' )  { // Start of a internal node, extract a new node
-            it = this->readNewickNode ( in_str, it+1 );
-            node->set_first_child ( this->nodes()->first() );
-            std::cout <<  "first child has bl "<< node->first_child()->bl();
-            if ( node->first_child () != NULL ){
-                node->set_height ( node->first_child()->height() + node->first_child()->bl() );
-            }
-            std::cout << " with height " << node->height() <<"] ";
+            parenthesis_balance++;
+            Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
+            node->set_first_child ( child_1 );
+            if ( node->first_child() != NULL){ node->set_height ( node->first_child()->height() +node->first_child()->bl()  ) ;}
         }
-        else if ( (*(it+1)) == ',' ){ //             
-            node->extract_bl_and_label(it);
-            std::cout << " first child node finishes at "<< (*it) << ", with branch length " << node->bl() <<", and with the label "<< node->label();
-            // Before extract the second node, extract the branch length of the first child, and set the height for the first one
-            it = this->readNewickNode ( in_str, it + 2 );
-            node->set_second_child ( this->nodes()->first() );
+        else if ( (*(it+1)) == ',' ){ //
+            node->extract_bl_and_label(it);            
+            std::cout << " "<< parent<<" has first child node "<<node<<" with branch length " << node->bl() <<", and with the label "<< node->label()<<" height "<< node->height()<<" ]  Node " << node << " closed return " << *it  << std::endl;
+            return node;
+            //return it;
         }
-        else if ( (*(it+1)) == ')'  ){ 
+        else if ( (*(it)) == ',' ){ //             
+            Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
+            ////node->set_second_child ( this->nodes()->first() );
+            //std::cout <<" Node " << node << " closed" << std::endl;
+            //if ( parent != NULL ) 
+            node->set_second_child ( child_2 );
             
+            //return it;
+        }
+        else if ( (*(it+1)) == ')'  ){
             // Before return, extract the branch length for the second node
             node->extract_bl_and_label(it);
-            std::cout << " first child node finishes at "<< (*it) << ", with branch length " << node->bl() <<", and with the label "<< node->label();
-            return (it);
+            std::cout << " " << parent << " has second child node " << node << " with branch length " << node->bl() <<", and with the label "<< node->label()<<" height "<< node->height()<<" ] Node " << node << " closed return "<< *it << std::endl;
+            //return (it);
+            return node;
         }
-
+        //else if ( (*(it)) == ')' ){
+            //parenthesis_balance--;    
+            //if ( parenthesis_balance == 0 ){
+                
+                ////return it;    
+            //}
+        //}
+        //else if ( (*(it)) == ')'  && parenthesis_balance == 0 ){
+            
+            //return (it);
+             ////Before return, extract the branch length for the second node
+            ////node->extract_bl_and_label(it);
+            ////std::cout << " first child node finishes at "<< (*it) << ", with branch length " << node->bl() <<", and with the label "<< node->label();
+            ////if ( parent != NULL ) parent->set_second_child ( node );
+            ////return (it);
+        //}
 		else if ( (*(it)) == ';' ) {
-            std::cout << "Ended at " << *(it)<<"]"<<std::endl;
-            return (it-1);
+            std::cout <<" Node " << node << " closed" << std::endl;            
+            //return (it-1);
+            return node;
         }
         else {
                 continue;
@@ -93,12 +116,17 @@ void Forest::readNewick( std::string &in_str ){
   this->set_current_base(0.0);
   this->segment_count_ = 1;
 
-    std::string::iterator a = this->readNewickNode( in_str, in_str.begin() );
-  this->set_local_root( this->nodes()->last() );
-  this->set_primary_root(this->nodes()->last() );
+    //Node * node = new Node( 0, 0.0 );
+    //this->nodes()->push_back( node );
+std::string::iterator it = in_str.begin();
+  (void)this->readNewickNode( in_str, it );
+  this->set_local_root( this->nodes()->first() );
+  this->set_primary_root(this->nodes()->first() );
 
-    std::cout<< this->nodes()->size()<<std::endl;
+    std::cout<< std::endl<<"there are "<< this->nodes()->size()<<std::endl;
+    
     (void)this->nodes()->sorted();
+assert(this->printNodes());
     assert(this->printTree());
 
     this->sampleNextBase();
@@ -113,7 +141,7 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
     //std::string tre_str ( "((1:1,2:2):4,3:3);" );
-    std::string tre_str ( "((11:1.111,22:22.22):6,(33:3.33,44:4.44):5.55);" );
+    std::string tre_str ( "((11:1.1,22:22.22):6,(33:3.33,44:4.44):5.55);" );
 std::cout << tre_str << std::endl;
     //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
 
@@ -122,6 +150,7 @@ std::cout << tre_str << std::endl;
     Forest forest = Forest(&model, &rg);
 
     std::ostream *output = &std::cout;
+
     forest.readNewick ( tre_str );
     
     forest.printLocusSumStats(*output);
@@ -142,6 +171,8 @@ std::cout << tre_str << std::endl;
       //return EXIT_SUCCESS;
     //}
     //if (user_para.version()) {
+
+
       //*output << "scrm " << VERSION << std::endl;
       //return EXIT_SUCCESS;
     //}
