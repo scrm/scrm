@@ -101,6 +101,7 @@ void Forest::readNewick( std::string &in_str ){
   this->set_local_root( this->nodes()->last() );
   this->set_primary_root(this->nodes()->last() );
   dout << std::endl<<"there are "<< this->nodes()->size() << " nodes " << std::endl;
+  (void)this->nodes()->sorted();
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
