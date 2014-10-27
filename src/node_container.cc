@@ -92,8 +92,26 @@ void NodeContainer::push_back( Node* node ) {
     this->last()->set_next(node);
     this->set_last(node);
     return;
-
 }
+
+// Adds 'node' to the container
+void NodeContainer::push_front( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_next(first());
+    node->set_previous(NULL);
+    first()->set_previous(node);
+    this->set_first(node);
+    return;
+}
+
 
 
 // Adds 'node' to the container
