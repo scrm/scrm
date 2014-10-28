@@ -35,7 +35,7 @@ Param::Param(const std::string &arg) {
     argv_vec_.push_back(tmp);
   }
   argv_vec_.push_back(0);
-
+  this->read_init_genealogy_ = false;
   directly_called_ = true;
   argv_ = &argv_vec_[0];
   argc_ = argv_vec_.size() - 1;
@@ -57,6 +57,7 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  * In scrm, we define time t in number of generations. 
  */
 void Param::parse(Model &model) {
+  this->read_init_genealogy_ = false;
   model = Model();
 
   size_t sample_size = 0;
