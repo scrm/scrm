@@ -32,7 +32,7 @@
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
-    //Organize output
+    // Organize output
     std::ostream *output = &std::cout;
 
     // Parse command line arguments
@@ -40,65 +40,43 @@ int main(int argc, char *argv[]){
     Model model;
     user_para.parse(model);
 
-   std::string tre_str ( "((1:1,2:1):3,3:4);" );
-    //std::string tre_str ( "((1:1.1,2:1.1):6,(3:3.3,4:3.3):3.8);" );
-    //dout << tre_str << std::endl;
-    //std::string tre_str ( "(6:6,(3:3,4:4):5);" );
+    // Print help if user asked for it
+    if (user_para.help()) {
+      user_para.printHelp(*output); 
+      return EXIT_SUCCESS;
+    }
+    if (user_para.version()) {
+      *output << "scrm " << VERSION << std::endl;
+      return EXIT_SUCCESS;
+    }
 
-    MersenneTwister rg = MersenneTwister(1);
+    MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    *output << user_para << std::endl;
+    *output << rg.seed() << std::endl;
 
+    // Create the forest
     Forest forest = Forest(&model, &rg);
 
-    forest.readNewick ( tre_str );
-    
-    forest.printLocusSumStats(*output);
-          while (forest.next_base() < model.loci_length()) { 
+    // Loop over the independent loci/chromosomes
+    for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
+
+      // Mark the start of a new independent sample
+      *output << std::endl << "//" << std::endl;
+
+      // Now set up the ARG, and sample the initial tree
+      if ( user_para.read_init_genealogy() )
+        forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
+      else forest.buildInitialTree();
+      //std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
+
+      while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
       }
-    
-     
-
-
-
-     ////Print help if user asked for it
-    //if (user_para.help()) {
-      //user_para.printHelp(*output); 
-      //return EXIT_SUCCESS;
-    //}
-    //if (user_para.version()) {
-
-
-      //*output << "scrm " << VERSION << std::endl;
-      //return EXIT_SUCCESS;
-    //}
-
-    //MersenneTwister rg = MersenneTwister(user_para.random_seed());
-    //*output << user_para << std::endl;
-    //*output << rg.seed() << std::endl;
-
-    //// Create the forest
-    //Forest forest = Forest(&model, &rg);
-
-    //// Loop over the independent loci/chromosomes
-    //for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
-
-      //// Mark the start of a new independent sample
-      //*output << std::endl << "//" << std::endl;
-
-      //// Now set up the ARG, and sample the initial tree
-      //forest.buildInitialTree();
-//std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
-////cout << forest.contemporaries()->size(0) <<std::endl;
-
-      //while (forest.next_base() < model.loci_length()) { 
-        //// Sample next genealogy
-        //forest.sampleNextGenealogy();
-      //}
       
-      //forest.printLocusSumStats(*output);
-      //forest.clear();
-    //}
+      forest.printLocusSumStats(*output);
+      forest.clear();
+    }
 
     // Clean-up and exit
     rg.clearFastFunc();

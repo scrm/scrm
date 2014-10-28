@@ -306,6 +306,25 @@ void Param::parse(Model &model) {
       model.set_exact_window_length(readNextInput<size_t>());
     }
 
+    // ------------------------------------------------------------------
+    // Read initial trees from file
+    // ------------------------------------------------------------------
+    else if ( argv_i == "-init" ){
+      this->read_init_genealogy_ = true;
+      std::string tmp_string = readNextInput<std::string>();
+      std::ifstream in_file( tmp_string.c_str() );
+      std::string gt_str;
+      if ( in_file.good() ){
+        getline ( in_file, gt_str );
+        while ( gt_str.size() > 0 ){
+          init_genealogy.push_back( gt_str );
+          getline ( in_file, gt_str );
+        }
+      } else {
+        throw std::invalid_argument("Invalid input file. " + tmp_string );
+      }
+      in_file.close();
+    }
 
     // ------------------------------------------------------------------
     // Summary Statistics

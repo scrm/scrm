@@ -1294,7 +1294,7 @@ void Forest::readNewick( std::string &in_str ){
   }
   assert(this->printNodes());
   assert(this->printTree());
-std::cout  << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
+dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
   this->sampleNextBase();
   this->calcSegmentSumStats();
   this->tmp_event_time_ = 0;
