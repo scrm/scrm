@@ -1297,5 +1297,5 @@ void Forest::readNewick( std::string &in_str ){
 dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
   this->sampleNextBase();
   this->calcSegmentSumStats();
-  this->tmp_event_time_ = 0;
+  this->tmp_event_time_ = this->local_root()->height();
 }
