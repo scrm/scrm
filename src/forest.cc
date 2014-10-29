@@ -26,10 +26,6 @@
  * Constructors & Initialization
  *****************************************************************/
 
-Forest::Forest() {
-  this->initialize();
-}
-
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
   dout << *model << std::endl;
@@ -47,6 +43,8 @@ void Forest::initialize(Model* model,
   this->set_current_base(1);
   this->set_sample_size(0);
 
+  this->coalescence_finished_ = true;
+
   // Save the contemporaries for each population in an unordered_set
   this->contemporaries_ = ContemporariesContainer(model->population_number(), 
                                                   model->sample_size(),
@@ -58,17 +56,35 @@ void Forest::initialize(Model* model,
 /**
  * @brief Copy constructor for forest
  *
+ * This creates a copy of an Forest. It only produces valid results
+ * when there is no ongoing coalescence event (e.g. when we are not 
+ * inside of sampleNextGenealogy()).
+ *
+ * Also, both copies of it share the model and the random generator,
+ * so make sure that only one of them is sampling a new genealogy at
+ * a time.
+ *
  * @param current_forest Forest that needs to be duplicated
  */
 Forest::Forest(const Forest &current_forest) { 
+  if (!coalescence_finished_) {
+    throw std::logic_error("Can not copy forest during an ongoing coalescence");
+  }
+
+  // Share a model and a random generator
   this->set_model(current_forest.model_);
   this->set_random_generator(current_forest.random_generator());
+
+  // Copy state information
   this->set_sample_size(current_forest.sample_size());
   this->set_current_base(current_forest.current_base());
   this->set_next_base(current_forest.next_base());
   this->segment_count_ = current_forest.segment_count_;
 
+  // Copy the nodes
   this->nodes_ = NodeContainer(*current_forest.getNodes());
+
+  // Rebuild invariants of the nodes, and determine new roots
   this->contemporaries_ = ContemporariesContainer ( *current_forest.getContemp());
   this->set_local_root(NULL);
   this->set_primary_root(NULL);
@@ -87,39 +103,6 @@ Forest::Forest(const Forest &current_forest) {
   assert(this->printNodes());
   assert(this->checkTree());
   assert(this->checkLeafsOnLocalTree() );
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
-}
-
-Forest::Forest(Forest * current_forest) { 
-  this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-  this->set_sample_size(current_forest->sample_size());
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-  this->segment_count_ = current_forest->segment_count_;
-
-  this->nodes_ = NodeContainer(*current_forest->getNodes());
-  this->contemporaries_ = ContemporariesContainer ( *current_forest->getContemp());
-
-  this->set_local_root(NULL);
-  this->set_primary_root(NULL);
-  for (auto it = nodes()->iterator(); it.good(); ++it) {
-    updateAbove(*it, false, false);
-  }
-
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
-  //this->tmp_event_time_ = -1; 
-  this->tmp_event_time_ = current_forest->tmp_event_time_; 
-  this->coalescence_finished_ = true;
-  
-  
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  
-  assert(this->printTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
