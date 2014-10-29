@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdexcept>
 #include <random>
@@ -92,6 +93,7 @@ class Param {
   // Getters and setters
   bool help() const { return help_; }
   bool version() const { return version_; }
+  bool read_init_genealogy() const { return this->read_init_genealogy_; }
   size_t random_seed() const { return random_seed_; }
   void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
 
@@ -118,7 +120,7 @@ class Param {
     }
     return input;
   }
-
+  std::vector < std::string > init_genealogy;
  private:
   Param(const Param &other);
   
@@ -132,6 +134,7 @@ class Param {
   bool directly_called_;
   bool help_;
   bool version_;
+  bool read_init_genealogy_;
   std::vector<char*> argv_vec_;
 };
 #endif

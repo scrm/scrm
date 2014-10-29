@@ -1,0 +1,36 @@
+		echo "rm(list=ls());
+		#source(\"../fun_src.r\");
+figuretitle=scan(\"figuretitle\",what=\"\");
+currentcase=scan(\"current_case\",what=\"\");
+scrmInitdata=read.table(paste(\"scrmInit\",\"data\",sep=\"\"))\$V1;
+scrmdata=read.table(paste(\"scrm\",\"data\",sep=\"\"))\$V1;
+		#ee=ee_seg(${nsam},${t});
+		#sdv=sd_seg_norecomb(${nsam},${t});
+		datamax=max(scrmInitdata,scrmdata);
+		scrmInittable=table(factor(scrmInitdata,levels=1:datamax))
+		scrmtable=table(factor(scrmdata,levels=1:datamax))
+pdf(paste(currentcase,figuretitle,\".pdf\",sep=\"\"));
+plot(as.numeric(names(scrmInittable)), scrmInittable/length(scrmInitdata),pch=16,col=\"red\",ylab=\"Frequency\",xlab=figuretitle);
+points(as.numeric(names(scrmtable)), scrmtable/length(scrmdata),pch=16,col=\"blue\")
+
+scrmInit_newtable=table(scrmInitdata);
+scrm_scrmInittable=table(factor(scrmdata,levels=names(table(scrmInitdata))));
+combined_scrm_scrmInit_test=chisq.test(cbind(scrm_scrmInittable, scrmInit_newtable));
+
+scrm_newtable=table(scrmdata);
+scrmInit_scrmtable=table(factor(scrmInitdata,levels=names(table(scrmdata))));
+combined_scrmInit_scrm_test=chisq.test(cbind(scrm_newtable, scrmInit_scrmtable));
+
+legend(\"topright\",c(paste(\"Test 1 Statistics = \",combined_scrm_scrmInit_test\$statistic,sep=\"\"), paste(\"p-value = \",format(combined_scrm_scrmInit_test\$p.value,digits=4),sep=\"\"),paste(\"Test 2 Statistics = \",combined_scrmInit_scrm_test\$statistic,sep=\"\"), paste(\"p-value = \",format(combined_scrmInit_scrm_test\$p.value,digits=4),sep=\"\")))
+legend(\"topleft\",c(\"scrmInit\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
+
+dev.off();
+
+#cat(paste(${nsam},${t},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
+cat(paste(currentcase, figuretitle , \"\n\",\"|\",
+format(mean(scrmInitdata),digits=4),format(sd(scrmInitdata),digits=4),\"|\",
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"||\",
+format(combined_scrm_scrmInit_test\$statistic,digits=4),format(combined_scrm_scrmInit_test\$p.value,scientific = TRUE),\"||\",
+format(combined_scrmInit_scrm_test\$statistic,digits=4),format(combined_scrmInit_scrm_test\$p.value,scientific = TRUE),
+sep=\"\t\"),file=\"${COMPAREFILE}\",append=TRUE);cat(\"\n\",file=\"${COMPAREFILE}\",append=TRUE);
+" > chisq.r

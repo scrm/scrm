@@ -35,7 +35,7 @@ Param::Param(const std::string &arg) {
     argv_vec_.push_back(tmp);
   }
   argv_vec_.push_back(0);
-
+  this->read_init_genealogy_ = false;
   directly_called_ = true;
   argv_ = &argv_vec_[0];
   argc_ = argv_vec_.size() - 1;
@@ -57,6 +57,7 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  * In scrm, we define time t in number of generations. 
  */
 void Param::parse(Model &model) {
+  this->read_init_genealogy_ = false;
   model = Model();
 
   size_t sample_size = 0;
@@ -306,6 +307,25 @@ void Param::parse(Model &model) {
       model.set_exact_window_length(readNextInput<size_t>());
     }
 
+    // ------------------------------------------------------------------
+    // Read initial trees from file
+    // ------------------------------------------------------------------
+    else if ( argv_i == "-init" ){
+      this->read_init_genealogy_ = true;
+      std::string tmp_string = readNextInput<std::string>();
+      std::ifstream in_file( tmp_string.c_str() );
+      std::string gt_str;
+      if ( in_file.good() ){
+        getline ( in_file, gt_str );
+        while ( gt_str.size() > 0 ){
+          init_genealogy.push_back( gt_str );
+          getline ( in_file, gt_str );
+        }
+      } else {
+        throw std::invalid_argument("Invalid input file. " + tmp_string );
+      }
+      in_file.close();
+    }
 
     // ------------------------------------------------------------------
     // Summary Statistics
@@ -480,6 +500,8 @@ void Param::printHelp(std::ostream& out) {
   out << "  -SC [ms|rel|abs] Scaling of sequence positions. Either" << std::endl 
       << "                   relative (rel) to the locus length between 0 and 1," << std::endl 
       << "                   absolute (abs) in base pairs or as in ms (default)." << std::endl;
+
+  out << "  -init <FILE>     Read genealogies at the beginning of the sequence." << std::endl;
 
   out << std::endl << "Other:" << std::endl;
   out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
