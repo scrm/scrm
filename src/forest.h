@@ -46,6 +46,7 @@
 #include <cassert>
 #include <iostream> // ostreams
 #include <iomanip>  // Used for debug output
+#include <sstream>  // Used for debug output
 
 #include "contemporaries_container.h"
 #include "event.h"

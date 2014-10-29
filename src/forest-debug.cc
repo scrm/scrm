@@ -17,7 +17,6 @@
 */
 
 #include "forest.h"
-#include <sstream>
 
 /******************************************************************
  * Debugging Utils
@@ -76,6 +75,12 @@ void Forest::createExampleTree() {
   this->set_current_base(5);  
   this->set_next_base(105);
   this->set_sample_size(4);
+
+  this->contemporaries_ = ContemporariesContainer(model().population_number(), 
+                                                  model().sample_size(),
+                                                  random_generator());
+  this->tmp_event_time_ = -1; 
+  this->coalescence_finished_ = true;
 
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
