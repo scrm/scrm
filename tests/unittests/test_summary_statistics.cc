@@ -223,14 +223,14 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     std::ostringstream output;
 
     // Check values for example segment
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
 
     // Add another segment
     seg_sites->positions_.push_back(0.9);
     seg_sites->haplotypes_.push_back(ht);
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     CPPUNIT_ASSERT_EQUAL((size_t)3, sfs.sfs().at(0));
     CPPUNIT_ASSERT_EQUAL((size_t)1, sfs.sfs().at(1));
     CPPUNIT_ASSERT_EQUAL((size_t)0, sfs.sfs().at(2));
@@ -243,7 +243,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
 
@@ -285,7 +285,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     
     OrientedForest of(4);
     std::ostringstream output;
-    of.calculate(forest);
+    of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
@@ -295,7 +295,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
     of.clear();
-    of.calculate(forest);
+    of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
@@ -309,7 +309,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     
     NewickTree of;
     std::ostringstream output;
-    of.calculate(forest);
+    of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
@@ -318,7 +318,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     output.clear();
     of.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
-    of.calculate(forest);
+    of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
