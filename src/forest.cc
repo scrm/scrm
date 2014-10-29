@@ -104,37 +104,6 @@ Forest::Forest(const Forest &current_forest) {
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
-Forest::Forest(Forest * current_forest) { 
-  this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-  this->set_sample_size(current_forest->sample_size());
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-  this->segment_count_ = current_forest->segment_count_;
-
-  this->nodes_ = NodeContainer(*current_forest->getNodes());
-  this->set_local_root(NULL);
-  this->set_primary_root(NULL);
-  for (auto it = nodes()->iterator(); it.good(); ++it) {
-    updateAbove(*it, false, false);
-  }
-
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_time_ = -1; 
-  this->coalescence_finished_ = true;
-  
-  
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  
-  assert(this->printTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
-}
-
-
 
 /** 
  * function that cuts a subtree out of a tree of the forest and reinserts it as

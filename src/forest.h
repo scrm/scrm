@@ -82,7 +82,6 @@ class Forest
 
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
-  Forest(Forest *current_forest);
   virtual ~Forest() {};
 
   //Getters & Setters
