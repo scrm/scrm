@@ -46,6 +46,7 @@
 #include <cassert>
 #include <iostream> // ostreams
 #include <iomanip>  // Used for debug output
+#include <sstream>  // Used for debug output
 
 #include "contemporaries_container.h"
 #include "event.h"
@@ -65,8 +66,8 @@ enum eventCode { NOEVENT, EVENT, INIT_NULL};
 class Forest
 {
  public:
-Node* readNewickNode( std::string &in_str, std::string::iterator &current_it, size_t parenthesis_balance = 0, Node* parent = NULL );
-void readNewick(std::string &in_str);
+  Node* readNewickNode( std::string &in_str, std::string::iterator &current_it, size_t parenthesis_balance = 0, Node* parent = NULL );
+  void readNewick(std::string &in_str);
   ContemporariesContainer* contemporaries()  {return &this->contemporaries_;};
 
 #ifdef UNITTEST
@@ -81,10 +82,8 @@ void readNewick(std::string &in_str);
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
-  Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
-  Forest(Forest *current_forest);
   virtual ~Forest() {};
 
   //Getters & Setters
@@ -213,6 +212,8 @@ void readNewick(std::string &in_str);
   void printLocusSumStats(std::ostream &output) const;
   
  private:
+  Forest() { this->initialize(); }
+
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
