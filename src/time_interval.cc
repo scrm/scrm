@@ -120,7 +120,6 @@ void TimeIntervalIterator::next() {
   double next_model_change_ = forest_->model().getNextTime();
 
   assert( current_time_ <= next_model_change_ );
-  //std::cout << "current_time: " << current_time_ << " ni_height: " << node_iterator_.height() << std::endl;
   assert( current_time_ <= node_iterator_.height() );
 
   // Now determine the end of the interval
@@ -154,12 +153,9 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
       for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
           
         assert(!(*it)->is_root());
-        std::cout << "Checking " << *it << std::endl;
         // Prune the node if needed
         tmp_child_1_ = (*it); // ERROR: tmp_child_1_ can be null, then it will throw a seg fault
-        std::cout << "tmp_child_1_ " << tmp_child_1_ << std::endl;
         tmp_child_2_ = (*it)->first_child();
-        std::cout << "tmp_child_1_ " << tmp_child_1_ << std::endl;
         while (tmp_child_1_->countChildren() == 1 && forest_->pruneNodeIfNeeded(tmp_child_1_)) {
           tmp_child_1_ = tmp_child_2_;
           if (tmp_child_1_ == NULL ) break;

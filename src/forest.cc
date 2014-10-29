@@ -49,8 +49,7 @@ void Forest::initialize(Model* model,
   this->contemporaries_ = ContemporariesContainer(model->population_number(), 
                                                   model->sample_size(),
                                                   rg);
-  //tmp_event_time_ = -1;
-  tmp_event_time_ = 0;
+  tmp_event_time_ = -1;
 }
 
 /**
@@ -85,18 +84,19 @@ Forest::Forest(const Forest &current_forest) {
   this->nodes_ = NodeContainer(*current_forest.getNodes());
 
   // Rebuild invariants of the nodes, and determine new roots
-  this->contemporaries_ = ContemporariesContainer ( *current_forest.getContemp());
   this->set_local_root(NULL);
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
 
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  // Set initial values for temporary variables
+  this->contemporaries_ = ContemporariesContainer(model().population_number(), 
+                                                  model().sample_size(),
+                                                  random_generator());
   this->tmp_event_time_ = -1; 
-    //this->tmp_event_time_ = current_forest.tmp_event_time_; 
+  //this->tmp_event_time_ = current_forest.tmp_event_time_; 
   this->coalescence_finished_ = true;
-  this->coalescence_finished_ = false;
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
   assert(this->printTree());
@@ -105,7 +105,6 @@ Forest::Forest(const Forest &current_forest) {
   assert(this->checkLeafsOnLocalTree() );
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
-
 
 
 /** 
@@ -413,12 +412,12 @@ void Forest::sampleNextGenealogy() {
 
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
-    //cout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
+    dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
     this->sampleNextBase();
     this->calcSegmentSumStats();
     return;
   }
-  std::cout << "tmp_event_time_ = "<< tmp_event_time_ << std::endl;
+
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
 
