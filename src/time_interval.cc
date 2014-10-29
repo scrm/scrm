@@ -150,7 +150,6 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
     // check if the buffered contemporaries are contemporaries of node
     double highest_time = -1;
     for (size_t pop = 0; pop < model()->population_number(); ++pop) {
-        cout <<" model()->population_number() = "<<pop<<endl;
       auto end = contemporaries()->buffer_end(pop);
       for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
           

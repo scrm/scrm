@@ -108,8 +108,8 @@ Forest::Forest(Forest * current_forest) {
   }
 
   // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_time_ = -1; 
-  //this->tmp_event_time_ = current_forest->tmp_event_time_; 
+  //this->tmp_event_time_ = -1; 
+  this->tmp_event_time_ = current_forest->tmp_event_time_; 
   this->coalescence_finished_ = true;
   
   
@@ -435,7 +435,7 @@ void Forest::sampleNextGenealogy() {
     this->calcSegmentSumStats();
     return;
   }
-  cout << "tmp_event_time_ = "<< tmp_event_time_ << std::endl;
+  std::cout << "tmp_event_time_ = "<< tmp_event_time_ << std::endl;
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
 

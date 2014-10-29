@@ -259,9 +259,7 @@ class Model
    
    double getCurrentTime() const { return change_times_.at(current_time_idx_); }
    double getNextTime() const { 
-              //std::cout << "current_time_idx_ = "<<current_time_idx_<<std::endl;
-       //std::cout << " change_times_.size() = "<< change_times_.size()<<std::endl;
-    if ( current_time_idx_ + 1 >= change_times_.size() ) return DBL_MAX;
+   if ( current_time_idx_ + 1 >= change_times_.size() ) return DBL_MAX;
     else return change_times_.at(current_time_idx_ + 1);
    }
 
@@ -311,8 +309,6 @@ class Model
    }
 
    void increaseTime() { 
-       //std::cout << "current_time_idx_ = "<<current_time_idx_<<std::endl;
-       //std::cout << " change_times_.size() = "<< change_times_.size()<<std::endl;
      if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
      ++current_time_idx_;
 
