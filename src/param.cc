@@ -501,6 +501,8 @@ void Param::printHelp(std::ostream& out) {
       << "                   relative (rel) to the locus length between 0 and 1," << std::endl 
       << "                   absolute (abs) in base pairs or as in ms (default)." << std::endl;
 
+  out << "  -init <FILE>     Read genealogies at the beginning of the sequence." << std::endl;
+
   out << std::endl << "Other:" << std::endl;
   out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
       << "                   integer numbers." << std::endl;

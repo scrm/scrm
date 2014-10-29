@@ -1,0 +1,56 @@
+foo(){
+    #cut -f 2 scrmInittime > scrmInittmrca
+	#cut -f 2 scrmtime > scrmtmrca
+	echo "TMRCA" > figuretitle
+	R CMD BATCH tmrca.r
+
+    #cut -f 3 scrmInittime > scrmInitbl
+	#cut -f 3 scrmtime > scrmbl
+	echo "BL" > figuretitle
+	R CMD BATCH bl.r
+
+	cut -f 6 scrmInit_stats > scrmInitdata
+	cut -f 6 scrm_stats > scrmdata
+	echo "Tajima_D" > figuretitle
+	R CMD BATCH ks.r
+
+	cut -f 2 scrmInit_stats > scrmInitdata
+	cut -f 2 scrm_stats > scrmdata
+	echo "Pairewise_difference" > figuretitle
+	R CMD BATCH ks.r
+
+	cut -f 8 scrmInit_stats > scrmInitdata
+	cut -f 8 scrm_stats > scrmdata
+	echo "theta_H" > figuretitle
+	R CMD BATCH ks.r
+
+	cut -f 10 scrmInit_stats > scrmInitdata
+	cut -f 10 scrm_stats > scrmdata
+	echo "H" > figuretitle
+	R CMD BATCH ks.r
+	}
+
+scrmInittime(){
+    cat scrmInitout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmInitTrees
+        done
+        hybrid-Lambda -gt scrmInitTrees -tmrca -o scrmInit
+        hybrid-Lambda -gt scrmInitTrees -bl -o scrmInit
+        find . -name "xx*" -print0 | xargs -0 rm    
+    }	
+	
+scrmtime(){
+    rm scrmReadTrees
+    cat scrmout | gawk '/^\/\//{f="xx"++d} f{print > f} '
+    for file in $(seq 1 1 ${rep})
+        do 
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
+        grep ";" xx${file} | sed -e 's/\[.*\]//g' | head -1 >> scrmReadTrees
+        done
+        hybrid-Lambda -gt scrmTrees -tmrca -o scrm
+        hybrid-Lambda -gt scrmTrees -bl -o scrm
+        #find . -name "xx*" -print0 | xargs -0 rm    
+    }	
+		
