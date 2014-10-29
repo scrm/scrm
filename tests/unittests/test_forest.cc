@@ -700,7 +700,7 @@ class TestForest : public CppUnit::TestCase {
 
   void testCopyConstructor() {
     forest->createScaledExampleTree();
-    Forest forest2 = Forest(forest);
+    Forest forest2 = Forest(*forest);
 
     CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest2.nodes()->size() );
     CPPUNIT_ASSERT( forest2.model_ == forest->model_ );
