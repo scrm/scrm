@@ -28,6 +28,7 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 
+
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
@@ -63,7 +64,10 @@ int main(int argc, char *argv[]){
       *output << std::endl << "//" << std::endl;
 
       // Now set up the ARG, and sample the initial tree
-      forest.buildInitialTree();
+      if ( user_para.read_init_genealogy() )
+        forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
+      else forest.buildInitialTree();
+      //std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy

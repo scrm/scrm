@@ -38,11 +38,16 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <string>
+
 
 class Node
 {
- public:                       
-
+ public:
+ void extract_bl_and_label ( std::string::iterator in_it );
+ double bl_;
+ double bl() const { return this->bl_; }
+ void set_bl ( double bl ) { this->bl_ = bl; }
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
