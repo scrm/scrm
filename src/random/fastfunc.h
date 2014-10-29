@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #if !defined(__APPLE__)
 #include <malloc.h>
@@ -37,13 +38,8 @@
 class FastFunc {
  public:
   FastFunc() {
-    fastlog_double_table_ = build_fastlog_double_table(SIZE_DOUBLE);
+    this->build_fastlog_double_table(SIZE_DOUBLE);
   }
-
-  ~FastFunc() {
-    free(fastlog_double_table_);
-  }
-
 
   // Methods
   double fastlog(double);       /* about as fast as division; about as accurate as logf */
@@ -51,14 +47,14 @@ class FastFunc {
   double fastexp_lo(double y);  /* lower bound to exp; at most 5.792% too low.  10x as fast as exp */
 
  private:
-  double* build_fastlog_double_table(int);
+  void build_fastlog_double_table(int);
   
   static constexpr double LN2 = 0.693147180559945309417; //ln(2)
   static constexpr double EXP_A = 1048576/LN2;
   static constexpr long long EXP_C_LO = 90254;
   static constexpr long long EXP_C_UP = -1;
 
-  double* fastlog_double_table_;
+  std::vector<double> fastlog_double_table_;
 };
 
 // Fast and fairly tight upper and lower bounds for exp(x)
