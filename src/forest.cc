@@ -68,44 +68,18 @@ Forest::Forest(const Forest &current_forest) {
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
-
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  assert(this->printTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
-}
-
-Forest::Forest(Forest * current_forest) { 
-  this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-  this->set_sample_size(current_forest->sample_size());
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-
-  this->nodes_ = NodeContainer(*current_forest->getNodes());
-
-  for (auto it = nodes()->iterator(); it.good(); ++it) {
-    updateAbove(*it, false, false);
-  }
-
   // Set initial value, to stop valgrind from complaining about uninitialized variables
   this->tmp_event_line_ = 0;
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
   
-  
   dout<<"  #################### check copied forest ###############"<<std::endl;
-  
   //assert(this->printTree());
-  //assert(this->printNodes());
+  assert(this->printNodes());
   assert(this->checkTree());
   assert(this->checkLeafsOnLocalTree() );
-  
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
-
 
 
 /** 
@@ -397,9 +371,6 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
 void Forest::sampleNextGenealogy() {
 
   double recomb_opportunity_x = this->next_base_ - this->current_base_;
-  //double opportunity_y = this -> local_tree_length();
-  //double recomb_opportunity = recomb_opportunity_x * opportunity_y;
-  //double previous_base = this->current_base_;
   this->set_current_base(next_base_);
   this->compute_opportunity_y_s ();
 
@@ -419,32 +390,22 @@ void Forest::sampleNextGenealogy() {
   scrmdout << "Segment Nr: " << segment_count_ << std::endl;
   scrmdout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
-assert( this->printTree() );
 
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
   assert( rec_point.base_node()->local() );
-assert( this->printTree() );
+  assert( this->printTree() );
 
   scrmdout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;
-
   scrmdout << "* Cutting subtree below recombination " << std::endl;
   this->cut(rec_point);
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
-  assert( this->printTree() );
-
+  
   // update current time index
   this->writable_model()->resetTime( rec_point.height() );
   this->record_Recombevent_atNewGenealogy( recomb_opportunity_x, true);
-  // record recombination event - we pass the population, but disregard for now, 
-  // since the opportunity is calculated overall rather than per-population. 
-  //this->record_Recombevent(0, 
-                            ////rec_point.height(), 
-                            ////rec_point.height(), 
-                            //recomb_opportunity, 
-                            //EVENT, previous_base);
-
+  
   scrmdout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 
