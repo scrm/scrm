@@ -172,7 +172,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     ostringstream output;
 
     // Check values for example locus
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
 
@@ -181,7 +181,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     output.clear();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
 
