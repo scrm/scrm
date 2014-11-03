@@ -72,7 +72,8 @@ void Param::parse(Model &model) {
   bool tmrca = false,
        newick_trees = false,
        orientedForest = false,
-       sfs = false; 
+       sfs = false,
+       fst = false; 
 
 
   // The minimal time at which -eM, -eN, -eG, -eI, -ema and -es are allowed to happen. Is
@@ -357,6 +358,10 @@ void Param::parse(Model &model) {
       sfs = true;
     }
 
+    else if (argv_i == "-Fst") {
+      fst = true;
+    }
+    
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------
@@ -431,6 +436,11 @@ void Param::parse(Model &model) {
     if (seg_sites == NULL) 
       throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
     model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
+  }
+  if (fst) {
+    if (seg_sites == NULL) 
+      throw std::invalid_argument("You need to give a mutation rate ('-t') to compute a Fst"); 
+    model.addSummaryStatistic(new Fst(seg_sites, model));
   }
 
   model.finalize();

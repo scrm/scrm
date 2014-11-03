@@ -37,6 +37,7 @@
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
 #include "summary_statistics/oriented_forest.h"
+#include "summary_statistics/fst.h"
 
 class Param {
  public:

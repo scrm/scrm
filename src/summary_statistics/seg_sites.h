@@ -34,6 +34,7 @@
 class SegSites : public SummaryStatistic
 {
  public:
+  friend class Fst;
   SegSites() { set_position(0.0); }
   ~SegSites() {}
 
