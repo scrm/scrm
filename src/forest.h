@@ -215,6 +215,9 @@ class Forest
   virtual void record_all_event( TimeInterval const &ti){
     (void) ti;   
   }
+  virtual void record_recomb_opp_within_scrm ( double recomb_rate ) const{
+    (void) recomb_rate;
+  }
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;

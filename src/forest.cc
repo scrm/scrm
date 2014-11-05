@@ -651,6 +651,8 @@ void Forest::sampleEventType(const double time, const size_t time_line,
     // Recombination
     if (states_[i] == 2) {
       sample -= calcRecombinationRate(active_nodes_[i]);
+      double rate = calcRecombinationRate(active_nodes_[i]); // DEBUG
+      record_recomb_opp_within_scrm ( rate );
       if (sample <= 0.0) return event.setToRecombination(active_node(i), i);
       continue;
     }
