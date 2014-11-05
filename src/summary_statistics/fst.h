@@ -35,9 +35,8 @@
 class Fst : public SummaryStatistic
 {
  public:
-  Fst(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites) {
+  Fst(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites), model_(&model) {
      std::cout << " ok, initialize fst "<< std::endl;
-     sample_size_ = std::vector<size_t>(model.sample_size());
    }
    ~Fst(){};
 
@@ -53,6 +52,7 @@ class Fst : public SummaryStatistic
    SegSites* const seg_sites_;
    std::vector<size_t> sample_size_;
    double fst_;
+   const Model * model_;
 };
 
 #endif

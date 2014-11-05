@@ -58,6 +58,7 @@ class Model
    friend class TestParam;
    friend class TestForest;
 #endif
+    friend class Fst; // DEBUG
    friend class Forest;
    friend class Param;
    friend std::ostream& operator<< (std::ostream& stream, const Model& model);
