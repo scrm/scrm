@@ -193,25 +193,9 @@ class Forest
 
   Node* trackLocalNode(Node *node) const; 
 
-  //derived class from Forest
-  //virtual void record_Recombevent(size_t pop_i, 
-    ////double start_time, 
-    ////double end_time, 
-    //double opportunity, 
-    //eventCode event_code,
-    //double start_base){
-    //(void)pop_i;
-    ////(void)start_time;
-    ////(void)end_time;
-    //(void)opportunity;
-    //(void)event_code;
-    //(void)start_base;  
-  //}
   virtual void compute_opportunity_y_s (){};
-  virtual void record_Recombevent_atNewGenealogy ( double recomb_opportunity_x, bool record_event){
-      (void)recomb_opportunity_x;
-      (void)record_event;
-  }
+  virtual void record_Recombevent_b4_extension ( ) { }
+  virtual void record_Recombevent_atNewGenealogy ( ){  }
   virtual void record_all_event( TimeInterval const &ti){
     (void) ti;   
   }

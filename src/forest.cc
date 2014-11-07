@@ -279,6 +279,7 @@ void Forest::buildInitialTree() {
     assert(this->printTree());
   }
   this->sampleNextBase();
+  this->record_Recombevent_b4_extension();
   this->calcSegmentSumStats();
 }
 
@@ -370,16 +371,15 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  */
 void Forest::sampleNextGenealogy() {
 
-  double recomb_opportunity_x = this->next_base_ - this->current_base_;
   this->set_current_base(next_base_);
-  this->compute_opportunity_y_s ();
 
   if (current_base_ == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-    this->record_Recombevent_atNewGenealogy( recomb_opportunity_x, false );
+    this->record_Recombevent_atNewGenealogy( );
     this->sampleNextBase();
+    this->record_Recombevent_b4_extension();
     this->calcSegmentSumStats();
     return;
   }
@@ -404,7 +404,7 @@ void Forest::sampleNextGenealogy() {
   
   // update current time index
   this->writable_model()->resetTime( rec_point.height() );
-  this->record_Recombevent_atNewGenealogy( recomb_opportunity_x, true);
+  this->record_Recombevent_atNewGenealogy( );
   
   scrmdout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
@@ -418,6 +418,7 @@ void Forest::sampleNextGenealogy() {
   if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
 
   this->sampleNextBase();
+  this->record_Recombevent_b4_extension();
   this->calcSegmentSumStats();
 }
 
