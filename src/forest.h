@@ -195,7 +195,7 @@ class Forest
 
   virtual void compute_opportunity_y_s (){};
   virtual void record_Recombevent_b4_extension ( ) { }
-  virtual void record_Recombevent_atNewGenealogy ( ){  }
+  virtual void record_Recombevent_atNewGenealogy ( double event_height ){ (void)event_height; }
   virtual void record_all_event( TimeInterval const &ti){
     (void) ti;   
   }

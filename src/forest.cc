@@ -377,7 +377,7 @@ void Forest::sampleNextGenealogy() {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-    this->record_Recombevent_atNewGenealogy( );
+    this->record_Recombevent_atNewGenealogy( 0 );
     this->sampleNextBase();
     this->record_Recombevent_b4_extension();
     this->calcSegmentSumStats();
@@ -403,8 +403,7 @@ void Forest::sampleNextGenealogy() {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   
   // update current time index
-  this->writable_model()->resetTime( rec_point.height() );
-  this->record_Recombevent_atNewGenealogy( );
+  this->record_Recombevent_atNewGenealogy( rec_point.height() );
   
   scrmdout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
