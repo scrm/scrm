@@ -196,13 +196,17 @@ class Forest
   virtual void compute_opportunity_y_s (){};
   virtual void record_Recombevent_b4_extension ( ) { }
   virtual void record_Recombevent_atNewGenealogy ( double event_height ){ (void)event_height; }
-  virtual void record_all_event( TimeInterval const &ti){
-    (void) ti;   
+  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ){
+    (void) ti;  (void) recomb_opp_x_within_scrm;
   }
-  virtual void record_recomb_opp_within_scrm ( double recomb_rate ) const{
-    (void) recomb_rate;
-  }
-
+  double recomb_opp_x_within_scrm; // DEBUG
+  //virtual void record_recomb_opp_within_scrm ( double recomb_rate ) const {
+    //(void) recomb_rate;
+    ////(void) recomb_opp_x_within_scrm;
+    //std::cout <<"ok, i was called, but I shouldn't be called ... "<<std::endl;
+  //}
+  //virtual void clear_recomb_opp_within_scrm () { };
+  
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
   void printSegmentSumStats(ostream &output) const;
@@ -250,7 +254,7 @@ class Forest
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcRecombinationRate(Node const* node) const;
-  void calcRates(const TimeInterval &ti);
+  void calcRates(const TimeInterval &ti, double &recomb_opp_x_within_scrm);
 
   void sampleEvent(const TimeInterval &ti, double tmp_event_time,  
                    size_t tmp_event_line, Event &return_event) const;

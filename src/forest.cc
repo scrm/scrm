@@ -443,7 +443,7 @@ void Forest::sampleCoalescences(Node *start_node) {
   assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
-
+    double recomb_opp_x_within_scrm = 0;
     scrmdout << "* * Time interval: " << (*ti).start_height() << " - "
              << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
@@ -458,7 +458,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     if (model().hasFixedTimeEvent((*ti).start_height())) 
 		implementFixedTimeEvent(ti);
 
-    calcRates(*ti);
+    calcRates(*ti, recomb_opp_x_within_scrm);
 
     scrmdout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
              << "(p" << active_node(0)->population() << ")" 
@@ -484,12 +484,12 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( checkContemporaries(*ti) );
 
     // Sample the time at which the next thing happens
-    sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_);
+    sampleEvent(*ti, tmp_event_time_, tmp_event_line_, tmp_event_ );
     scrmdout << "* * * " << tmp_event_ << std::endl;
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    this->record_all_event(*ti);
+    this->record_all_event(*ti, recomb_opp_x_within_scrm);
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
@@ -523,7 +523,7 @@ void Forest::sampleCoalescences(Node *start_node) {
 }  
 
 
-void Forest::calcRates(const TimeInterval &ti) {
+void Forest::calcRates(const TimeInterval &ti, double &recomb_opp_x_within_scrm) {
   rates_[0] = 0.0;
   rates_[1] = 0.0;
   rates_[2] = 0.0;
@@ -544,7 +544,8 @@ void Forest::calcRates(const TimeInterval &ti) {
   }
   else if (states_[0] == 2) {
     // recombining
-    rates_[0] += calcRecombinationRate(active_node(0));    
+    rates_[0] += calcRecombinationRate(active_node(0));
+    recomb_opp_x_within_scrm += this->current_base() - active_node(0)->last_update(); // DEBUG
   }
 
   // The second node is a bit more complicated 
@@ -581,6 +582,7 @@ void Forest::calcRates(const TimeInterval &ti) {
   else if (states_[1] == 2) {
     // recombining
     rates_[0] += calcRecombinationRate(active_node(1));
+    recomb_opp_x_within_scrm += this->current_base() - active_node(1)->last_update(); // DEBUG
   }
 }  
 
@@ -651,8 +653,6 @@ void Forest::sampleEventType(const double time, const size_t time_line,
     // Recombination
     if (states_[i] == 2) {
       sample -= calcRecombinationRate(active_nodes_[i]);
-      double rate = calcRecombinationRate(active_nodes_[i]); // DEBUG
-      record_recomb_opp_within_scrm ( rate );
       if (sample <= 0.0) return event.setToRecombination(active_node(i), i);
       continue;
     }
@@ -1199,7 +1199,6 @@ void Forest::traversal(Node const* node, std::valarray<bool> &haplotype) const {
   else {
     assert( 0 );
   }
-  //std::cout << "end" << std::endl;
 }
 
 void Forest::doCompletePruning() {
