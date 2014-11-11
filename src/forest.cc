@@ -73,12 +73,12 @@ Forest::Forest(const Forest &current_forest) {
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
   
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  //assert(this->printTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
+  //dout<<"  #################### check copied forest ###############"<<std::endl;
+  ////assert(this->printTree());
+  //assert(this->printNodes());
+  //assert(this->checkTree());
+  //assert(this->checkLeafsOnLocalTree() );
+  //dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
 
 
@@ -274,9 +274,9 @@ void Forest::buildInitialTree() {
     this->sampleCoalescences(new_leaf);
     scrmdout << "* * Tree:" << std::endl;
 
-    assert(this->checkTree());
-    assert(this->checkLeafsOnLocalTree());
-    assert(this->printTree());
+    //assert(this->checkTree());
+    //assert(this->checkLeafsOnLocalTree());
+    //assert(this->printTree());
   }
   this->sampleNextBase();
   this->record_Recombevent_b4_extension();
@@ -394,7 +394,7 @@ void Forest::sampleNextGenealogy() {
   // Sample the recombination point
   TreePoint rec_point = this->samplePoint();
   assert( rec_point.base_node()->local() );
-  assert( this->printTree() );
+  //assert( this->printTree() );
 
   scrmdout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;
@@ -410,8 +410,8 @@ void Forest::sampleNextGenealogy() {
 
   assert( this->checkLeafsOnLocalTree() );
   assert( this->checkTree() );
-  assert( this->printTree() );
-  assert( this->printNodes() );
+  //assert( this->printTree() );
+  //assert( this->printNodes() );
 
   // Rarely prune all possible nodes 
   if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
@@ -509,7 +509,7 @@ void Forest::sampleCoalescences(Node *start_node) {
 
     else if ( tmp_event_.isMigration() ) {
       this->implementMigration(tmp_event_, true, ti);
-      assert( this->printTree() );
+      //assert( this->printTree() );
     }
 
     else if ( tmp_event_.isCoalescence() ) {
@@ -517,7 +517,7 @@ void Forest::sampleCoalescences(Node *start_node) {
       assert( checkInvariants(tmp_event_.node()) );
       if (coalescence_finished_) return;
 
-      assert( this->printTree() );
+      //assert( this->printTree() );
     }
   }
 }  
@@ -982,7 +982,7 @@ void Forest::implementRecombination(const Event &event, TimeIntervalIterator &ti
 
   ti.recalculateInterval();
 
-  assert( this->printTree() );
+  //assert( this->printTree() );
   assert( event.node()->local() );
 }
 
