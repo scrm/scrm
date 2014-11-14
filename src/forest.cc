@@ -402,9 +402,6 @@ void Forest::sampleNextGenealogy() {
   this->cut(rec_point);
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   
-  // update current time index
-  this->record_Recombevent_atNewGenealogy( rec_point.height() );
-  
   scrmdout << "* Starting coalescence" << std::endl;
   this->sampleCoalescences(rec_point.base_node()->parent());
 
@@ -417,7 +414,10 @@ void Forest::sampleNextGenealogy() {
   if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
 
   this->sampleNextBase();
+  // record the recombination opportunity until the next recombination event
   this->record_Recombevent_b4_extension();
+  // record the CURRENT recombination event with the next recombination opportunity
+  this->record_Recombevent_atNewGenealogy( rec_point.height() );
   this->calcSegmentSumStats();
 }
 
