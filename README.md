@@ -48,3 +48,5 @@ GPL Version 3 or later.
 [1]: https://scrm.github.io
 [2]: https://github.com/paulstaab/scrm/wiki/Command-Line-Options
 [3]: https://github.com/scrm/scrm/wiki/Installation
+
+[![DOI](https://zenodo.org/badge/6744/scrm/scrm.png)](http://dx.doi.org/10.5281/zenodo.12357)
