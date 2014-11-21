@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Determine if the current commit is tagged
-# tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
-tag="v1.9.9000"
+tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
 [ "${tag:0:1}" == "v" ] || exit 0 
 version=${tag:1}
 
@@ -10,7 +9,7 @@ version=${tag:1}
 [ "${CXX:='g++'}" == "g++" ] || exit 0
 
 # Build the manual
-sudo apt-get install pandoc zip || exit 1
+sudo apt-get install -y pandoc || exit 1
 ./doc/create-manual.sh
 
 # Build the release
@@ -20,19 +19,18 @@ make dist || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Remove gcc-4.8
-sudo apt-get remove -y g++-4.8 || exit 1
-sudo apt-get install -y mingw-w64 || exit 1
+# sudo apt-get install -y mingw-w64 || exit 1
 
 # Build Windows Binaries
 # Build the 64bit version
-CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3' LDFLAGS='-static-libgcc -static -lpthread' \
-  ./configure --host=i686-w64-mingw32 || exit 1
-make && zip scrm-$version-win64.zip scrm.exe
+#CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3' LDFLAGS='-static-libgcc -static -lpthread' \
+#  ./configure --host=i686-w64-mingw32 || exit 1
+#make && zip scrm-$version-win64.zip scrm.exe
 
 # Build the 32bit version
-CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3 -m32' LDFLAGS='-static-libgcc -static -lpthread' \
-  ./configure --host=i686-w64-mingw32 || exit 1
-make clean && make && zip scrm-$version-win32.zip scrm.exe
+#CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3 -m32' LDFLAGS='-static-libgcc -static -lpthread' \
+#  ./configure --host=i686-w64-mingw32 || exit 1
+#make clean && make && zip scrm-$version-win32.zip scrm.exe
 
 # Get & set up the homepage repo
 echo "Setting up git..."
@@ -50,8 +48,8 @@ mv ../scrm-$version-* releases/ || exit 1
 rm releases/scrm-current*
 cd releases
 ln -s $release scrm-current.tar.gz
-ln -s scrm-$version-win64.zip scrm-current-win64.zip
-ln -s scrm-$version-win32.zip scrm-current-win32.zip
+#ln -s scrm-$version-win64.zip scrm-current-win64.zip
+#ln -s scrm-$version-win32.zip scrm-current-win32.zip
 cd ..
 make
 git add releases/$release releases/scrm-$version-* releases/scrm-current-* releases/releases*
