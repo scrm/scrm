@@ -20,4 +20,4 @@ before_install:
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
 after_success:
-- "./.travis/deploy.sh"
+- .travis/deploy.sh
