@@ -1220,7 +1220,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
   //this->nodes()->push_front( node );
   dout << "Node " << node
        << " starts from [ " << std::endl;
-  for (  ; it != in_str.end(); ++it){
+  for (  ; it != in_str.end(); ++it) {
     dout << "\""<<(*it) <<"\"" ;
     if        ( (*it) == '(' )  { // Start of a internal node, extract a new node
       parenthesis_balance++;
@@ -1263,6 +1263,8 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
       continue;
     }
   }
+  assert(false);
+  return NULL;
 }
 
 
