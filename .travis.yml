@@ -1,4 +1,7 @@
 language: cpp
+env:
+  global:
+    secure: GvgROh8aSriDE1lTsoy1t193dzyFOdPtRFXwXb6+tx1yJijc37dnU9B5rpimH3mtoc0iTpVXrkD1Y+6aqIvN/CRLGWEYmLLwCLXScmQjTPBXWC1htGWlCKvibPdXi0A0qHWMGuXlYgvf2/bcWJidvx06KF/8lSKic+f+LN9X0Uo=
 compiler:
 - gcc
 - clang
@@ -16,3 +19,5 @@ before_install:
 - g++ --version
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
+after_success:
+- "./.travis/deploy.sh"
