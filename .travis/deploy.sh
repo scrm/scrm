@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Determine if the current commit is tagged
-tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
+# tag=`git describe --exact-match HEAD 2> /dev/null` || exit 0
+tag="v1.9.9000"
 [ "${tag:0:1}" == "v" ] || exit 0 
 version=${tag:1}
 
@@ -9,7 +10,7 @@ version=${tag:1}
 [ "${CXX:='g++'}" == "g++" ] || exit 0
 
 # Build the manual
-sudo apt-get install pandoc mingw-w64 zip
+sudo apt-get install pandoc zip || exit 1
 ./doc/create-manual.sh
 
 # Build the release
@@ -18,15 +19,19 @@ CXXFLAGS="-O3" ./bootstrap || exit 1
 make dist || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
+# Remove gcc-4.8
+sudo apt-get remove -y g++-4.8 || exit 1
+sudo apt-get install -y mingw-w64 || exit 1
+
 # Build Windows Binaries
 # Build the 64bit version
 CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3' LDFLAGS='-static-libgcc -static -lpthread' \
-  ./configure --host=i686-w64-mingw32 
+  ./configure --host=i686-w64-mingw32 || exit 1
 make && zip scrm-$version-win64.zip scrm.exe
 
 # Build the 32bit version
 CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3 -m32' LDFLAGS='-static-libgcc -static -lpthread' \
-  ./configure --host=i686-w64-mingw32 
+  ./configure --host=i686-w64-mingw32 || exit 1
 make clean && make && zip scrm-$version-win32.zip scrm.exe
 
 # Get & set up the homepage repo
