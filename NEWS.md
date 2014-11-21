@@ -1,6 +1,15 @@
 scrm Version History
 ========================
 
+scrm 1.4.0
+------------------------
+Released: Not yet
+
++ Improvements to memory management
+
+
+
+
 scrm 1.3.1
 ------------------------
 Released: 2014-10-23
