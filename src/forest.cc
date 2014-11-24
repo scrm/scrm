@@ -443,7 +443,7 @@ void Forest::sampleCoalescences(Node *start_node) {
   assert ( active_node(1)->in_sample() || start_node->height() <= active_node(1)->height() );
 
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
-    double recomb_opp_x_within_scrm = 0;
+    this->recomb_opp_x_within_scrm = 0; // DEBUG reset the recombination opportunity within this time interval to zero
     scrmdout << "* * Time interval: " << (*ti).start_height() << " - "
              << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
 
@@ -458,7 +458,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     if (model().hasFixedTimeEvent((*ti).start_height())) 
 		implementFixedTimeEvent(ti);
 
-    calcRates(*ti, recomb_opp_x_within_scrm);
+    calcRates(*ti, recomb_opp_x_within_scrm); // DEBUG extract recombination opportunity within this interval
 
     scrmdout << "* * * Active Nodes: a0:" << active_node(0) << ":s" << states_[0]
              << "(p" << active_node(0)->population() << ")" 
@@ -489,7 +489,7 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    this->record_all_event(*ti, recomb_opp_x_within_scrm);
+    this->record_all_event(*ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
 
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
