@@ -387,7 +387,7 @@ bool Forest::printTree() const {
   return true;
 }
 
-bool Forest::printTree_cout() {
+void Forest::printTree_cout() const {
   //this->printNodes();
   std::vector<Node const*> positions = this->determinePositions();
   //this->printPositions(positions);
@@ -397,6 +397,12 @@ bool Forest::printTree_cout() {
          end_height = getNodes()->get(0)->height();
 
   for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
+    if ( !(*ni)->is_root() && (*ni)->height_above() == 0.0 ) {
+      std::cout << "A rare situation occurred were a parent and a child have exactly "
+           << "the same height. We can't print such trees here, the algorithm however"
+           << "should not be affected." << std::endl; 
+      //return 1;
+    }
     h_line = 0;
     start_height = end_height;
     while ( ni.height() <= end_height ) ++ni;
@@ -449,13 +455,16 @@ bool Forest::printTree_cout() {
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
-        if ((*position)->label() != 0) dout << (*position)->label() << ":";
-        std::cout << *position << "(" << (*position)->population() << ") ";
+        if ((*position)->label() != 0) std::cout << (*position)->label() << ":";
+        if (!(*position)->is_migrating()) std::cout << *position << "(" << (*position)->population() << ") ";
+        else std::cout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) std::cout << "old ";
       }
     }
     std::cout << std::endl;
   }
-  return true;
+  //return true;
 }
 
 

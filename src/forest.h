@@ -56,6 +56,7 @@
 #include "random/constant_generator.h"
 #include "random/mersenne_twister.h"
 #include "summary_statistics/summary_statistic.h"
+extern int recombination_counter; //DEBUG
 
 class TimeInterval;
 class TimeIntervalIterator;
@@ -111,6 +112,9 @@ class Forest
   void sampleNextBase() {
     double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
                                                         model().getNextSequencePosition() - current_base_);
+                                                        //if(recombination_counter > 135793 ){
+                                                            //std::cout << "local_tree_length() = " <<local_tree_length()<<std::endl;
+                                                        //std::cout<<" length = "<< length<<std::endl;}
     if (length == -1) {
       // No recombination until the model changes
       set_next_base(model().getNextSequencePosition());
@@ -169,7 +173,7 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
-  bool printTree_cout();
+  void printTree_cout() const;
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
