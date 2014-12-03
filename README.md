@@ -7,14 +7,6 @@ only linear runtime cost for long sequences. It allows you to rapidly simulate c
 scale sequences with an essentially correct genetic linkage structure.
 
 
-## Citation
-_scrm_ is described in the manuscript
-
-> Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
-> scrm: efficiently simulating long sequences using the approximated coalescent
-> with recombination. Submitted to Bioinformatics, 2014.
-
-
 ## Installation
 ### Stable Release (recommended) 
 You can download the latest stable release packaged for a variety of different
@@ -51,6 +43,14 @@ make
 We designed scrm to be compatible to the famous program `ms` from Richard R. Hudson. 
 You can use it as a drop in replacement for `ms` if you avoid the options `-c` and `-s`. 
 Details are available [in the wiki][2]. 
+
+
+## Citation
+_scrm_ is described in the manuscript
+
+> Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
+> scrm: efficiently simulating long sequences using the approximated coalescent
+> with recombination. Submitted to Bioinformatics, 2014.
 
 
 ## Licence
