@@ -45,6 +45,11 @@ You can use it as a drop in replacement for `ms` if you avoid the options `-c` a
 Details are available [in the wiki][2]. 
 
 
+## Troubleshooting
+If you encounter problems when using _scrm_, please 
+[file a bug report](https://github.com/scrm/scrm/wiki/Reporting-Bugs).
+
+
 ## Citation
 _scrm_ is described in the manuscript
 
