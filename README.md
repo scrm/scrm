@@ -10,7 +10,7 @@ scale sequences with an essentially correct genetic linkage structure.
 ## Citation
 _scrm_ is described in the manuscript
 
-> Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter, 
+> Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
 > scrm: efficiently simulating long sequences using the approximated coalescent
 > with recombination. Submitted to Bioinformatics, 2014.
 
