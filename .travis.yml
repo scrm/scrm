@@ -11,7 +11,7 @@ compiler:
 script:
 - make scrm scrm_dbg
 - make unittests
-- if [ $TRAVIS_OS_NAME == linux ]; ./tests/test_binaries.sh; fi
+- if [ $TRAVIS_OS_NAME == linux ]; then ./tests/test_binaries.sh; fi
 - make algorithmtest
 before_install:
 - if [ $TRAVIS_OS_NAME == linux ]; then sudo add-apt-repository -y ppa:dns/gnu; fi
