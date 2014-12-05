@@ -22,14 +22,12 @@ function test_scrm {
       exit 1
     fi
 
-    if [ "$TRAVIS_OS_NAME" != "osx" ]; then
-      # Test for memory leaks
-      valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
-      if [ $? -ne 0 ]; then
-        echo ""
-        echo "Valgrind check of \"./scrm $@ -seed $i\" failed."
-        exit 1
-      fi
+    # Test for memory leaks
+    valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
+    if [ $? -ne 0 ]; then
+      echo ""
+      echo "Valgrind check of \"./scrm $@ -seed $i\" failed."
+      exit 1
     fi
 
   done

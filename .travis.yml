@@ -20,7 +20,7 @@ before_install:
 - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get update -qq; fi
 - if [ $TRAVIS_OS_NAME == linux ]; then sudo apt-get install -qqy automake g++-4.8 libcppunit-dev valgrind; fi
 - if [ $TRAVIS_OS_NAME == linux ]; then sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50; fi
-- if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm cppunit && brew link --force llvm; fi
+- if [ $TRAVIS_OS_NAME == osx ]; then brew update && brew install llvm cppunit valgrind && brew link --force llvm; fi
 - g++ --version
 before_script:
 - CXXFLAGS='-O3' ./bootstrap
