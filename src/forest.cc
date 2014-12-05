@@ -65,7 +65,7 @@ void Forest::initialize(Model* model,
  * @param current_forest Forest that needs to be duplicated
  */
 Forest::Forest(const Forest &current_forest) { 
-  if (!coalescence_finished_) {
+  if (!current_forest.coalescence_finished_) {
     throw std::logic_error("Can not copy forest during an ongoing coalescence");
   }
 
