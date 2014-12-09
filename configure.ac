@@ -6,6 +6,7 @@ m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
 AM_SILENT_RULES([yes])
 
 # Load macros in 'm4'-dir
+m4_include([m4/m4_ax_cxx_compile_stdcxx_11.m4])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_PROG_INSTALL
@@ -16,7 +17,7 @@ AC_CANONICAL_HOST
 AC_PROG_RANLIB
 
 # Check for C++11
-AX_CXX_COMPILE_STDCXX_11()
+AX_CXX_COMPILE_STDCXX_11(,mandatory)
 
 # Checks for libraries
 AC_CHECK_LIB(cppunit,TestCase,[])

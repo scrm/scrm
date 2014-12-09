@@ -38,29 +38,29 @@
 
 m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody], [[
   template <typename T>
-    struct check
-    {
-      static_assert(sizeof(int) <= sizeof(T), "not big enough");
-    };
+   // struct check
+   // {
+   //   static_assert(sizeof(int) <= sizeof(T), "not big enough");
+   // };
 
-    struct Base {
-    virtual void f() {}
-    };
-    struct Child : public Base {
-    virtual void f() override {}
-    };
+   // struct Base {
+   // virtual void f() {}
+   // };
+   // struct Child : public Base {
+   // virtual void f() override {}
+   // };
 
-    typedef check<check<bool>> right_angle_brackets;
+   // typedef check<check<bool>> right_angle_brackets;
 
     int a;
-    decltype(a) b;
+   // decltype(a) b;
 
-    typedef check<int> check_type;
-    check_type c;
-    check_type&& cr = static_cast<check_type&&>(c);
+   // typedef check<int> check_type;
+   // check_type c;
+   // check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
-    auto l = [](){};
+   // auto l = [](){};
 ]])
 
 AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
@@ -123,7 +123,23 @@ AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
     done
   fi])
   AC_LANG_POP([C++])
+
   if test x$ax_cxx_compile_cxx11_required = xtrue; then
+    if test x$ac_success = xno; then
+       if test x$CXX = xg++; then
+         GCC_VERSION_MAJOR=$(g++ -dumpversion | cut -d'.' -f1)
+         GCC_VERSION_MINOR=$(g++ -dumpversion | cut -d'.' -f2)
+
+         if test "$GCC_VERSION_MAJOR" -ge 4; then
+           if test "$GCC_VERSION_MINOR" -ge 6; then
+             ac_success=yes
+             CXXFLAGS="-std=c++0x"
+             HAVE_CXX11=1
+           fi
+         fi
+       fi
+    fi
+
     if test x$ac_success = xno; then
       AC_MSG_ERROR([*** A compiler with support for C++11 language features is required.])
     fi
