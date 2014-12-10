@@ -39,6 +39,7 @@ int main(int argc, char *argv[]){
     Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
+    output->precision( user_para.precision() );
 
     // Print help if user asked for it
     if (user_para.help()) {
