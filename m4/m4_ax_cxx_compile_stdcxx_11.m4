@@ -38,29 +38,29 @@
 
 m4_define([_AX_CXX_COMPILE_STDCXX_11_testbody], [[
   template <typename T>
-   // struct check
-   // {
-   //   static_assert(sizeof(int) <= sizeof(T), "not big enough");
-   // };
+    struct check
+    {
+      static_assert(sizeof(int) <= sizeof(T), "not big enough");
+    };
 
-   // struct Base {
-   // virtual void f() {}
-   // };
-   // struct Child : public Base {
-   // virtual void f() override {}
-   // };
+    struct Base {
+    virtual void f() {}
+    };
+    struct Child : public Base {
+    virtual void f() override {}
+    };
 
-   // typedef check<check<bool>> right_angle_brackets;
+    typedef check<check<bool>> right_angle_brackets;
 
     int a;
-   // decltype(a) b;
+    decltype(a) b;
 
-   // typedef check<int> check_type;
-   // check_type c;
-   // check_type&& cr = static_cast<check_type&&>(c);
+    typedef check<int> check_type;
+    check_type c;
+    check_type&& cr = static_cast<check_type&&>(c);
 
     auto d = a;
-   // auto l = [](){};
+    auto l = [](){};
 ]])
 
 AC_DEFUN([AX_CXX_COMPILE_STDCXX_11], [dnl
