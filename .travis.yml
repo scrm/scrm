@@ -1,4 +1,7 @@
 language: cpp
+os:
+- linux
+- osx
 compiler:
 - gcc
 - clang
@@ -7,6 +10,7 @@ script:
 - make unittests
 - make algorithmtests
 - ./tests/test_binaries.sh
+- tests/constant_pop_size_many_epoch.sh 
 before_install:
 - sudo apt-get update -qq
 - sudo apt-get install -qq libcppunit-dev valgrind
