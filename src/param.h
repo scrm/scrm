@@ -87,7 +87,7 @@ class Param {
     this->set_random_seed(-1);
     this->set_help(false);
     this->set_version(false);
-    this->set_precision ( 10 );
+    this->set_precision(6);
     argc_i = 0;
   }
 

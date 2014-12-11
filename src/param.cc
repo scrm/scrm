@@ -510,6 +510,8 @@ void Param::printHelp(std::ostream& out) {
   out << std::endl << "Other:" << std::endl;
   out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
       << "                   integer numbers." << std::endl;
+  out << "  -p <digits>      Specify the number of significant digits used in the output." << std::endl
+      << "                   Defaults to 6." << std::endl;
   out << "  -v, --version    Prints the version of scrm." << std::endl;
   out << "  -h, --help       Prints this text." << std::endl;
 
