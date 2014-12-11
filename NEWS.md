@@ -6,6 +6,7 @@ scrm 1.4.0
 Released: Not yet
 
 + Improvements to memory management
++ Adds option '-p' to set number of significant digits in output
 
 
 
