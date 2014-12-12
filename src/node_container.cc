@@ -31,8 +31,12 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
-  this->nodes_.reserve(100000);
-  this->add_counter_ = 0;
+
+  node_counter_ = 0;
+  lane_counter_ = 0; 
+  std::vector<Node>* new_lane = new std::vector<Node>();
+  new_lane->reserve(10000);
+  node_lanes_.push_back(new_lane);
 }
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
@@ -224,11 +228,11 @@ void NodeContainer::move(Node *node, const double new_height) {
 
 
 void NodeContainer::clear() {
-  nodes_.clear();
   set_first(NULL);
   set_last(NULL);
   this->size_ = 0;
-  this->add_counter_ = 0;
+  this->node_counter_ = 0;
+  this->lane_counter_ = 0;
 
   // Clear free_slots_
   std::stack<Node*>().swap(free_slots_);

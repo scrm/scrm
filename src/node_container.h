@@ -44,7 +44,10 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-  ~NodeContainer() { clear(); };
+  ~NodeContainer() { 
+    clear(); 
+    for (std::vector<Node>* lane : node_lanes_) delete lane;
+  };
 
   NodeContainer& operator=(NodeContainer nc) {
     swap(*this, nc);  
@@ -71,9 +74,17 @@ class NodeContainer {
     }
 
     // Otherwise, use a new slot
-    if (add_counter_ >= 100000) throw std::out_of_range("more than 100k nodes");
-    nodes_[add_counter_] = Node(height, label);
-    return &*(nodes_.begin() + add_counter_++); 
+    if (node_counter_ >= 10000) {
+      ++lane_counter_;
+      node_counter_ = 0;
+      if (lane_counter_ == node_lanes_.size()) {
+        std::vector<Node>* new_lane = new std::vector<Node>();
+        new_lane->reserve(10000);
+        node_lanes_.push_back(new_lane);
+      }
+    } 
+    (*node_lanes_.at(lane_counter_))[node_counter_] = Node(height, label);
+    return &*(node_lanes_[lane_counter_]->begin() + node_counter_++); 
   }
 
   void push_back(Node* node);
@@ -114,10 +125,12 @@ class NodeContainer {
 
   Node* unsorted_node_;
   size_t size_;
-  //std::vector<std::array<Node, 1000>*> nodes_;
-  std::vector<Node> nodes_;
+
+  // Storing the nodes in lanes a 10k nodes
+  std::vector<std::vector<Node>*> node_lanes_;
   std::stack<Node*> free_slots_;
-  size_t add_counter_;
+  size_t node_counter_;
+  size_t lane_counter_;
 };
 
 
