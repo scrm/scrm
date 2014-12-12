@@ -58,8 +58,12 @@ class NodeContainer {
   ReverseConstNodeIterator reverse_iterator() const;
   ReverseConstNodeIterator reverse_iterator(Node* node) const;
 
-  void push_back ( Node* node );
-  void push_front( Node* node );
+  // Create Nodes
+  Node* createNode(double height) { return new Node(height); }
+  Node* createNode(double height, size_t label) { return new Node(height, label); };
+
+  void push_back (Node* node);
+  void push_front(Node* node);
   void add(Node* node, Node* after_node=NULL);
   void remove(Node *node, const bool &del=true);
   void move(Node *node, const double new_height);
