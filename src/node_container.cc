@@ -31,6 +31,8 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
+  this->nodes_.reserve(100000);
+  this->add_counter_ = 0;
 }
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
@@ -189,7 +191,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
     node->next()->set_previous(node->previous());
   }
   
-  if (del) delete node;
+  //if (del) delete node;
   assert( this->sorted() );
 }
 
@@ -225,15 +227,19 @@ void NodeContainer::move(Node *node, const double new_height) {
 // The loop deletes the node from the previous iteration because we still need
 // the current node for calling ++it.
 void NodeContainer::clear() {
+  /**
   Node* tmp = NULL;
   for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
     if (tmp != NULL) delete tmp;
     tmp = *it;
   }
   if (tmp != NULL) delete tmp;
+  **/
+  nodes_.clear();
   set_first(NULL);
   set_last(NULL);
   this->size_ = 0;
+  this->add_counter_ = 0;
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){

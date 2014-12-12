@@ -32,6 +32,7 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <list>
 
 #include "node.h"
 
@@ -45,8 +46,8 @@ class NodeContainer {
   ~NodeContainer() { clear(); };
 
   NodeContainer& operator=(NodeContainer nc) {
-   swap(*this, nc);  
-   return(*this);
+    swap(*this, nc);  
+    return(*this);
   };
 
   NodeContainer(const NodeContainer &nc);
@@ -59,10 +60,13 @@ class NodeContainer {
   ReverseConstNodeIterator reverse_iterator(Node* node) const;
 
   // Create Nodes
-  Node* createNode(double height) { return new Node(height); }
-  Node* createNode(double height, size_t label) { return new Node(height, label); };
+  Node* createNode(double height, size_t label = 0) { 
+    if (add_counter_ >= 100000) throw std::out_of_range("more than 100k nodes");
+    nodes_[add_counter_] = Node(height, label);
+    return &*(nodes_.begin() + add_counter_++); 
+  }
 
-  void push_back (Node* node);
+  void push_back(Node* node);
   void push_front(Node* node);
   void add(Node* node, Node* after_node=NULL);
   void remove(Node *node, const bool &del=true);
@@ -100,6 +104,9 @@ class NodeContainer {
 
   Node* unsorted_node_;
   size_t size_;
+  //std::vector<std::array<Node, 1000>*> nodes_;
+  std::vector<Node> nodes_;
+  size_t add_counter_;
 };
 
 
