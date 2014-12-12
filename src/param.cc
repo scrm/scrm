@@ -87,7 +87,7 @@ void Param::parse(Model &model) {
     dout << "Indirectly called" << std::endl;
   } else {
     // Check that have have at least one argument
-    if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
+    if (argc_ == 1) throw std::invalid_argument("Too few command line arguments.");
 
     // Check if we need to print the help & version (only valid one argument commands)
     argv_i = argv_[1];
@@ -101,7 +101,7 @@ void Param::parse(Model &model) {
     }
 
     // Check that have have at least two arguments
-    if (argc_ == 2) throw std::invalid_argument("To few command line arguments.");
+    if (argc_ == 2) throw std::invalid_argument("Too few command line arguments.");
   }
 
   while( argc_i < argc_ ){
