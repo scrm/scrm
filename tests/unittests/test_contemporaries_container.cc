@@ -2,6 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "../../src/contemporaries_container.h"
+#include "../../src/node_container.h"
 #include "../../src/random/mersenne_twister.h"
 
 class TestContemporariesContainer : public CppUnit::TestCase {
@@ -20,23 +21,24 @@ class TestContemporariesContainer : public CppUnit::TestCase {
 
  private:
   MersenneTwister *rg;
+  NodeContainer *nc;
   Node *node1, *node2, *node3, *node4;
 
  public:
   void setUp() {
     rg = new MersenneTwister(5);
-    node1 = new Node(5);
-    node2 = new Node(10);
+    nc = new NodeContainer();
+    node1 = nc->createNode(5);
+    node2 = nc->createNode(10);
     node2->set_population(1);
-    node3 = new Node(10);
+    node3 = nc->createNode(10);
     node3->set_population(2);
-    node4 = new Node(15);
+    node4 = nc->createNode(15);
     node4->set_population(2);
   }
 
   void tearDown() {
-    delete rg;
-    delete node1, node2, node3, node4;
+    delete rg, nc;
   }
 
   void add() { 

@@ -50,12 +50,10 @@ class Node
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
+  friend class TestNodeContainer;
 #endif
+  friend class NodeContainer;
   
-  Node();
-  Node(double height);
-  Node(double height, size_t label);
-
   ~Node();
 
   //Getters & Setters
@@ -152,6 +150,10 @@ class Node
   Node *getLocalChild2() const;
 
  private:
+  Node();
+  Node(double height);
+  Node(double height, size_t label);
+
   void init(double heigh=-1, size_t label=0);
   void set_last_update(const double position) { last_update_ = position; }; 
 
