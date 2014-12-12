@@ -188,7 +188,6 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 3);
     CPPUNIT_ASSERT( it.good() );
-    delete split_node;
   }
 
   void testRecalculateTI() {
