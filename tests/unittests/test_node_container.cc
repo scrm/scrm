@@ -21,6 +21,7 @@ class TestNodeContainer : public CppUnit::TestCase {
   CPPUNIT_TEST( testMove );
   CPPUNIT_TEST( testCopyConstructor );
   CPPUNIT_TEST( testClear );
+  CPPUNIT_TEST( testMemoryAllocation );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -229,6 +230,17 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)0, nc.size() );
     CPPUNIT_ASSERT( nc.first() == NULL );
     CPPUNIT_ASSERT( nc.last() == NULL );
+  }
+
+  void testMemoryAllocation() {
+    nc.clear();
+    for (size_t i = 0; i < 20005; ++i) {
+      nc.createNode(5);
+    }
+    nc.clear();
+    for (size_t i = 0; i < 20005; ++i) {
+      nc.createNode(10);
+    }
   }
 };
 
