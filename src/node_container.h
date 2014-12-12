@@ -26,6 +26,7 @@
 #include "macros.h" // Needs to be before cassert
 
 #include <vector>
+#include <stack>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
@@ -61,6 +62,15 @@ class NodeContainer {
 
   // Create Nodes
   Node* createNode(double height, size_t label = 0) { 
+    // Use the slot of a previously deleted node if possible
+    if (free_slots_.size() > 0) {
+      Node* node = free_slots_.top();
+      free_slots_.pop();
+      *node = Node(height, label);
+      return node;
+    }
+
+    // Otherwise, use a new slot
     if (add_counter_ >= 100000) throw std::out_of_range("more than 100k nodes");
     nodes_[add_counter_] = Node(height, label);
     return &*(nodes_.begin() + add_counter_++); 
@@ -106,6 +116,7 @@ class NodeContainer {
   size_t size_;
   //std::vector<std::array<Node, 1000>*> nodes_;
   std::vector<Node> nodes_;
+  std::stack<Node*> free_slots_;
   size_t add_counter_;
 };
 
