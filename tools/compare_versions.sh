@@ -23,9 +23,9 @@ function test_scrm {
     fi
   done
   time_stable=`Rscript -e "options(digits=2); cat(mean(read.table(\"$time_file_stable\")[,1]), 's\n', sep='')"`
-  ram_stable=`Rscript -e "options(digits=0); cat(mean(read.table(\"$time_file_stable\")[,2]), 'kb\n', sep='')"`
+  ram_stable=`Rscript -e "cat(round(mean(read.table(\"$time_file_stable\")[,2])), 'kb\n', sep='')"`
   time_new=`Rscript -e "options(digits=2); cat(mean(read.table(\"$time_file_new\")[,1]), 's\n', sep='')"`
-  ram_new=`Rscript -e "options(digits=0); cat(mean(read.table(\"$time_file_new\")[,2]), 'kb\n', sep='')"`
+  ram_new=`Rscript -e "cat(round(mean(read.table(\"$time_file_new\")[,2])), 'kb\n', sep='')"`
   rm "$time_file_stable" "$time_file_new"
 
   echo "scrm $@ | $equal_results | $time_stable | $time_new | $ram_stable | $ram_new"
