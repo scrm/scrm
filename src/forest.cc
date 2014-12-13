@@ -121,7 +121,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   assert( parent != NULL );
 
   //The new end of the old branch after the cut
-  Node* new_leaf = new Node(cut_point.height());
+  Node* new_leaf = nodes()->createNode(cut_point.height());
   
   if ( !cut_point.base_node()->local() )
     new_leaf->make_nonlocal(cut_point.base_node()->last_update());
@@ -147,7 +147,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   cut_point.base_node()->make_local();
 
   // The new "root" of the newly formed tree
-  Node* new_root = new Node(cut_point.height());
+  Node* new_root = nodes()->createNode(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
@@ -283,7 +283,7 @@ void Forest::buildInitialTree() {
   this->segment_count_ = 1;
 
   dout << "* Adding first node... ";
-  Node* first_node = new Node(model().sample_time(0), 1);
+  Node* first_node = nodes()->createNode(model().sample_time(0), 1);
   first_node->set_population(model().sample_population(0));
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
@@ -295,7 +295,7 @@ void Forest::buildInitialTree() {
 
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
-    Node* new_leaf = new Node(model().sample_time(i), i+1);
+    Node* new_leaf = nodes()->createNode(model().sample_time(i), i+1);
     new_leaf->set_population(model().sample_population(i));
     dout << new_leaf << "(" << new_leaf->population() << ") "
          << "at height " << new_leaf->height() << std::endl;
@@ -870,7 +870,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     updateAbove(new_node, false, false);
   } else {
     // If not, create a new node
-    new_node = new Node(event.time());
+    new_node = nodes()->createNode(event.time());
     new_node->change_child(NULL, coal_node);
     coal_node->set_parent(new_node);
     nodes()->add(new_node);
@@ -991,7 +991,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   }
   else {
     // No tree a has single branch on top => create a new root
-    new_root = new Node(time);
+    new_root = nodes()->createNode(time);
     this->nodes()->add(new_root);
   }
 
@@ -1038,7 +1038,7 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
   }
   else {
     // Otherwise create a new node that marks the migration event,
-    Node* mig_node = new Node(event.time());
+    Node* mig_node = nodes()->createNode(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
@@ -1214,7 +1214,7 @@ void Forest::clear() {
 
 
 Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
-  Node * node = new Node( (double)0.0, (size_t)0 );
+  Node * node = nodes()->createNode( (double)0.0, (size_t)0 );
   node->set_parent ( parent );
   node->make_local();
   //this->nodes()->push_front( node );

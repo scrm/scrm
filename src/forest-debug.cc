@@ -29,10 +29,10 @@ void Forest::createExampleTree() {
   this->writable_model()->sample_populations_.clear();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
-  Node* leaf1 = new Node(0, 1);
-  Node* leaf2 = new Node(0, 2);
-  Node* leaf3 = new Node(0, 3);
-  Node* leaf4 = new Node(0, 4);
+  Node* leaf1 = nodes()->createNode(0, 1);
+  Node* leaf2 = nodes()->createNode(0, 2);
+  Node* leaf3 = nodes()->createNode(0, 3);
+  Node* leaf4 = nodes()->createNode(0, 4);
 
   leaf1->set_label(1);
   leaf2->set_label(2);
@@ -44,21 +44,21 @@ void Forest::createExampleTree() {
   this->nodes()->add(leaf3);
   this->nodes()->add(leaf4);
 
-  Node* node12 = new Node(1);
+  Node* node12 = nodes()->createNode(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
 
-  Node* node34 = new Node(3);
+  Node* node34 = nodes()->createNode(3);
   this->addNodeToTree(node34, NULL, leaf3, leaf4);
 
-  Node* root = new Node(10);
+  Node* root = nodes()->createNode(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
   this->set_primary_root(root);
 
   // Add a non-local tree
-  Node* nl_node = new Node(4); 
+  Node* nl_node = nodes()->createNode(4); 
   nl_node->make_nonlocal(5);
-  Node* nl_root = new Node(6);
+  Node* nl_root = nodes()->createNode(6);
   nl_root->make_nonlocal(5);
   
   nl_node->set_parent(nl_root);

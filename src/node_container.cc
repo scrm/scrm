@@ -31,6 +31,12 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
+
+  node_counter_ = 0;
+  lane_counter_ = 0; 
+  std::vector<Node>* new_lane = new std::vector<Node>();
+  new_lane->reserve(10000);
+  node_lanes_.push_back(new_lane);
 }
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
@@ -189,7 +195,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
     node->next()->set_previous(node->previous());
   }
   
-  if (del) delete node;
+  if (del) free_slots_.push(node);
   assert( this->sorted() );
 }
 
@@ -221,19 +227,15 @@ void NodeContainer::move(Node *node, const double new_height) {
 }
 
 
-// Removes all nodes;
-// The loop deletes the node from the previous iteration because we still need
-// the current node for calling ++it.
 void NodeContainer::clear() {
-  Node* tmp = NULL;
-  for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
-    if (tmp != NULL) delete tmp;
-    tmp = *it;
-  }
-  if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
   this->size_ = 0;
+  this->node_counter_ = 0;
+  this->lane_counter_ = 0;
+
+  // Clear free_slots_
+  std::stack<Node*>().swap(free_slots_);
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){
