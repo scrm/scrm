@@ -1,6 +1,14 @@
 scrm Version History
 ========================
 
+scrm 1.3.2
+------------------------
+Released: 
+
++ Bug fix: Fix reproducibitly problem when the large sample optimization was active (#42).
+
+
+
 scrm 1.3.1
 ------------------------
 Released: 2014-10-23
