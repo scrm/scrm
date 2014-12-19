@@ -197,7 +197,7 @@ class Forest
 
   Node* trackLocalNode(Node *node) const; 
 
-  virtual void compute_opportunity_y_s (){};
+  virtual std::string newick(Node *node){ (void)node; return ""; } ;
   virtual void record_Recombevent_b4_extension ( ) { }
   virtual void record_Recombevent_atNewGenealogy ( double event_height ){ (void)event_height; }
   virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ){
