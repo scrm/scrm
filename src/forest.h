@@ -150,7 +150,7 @@ class Forest
 
   // Central functions
   void buildInitialTree();
-  void sampleNextGenealogy();
+  void sampleNextGenealogy( bool recordEvents = false );
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
   //Debugging Tools

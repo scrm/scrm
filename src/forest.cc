@@ -369,7 +369,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_scrm_next
  * @ingroup group_pf_update
  */
-void Forest::sampleNextGenealogy() {
+void Forest::sampleNextGenealogy( bool recordEvents ) {
 
   this->set_current_base(next_base_);
 
@@ -414,10 +414,12 @@ void Forest::sampleNextGenealogy() {
   if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
 
   this->sampleNextBase();
-  // record the recombination opportunity until the next recombination event
-  this->record_Recombevent_b4_extension();
-  // record the CURRENT recombination event with the next recombination opportunity
-  this->record_Recombevent_atNewGenealogy( rec_point.height() );
+  if ( recordEvents ) {
+      // record the recombination opportunity until the next recombination event
+      this->record_Recombevent_b4_extension();
+      // record the CURRENT recombination event with the next recombination opportunity
+      this->record_Recombevent_atNewGenealogy( rec_point.height() );
+  }
   this->calcSegmentSumStats();
 }
 
