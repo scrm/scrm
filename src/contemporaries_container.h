@@ -26,23 +26,16 @@
 #include "macros.h" // Needs to be before cassert
 
 #include <vector>
-#include <set>
+#include <unordered_set>
 #include <cassert>
 #include <algorithm>
 
 #include "node.h"
 #include "random/random_generator.h"
 
-struct contcomp {
-  bool operator() (const Node* lhs, const Node* rhs) const {
-    return lhs->height()<rhs->height();
-  }
-};
-
-
 class ContemporariesIterator {
  public:
-  ContemporariesIterator(std::set<Node*, contcomp>::iterator it) {
+  ContemporariesIterator(std::unordered_set<Node*>::iterator it) {
     it_set_ = it; 
     use_set_ = true;
   };
@@ -83,7 +76,7 @@ class ContemporariesIterator {
   }
 
  private:
-  std::set<Node*, contcomp>::iterator it_set_;
+  std::unordered_set<Node*>::iterator it_set_;
   std::vector<Node*>::iterator it_vec_;
   bool use_set_;
 };
@@ -91,7 +84,7 @@ class ContemporariesIterator {
 
 class ContemporariesConstIterator {
  public:
-  ContemporariesConstIterator(std::set<Node*, contcomp>::const_iterator it) {
+  ContemporariesConstIterator(std::unordered_set<Node*>::const_iterator it) {
     it_set_ = it; 
     use_set_ = true;
   };
@@ -132,7 +125,7 @@ class ContemporariesConstIterator {
   }
 
  private:
-  std::set<Node*, contcomp>::const_iterator it_set_;
+  std::unordered_set<Node*>::const_iterator it_set_;
   std::vector<Node*>::const_iterator it_vec_;
   bool use_set_;
 };
@@ -186,19 +179,19 @@ class ContemporariesContainer {
   }
 
  private:
-  std::vector<std::set<Node*, contcomp> > &contemporaries_set() {
+  std::vector<std::unordered_set<Node*> > &contemporaries_set() {
     if (use_first_) return contemporaries_set1_;
     else return contemporaries_set2_;
   }
-  const std::vector<std::set<Node*, contcomp> > &contemporaries_set() const {
+  const std::vector<std::unordered_set<Node*> > &contemporaries_set() const {
     if (use_first_) return contemporaries_set1_;
     else return contemporaries_set2_;
   }
-  std::vector<std::set<Node*, contcomp> > &buffer_set() {
+  std::vector<std::unordered_set<Node*> > &buffer_set() {
     if (!use_first_) return contemporaries_set1_;
     else return contemporaries_set2_;
   }
-  const std::vector<std::set<Node*, contcomp> > &buffer_set() const {
+  const std::vector<std::unordered_set<Node*> > &buffer_set() const {
     if (!use_first_) return contemporaries_set1_;
     else return contemporaries_set2_;
   }
@@ -221,7 +214,7 @@ class ContemporariesContainer {
   }
 
 
-  std::vector<std::set<Node*, contcomp> > contemporaries_set1_, contemporaries_set2_;
+  std::vector<std::unordered_set<Node*> > contemporaries_set1_, contemporaries_set2_;
   std::vector<std::vector<Node*> > contemporaries_vec1_, contemporaries_vec2_;
 
   bool use_first_;
@@ -254,8 +247,9 @@ inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number,
     for ( auto it : contemporaries_vec2_ ) it.reserve(sample_number + 200);
     use_set_ = false;
   } else {
-    contemporaries_set1_ = std::vector<std::set<Node*, contcomp> >(pop_number, std::set<Node*, contcomp>());
-    contemporaries_set2_ = std::vector<std::set<Node*, contcomp> >(pop_number, std::set<Node*, contcomp>());
+    size_t bucket_nr = std::ceil((sample_number + 200) * 1.4);
+    contemporaries_set1_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
+    contemporaries_set2_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
     use_set_ = true;
   }
   this->rg_ = rg;
