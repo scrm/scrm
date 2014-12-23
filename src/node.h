@@ -199,4 +199,13 @@ inline size_t Node::countChildren(const bool only_local) const {
   }
 }
 
+/** Hash nodes based on their height */
+namespace std {
+  template <>
+  struct hash<Node*> {
+    std::size_t operator()(Node const* node) const {
+      return std::hash<double>()(node->height() - node->label());
+    }
+  };
+}
 #endif

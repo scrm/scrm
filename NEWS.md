@@ -10,6 +10,13 @@ Released: Not yet
 
 
 
+scrm 1.3.2
+------------------------
+Released: 
+
++ Bug fix: Fix reproducibility problem when the large sample optimization was active (#42).
+
+
 
 scrm 1.3.1
 ------------------------
