@@ -3,9 +3,9 @@ scrm Version History
 
 scrm 1.3.2
 ------------------------
-Released: 
+Released: 2014-12-23 
 
-+ Bug fix: Fix reproducibitly problem when the large sample optimization was active (#42).
++ Bug fix: Fix reproducibility problem when the large sample optimization was active (#42).
 
 
 
