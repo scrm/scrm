@@ -2,8 +2,8 @@ AC_INIT([scrm], [1.3.2.9000],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 
 # Suppress output at compilation
-m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
-AM_SILENT_RULES([yes])
+#m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
+#AM_SILENT_RULES([yes])
 
 # Load macros in 'm4'-dir
 m4_include([m4/m4_ax_cxx_compile_stdcxx_11.m4])
@@ -31,9 +31,11 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-# Checks for library functions.
-#AC_FUNC_MALLOC (breaks cross-compilate for windows)
-#AC_FUNC_REALLOC
+# Enable Link-time optimization if supported (gcc only)
+if test x$CXX = xg++; then
+  AX_CHECK_COMPILE_FLAG([-flto], [OPT_CXXFLAGS="-flto"], [], [-Werror])
+  AC_SUBST(OPT_CXXFLAGS)
+fi
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
