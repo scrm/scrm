@@ -34,7 +34,7 @@ port install automake autoconf autoconf-archive cppunit
 
 Afterwards you can build the binary using 
 ```bash
-CXXFLAGS="-O3" ./bootstrap
+./bootstrap
 make
 ```
 

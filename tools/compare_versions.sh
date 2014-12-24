@@ -37,7 +37,7 @@ function build_scrm {
   git clone -q https://github.com/scrm/scrm.git > /dev/null || exit 1
   cd scrm || exit 1
   git checkout -q $1 > /dev/null || exit 1
-  CXXFLAGS='-O3' ./bootstrap 2> /dev/null > /dev/null || exit 1
+  ./bootstrap 2> /dev/null > /dev/null || exit 1
   make -j4 scrm 2> /dev/null > /dev/null || exit 1
   mv scrm ../scrm-"$1"
   cd ..; rm -rf scrm
