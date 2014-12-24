@@ -1,6 +1,9 @@
 AC_INIT([scrm], [1.3.2.9000],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 
+# Use -O3 as default optimization level
+: ${CXXFLAGS="-O3"}
+
 # Suppress output at compilation
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
 AM_SILENT_RULES([yes])
