@@ -23,6 +23,6 @@ before_install:
 - #if [ "$TRAVIS_OS_NAME" == "osx" ] && [ "$CC" == "gcc" ]; then export CXX=g++-4.8; fi
 - g++ --version
 before_script:
-- CXXFLAGS='-O3' ./bootstrap
+- ./bootstrap
 after_success:
 - .travis/deploy.sh
