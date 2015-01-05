@@ -226,7 +226,7 @@ class Forest
                    const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node);
+  void sampleCoalescences(Node *start_node,  bool recordEvents = true );
   size_t getNodeState(Node const *node, const double current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);

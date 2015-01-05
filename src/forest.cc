@@ -403,7 +403,7 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( rec_point.height() == rec_point.base_node()->parent_height() );
   
   scrmdout << "* Starting coalescence" << std::endl;
-  this->sampleCoalescences(rec_point.base_node()->parent());
+  this->sampleCoalescences( rec_point.base_node()->parent(), recordEvents );
 
   assert( this->checkLeafsOnLocalTree() );
   assert( this->checkTree() );
@@ -430,7 +430,7 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
  * \param start_node The node at which the coalescence starts. Must be the root
  *                   of a tree.
  */
-void Forest::sampleCoalescences(Node *start_node) {
+void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
@@ -491,8 +491,9 @@ void Forest::sampleCoalescences(Node *start_node) {
     assert( tmp_event_.isNoEvent() || (*ti).start_height() <= tmp_event_.time() );
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
-    this->record_all_event(*ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
-
+    if ( recordEvents ){
+        this->record_all_event(*ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
+    }
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {
       this->implementNoEvent(*ti, coalescence_finished_);
