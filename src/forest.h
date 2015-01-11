@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -36,43 +36,39 @@
 #ifndef scrm_src_forest
 #define scrm_src_forest
 
-//Unless compiled with options NDEBUG, we will produce a debug output using 
-//'dout' instead of cout and execute (expensive) assert statements.
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#define dout 0 && std::cout
-#endif
+#include <string>
+
+#include "macros.h" // Needs to be before cassert
 
 #include <vector>
 #include <unordered_set>
-#include <valarray>
-#include <iomanip>
 #include <stdexcept>
-#include <cfloat>
 #include <cassert>
-#include <sstream> // This is required by Forest::writeTree, ostringstream 
+#include <iostream> // ostreams
+#include <iomanip>  // Used for debug output
+#include <sstream>  // Used for debug output
 
-#include "node.h"
+#include "contemporaries_container.h"
 #include "event.h"
 #include "model.h"
+#include "macros.h"
+#include "node.h"
 #include "node_container.h"
 #include "time_interval.h"
 #include "tree_point.h"
-#include "contemporaries_container.h"
 #include "random/random_generator.h"
-#include "random/constant_generator.h"
-#include "random/mersenne_twister.h"
 #include "summary_statistics/summary_statistic.h"
 
 class TimeInterval;
 class TimeIntervalIterator;
-//enum eventCode { COAL_NOEVENT, COAL_EVENT, REC_NOEVENT, REC_EVENT, MIGR_NOEVENT, MIGR_EVENT, INIT_NULL};
 enum eventCode { NOEVENT, EVENT, INIT_NULL};
 
 class Forest
 {
  public:
+  Node* readNewickNode( std::string &in_str, std::string::iterator &current_it, size_t parenthesis_balance = 0, Node* parent = NULL );
+  void readNewick(std::string &in_str);
+  ContemporariesContainer* contemporaries()  {return &this->contemporaries_;};
 
 #ifdef UNITTEST
   friend class TestForest;
@@ -84,10 +80,8 @@ class Forest
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
-  Forest();
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
-  Forest(Forest *current_forest);
   virtual ~Forest() {};
 
   //Getters & Setters
@@ -139,9 +133,12 @@ class Forest
    *
    * @return The length of the current segment (see above for its unit)
    */
-  double calcSegmentLength(bool finite_sites = true) const {
-    if (finite_sites) return ceil(next_base()) - ceil(current_base());
-    else return next_base() - current_base();
+  double calcSegmentLength() const {
+    if (model().getSequenceScaling() == relative) {
+      return (next_base() - current_base()) / model().loci_length();
+    } else {
+      return ceil(next_base()) - ceil(current_base());
+    }
   }
 
   void set_random_generator(RandomGenerator *rg) {
@@ -172,7 +169,6 @@ class Forest
   bool checkForNodeAtHeight(const double height) const;
   bool checkRootIsRegistered(Node const* node) const;
   bool checkRoots() const;
-  //bool isRegisteredSecondaryRoot(Node const* root) const;
 
   //Debug Tree Printing
   int countLinesLeft(Node const* node) const;
@@ -185,7 +181,6 @@ class Forest
 
   NodeContainer *nodes() { return &(this->nodes_); }
 
-  //printing tree
   double getTMRCA(const bool &scaled = false) const {
     if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
     else return local_root()->height();
@@ -196,22 +191,11 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //segegrating sites
-  std::valarray<int> find_haplotypes(Node *node); 
-  void traversal(Node const* node, std::valarray<bool> &haplotype) const;
-  std::ostream &generateSegData(std::ostream &output, int total_mut);
-
-  Node* trackLocalNode(Node *node) const; 
-
   //derived class from Forest
   virtual void record_Recombevent(size_t pop_i, 
-    //double start_time, 
-    //double end_time, 
     double opportunity, 
     eventCode event_code){
     (void)pop_i;
-    //(void)start_time;
-    //(void)end_time;
     (void)opportunity;
     (void)event_code;  
   }
@@ -220,11 +204,13 @@ class Forest
   }
 
   // Calc & Print Summary Statistics
-  void calcSegmentSumStats() const;
-  void printSegmentSumStats(ostream &output) const;
-  void printLocusSumStats(ostream &output) const;
+  void calcSegmentSumStats();
+  void clearSumStats();
+  void printLocusSumStats(std::ostream &output) const;
   
  private:
+  Forest() { this->initialize(); }
+
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
@@ -282,11 +268,6 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
-  // tracking of secondary roots (no longer needed)
-  // void registerSecondaryRoot(Node* root);
-  // void unregisterSecondaryRoot(Node* root);
-  // void clearSecondaryRoots();
-
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
 
@@ -341,22 +322,4 @@ class Forest
   bool coalescence_finished_;
 };
 
-bool areSame(const double a, const double b, 
-             const double epsilon = std::numeric_limits<double>::epsilon());
-
-/*
-inline void Forest::registerSecondaryRoot(Node* root) {
-  assert(root->is_root());
-  assert(root != NULL);
-  secondary_roots_.insert(root);  
-};
-  
-inline void Forest::unregisterSecondaryRoot(Node* root) {
-  secondary_roots_.erase(root);
-};
-
-inline void Forest::clearSecondaryRoots() {
-  secondary_roots_.clear();  
-};
-*/
 #endif

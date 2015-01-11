@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -157,7 +157,7 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
         // Prune the node if needed
         tmp_child_1_ = (*it);
         tmp_child_2_ = (*it)->first_child();
-        while (tmp_child_1_->numberOfChildren() == 1 && forest_->pruneNodeIfNeeded(tmp_child_1_)) {
+        while (tmp_child_1_->countChildren() == 1 && forest_->pruneNodeIfNeeded(tmp_child_1_)) {
           tmp_child_1_ = tmp_child_2_;
           if (tmp_child_1_ == NULL ) break;
           tmp_child_2_ = tmp_child_2_->first_child();

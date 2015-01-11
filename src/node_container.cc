@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -31,6 +31,12 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
+
+  node_counter_ = 0;
+  lane_counter_ = 0; 
+  std::vector<Node>* new_lane = new std::vector<Node>();
+  new_lane->reserve(10000);
+  node_lanes_.push_back(new_lane);
 }
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
@@ -75,6 +81,43 @@ Node* NodeContainer::at(size_t nr) const {
   if ( current == NULL ) throw std::out_of_range("NodeContainer out of range"); 
   return current;
 }
+
+// Adds 'node' to the container
+void NodeContainer::push_back( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_previous(this->last());
+    node->set_next(NULL);
+    this->last()->set_next(node);
+    this->set_last(node);
+    return;
+}
+
+// Adds 'node' to the container
+void NodeContainer::push_front( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_next(first());
+    node->set_previous(NULL);
+    first()->set_previous(node);
+    this->set_first(node);
+    return;
+}
+
 
 
 // Adds 'node' to the container
@@ -152,7 +195,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
     node->next()->set_previous(node->previous());
   }
   
-  if (del) delete node;
+  if (del) free_slots_.push(node);
   assert( this->sorted() );
 }
 
@@ -184,19 +227,15 @@ void NodeContainer::move(Node *node, const double new_height) {
 }
 
 
-// Removes all nodes;
-// The loop deletes the node from the previous iteration because we still need
-// the current node for calling ++it.
 void NodeContainer::clear() {
-  Node* tmp = NULL;
-  for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
-    if (tmp != NULL) delete tmp;
-    tmp = *it;
-  }
-  if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
   this->size_ = 0;
+  this->node_counter_ = 0;
+  this->lane_counter_ = 0;
+
+  // Clear free_slots_
+  std::stack<Node*>().swap(free_slots_);
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){
@@ -217,40 +256,28 @@ void NodeContainer::add_before(Node* add, Node* next_node){
 bool NodeContainer::sorted() const {
   Node* current = first();
   if ( !current->is_first() ) {
-    std::cout << "NodeContainer: First Node is not first" << std::endl;
+    dout << "NodeContainer: First Node is not first" << std::endl;
     return 0;
   }
 
   while ( !current->is_last() ) {
     current = current->next();
     if ( current->height() < current->previous()->height() ) {
-      std::cout << "NodeContainer: Nodes not sorted" << std::endl;
+      dout << "NodeContainer: Nodes not sorted" << std::endl;
       return 0;
     }
     if ( current == current->previous() ) {
-      std::cout << "NodeContainer: Fatal loop detected" << std::endl;
+      dout << "NodeContainer: Fatal loop detected" << std::endl;
       return 0;
     }
   }
   
   if ( !current->is_last() ) {
-    std::cout << "NodeContainer: Last Node not last" << std::endl;
+    dout << "NodeContainer: Last Node not last" << std::endl;
     return 0;
   }
 
   return 1;
-}
-
-
-bool NodeContainer::print() const {
-  //std::cout << "NodeContainer with " << this->size() << " Nodes" << std::endl;
-  for ( ConstNodeIterator it = this->iterator(); it.good(); ++it ) {
-    std::cout << *it << ": ";
-    if (*it != first()) std::cout << "Prev " << (*it)->previous(); 
-    if (*it != last()) std::cout << " Next " << (*it)->next(); 
-    std::cout << std::endl;
-  }
-  return true;
 }
 
 
@@ -261,3 +288,13 @@ void swap(NodeContainer& first, NodeContainer& second) {
   swap(first.size_, second.size_);
   swap(first.unsorted_node_, second.unsorted_node_);
 }
+
+
+std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc) {
+  for ( ConstNodeIterator it = nc.iterator(); it.good(); ++it ) {
+    stream << *it << "(" << (*it)->height() << ")";
+    if (*it != nc.last()) stream << " <--> "; 
+  }
+  return stream;
+}
+

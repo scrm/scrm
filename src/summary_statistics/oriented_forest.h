@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <vector>
 
 #include "summary_statistic.h"
 #include "../forest.h"
@@ -32,22 +33,36 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
-   OrientedForest() {};
-   ~OrientedForest() {};
+   OrientedForest(const size_t sample_size) {
+    parents_ = std::vector<int>(2*sample_size-1, 0);
+    heights_ = std::vector<double>(2*sample_size-1, 0.0);
+   }
+   ~OrientedForest() {}
 
    //Virtual methods
    void calculate(const Forest &forest);
-   void printSegmentOutput(std::ostream &output) { (void)output; }
-   void printLocusOutput(std::ostream &output);
+   void printLocusOutput(std::ostream &output) const;
+   void clear() {
+     output_buffer_.str("");
+     output_buffer_.clear();
+   }
+
+   OrientedForest* clone() const {
+     return new OrientedForest(this->parents_.size());
+   }
+
+   std::string getTrees() const { return output_buffer_.str(); }
+
+#ifdef UNITTEST
+   friend class TestSummaryStatistics;
+#endif
 
  private:
-   void init_OF_label( const Forest &forest );
-   void update_OF_label( const Forest &forest );
-   void generateTree( const Forest &forest );
+   OrientedForest() {}
+   void generateTreeData(Node const* node, size_t &pos, int parent_pos);
 
-   vector <size_t> OF_labels;
-   vector <double> heights;
-   size_t tmp_label;
+   std::vector<int> parents_;
+   std::vector<double> heights_;
    std::ostringstream output_buffer_;
 };
 

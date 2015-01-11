@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -28,16 +28,18 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 
+
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
     // Organize output
     std::ostream *output = &std::cout;
 
+    // Parse command line arguments
     Param user_para(argc, argv);
-
     Model model;
     user_para.parse(model);
+    output->precision( user_para.precision() );
 
     // Print help if user asked for it
     if (user_para.help()) {
@@ -63,13 +65,14 @@ int main(int argc, char *argv[]){
       *output << std::endl << "//" << std::endl;
 
       // Now set up the ARG, and sample the initial tree
-      forest.buildInitialTree();
-      forest.printSegmentSumStats(*output);
+      if ( user_para.read_init_genealogy() )
+        forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
+      else forest.buildInitialTree();
+      //std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
-        forest.printSegmentSumStats(*output);
       }
       
       forest.printLocusSumStats(*output);
@@ -80,7 +83,7 @@ int main(int argc, char *argv[]){
     rg.clearFastFunc();
     return EXIT_SUCCESS;
   }
-  catch (const exception &e)
+  catch (const std::exception &e)
   {
     std::cerr << "Error: " << e.what() << std::endl;
     std::cerr << "Try 'scrm --help' for more information." << std::endl;

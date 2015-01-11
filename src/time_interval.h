@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -20,6 +20,8 @@
 
 #ifndef scrm_src_time_interval
 #define scrm_src_time_interval
+
+#include "macros.h" // Needs to be before cassert
 
 #include "forest.h"
 #include "contemporaries_container.h"

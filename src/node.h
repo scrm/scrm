@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -17,7 +17,6 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 /*
@@ -31,32 +30,30 @@
 #ifndef scrm_node
 #define scrm_node
 
+#include "macros.h" // Needs to be before cassert
+
 #include <cstddef>
 #include <cfloat>
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <string>
 
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 
 class Node
 {
- public:                       
-
+ public:
+ void extract_bl_and_label ( std::string::iterator in_it );
+ double bl_;
+ double bl() const { return this->bl_; }
+ void set_bl ( double bl ) { this->bl_ = bl; }
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
+  friend class TestNodeContainer;
 #endif
+  friend class NodeContainer;
   
-  Node();
-  Node(double height);
-  Node(double height, size_t label);
-
   ~Node();
 
   //Getters & Setters
@@ -76,12 +73,10 @@ class Node
   bool local() const { return (last_update_ == -1); }
 
   void make_local() { 
-    //if (!local()) dout << "AAA Making " << this << " local (last-update before:" << last_update() << ")" << std::endl;
     last_update_ = -1; 
   }
   void make_nonlocal(const double current_base) { 
     assert( this->local() ); 
-    //dout << "AAA Making " << this << " non-local with last_update " << current_base << std::endl;
     set_last_update(current_base);
   }
 
@@ -109,18 +104,11 @@ class Node
   void set_length_below(const double length) { length_below_ = length; }
 
   void change_child(Node* from, Node* to);
-  int  numberOfChildren() const { 
-    if (first_child() == NULL) return 0;
-    else if (second_child() == NULL) return 1;
-    else return 2;
-  }
+  size_t countChildren(const bool only_local = false) const;
   
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
 
-  void set_OF_label(size_t OF_label) { OF_label_ = OF_label; }
-  size_t OF_label() const { return OF_label_; }
-  
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
     return ( this->label() != 0 ); 
@@ -135,7 +123,7 @@ class Node
   // top branch of a tree after it got cut away from the primary tree. 
   // These Nodes can be reused or removed if they are involved in an event.
   bool is_unimportant() const {
-    return (this->numberOfChildren() == 1 && !this->is_migrating()); 
+    return (this->countChildren() == 1 && !this->is_migrating()); 
   }
 
   bool is_contemporary(const double time) {
@@ -156,12 +144,20 @@ class Node
   void set_next(Node* next) { next_ = next; }
   void set_previous(Node* previous) { previous_ = previous; }
 
+  // Navigate on local tree
+  Node *getLocalParent() const;
+  Node *getLocalChild1() const;
+  Node *getLocalChild2() const;
+
  private:
+  Node();
+  Node(double height);
+  Node(double height, size_t label);
+
   void init(double heigh=-1, size_t label=0);
   void set_last_update(const double position) { last_update_ = position; }; 
 
   size_t label_;
-  size_t OF_label_;
   double height_;        // The total height of the node
   double last_update_;   // The sequence position on which the branch above the node
                          // was last checked for recombination events or 0 if
@@ -184,7 +180,32 @@ class Node
 };
 
 inline bool Node::is_migrating() const { 
-  if ( this->numberOfChildren() != 1 ) return false;
+  if ( this->countChildren() != 1 ) return false;
   return ( this->population() != this->first_child()->population() );
 } 
+
+inline size_t Node::countChildren(const bool only_local) const { 
+  if (first_child() == NULL) return 0;
+  if (!only_local) {
+    if (second_child() == NULL) return 1;
+    else return 2;
+  } else {
+    if (second_child() == NULL) {
+      if (first_child()->local()) return 1; 
+      else return 0;
+    } else {
+      return first_child()->local() + second_child()->local();
+    }
+  }
+}
+
+/** Hash nodes based on their height */
+namespace std {
+  template <>
+  struct hash<Node*> {
+    std::size_t operator()(Node const* node) const {
+      return std::hash<double>()(node->height() - node->label());
+    }
+  };
+}
 #endif

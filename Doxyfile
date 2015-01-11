@@ -410,7 +410,7 @@ EXTRACT_PRIVATE        = YES
 # scope will be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PACKAGE        = NO
+EXTRACT_PACKAGE        = YES
 
 # If the EXTRACT_STATIC tag is set to YES all static members of a file will be
 # included in the documentation.
@@ -519,7 +519,7 @@ FORCE_LOCAL_INCLUDES   = NO
 # documentation for inline members.
 # The default value is: YES.
 
-INLINE_INFO            = NO
+INLINE_INFO            = YES
 
 # If the SORT_MEMBER_DOCS tag is set to YES then doxygen will sort the
 # (detailed) documentation of file and class members alphabetically by member
@@ -624,14 +624,14 @@ MAX_INITIALIZER_LINES  = 30
 # will mention the files that were used to generate the documentation.
 # The default value is: YES.
 
-SHOW_USED_FILES        = NO
+SHOW_USED_FILES        = YES
 
 # Set the SHOW_FILES tag to NO to disable the generation of the Files page. This
 # will remove the Files entry from the Quick Index and from the Folder Tree View
 # (if specified).
 # The default value is: YES.
 
-SHOW_FILES             = NO
+SHOW_FILES             = YES
 
 # Set the SHOW_NAMESPACES tag to NO to disable the generation of the Namespaces
 # page. This will remove the Namespaces entry from the Quick Index and from the
@@ -2205,7 +2205,7 @@ INCLUDED_BY_GRAPH      = NO
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-CALL_GRAPH             = NO
+CALL_GRAPH             = YES
 
 # If the CALLER_GRAPH tag is set to YES then doxygen will generate a caller
 # dependency graph for every global function or class method.

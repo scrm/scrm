@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -23,21 +23,16 @@
 #ifndef scrm_param
 #define scrm_param
 
+#include <vector>
 #include <iostream>
-#include <iomanip>      
-#include <string>
-#include <sstream>
 #include <fstream>
-#include <iostream>
-#include <stdlib.h>  
-#include <stdio.h>
+#include <string>
 #include <stdexcept>
-#include <memory>
+#include <random>
 
 #include "model.h"
 #include "summary_statistics/summary_statistic.h"
 #include "summary_statistics/tmrca.h"
-#include "summary_statistics/first_last_tmrca.h"
 #include "summary_statistics/seg_sites.h"
 #include "summary_statistics/frequency_spectrum.h"
 #include "summary_statistics/newick_tree.h"
@@ -51,23 +46,59 @@ class Param {
 
   // Constructors
   Param() : argc_(0), argv_(NULL) { init(); }
+  Param(const std::string &arg);
   Param(int argc, char *argv[], bool directly_called=true) : 
-      argc_(argc), argv_(argv), directly_called_(directly_called) {
-        init();
-      }
+    argc_(argc), argv_(argv), directly_called_(directly_called) {
+    init();
+  }
+
+  ~Param() {
+    for (size_t i = 0; i < argv_vec_.size(); ++i) {
+      delete[] argv_vec_[i];
+    }
+  }
+ 
+  /** Move Operator */
+  Param(Param&& other) {
+    argc_ = other.argc_;
+    argc_i = other.argc_i;
+    argv_ = other.argv_;
+    random_seed_ = other.random_seed_;  
+    directly_called_ = other.directly_called_;
+    help_ = other.help_;
+    version_ = other.version_;
+    std::swap(argv_vec_, other.argv_vec_);
+  }
+
+  /** Copy Assignment Operator */
+  Param& operator=(Param other) {
+    argc_ = other.argc_;
+    argc_i = other.argc_i;
+    argv_ = other.argv_;
+    random_seed_ = other.random_seed_;  
+    directly_called_ = other.directly_called_;
+    help_ = other.help_;
+    version_ = other.version_;
+    std::swap(argv_vec_, other.argv_vec_);
+    return *this;
+  }
 
   void init() {
     this->set_random_seed(-1);
     this->set_help(false);
     this->set_version(false);
+    this->set_precision(6);
     argc_i = 0;
   }
 
   // Getters and setters
   bool help() const { return help_; }
   bool version() const { return version_; }
+  bool read_init_genealogy() const { return this->read_init_genealogy_; }
   size_t random_seed() const { return random_seed_; }
   void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
+  size_t precision() const { return precision_; }
+  void set_precision ( const size_t p ) { this->precision_ = p; }
 
   // Other methods
   void printHelp(std::ostream& stream);
@@ -84,26 +115,30 @@ class Param {
       throw std::invalid_argument(std::string("Not enough parameters when parsing options: ") + argv_[argc_i-1]);
     }
 
-    char c;
     T input;
     std::stringstream ss(argv_[argc_i]);
     ss >> input;
-    if (ss.fail() || ss.get(c)) {
+    if (ss.fail()) {
       throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
     }
     return input;
   }
-
+  std::vector < std::string > init_genealogy;
  private:
+  Param(const Param &other);
+  
   void set_help(const bool help) { this->help_ = help; } 
   void set_version(const bool version) { this->version_ = version; } 
 
   int argc_;
   int argc_i;
   char * const* argv_;
-  size_t random_seed_;  
+  size_t random_seed_;
+  size_t precision_;
   bool directly_called_;
   bool help_;
   bool version_;
+  bool read_init_genealogy_;
+  std::vector<char*> argv_vec_;
 };
 #endif

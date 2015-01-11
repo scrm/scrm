@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -23,21 +23,19 @@
 #ifndef scrm_src_node_container
 #define scrm_src_node_container
 
+#include "macros.h" // Needs to be before cassert
+
 #include <vector>
+#include <stack>
 #include <stdexcept>
 #include <cfloat>
 #include <cassert>
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <list>
 
 #include "node.h"
-#ifndef NDEBUG
-#define dout std::cout
-#else
-#pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
-#endif
 
 class NodeIterator;
 class ConstNodeIterator;
@@ -46,11 +44,14 @@ class ReverseConstNodeIterator;
 class NodeContainer {
  public:
   NodeContainer();
-  ~NodeContainer() { clear(); };
+  ~NodeContainer() { 
+    clear(); 
+    for (std::vector<Node>* lane : node_lanes_) delete lane;
+  };
 
   NodeContainer& operator=(NodeContainer nc) {
-   swap(*this, nc);  
-   return(*this);
+    swap(*this, nc);  
+    return(*this);
   };
 
   NodeContainer(const NodeContainer &nc);
@@ -62,6 +63,32 @@ class NodeContainer {
   ReverseConstNodeIterator reverse_iterator() const;
   ReverseConstNodeIterator reverse_iterator(Node* node) const;
 
+  // Create Nodes
+  Node* createNode(double height, size_t label = 0) { 
+    // Use the slot of a previously deleted node if possible
+    if (free_slots_.size() > 0) {
+      Node* node = free_slots_.top();
+      free_slots_.pop();
+      *node = Node(height, label);
+      return node;
+    }
+
+    // Otherwise, use a new slot
+    if (node_counter_ >= 10000) {
+      ++lane_counter_;
+      node_counter_ = 0;
+      if (lane_counter_ == node_lanes_.size()) {
+        std::vector<Node>* new_lane = new std::vector<Node>();
+        new_lane->reserve(10000);
+        node_lanes_.push_back(new_lane);
+      }
+    } 
+    (*node_lanes_.at(lane_counter_))[node_counter_] = Node(height, label);
+    return &*(node_lanes_[lane_counter_]->begin() + node_counter_++); 
+  }
+
+  void push_back(Node* node);
+  void push_front(Node* node);
   void add(Node* node, Node* after_node=NULL);
   void remove(Node *node, const bool &del=true);
   void move(Node *node, const double new_height);
@@ -75,7 +102,6 @@ class NodeContainer {
   
   size_t size() const { return size_; };  
   bool sorted() const; 
-  bool print() const;
 
 #ifdef UNITTEST
   friend class TestNodeContainer;
@@ -83,6 +109,7 @@ class NodeContainer {
   friend class NodeIterator;
   friend class ConstNodeIterator;
   friend class ReverseConstNodeIterator;
+  friend std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc);
 
  private:
   friend void swap(NodeContainer& first, NodeContainer& second);
@@ -98,6 +125,12 @@ class NodeContainer {
 
   Node* unsorted_node_;
   size_t size_;
+
+  // Storing the nodes in lanes a 10k nodes
+  std::vector<std::vector<Node>*> node_lanes_;
+  std::stack<Node*> free_slots_;
+  size_t node_counter_;
+  size_t lane_counter_;
 };
 
 

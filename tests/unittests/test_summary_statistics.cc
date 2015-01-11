@@ -21,9 +21,11 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE( TestSummaryStatistics );
 
   CPPUNIT_TEST( testTMRCA );
+  CPPUNIT_TEST( testSegSitesTraversal );
   CPPUNIT_TEST( testSegSitesGetHaplotypes );
   CPPUNIT_TEST( testSegSitesCalculate );
   CPPUNIT_TEST( testSiteFrequencies );
+  CPPUNIT_TEST( testOrientedForestGenerateTreeData );
   CPPUNIT_TEST( testOrientedForest );
   CPPUNIT_TEST( testNewickTree );
 
@@ -47,20 +49,65 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   }
 
   void testTMRCA() {
-    TMRCA* tmrca = new TMRCA();
-    tmrca->calculate(*forest);
-    delete tmrca;
+    forest->createScaledExampleTree();
+    TMRCA tmrca = TMRCA();
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(0) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(0) );
 
-    SummaryStatistic* tmrca2 = new TMRCA();
-    tmrca2->calculate(*forest);
-    delete tmrca2;
+    tmrca.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(1) );
+    CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(1) );
+    
+    tmrca.clear();
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tmrca().size() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tree_length().size() );
+  }
+
+  void testSegSitesTraversal() {
+    SegSites seg_sites = SegSites();
+
+    std::valarray <bool>haplotype(4);
+    seg_sites.traversal(forest->nodes()->at(4), haplotype);
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(5), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(8), haplotype);
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true, haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(0), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[3] );
+
+    haplotype *= 0;
+    seg_sites.traversal(forest->nodes()->at(1), haplotype);
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[0] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[1] );
+    CPPUNIT_ASSERT_EQUAL( true,  haplotype[2] );
+    CPPUNIT_ASSERT_EQUAL( false, haplotype[3] );
   }
 
   void testSegSitesGetHaplotypes() {
     SegSites seg_sites = SegSites();
 
     TreePoint mutation = TreePoint(forest->nodes()->at(4), 1, true);
-    valarray<bool> haplotype = seg_sites.getHaplotypes(mutation, *forest);
+    std::valarray<bool> haplotype = seg_sites.getHaplotypes(mutation, *forest);
     CPPUNIT_ASSERT_EQUAL( (size_t)4, haplotype.size() );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[0] );
     CPPUNIT_ASSERT_EQUAL( true, haplotype[1] );
@@ -164,51 +211,95 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     seg_sites->positions_.push_back(0.8);
 
     std::valarray<bool> ht = {1, 0, 0, 0};
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singleton
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // doubleton
     ht = 0;
     ht[1] = 1;
-    seg_sites->haplotypes_.push_back(ht);
+    seg_sites->haplotypes_.push_back(ht); // singletion
     seg_sites->set_position(forest->next_base());
 
     FrequencySpectrum sfs(seg_sites, forest->model());
-    ostringstream output;
+    std::ostringstream output;
 
-    // Check values for example locus
-    sfs.calculate(forest);
+    // Check values for example segment
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 2 1 0 \n") == 0 );
 
-    // Check that it is reseged at a new locus
+    // Add another segment
+    seg_sites->positions_.push_back(0.9);
+    seg_sites->haplotypes_.push_back(ht);
+    sfs.calculate(*forest);
+    CPPUNIT_ASSERT_EQUAL((size_t)3, sfs.sfs().at(0));
+    CPPUNIT_ASSERT_EQUAL((size_t)1, sfs.sfs().at(1));
+    CPPUNIT_ASSERT_EQUAL((size_t)0, sfs.sfs().at(2));
+
+    // Check that it is reset at a new locus
     output.str("");
     output.clear();
+
+    sfs.clear();
+    forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(0.000001);
-    sfs.calculate(forest);
+    sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
 
     delete seg_sites;
   }
 
+  void testOrientedForestGenerateTreeData() {
+    OrientedForest of(4);
+    size_t pos = 2*forest->sample_size()-2;
+    of.generateTreeData(forest->local_root(), pos, 0); 
+    CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(1) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(2) == 0.0 );
+    CPPUNIT_ASSERT( of.heights_.at(3) == 0.0 );
+    CPPUNIT_ASSERT( of.parents_.at(4) == 7 );
+    CPPUNIT_ASSERT( of.parents_.at(5) == 7 );
+    CPPUNIT_ASSERT( of.heights_.at(6) == 10.0 && of.parents_.at(6) == 0 );
+
+    CPPUNIT_ASSERT( of.heights_.at(4) == 1.0 || of.heights_.at(4) == 3.0 );
+    if ( of.heights_.at(4) == 1.0 ) {
+      CPPUNIT_ASSERT( of.parents_.at(0) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(1) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(2) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(3) == 6 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 3.0 );
+    } else {
+      CPPUNIT_ASSERT( of.parents_.at(0) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(1) == 6 );
+      CPPUNIT_ASSERT( of.parents_.at(2) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(3) == 5 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 1.0 );
+    }
+  }
+
   void testOrientedForest() {
-    forest->createExampleTree();
+    forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    OrientedForest of;
-    ostringstream output;
-    of.calculate(forest);
+    OrientedForest of(4);
+    std::ostringstream output;
+    of.calculate(*forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
-    
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
+
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
-    of.calculate(forest);
+    of.clear();
+    of.calculate(*forest);
     of.printLocusOutput(output);
-    CPPUNIT_ASSERT( output.str().compare("{\"duration\":10, \"pi\":[5,5,6,6,7,7,0], \"heights\":[0,0,0,0,1,3,10]}\n") == 0 );
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
+                    output.str().compare("{\"length\":10, \"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
   }
 
   void testNewickTree() {
@@ -217,16 +308,19 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_next_base(10.0);
     
     NewickTree of;
-    ostringstream output;
-    of.calculate(forest);
+    std::ostringstream output;
+    of.calculate(*forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
     
     output.str("");
     output.clear();
+    of.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
-    of.calculate(forest);
+    of.calculate(*forest);
     of.printLocusOutput(output);
+    //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
   }
 };

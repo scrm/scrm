@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -17,7 +17,6 @@
 */
 
 #include "forest.h"
-#include <sstream>
 
 /******************************************************************
  * Debugging Utils
@@ -30,10 +29,10 @@ void Forest::createExampleTree() {
   this->writable_model()->sample_populations_.clear();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
 
-  Node* leaf1 = new Node(0, 1);
-  Node* leaf2 = new Node(0, 2);
-  Node* leaf3 = new Node(0, 3);
-  Node* leaf4 = new Node(0, 4);
+  Node* leaf1 = nodes()->createNode(0, 1);
+  Node* leaf2 = nodes()->createNode(0, 2);
+  Node* leaf3 = nodes()->createNode(0, 3);
+  Node* leaf4 = nodes()->createNode(0, 4);
 
   leaf1->set_label(1);
   leaf2->set_label(2);
@@ -45,28 +44,27 @@ void Forest::createExampleTree() {
   this->nodes()->add(leaf3);
   this->nodes()->add(leaf4);
 
-  Node* node12 = new Node(1);
+  Node* node12 = nodes()->createNode(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
 
-  Node* node34 = new Node(3);
+  Node* node34 = nodes()->createNode(3);
   this->addNodeToTree(node34, NULL, leaf3, leaf4);
 
-  Node* root = new Node(10);
+  Node* root = nodes()->createNode(10);
   this->addNodeToTree(root, NULL, node12, node34);
   this->set_local_root(root);
   this->set_primary_root(root);
 
   // Add a non-local tree
-  Node* nl_node = new Node(4); 
+  Node* nl_node = nodes()->createNode(4); 
   nl_node->make_nonlocal(5);
-  Node* nl_root = new Node(6);
+  Node* nl_root = nodes()->createNode(6);
   nl_root->make_nonlocal(5);
   
   nl_node->set_parent(nl_root);
   nl_root->set_first_child(nl_node);
   this->nodes()->add(nl_node);
   this->nodes()->add(nl_root);
-  //this->registerSecondaryRoot(nl_root);
   updateAbove(nl_node);
 
   updateAbove(leaf1);
@@ -77,6 +75,12 @@ void Forest::createExampleTree() {
   this->set_current_base(5);  
   this->set_next_base(105);
   this->set_sample_size(4);
+
+  this->contemporaries_ = ContemporariesContainer(model().population_number(), 
+                                                  model().sample_size(),
+                                                  random_generator());
+  this->tmp_event_time_ = -1; 
+  this->coalescence_finished_ = true;
 
   assert( this->checkTreeLength() );
   assert( this->checkTree() );
@@ -256,7 +260,6 @@ bool Forest::checkTree(Node const* root) const {
   }
   assert( root != NULL );
 
-  if (!checkRootIsRegistered(root)) return false;  
   Node* h_child = root->second_child();
   Node* l_child = root->first_child();
 
@@ -335,11 +338,11 @@ bool Forest::printTree() const {
       if ( (*position)->height() == start_height ) {
         if ( (*position)->local() || *position == local_root() ) std::cout << "╦";
         else std::cout << "┬";
-        if ( (*position)->numberOfChildren() == 2 ) {
+        if ( (*position)->countChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
           if ( *position == local_root() ) h_line = 1;
         }
-        if ( (*position)->numberOfChildren() == 1 ) {
+        if ( (*position)->countChildren() == 1 ) {
           h_line = 0;
         }
       } 
@@ -372,7 +375,7 @@ bool Forest::printTree() const {
         else std::cout << "─";
       }
     }
-    std::cout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
+    std::cout << " - " << std::setw(7) << std::setprecision(7) << std::right << start_height << " - "; 
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
@@ -511,13 +514,6 @@ std::vector<Node const*> Forest::determinePositions() const {
     }
     std::cout << "Local Root:    " << this->local_root() << std::endl;
     std::cout << "Primary Root:  " << this->primary_root() << std::endl;
-    /*
-    std::cout << "Secondary Roots:  "; 
-    for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
-      std::cout << *it << " ";  
-    }
-    std::cout  << std::endl;
-    */
     return true;
   }
 
@@ -596,17 +592,6 @@ bool Forest::checkContemporaries(const double time) const {
   return 1;
 }
 
-bool Forest::checkRootIsRegistered(Node const* node) const {
-  if (!node->is_root()) return true;
-  /*
-  if (node == primary_root() || isRegisteredSecondaryRoot(node)) return true;
-  else {
-    dout << "Error: Root " << node << " is not registered." << std::endl;
-    return false;
-  }
-  */
-}
-
 bool Forest::checkRoots() const {
   // Check that local_root() really is the local root:
   if (local_root()->samples_below() != sample_size() ||
@@ -627,34 +612,5 @@ bool Forest::checkRoots() const {
     return false;
   }
 
-  // Check if all secondary roots are still roots:
-  /*
-  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
-    if (!(*it)->is_root()) {
-      dout << *it << " is in secondary roots, but it is no root." << std::endl;
-      return false;
-    }
-    if (*it == local_root()) {
-      dout << *it << " is in secondary roots, but it is the local root." << std::endl;
-      return false;
-    }
-    if (*it == primary_root()) {
-      dout << *it << " is in secondary roots, but it is the primary root." << std::endl;
-      return false;
-    }
-  }
-  */
-
   return true;
 }
-
-// Stupid slow implementation needed because it cannot be const otherwise (it's
-// debug only...)
-/*
-bool Forest::isRegisteredSecondaryRoot(Node const* root) const {
-  for (auto it = secondary_roots_.begin(); it != secondary_roots_.end(); ++it) {
-    if (*it == root) return true;
-  }
-  return false;
-};
-*/
