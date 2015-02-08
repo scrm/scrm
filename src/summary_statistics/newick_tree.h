@@ -59,7 +59,14 @@ struct NewickBuffer {
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree() {}
+   NewickTree() { 
+    precision_ = 6; 
+   }
+
+   NewickTree(size_t precision) { 
+    precision_ = precision; 
+   }
+
    //NewickTree(const NewickTree &nt) { (void)nt; }
    ~NewickTree() {}
 
@@ -81,6 +88,7 @@ class NewickTree : public SummaryStatistic
    std::string generateTree(Node *node, const Forest &forest,
                             const bool use_buffer = true);
    std::ostringstream output_buffer_;
+   size_t precision_;
 
    /**
     * A map to buffer already created subtrees indexed by their 
