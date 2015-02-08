@@ -307,12 +307,12 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    NewickTree of;
+    NewickTree of(4);
     std::ostringstream output;
     of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
     
     output.str("");
     output.clear();
@@ -321,7 +321,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
-    CPPUNIT_ASSERT( output.str().compare("[10]((1:1.000000,2:1.000000):9.000000,(3:3.000000,4:3.000000):7.000000);\n") == 0 );
+    CPPUNIT_ASSERT( output.str().compare("[10]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
   }
 };
 
