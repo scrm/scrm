@@ -58,7 +58,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   // Generate a new tree
   std::stringstream tree;
   tree.precision(this->precision_);
-  if (node->in_sample()) tree << to_string(node->label());
+  if (node->in_sample()) tree << node->label();
   else { 
     Node *left = node->getLocalChild1();
     Node *right = node->getLocalChild2();
