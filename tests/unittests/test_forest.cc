@@ -260,7 +260,7 @@ class TestForest : public CppUnit::TestCase {
       CPPUNIT_ASSERT( event.isCoalescence() );
       count += (event.node() == forest2->active_node(0));
     };
-    CPPUNIT_ASSERT( 4950 < count && count < 5050 ); // ~5000
+    CPPUNIT_ASSERT( 4900 < count && count < 5100 ); // ~5000
 
     // Test with Pw Coalescence
     // active_node 0: Pop 1, 2 Contemporaries 

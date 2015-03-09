@@ -24,7 +24,6 @@
 
 void MersenneTwister::construct_common(const size_t seed){
   unif_ = std::uniform_real_distribution<>(0, 1);
-  expo_ = std::exponential_distribution<>(1);
   if (seed == -1) set_seed(generateRandomSeed());
   else this->set_seed(seed);
 }
@@ -59,6 +58,6 @@ size_t MersenneTwister::generateRandomSeed() const {
 
 void MersenneTwister::set_seed(const size_t seed) {
   RandomGenerator::set_seed(seed);
-  mt_ = std::mt19937(seed);
+  mt_ = std::mt19937_64(seed);
   this->initializeUnitExponential();
 }
