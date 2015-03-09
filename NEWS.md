@@ -5,8 +5,9 @@ scrm 1.4.0
 ------------------------
 Released: Not yet
 
-+ Improvements to memory management
-+ Adds option '-p' to set number of significant digits in output
++ Improved memory management
++ Added option '-p' to set number of significant digits in output
++ Switched to std::mt19937_64 as default random generator 
 
 
 
