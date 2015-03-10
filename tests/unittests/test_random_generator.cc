@@ -57,12 +57,13 @@ class TestRandomGenerator : public CppUnit::TestCase {
   }
 
   void testSampleExpo() {
-    size_t n = 10000;
+    size_t n = 100000;
     double expo = 0;
     for (size_t i = 0; i < n; ++i) {
       expo += rg->sampleExpo(5);
     }
     expo /= n;
+    //std::cout << expo << std::endl;
     CPPUNIT_ASSERT( 0.199 <= expo && expo <= 0.201 );
   }
   
@@ -122,7 +123,7 @@ class TestRandomGenerator : public CppUnit::TestCase {
 
     for (size_t i = 0; i < 5; ++i) {
       //std::cout << i << " : " << result[i] << std::endl;
-      CPPUNIT_ASSERT( 9900 < result[i] && result[i] < 10100 ); 
+      CPPUNIT_ASSERT( 9750 < result[i] && result[i] < 10250 ); 
     }
   }
 
