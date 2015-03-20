@@ -112,13 +112,11 @@ class Forest
   void sampleNextBase() {
     double length = random_generator()->sampleExpoLimit(local_tree_length() * model().recombination_rate(),
                                                         model().getNextSequencePosition() - current_base_);
-                                                        //if(recombination_counter > 135793 ){
-                                                            //std::cout << "local_tree_length() = " <<local_tree_length()<<std::endl;
-                                                        //std::cout<<" length = "<< length<<std::endl;}
     if (length == -1) {
       // No recombination until the model changes
       set_next_base(model().getNextSequencePosition());
-      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
+      if (next_base_ < model().loci_length()) 
+		writable_model()->increaseSequencePosition();
     } else {
       // Recombination in the sequence segment
       next_base_ = current_base_ + length;
@@ -190,26 +188,20 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //segegrating sites
+  virtual std::string newick(Node *node){ (void)node; return ""; } ;
+
+  //segregating sites
   std::valarray<int> find_haplotypes(Node *node); 
   void traversal(Node const* node, std::valarray<bool> &haplotype) const;
   std::ostream &generateSegData(std::ostream &output, int total_mut);
 
   Node* trackLocalNode(Node *node) const; 
 
-  virtual std::string newick(Node *node){ (void)node; return ""; } ;
+  //record events
   virtual void record_Recombevent_b4_extension ( ) { }
-  virtual void record_Recombevent_atNewGenealogy ( double event_height ){ (void)event_height; }
-  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ){
-    (void) ti;  (void) recomb_opp_x_within_scrm;
-  }
+  virtual void record_Recombevent_atNewGenealogy ( double event_height ){ }
+  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ) { }
   double recomb_opp_x_within_scrm; // DEBUG
-  //virtual void record_recomb_opp_within_scrm ( double recomb_rate ) const {
-    //(void) recomb_rate;
-    ////(void) recomb_opp_x_within_scrm;
-    //std::cout <<"ok, i was called, but I shouldn't be called ... "<<std::endl;
-  //}
-  //virtual void clear_recomb_opp_within_scrm () { };
   
   // Calc & Print Summary Statistics
   void calcSegmentSumStats() const;
