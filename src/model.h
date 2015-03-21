@@ -189,8 +189,8 @@ class Model
     * @return The current unscaled, backwards migration rate.
     */
    double migration_rate(const size_t source, const size_t sink) const {
-     if (current_mig_rates_ == NULL) return default_mig_rate;
      if (sink == source) return 0.0;
+     if (current_mig_rates_ == NULL) return default_mig_rate;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 
