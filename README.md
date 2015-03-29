@@ -56,7 +56,7 @@ _scrm_ is described in the manuscript
 
 > Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
 > scrm: efficiently simulating long sequences using the approximated coalescent
-> with recombination. Submitted to Bioinformatics, 2014.
+> with recombination. Bioinformatics 2015; doi:10.1093/bioinformatics/btu861
 
 
 ## Licence

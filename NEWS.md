@@ -3,18 +3,18 @@ scrm Version History
 
 scrm 1.4.0
 ------------------------
-Released: Not yet
+Released: 2015-03-29
 
-+ Improved memory management
-+ Added option '-p' to set number of significant digits in output
-+ Switched to std::mt19937_64 as default random generator 
++ Improved memory management (#36)
++ Added option '-p' to set number of significant digits in output (#47) 
++ Switched to std::mt19937_64 as default random generator (#49)
 + Support arguments in scientific notation (#50, #51)
 
 
 
 scrm 1.3.2
 ------------------------
-Released: 
+Released: 2014-12-23
 
 + Bug fix: Fix reproducibility problem when the large sample optimization was active (#42).
 
