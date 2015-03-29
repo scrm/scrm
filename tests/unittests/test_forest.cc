@@ -446,7 +446,6 @@ class TestForest : public CppUnit::TestCase {
 
     Event event;
     double tmp_event_time = 0.0;
-    size_t tmp_event_line = -1;
     for (size_t i = 0; i < 1000; ++i) {
       forest2.sampleEvent(*tii, tmp_event_time, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( 0 <= event.time() && event.time() < forest2.nodes()->at(4)->height() ) );
