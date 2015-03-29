@@ -24,6 +24,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseMergeOptions );
   CPPUNIT_TEST( testParseSequenceScaling );
   CPPUNIT_TEST( testErrorOnInfintieRecRate );
+  CPPUNIT_TEST( testScientificNotation );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -519,6 +520,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(4, argv5).parse(model), std::invalid_argument );
   }
 
+
   void testErrorOnInfintieRecRate() {
     Param pars = Param("scrm 4 7 -r 0.5 1");
     CPPUNIT_ASSERT_THROW(pars.parse(model), std::invalid_argument);
@@ -526,6 +528,23 @@ class TestParam : public CppUnit::TestCase {
     pars = Param("scrm 4 7 -r 0.5 0");
     CPPUNIT_ASSERT_THROW(pars.parse(model), std::invalid_argument);
   }
+
+
+  void testScientificNotation() {
+    Param pars;
+    pars = Param("scrm 4 7 -r 1e3 1001");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL(1.0/(4*model.default_pop_size), model.recombination_rate());
+
+    pars = Param("scrm 4 7 -r 0.5 2e3");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL((size_t)2000, model.loci_length());
+
+    pars = Param("scrm 4 1e3 -r 0.5 2");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL((size_t)1000, model.loci_number());
+  }
+
 };
 
 //Uncomment this to activate the test

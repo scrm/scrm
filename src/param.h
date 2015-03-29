@@ -121,9 +121,18 @@ class Param {
     if (ss.fail()) {
       throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
     }
+
     return input;
   }
+
+  // Read to double first and then cast to int to support scientific notation
+  size_t readNextInt() {
+    return readNextInput<double>();
+  }
+
+
   std::vector < std::string > init_genealogy;
+
  private:
   Param(const Param &other);
   
