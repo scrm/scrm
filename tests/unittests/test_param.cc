@@ -23,6 +23,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseSplitOptions );
   CPPUNIT_TEST( testParseMergeOptions );
   CPPUNIT_TEST( testParseSequenceScaling );
+  CPPUNIT_TEST( testErrorOnInfintieRecRate );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -516,6 +517,14 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( Param(5, argv4).parse(model), std::invalid_argument );
     char *argv5[] = { "scrm", "4", "7", "-SC"};
     CPPUNIT_ASSERT_THROW( Param(4, argv5).parse(model), std::invalid_argument );
+  }
+
+  void testErrorOnInfintieRecRate() {
+    Param pars = Param("scrm 4 7 -r 0.5 1");
+    CPPUNIT_ASSERT_THROW(pars.parse(model), std::invalid_argument);
+
+    pars = Param("scrm 4 7 -r 0.5 0");
+    CPPUNIT_ASSERT_THROW(pars.parse(model), std::invalid_argument);
   }
 };
 
