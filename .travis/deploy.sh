@@ -7,6 +7,7 @@ version=${tag:1}
 
 # Assert that we only do this once
 [ "${CXX:='g++'}" == "g++" ] || exit 0
+[ "${TRAVIS_OS_NAME:='linux'}" == "linux" ] || exit 0
 
 # Build the manual
 sudo apt-get install -y pandoc || exit 1
@@ -17,6 +18,10 @@ echo "Building release $tag..."
 CXXFLAGS="-O3" ./bootstrap || exit 1
 make dist || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
+
+# Build statically linked binaries
+CXXFLAGS="-O3" LDFLAGS='-static' ./configure || exit 1 
+make && tar -zcvf "scrm-$version-x64-static.tar.gz" scrm doc/manual.html
 
 # Remove gcc-4.8
 # sudo apt-get install -y mingw-w64 || exit 1
@@ -48,6 +53,7 @@ mv ../scrm-$version-* releases/ || exit 1
 rm releases/scrm-current*
 cd releases
 ln -s $release scrm-current.tar.gz
+ln -s "scrm-$version-x64-static.tar.gz" scrm-current-x64-static.tar.gz
 #ln -s scrm-$version-win64.zip scrm-current-win64.zip
 #ln -s scrm-$version-win32.zip scrm-current-win32.zip
 cd ..
