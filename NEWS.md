@@ -8,6 +8,7 @@ Released: Not yet
 + Improved memory management
 + Added option '-p' to set number of significant digits in output
 + Switched to std::mt19937_64 as default random generator 
++ Support arguments in scientific notation (#50, #51)
 
 
 
