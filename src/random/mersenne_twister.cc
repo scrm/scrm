@@ -35,11 +35,16 @@ MersenneTwister::MersenneTwister(const size_t seed){
   this->construct_common(seed);
 }
 
+MersenneTwister::MersenneTwister(const bool use_seed, size_t seed){
+  if (!use_seed) seed = generateRandomSeed();
+  this->construct_common(seed);
+}
+
 MersenneTwister::MersenneTwister(FastFunc* ff):RandomGenerator(ff) {
   this->construct_common(generateRandomSeed());
 }
 
-MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerator( ff ) {
+MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff):RandomGenerator(ff) {
   this->construct_common(seed);
 }
 
@@ -52,7 +57,7 @@ MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerat
 size_t MersenneTwister::generateRandomSeed() const {
   std::random_device rd;
   std::uniform_int_distribution<size_t> dist(0, 4294967295); // 0 - 2^32-1
-  return( dist(rd) );
+  return(dist(rd));
 }
 
 void MersenneTwister::set_seed(const size_t seed) {
@@ -60,3 +65,4 @@ void MersenneTwister::set_seed(const size_t seed) {
   mt_ = std::mt19937_64(seed);
   this->initializeUnitExponential();
 }
+

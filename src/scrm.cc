@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <memory>
 
 #include "param.h"
 #include "forest.h"
@@ -51,9 +52,7 @@ int main(int argc, char *argv[]){
       return EXIT_SUCCESS;
     }
 
-    MersenneTwister rg;
-    if (user_para.seed_is_set()) rg = MersenneTwister(user_para.random_seed());
-    else rg = MersenneTwister();
+    MersenneTwister rg(user_para.seed_is_set(), user_para.random_seed());
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
