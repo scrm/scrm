@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -56,23 +56,24 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   }
 
   // Generate a new tree
-  std::string tree;
-  if (node->in_sample()) tree = to_string(node->label());
+  std::stringstream tree;
+  tree.precision(this->precision_);
+  if (node->in_sample()) tree << node->label();
   else { 
     Node *left = node->getLocalChild1();
     Node *right = node->getLocalChild2();
 
-    tree = "(" + generateTree(left, forest, use_buffer) + ":" + 
-           to_string((node->height() - left->height()) * forest.model().scaling_factor()) +
-           "," + generateTree(right, forest, use_buffer) + ":" + 
-           to_string((node->height() - right->height()) * forest.model().scaling_factor()) + ")";
+    tree << "(" << generateTree(left, forest, use_buffer) << ":" <<
+           (node->height() - left->height()) * forest.model().scaling_factor() <<
+           "," << generateTree(right, forest, use_buffer) << ":" <<
+           (node->height() - right->height()) * forest.model().scaling_factor() << ")";
   }
 
   // And add to to the buffer
   if (use_buffer) {
-    NewickBuffer buf = {forest.current_base(), tree};
+    NewickBuffer buf = {forest.current_base(), tree.str()};
     buffer_[node] = buf; 
   }
 
-  return tree;
+  return tree.str();
 }

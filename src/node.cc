@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -140,5 +140,24 @@ Node* Node::getLocalChild2() const {
   }
   // Child has 0 or 2 local children => it is part of local tree 
   return second_child();
+}
+
+
+void Node::extract_bl_and_label ( std::string::iterator in_it ){
+  // Going backwards, extract branch length first, then the node label
+  std::string::iterator bl_start = in_it;
+  //for (; (*(bl_start-1)) != ':'; --bl_start ){ }
+  while ((*(bl_start-1)) != ':')
+    --bl_start;
+  double bl = strtod( &(*bl_start), NULL );
+  this->set_bl ( bl );
+
+  std::string::iterator label_start = (bl_start-2);
+
+  while ( (*(label_start)) != ',' &&  ( *(label_start)) != '(' &&  (*(label_start)) != ')' )
+    --label_start;
+
+  this->set_label ( ( (*(label_start)) == ')' ? 0 /*! Label internal nodes */
+                                                : strtol ( &(*(label_start+1)), NULL , 10)) ); /*! Label tip nodes */
 }
 

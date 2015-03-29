@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <stdexcept>
 #include <random>
@@ -83,17 +84,26 @@ class Param {
   }
 
   void init() {
-    this->set_random_seed(-1);
+    this->seed_set_ = false;
+    this->random_seed_ = 0;
     this->set_help(false);
     this->set_version(false);
+    this->set_precision(6);
     argc_i = 0;
   }
 
   // Getters and setters
   bool help() const { return help_; }
   bool version() const { return version_; }
+  bool read_init_genealogy() const { return this->read_init_genealogy_; }
   size_t random_seed() const { return random_seed_; }
-  void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
+  void set_random_seed(const size_t seed) { 
+    this->random_seed_ = seed;
+    this->seed_set_ = true; 
+  }
+  size_t precision() const { return precision_; }
+  void set_precision ( const size_t p ) { this->precision_ = p; }
+  bool seed_is_set() const { return this->seed_set_; }
 
   // Other methods
   void printHelp(std::ostream& stream);
@@ -116,8 +126,17 @@ class Param {
     if (ss.fail()) {
       throw std::invalid_argument(std::string("Failed to parse option: ") + argv_[argc_i]);
     }
+
     return input;
   }
+
+  // Read to double first and then cast to int to support scientific notation
+  size_t readNextInt() {
+    return readNextInput<double>();
+  }
+
+
+  std::vector < std::string > init_genealogy;
 
  private:
   Param(const Param &other);
@@ -128,10 +147,13 @@ class Param {
   int argc_;
   int argc_i;
   char * const* argv_;
-  size_t random_seed_;  
+  size_t seed_set_;
+  size_t random_seed_;
+  size_t precision_;
   bool directly_called_;
   bool help_;
   bool version_;
+  bool read_init_genealogy_;
   std::vector<char*> argv_vec_;
 };
 #endif

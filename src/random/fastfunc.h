@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -25,8 +25,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
-//#include <malloc.h>
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
@@ -37,33 +37,25 @@
 
 class FastFunc {
  public:
-  FastFunc();
-  ~FastFunc();
+  FastFunc() {
+    this->build_fastlog_double_table(SIZE_DOUBLE);
+  }
 
   // Methods
   double fastlog(double);       /* about as fast as division; about as accurate as logf */
   double fastexp_up(double y);  /* upper bound to exp; at most 6.148% too high.  10x as fast as exp */
   double fastexp_lo(double y);  /* lower bound to exp; at most 5.792% too low.  10x as fast as exp */
 
- protected:
-  double* build_fastlog_double_table( int );
+ private:
+  void build_fastlog_double_table(int);
   
   static constexpr double LN2 = 0.693147180559945309417; //ln(2)
   static constexpr double EXP_A = 1048576/LN2;
   static constexpr long long EXP_C_LO = 90254;
   static constexpr long long EXP_C_UP = -1;
 
-  double* fastlog_double_table_;
+  std::vector<double> fastlog_double_table_;
 };
-
-// Inline definitions
-inline FastFunc::FastFunc() {
-  fastlog_double_table_ = build_fastlog_double_table( SIZE_DOUBLE );
-}
-
-inline FastFunc::~FastFunc() {
-    free(fastlog_double_table_);
-}
 
 // Fast and fairly tight upper and lower bounds for exp(x)
 // A quick test showed a ~10x speed improvement
@@ -100,8 +92,8 @@ inline double FastFunc::fastlog(double x) {
   int index = ((*yint) >> (52-10)) & 1023;  // upper 10 bits of mantissa
   *yint |= 0x7ffffc0000000000;              // convert float into remainder of mantissa; and
   *yint &= 0x409fffffffffffff;              // modify exponent to get into proper range
-  return (expon * LN2 +                   // contribution of base-2 log
-	  fastlog_double_table_[index] +    // table lookup, and linear interpolation
+  return (expon * LN2 +                     // contribution of base-2 log
+	  fastlog_double_table_[index] +          // table lookup, and linear interpolation
 	  (fastlog_double_table_[index+1] - fastlog_double_table_[index]) * (*(double*)(yint) - offset) );
 }
 

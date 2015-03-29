@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -35,7 +35,7 @@ Param::Param(const std::string &arg) {
     argv_vec_.push_back(tmp);
   }
   argv_vec_.push_back(0);
-
+  this->read_init_genealogy_ = false;
   directly_called_ = true;
   argv_ = &argv_vec_[0];
   argc_ = argv_vec_.size() - 1;
@@ -57,6 +57,7 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
  * In scrm, we define time t in number of generations. 
  */
 void Param::parse(Model &model) {
+  this->read_init_genealogy_ = false;
   model = Model();
 
   size_t sample_size = 0;
@@ -86,7 +87,7 @@ void Param::parse(Model &model) {
     dout << "Indirectly called" << std::endl;
   } else {
     // Check that have have at least one argument
-    if (argc_ == 1) throw std::invalid_argument("To few command line arguments.");
+    if (argc_ == 1) throw std::invalid_argument("Too few command line arguments.");
 
     // Check if we need to print the help & version (only valid one argument commands)
     argv_i = argv_[1];
@@ -100,15 +101,15 @@ void Param::parse(Model &model) {
     }
 
     // Check that have have at least two arguments
-    if (argc_ == 2) throw std::invalid_argument("To few command line arguments.");
+    if (argc_ == 2) throw std::invalid_argument("Too few command line arguments.");
   }
 
   while( argc_i < argc_ ){
     argv_i = argv_[argc_i];
 
     if (argc_i == 0) {
-      sample_size = readNextInput<size_t>();
-      model.set_loci_number(readNextInput<size_t>());
+      sample_size = readNextInt();
+      model.set_loci_number(readNextInt());
     }
 
     // ------------------------------------------------------------------
@@ -130,7 +131,7 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
       par_bool = readNextInput<double>();
-      model.setLocusLength(readNextInput<size_t>());
+      model.setLocusLength(readNextInt());
       model.setRecombinationRate(par_bool, true, true, 0.0);
     }
 
@@ -144,10 +145,10 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0
     else if (argv_i == "-I") {
-      model.set_population_number(readNextInput<size_t>());
+      model.set_population_number(readNextInt());
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        sample_size.push_back(readNextInput<size_t>());
+        sample_size.push_back(readNextInt());
       }
       model.addSampleSizes(0.0, sample_size);
       // there might or might not follow a symmetric migration rate
@@ -167,7 +168,7 @@ void Param::parse(Model &model) {
       }
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
-        sample_size.push_back(readNextInput<size_t>());
+        sample_size.push_back(readNextInt());
       }
       model.addSampleSizes(time, sample_size, true);
     }
@@ -189,7 +190,7 @@ void Param::parse(Model &model) {
     else if (argv_i == "-en" || argv_i == "-n") {
       if (argv_i == "-en") time = readNextInput<double>();
       else time = 0.0;
-      size_t pop = readNextInput<size_t>() - 1;
+      size_t pop = readNextInt() - 1;
       model.addPopulationSize(time, pop, readNextInput<double>(), true, true);
       if (time != 0.0) model.addGrowthRate(time, pop, 0.0, true);
     }
@@ -210,7 +211,7 @@ void Param::parse(Model &model) {
     else if (argv_i == "-g" || argv_i == "-eg") {
       if (argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
-      size_t pop = readNextInput<size_t>() - 1;
+      size_t pop = readNextInt() - 1;
       model.addGrowthRate(time, pop, readNextInput<double>(), true, true); 
     }
 
@@ -248,8 +249,8 @@ void Param::parse(Model &model) {
         throw std::invalid_argument(std::string("If you use '-m' or '-em' in a model with population merges ('-es'),") +
                                     std::string("then you need to sort both arguments by time."));
       }
-      source_pop = readNextInput<size_t>() - 1;
-      sink_pop = readNextInput<size_t>() - 1;
+      source_pop = readNextInt() - 1;
+      sink_pop = readNextInt() - 1;
 
       model.addMigrationRate(time, source_pop, sink_pop, readNextInput<double>(), true, true);
     }
@@ -276,7 +277,7 @@ void Param::parse(Model &model) {
                                     std::string("by the time they occur."));
       }
       min_time = time;
-      source_pop = readNextInput<size_t>() - 1;
+      source_pop = readNextInt() - 1;
       sink_pop = model.population_number();
       double fraction = readNextInput<double>();
 
@@ -290,8 +291,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     else if (argv_i == "-ej") {
       time = readNextInput<double>();
-      source_pop = readNextInput<size_t>() - 1;
-      sink_pop = readNextInput<size_t>() - 1;
+      source_pop = readNextInt() - 1;
+      sink_pop = readNextInt() - 1;
       model.addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
       for (size_t i = 0; i < model.population_number(); ++i) {
         if (i == source_pop) continue;
@@ -303,9 +304,28 @@ void Param::parse(Model &model) {
     // Pruning 
     // ------------------------------------------------------------------
     else if (argv_i == "-l"){
-      model.set_exact_window_length(readNextInput<size_t>());
+      model.set_exact_window_length(readNextInt());
     }
 
+    // ------------------------------------------------------------------
+    // Read initial trees from file
+    // ------------------------------------------------------------------
+    else if ( argv_i == "-init" ){
+      this->read_init_genealogy_ = true;
+      std::string tmp_string = readNextInput<std::string>();
+      std::ifstream in_file( tmp_string.c_str() );
+      std::string gt_str;
+      if ( in_file.good() ){
+        getline ( in_file, gt_str );
+        while ( gt_str.size() > 0 ){
+          init_genealogy.push_back( gt_str );
+          getline ( in_file, gt_str );
+        }
+      } else {
+        throw std::invalid_argument("Invalid input file. " + tmp_string );
+      }
+      in_file.close();
+    }
 
     // ------------------------------------------------------------------
     // Summary Statistics
@@ -337,16 +357,20 @@ void Param::parse(Model &model) {
       sfs = true;
     }
 
+    else if (argv_i == "-p") {
+      this->precision_ = readNextInt() ;
+    }
+
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------
     else if (argv_i == "-seed" || argv_i == "--seed") {
       std::vector<size_t> seeds(3, 0);
       // Always require one seed
-      seeds.at(0) = readNextInput<size_t>();
+      seeds.at(0) = readNextInt();
       try {
         // Maybe read in up to 3 seeds (ms compatibility)
-        for (size_t i = 1; i < 3; i++) seeds.at(i) = readNextInput<size_t>();
+        for (size_t i = 1; i < 3; i++) seeds.at(i) = readNextInt();
       } catch (std::invalid_argument e) {
         --argc_i;
       }
@@ -403,7 +427,7 @@ void Param::parse(Model &model) {
   }
 
   // Add summary statistics in order of their output
-  if (newick_trees) model.addSummaryStatistic(new NewickTree());
+  if (newick_trees) model.addSummaryStatistic(new NewickTree(this->precision()));
   if (orientedForest) model.addSummaryStatistic(new OrientedForest(model.sample_size()));
   if (tmrca) model.addSummaryStatistic(new TMRCA());
   if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
@@ -481,9 +505,13 @@ void Param::printHelp(std::ostream& out) {
       << "                   relative (rel) to the locus length between 0 and 1," << std::endl 
       << "                   absolute (abs) in base pairs or as in ms (default)." << std::endl;
 
+  out << "  -init <FILE>     Read genealogies at the beginning of the sequence." << std::endl;
+
   out << std::endl << "Other:" << std::endl;
   out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
       << "                   integer numbers." << std::endl;
+  out << "  -p <digits>      Specify the number of significant digits used in the output." << std::endl
+      << "                   Defaults to 6." << std::endl;
   out << "  -v, --version    Prints the version of scrm." << std::endl;
   out << "  -h, --help       Prints this text." << std::endl;
 

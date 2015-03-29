@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -188,8 +188,8 @@ class Model
     * @return The current unscaled, backwards migration rate.
     */
    double migration_rate(const size_t source, const size_t sink) const {
-     if (current_mig_rates_ == NULL) return default_mig_rate;
      if (sink == source) return 0.0;
+     if (current_mig_rates_ == NULL) return default_mig_rate;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 
@@ -241,9 +241,9 @@ class Model
                              const double seq_position = 0);
 
    bool hasFixedTimeEvent(const double at_time) const {
-    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
-    if (getCurrentTime() != at_time) return false;
-    return true;
+     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
+     if (getCurrentTime() != at_time) return false;
+     return true;
    }
 
    size_t sample_size() const { return sample_times_.size(); };
@@ -507,10 +507,17 @@ inline void Model::setRecombinationRate(double rate,
                                         const bool &scaled,
                                         const double seq_position) { 
 
-  if (rate < 0.0) throw std::invalid_argument("Recombination rate must be non-negative");
+  if (rate < 0.0) { 
+    throw std::invalid_argument("Recombination rate must be non-negative");
+  }
 
   if (scaled) rate /= 4.0 * default_pop_size; 
-  if (per_locus) rate /= loci_length()-1;
+  if (per_locus) {
+    if (loci_length() <= 1) {
+      throw std::invalid_argument("Locus length must be at least two");
+    }
+    rate /= loci_length()-1;
+  }
 
   recombination_rates_[addChangePosition(seq_position)] = rate; 
 }

@@ -1,7 +1,7 @@
   /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -26,10 +26,6 @@
  * Constructors & Initialization
  *****************************************************************/
 
-Forest::Forest() {
-  this->initialize();
-}
-
 Forest::Forest(Model* model, RandomGenerator* random_generator) {
   this->initialize(model, random_generator);
   dout << *model << std::endl;
@@ -47,7 +43,8 @@ void Forest::initialize(Model* model,
   this->set_current_base(1);
   this->set_sample_size(0);
 
-  // Save the contemporaries for each population in an unordered_set
+  this->coalescence_finished_ = true;
+
   this->contemporaries_ = ContemporariesContainer(model->population_number(), 
                                                   model->sample_size(),
                                                   rg);
@@ -57,27 +54,47 @@ void Forest::initialize(Model* model,
 /**
  * @brief Copy constructor for forest
  *
+ * This creates a copy of an Forest. It only produces valid results
+ * when there is no ongoing coalescence event (e.g. when we are not 
+ * inside of sampleNextGenealogy()).
+ *
+ * Also, both copies of it share the model and the random generator,
+ * so make sure that only one of them is sampling a new genealogy at
+ * a time.
+ *
  * @param current_forest Forest that needs to be duplicated
  */
 Forest::Forest(const Forest &current_forest) { 
+  if (!current_forest.coalescence_finished_) {
+    throw std::logic_error("Can not copy forest during an ongoing coalescence");
+  }
+
+  // Share a model and a random generator
   this->set_model(current_forest.model_);
   this->set_random_generator(current_forest.random_generator());
+
+  // Copy state information
   this->set_sample_size(current_forest.sample_size());
   this->set_current_base(current_forest.current_base());
   this->set_next_base(current_forest.next_base());
   this->segment_count_ = current_forest.segment_count_;
 
+  // Copy the nodes
   this->nodes_ = NodeContainer(*current_forest.getNodes());
+
+  // Rebuild invariants of the nodes, and determine new roots
   this->set_local_root(NULL);
   this->set_primary_root(NULL);
   for (auto it = nodes()->iterator(); it.good(); ++it) {
     updateAbove(*it, false, false);
   }
 
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
+  // Set initial values for temporary variables
+  this->contemporaries_ = ContemporariesContainer(model().population_number(), 
+                                                  model().sample_size(),
+                                                  random_generator());
   this->tmp_event_time_ = -1; 
   this->coalescence_finished_ = true;
-  this->coalescence_finished_ = false;
 
   dout<<"  #################### check copied forest ###############"<<std::endl;
   assert(this->printTree());
@@ -86,37 +103,6 @@ Forest::Forest(const Forest &current_forest) {
   assert(this->checkLeafsOnLocalTree() );
   dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
 }
-
-Forest::Forest(Forest * current_forest) { 
-  this->set_model(current_forest->model_);
-  this->set_random_generator(current_forest->random_generator());
-  this->set_sample_size(current_forest->sample_size());
-  this->set_current_base(current_forest->current_base());
-  this->set_next_base((current_forest->next_base()));
-  this->segment_count_ = current_forest->segment_count_;
-
-  this->nodes_ = NodeContainer(*current_forest->getNodes());
-  this->set_local_root(NULL);
-  this->set_primary_root(NULL);
-  for (auto it = nodes()->iterator(); it.good(); ++it) {
-    updateAbove(*it, false, false);
-  }
-
-  // Set initial value, to stop valgrind from complaining about uninitialized variables
-  this->tmp_event_time_ = -1; 
-  this->coalescence_finished_ = true;
-  
-  
-  dout<<"  #################### check copied forest ###############"<<std::endl;
-  
-  assert(this->printTree());
-  assert(this->printNodes());
-  assert(this->checkTree());
-  assert(this->checkLeafsOnLocalTree() );
-  
-  dout<<"  #################### check copied forest finished ###############"<<std::endl<<std::endl;
-}
-
 
 
 /** 
@@ -135,7 +121,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   assert( parent != NULL );
 
   //The new end of the old branch after the cut
-  Node* new_leaf = new Node(cut_point.height());
+  Node* new_leaf = nodes()->createNode(cut_point.height());
   
   if ( !cut_point.base_node()->local() )
     new_leaf->make_nonlocal(cut_point.base_node()->last_update());
@@ -161,7 +147,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   cut_point.base_node()->make_local();
 
   // The new "root" of the newly formed tree
-  Node* new_root = new Node(cut_point.height());
+  Node* new_root = nodes()->createNode(cut_point.height());
   new_root->set_population(cut_point.base_node()->population());
   cut_point.base_node()->set_parent(new_root);
   new_root->set_first_child(cut_point.base_node());
@@ -297,7 +283,7 @@ void Forest::buildInitialTree() {
   this->segment_count_ = 1;
 
   dout << "* Adding first node... ";
-  Node* first_node = new Node(model().sample_time(0), 1);
+  Node* first_node = nodes()->createNode(model().sample_time(0), 1);
   first_node->set_population(model().sample_population(0));
   this->nodes()->add(first_node);
   this->set_local_root(first_node);
@@ -309,7 +295,7 @@ void Forest::buildInitialTree() {
 
     dout << "* adding node ";
     //Create a new separate little tree of and at height zero
-    Node* new_leaf = new Node(model().sample_time(i), i+1);
+    Node* new_leaf = nodes()->createNode(model().sample_time(i), i+1);
     new_leaf->set_population(model().sample_population(i));
     dout << new_leaf << "(" << new_leaf->population() << ") "
          << "at height " << new_leaf->height() << std::endl;
@@ -323,6 +309,7 @@ void Forest::buildInitialTree() {
     assert(this->checkTree());
     assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
+    assert(this->printNodes());
   }
   this->sampleNextBase();
   this->calcSegmentSumStats();
@@ -883,7 +870,7 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
     updateAbove(new_node, false, false);
   } else {
     // If not, create a new node
-    new_node = new Node(event.time());
+    new_node = nodes()->createNode(event.time());
     new_node->change_child(NULL, coal_node);
     coal_node->set_parent(new_node);
     nodes()->add(new_node);
@@ -1004,7 +991,7 @@ void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double tim
   }
   else {
     // No tree a has single branch on top => create a new root
-    new_root = new Node(time);
+    new_root = nodes()->createNode(time);
     this->nodes()->add(new_root);
   }
 
@@ -1051,7 +1038,7 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
   }
   else {
     // Otherwise create a new node that marks the migration event,
-    Node* mig_node = new Node(event.time());
+    Node* mig_node = nodes()->createNode(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
     nodes()->add(mig_node, event.node());
     mig_node->set_population(event.mig_pop());
@@ -1222,4 +1209,81 @@ void Forest::clear() {
 
   // Clear Summary Statistics
   this->clearSumStats();
+}
+
+
+
+Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, size_t parenthesis_balance, Node* const parent ){
+  Node * node = nodes()->createNode( (double)0.0, (size_t)0 );
+  node->set_parent ( parent );
+  node->make_local();
+  //this->nodes()->push_front( node );
+  dout << "Node " << node
+       << " starts from [ " << std::endl;
+  for (  ; it != in_str.end(); ++it) {
+    dout << "\""<<(*it) <<"\"" ;
+    if        ( (*it) == '(' )  { // Start of a internal node, extract a new node
+      parenthesis_balance++;
+      Node* child_1 = this->readNewickNode ( in_str, it = (it+1),parenthesis_balance, node );
+      node->set_first_child ( child_1 );
+      this->nodes()->add( child_1 );
+      if ( node->first_child() != NULL)
+        node->set_height ( node->first_child()->height() + 40000*node->first_child()->bl()  ) ;
+    } else if ( (*(it+1)) == ',' ){ //
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has first child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ',' ){ //
+      Node* child_2 = this->readNewickNode ( in_str, it=(it + 1), parenthesis_balance, node );
+      node->set_second_child ( child_2 );
+      this->nodes()->add( child_2 );
+    } else if ( (*(it+1)) == ')'  ){
+      // Before return, extract the branch length for the second node
+      node->extract_bl_and_label(it);
+      dout << " " << parent
+           << " has second child node " << node
+           << " with branch length "   << node->bl()
+           << ", and with the label "  << node->label()
+           << ", height "              << node->height()
+           << " ]  Node " << node << " closed " << std::endl;
+      //if ( !node->in_sample() ) this->contemporaries_.add(node);
+      return node;
+    } else if ( (*(it)) == ';' ) {
+      dout <<" Node " << node << " closed " << std::endl;
+      this->nodes()->add( node );
+      node->make_nonlocal( this->current_base() );
+      return node;
+    } else {
+      continue;
+    }
+  }
+  assert(false);
+  return NULL;
+}
+
+
+void Forest::readNewick( std::string &in_str ){
+  this->set_current_base(0.0);
+  this->segment_count_ = 1;
+  std::string::iterator it = in_str.begin();
+  (void)this->readNewickNode( in_str, it );
+  this->set_local_root( this->nodes()->last() );
+  this->set_primary_root(this->nodes()->last() );
+  dout << std::endl<<"there are "<< this->nodes()->size() << " nodes " << std::endl;
+  (void)this->nodes()->sorted();
+  for (auto it = nodes()->iterator(); it.good(); ++it) {
+    updateAbove(*it, false, false);
+  }
+  assert(this->printNodes());
+  assert(this->printTree());
+dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
+  this->sampleNextBase();
+  this->calcSegmentSumStats();
+  this->tmp_event_time_ = this->local_root()->height();
 }

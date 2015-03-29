@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -17,7 +17,6 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 /*
@@ -38,20 +37,23 @@
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <string>
+
 
 class Node
 {
- public:                       
-
+ public:
+ void extract_bl_and_label ( std::string::iterator in_it );
+ double bl_;
+ double bl() const { return this->bl_; }
+ void set_bl ( double bl ) { this->bl_ = bl; }
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
+  friend class TestNodeContainer;
 #endif
+  friend class NodeContainer;
   
-  Node();
-  Node(double height);
-  Node(double height, size_t label);
-
   ~Node();
 
   //Getters & Setters
@@ -148,6 +150,10 @@ class Node
   Node *getLocalChild2() const;
 
  private:
+  Node();
+  Node(double height);
+  Node(double height, size_t label);
+
   void init(double heigh=-1, size_t label=0);
   void set_last_update(const double position) { last_update_ = position; }; 
 

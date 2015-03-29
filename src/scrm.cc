@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -28,6 +28,7 @@
 #include "random/random_generator.h"
 #include "random/mersenne_twister.h"
 
+
 #ifndef UNITTEST
 int main(int argc, char *argv[]){
   try {
@@ -38,6 +39,7 @@ int main(int argc, char *argv[]){
     Param user_para(argc, argv);
     Model model;
     user_para.parse(model);
+    output->precision(user_para.precision());
 
     // Print help if user asked for it
     if (user_para.help()) {
@@ -49,7 +51,9 @@ int main(int argc, char *argv[]){
       return EXIT_SUCCESS;
     }
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    MersenneTwister rg;
+    if (user_para.seed_is_set()) rg = MersenneTwister(user_para.random_seed());
+    else rg = MersenneTwister();
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
@@ -63,7 +67,10 @@ int main(int argc, char *argv[]){
       *output << std::endl << "//" << std::endl;
 
       // Now set up the ARG, and sample the initial tree
-      forest.buildInitialTree();
+      if ( user_para.read_init_genealogy() )
+        forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
+      else forest.buildInitialTree();
+      //std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy

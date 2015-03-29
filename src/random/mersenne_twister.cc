@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -24,13 +24,11 @@
 
 void MersenneTwister::construct_common(const size_t seed){
   unif_ = std::uniform_real_distribution<>(0, 1);
-  expo_ = std::exponential_distribution<>(1);
-  if (seed == -1) set_seed(generateRandomSeed());
-  else this->set_seed(seed);
+  this->set_seed(seed);
 }
 
 MersenneTwister::MersenneTwister() {
-  this->construct_common(-1);
+  this->construct_common(generateRandomSeed());
 }
 
 MersenneTwister::MersenneTwister(const size_t seed){
@@ -38,7 +36,7 @@ MersenneTwister::MersenneTwister(const size_t seed){
 }
 
 MersenneTwister::MersenneTwister(FastFunc* ff):RandomGenerator(ff) {
-  this->construct_common(-1);
+  this->construct_common(generateRandomSeed());
 }
 
 MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff ):RandomGenerator( ff ) {
@@ -59,6 +57,6 @@ size_t MersenneTwister::generateRandomSeed() const {
 
 void MersenneTwister::set_seed(const size_t seed) {
   RandomGenerator::set_seed(seed);
-  mt_ = std::mt19937(seed);
+  mt_ = std::mt19937_64(seed);
   this->initializeUnitExponential();
 }

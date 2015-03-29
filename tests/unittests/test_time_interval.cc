@@ -172,7 +172,7 @@ class TestTimeInterval : public CppUnit::TestCase {
 
   void testSplitIntervall() {
     TimeIntervalIterator it(forest, forest->nodes()->at(0));
-    Node* split_node = new Node(0.5);
+    Node* split_node = forest->nodes()->createNode(0.5);
     it.splitCurrentInterval(split_node);
     ++it;
 
@@ -188,7 +188,6 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 3);
     CPPUNIT_ASSERT( it.good() );
-    delete split_node;
   }
 
   void testRecalculateTI() {
@@ -204,7 +203,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( it.good() );
 
     // Now change the current interval
-    forest->nodes()->add(new Node(2));
+    forest->nodes()->add(forest->nodes()->createNode(2));
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     it.recalculateInterval();
@@ -222,7 +221,7 @@ class TestTimeInterval : public CppUnit::TestCase {
 
     // Test if we can change the final interval
     while ( (*it).end_height() < 1000 ) ++it;
-    forest->nodes()->add(new Node(1000));
+    forest->nodes()->add(forest->nodes()->createNode(1000));
     it.recalculateInterval();
     CPPUNIT_ASSERT( (*it).end_height() == 1000 ); 
     CPPUNIT_ASSERT_NO_THROW( ++it );

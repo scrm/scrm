@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -22,8 +22,8 @@
 
 #include "fastfunc.h"
 
-double* FastFunc::build_fastlog_double_table( int size ) {
-  double * table = (double*) malloc( (size+1)*sizeof(double) );
+void FastFunc::build_fastlog_double_table(int size) {
+  fastlog_double_table_ = std::vector<double>(size+1);
   double prevx = 1.0;
   double prevy = 0.0;
   for (int index=0; index<size+1; index++) {
@@ -42,9 +42,8 @@ double* FastFunc::build_fastlog_double_table( int size ) {
     double targety = prevy + (targetx-prevx)*(cury-prevy)/(curx-prevx);
 
     // store previous linear approximation in table, and update prevx/y
-    table[index] = (double)(prevy);
+    fastlog_double_table_.at(index) = (double)(prevy);
     prevx = targetx;
     prevy = targety;
   }
-  return table;
 }

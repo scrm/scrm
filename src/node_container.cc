@@ -1,7 +1,7 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
  * 
- * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu and Gerton Lunter
+ * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
  * 
  * This file is part of scrm.
  * 
@@ -31,6 +31,12 @@ NodeContainer::NodeContainer() {
   set_last(NULL);
   unsorted_node_ = NULL;
   size_ = 0;
+
+  node_counter_ = 0;
+  lane_counter_ = 0; 
+  std::vector<Node>* new_lane = new std::vector<Node>();
+  new_lane->reserve(10000);
+  node_lanes_.push_back(new_lane);
 }
 
 NodeContainer::NodeContainer(const NodeContainer &nc) {
@@ -75,6 +81,43 @@ Node* NodeContainer::at(size_t nr) const {
   if ( current == NULL ) throw std::out_of_range("NodeContainer out of range"); 
   return current;
 }
+
+// Adds 'node' to the container
+void NodeContainer::push_back( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_previous(this->last());
+    node->set_next(NULL);
+    this->last()->set_next(node);
+    this->set_last(node);
+    return;
+}
+
+// Adds 'node' to the container
+void NodeContainer::push_front( Node* node ) {
+    ++size_;
+    if ( this->first() == NULL ) {
+        this->set_first( node );
+        this->set_last( node );
+        return;
+    }
+    assert( this->first() != NULL );
+
+    //Adding to the End, similar to vector::push_back
+    node->set_next(first());
+    node->set_previous(NULL);
+    first()->set_previous(node);
+    this->set_first(node);
+    return;
+}
+
 
 
 // Adds 'node' to the container
@@ -152,7 +195,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
     node->next()->set_previous(node->previous());
   }
   
-  if (del) delete node;
+  if (del) free_slots_.push(node);
   assert( this->sorted() );
 }
 
@@ -184,19 +227,15 @@ void NodeContainer::move(Node *node, const double new_height) {
 }
 
 
-// Removes all nodes;
-// The loop deletes the node from the previous iteration because we still need
-// the current node for calling ++it.
 void NodeContainer::clear() {
-  Node* tmp = NULL;
-  for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
-    if (tmp != NULL) delete tmp;
-    tmp = *it;
-  }
-  if (tmp != NULL) delete tmp;
   set_first(NULL);
   set_last(NULL);
   this->size_ = 0;
+  this->node_counter_ = 0;
+  this->lane_counter_ = 0;
+
+  // Clear free_slots_
+  std::stack<Node*>().swap(free_slots_);
 }
 
 void NodeContainer::add_before(Node* add, Node* next_node){

@@ -1,4 +1,4 @@
-.TH SCRM 1 "Jun 2014" "Version 1.0" 
+.TH SCRM 1 "Mar 2015" "Version 1.4.0" 
 .SH NAME
 scrm \- An accurate coalescent simulator for genome-scale sequences
 
@@ -26,10 +26,10 @@ scrm \- An accurate coalescent simulator for genome-scale sequences
 [\fB\-eG\fR \fIt a\fR]...
 [\fB\-t\fR \fItheta\fR [\fB\-oSFS\fR] [\fB\-st\fR \fIb theta\fR]... ]
 [\fB\-seed\fR \fIseed \fR[\fIseed2 seed3\fR]]
+[\fB\-p\fR \fIdigits\fR]
 
 .SH DESCRIPTION
-.B scrm
-is a coalescent simulator for biological sequences. Different to similar
+.B scrm is a coalescent simulator for biological sequences. Different to similar
 programs, it can approximate the Ancestral Recombination Graph with arbitrary
 precision. This allows you to rapidly simulate long sequences with essentially
 correct genetic linkage between sites.
@@ -134,9 +134,7 @@ length between 0 and 1 (rel), absolute in base pairs (abs) or ms-like (ms).
 .SS "Other:"
 .TP
 \fB\-seed\fR \fISEED\fR [\fISEED2\fR \fISEED3\fR]
-The random seed to use. Takes up three
-.IP
-integer numbers.
+The random seed to use. Takes up three integer numbers.
 .TP
 \fB\-v\fR, \fB\-\-version\fR
 Prints the version of scrm.
@@ -144,6 +142,9 @@ Prints the version of scrm.
 \fB\-h\fR, \fB\-\-help\fR
 Prints this text.
 .PP
+.TP
+\fB\-p\fR \fIdigits\fR
+Number of significant digits used in output.
 
 .SH Examples
 .SS Five independent sites for 10 individuals using Kingman's Coalescent:
@@ -157,4 +158,4 @@ scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4 10000
 scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4000 100000000 \fB\-l\fR 0
 .SS "Same as above, but with essentially correct linkage:"
 .IP
-scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4000 100000000 \fB\-l\fR 100000 
+scrm 4 1 \fB\-t\fR 10 \fB\-r\fR 4000 100000000 \fB\-l\fR 300000 

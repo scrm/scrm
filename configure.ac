@@ -1,5 +1,8 @@
-AC_INIT([scrm], [1.3.2],[https://github.com/paulstaab/scrm/issues])
+AC_INIT([scrm], [1.4.0],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
+
+# Use -O3 as default optimization level
+: ${CXXFLAGS="-O3"}
 
 # Suppress output at compilation
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
@@ -16,7 +19,7 @@ AC_CANONICAL_HOST
 AC_PROG_RANLIB
 
 # Check for C++11
-AX_CXX_COMPILE_STDCXX_11()
+AX_CXX_COMPILE_STDCXX_11(,mandatory)
 
 # Checks for libraries
 AC_CHECK_LIB(cppunit,TestCase,[])
@@ -30,9 +33,14 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
-# Checks for library functions.
-#AC_FUNC_MALLOC (breaks cross-compilate for windows)
-#AC_FUNC_REALLOC
+# Enable Link-time optimization if supported (gcc only)
+if test x$CXX = xg++; then
+  AX_CHECK_COMPILE_FLAG([-flto], [OPT_CXXFLAGS="-flto"], [], [-Werror])
+  AC_SUBST(OPT_CXXFLAGS)
+fi
+
+# Enable Warnings
+AX_CXXFLAGS_WARN_ALL
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
