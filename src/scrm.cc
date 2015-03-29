@@ -51,7 +51,9 @@ int main(int argc, char *argv[]){
       return EXIT_SUCCESS;
     }
 
-    MersenneTwister rg = MersenneTwister(user_para.random_seed());
+    MersenneTwister rg;
+    if (user_para.seed_is_set()) rg = MersenneTwister(user_para.random_seed());
+    else rg = MersenneTwister();
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 

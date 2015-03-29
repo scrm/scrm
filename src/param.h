@@ -84,7 +84,8 @@ class Param {
   }
 
   void init() {
-    this->set_random_seed(-1);
+    this->seed_set_ = false;
+    this->random_seed_ = 0;
     this->set_help(false);
     this->set_version(false);
     this->set_precision(6);
@@ -96,9 +97,13 @@ class Param {
   bool version() const { return version_; }
   bool read_init_genealogy() const { return this->read_init_genealogy_; }
   size_t random_seed() const { return random_seed_; }
-  void set_random_seed(const size_t seed) { this->random_seed_ = seed; }
+  void set_random_seed(const size_t seed) { 
+    this->random_seed_ = seed;
+    this->seed_set_ = true; 
+  }
   size_t precision() const { return precision_; }
   void set_precision ( const size_t p ) { this->precision_ = p; }
+  bool seed_is_set() const { return this->seed_set_; }
 
   // Other methods
   void printHelp(std::ostream& stream);
@@ -133,6 +138,7 @@ class Param {
   int argc_;
   int argc_i;
   char * const* argv_;
+  size_t seed_set_;
   size_t random_seed_;
   size_t precision_;
   bool directly_called_;
