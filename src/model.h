@@ -324,6 +324,8 @@ class Model
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
    };
 
+   size_t getNumEpochs() const { return change_times_.size(); }
+
    void increaseSequencePosition() {
     ++current_seq_idx_;
    }
