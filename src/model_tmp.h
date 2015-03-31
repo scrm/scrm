@@ -189,8 +189,8 @@ class Model
     * @return The current unscaled, backwards migration rate.
     */
    double migration_rate(const size_t source, const size_t sink) const {
-     if (sink == source) return 0.0;
      if (current_mig_rates_ == NULL) return default_mig_rate;
+     if (sink == source) return 0.0;
      return current_mig_rates_->at( getMigMatrixIndex(source, sink) );  
    };
 
@@ -323,8 +323,6 @@ class Model
      if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
        current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
    };
-
-   size_t getNumEpochs() const { return change_times_.size(); }
 
    void increaseSequencePosition() {
     ++current_seq_idx_;

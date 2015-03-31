@@ -48,7 +48,8 @@ class TimeInterval {
   const Forest &forest() const;
 
   size_t numberOfContemporaries(const size_t pop = 0) const;
-
+  size_t numberOfLocalContemporaries() const ;
+  
   Node* getRandomContemporary(const size_t pop = 0) const;
 
   const std::vector<Node*> &contemporaries() const;
@@ -67,7 +68,7 @@ class TimeInterval {
 class TimeIntervalIterator {
  public:
   TimeIntervalIterator();
-  TimeIntervalIterator(Forest *forest, Node *start_node);
+  TimeIntervalIterator(Forest *forest, Node *start_node, bool prune=true);
   ~TimeIntervalIterator() {};
 
   void next();
@@ -100,6 +101,13 @@ class TimeIntervalIterator {
   const std::vector<Node*> &contemporaries() const { return contemporaries_; };
   const Forest &forest() const { return *forest_; };
   size_t numberOfContemporaries(const size_t pop = 0) const { return pop_counts_.at(pop); };
+  size_t numberOfLocalContemporaries() const {
+    size_t num = 0;
+    for ( size_t i = 0 ; i < this->contemporaries_.size() ; i++){
+      if ( this->contemporaries_[i]->local() ) num++;
+    }
+    return num;  
+  }
 
 #ifdef UNITTEST
   friend class TestTimeInterval;
@@ -118,6 +126,7 @@ class TimeIntervalIterator {
 
   bool good_;
   bool model_changed_;
+  bool prune;
 
   Node* inside_node_;
 };
@@ -126,6 +135,10 @@ inline const Forest &TimeInterval::forest() const { return tii_->forest(); }
 
 inline size_t TimeInterval::numberOfContemporaries(const size_t pop) const {
   return tii_->numberOfContemporaries(pop); 
+}
+
+inline size_t TimeInterval::numberOfLocalContemporaries() const {
+  return tii_->numberOfLocalContemporaries();
 }
 
 inline const std::vector<Node*> &TimeInterval::contemporaries() const {

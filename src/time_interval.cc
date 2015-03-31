@@ -81,14 +81,17 @@ TimeIntervalIterator::TimeIntervalIterator() {
   this->forest_ = NULL;
   this->node_iterator_ = forest_->nodes()->iterator();
   this->good_ = true;
+  this->prune = true;
   this->inside_node_ = NULL;
 }
 
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
-                                           Node* start_node) {
+                                           Node* start_node,
+                                           bool prune) {
   this->forest_ = forest;
   this->good_ = true;
+  this->prune = prune;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
@@ -134,10 +137,12 @@ void TimeIntervalIterator::next() {
     updateContemporaries(*node_iterator_);
 
     // Pruning
-    while ( !(*node_iterator_)->is_last() ) {
-      // Prunes the next node BEFORE node_iterator_ gets there, 
-      // and does there not invalidate it.
-      if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
+    if (this->prune) {
+        while ( !(*node_iterator_)->is_last() ) {
+            // Prunes the next node BEFORE node_iterator_ gets there, 
+            // and does there not invalidate it.
+            if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
+        }
     }
 
     // Move node iterator forwards

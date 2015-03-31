@@ -96,19 +96,20 @@ class TestForest : public CppUnit::TestCase {
     forest->set_active_node(1, node2);
     forest->states_[0] = 0;
     forest->states_[1] = 0;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    forest->recomb_opp_x_within_scrm = 0;
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii, forest->recomb_opp_x_within_scrm) );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
 
     forest->states_[0] = 1;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii, forest->recomb_opp_x_within_scrm) );
     CPPUNIT_ASSERT_EQUAL( 4.0/pop_size, forest->rates_[0] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
 
     forest->states_[1] = 1;
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii, forest->recomb_opp_x_within_scrm) );
     CPPUNIT_ASSERT( areSame(9.0/pop_size, forest->rates_[0]) );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );   
@@ -118,7 +119,7 @@ class TestForest : public CppUnit::TestCase {
     node1->set_population(1);
     forest->nodes()->at(1)->set_population(1);
     TimeIntervalIterator tii2(forest, forest->nodes()->at(0));
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii2) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii2, forest->recomb_opp_x_within_scrm) );
     // Only node2 can coalescence
     CPPUNIT_ASSERT( areSame(4.0/pop_size, forest->rates_[0]) );   
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );   
@@ -131,7 +132,7 @@ class TestForest : public CppUnit::TestCase {
     forest->writable_model()->addGrowthRates(1, growth);
     TimeIntervalIterator tii3(forest, forest->nodes()->at(0));
 
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3, forest->recomb_opp_x_within_scrm) );
     CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[0]) );   
     CPPUNIT_ASSERT( areSame(1.0/pop_size, forest->rates_[1]) );   
     CPPUNIT_ASSERT( areSame(0.0/pop_size, forest->rates_[2]) );   
@@ -139,7 +140,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)0, forest->active_nodes_timelines_[1] );   
     
     forest->writable_model()->increaseTime();
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3, forest->recomb_opp_x_within_scrm) );
     //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
     //CPPUNIT_ASSERT_EQUAL( 1.0/pop_size, forest->rates_[1] );   
     //CPPUNIT_ASSERT_EQUAL( 3.0/pop_size, forest->rates_[2] );   
@@ -147,7 +148,7 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)2, forest->active_nodes_timelines_[1] );   
 
     node2->set_population(1);
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3) );
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii3, forest->recomb_opp_x_within_scrm) );
     //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[0] );   
     //CPPUNIT_ASSERT( areSame(3.0/pop_size, forest->rates_[1]) );   
     //CPPUNIT_ASSERT_EQUAL( 0.0/pop_size, forest->rates_[2] );   
@@ -195,6 +196,7 @@ class TestForest : public CppUnit::TestCase {
   void testSampleEventType() {
     Event event;
     Forest *forest2 = new Forest(new Model(5), rg);
+    forest2->recomb_opp_x_within_scrm = 0;
     forest2->createExampleTree();
     forest2->writable_model()->set_population_number(2);
     forest2->nodes()->at(0)->set_population(1);
@@ -212,7 +214,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->set_active_node(1, forest2->nodes()->at(2));
     forest2->states_[0] = 1;
     forest2->states_[1] = 0;
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
     forest2->active_nodes_timelines_[0] = 0;
     forest2->active_nodes_timelines_[1] = 0;
 
@@ -235,7 +237,7 @@ class TestForest : public CppUnit::TestCase {
     // active_node 1: Pop 0, 2 Contemporaries
     // => 50% each 
     forest2->states_[1] = 1;
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
     size_t count = 0, count2 = 0;
     for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
@@ -250,7 +252,7 @@ class TestForest : public CppUnit::TestCase {
     // 4/5 Prob of Coalescence, 1/5 of Pw coalescence
     forest2->writable_model()->resetTime();
     forest2->set_active_node(1, forest2->nodes()->at(1));
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
     count = 0;
     for (size_t i = 0; i < 10000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
@@ -267,7 +269,7 @@ class TestForest : public CppUnit::TestCase {
     // => 40% Coal, 10% Pw Coal, 50% Mig 
     forest2->writable_model()->increaseTime();
     forest2->writable_model()->increaseTime();
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
 
     count = 0;
     for (size_t i = 0; i < 10000; ++i) {
@@ -291,7 +293,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->states_[1] = 2;
     forest2->active_node(1)->make_nonlocal(10);
     forest2->writable_model()->resetTime(); // set migration to 0
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
 
     count = 0;
     for (size_t i = 0; i < 100000; ++i) {
@@ -307,7 +309,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->set_active_node(0, tmp);
     forest2->states_[0] = 2;
     forest2->states_[1] = 1;
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
 
     count = 0;
     for (size_t i = 0; i < 100000; ++i) {
@@ -325,7 +327,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->states_[1] = 2;
     forest2->active_node(0)->make_nonlocal(15);
     forest2->active_node(1)->make_nonlocal(10);
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
 
     count = 0;
     for (size_t i = 0; i < 15000; ++i) {
@@ -342,7 +344,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->states_[0] = 1;
     forest2->active_node(0)->make_local();
     forest2->active_node(1)->set_last_update(20);
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
     for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
       CPPUNIT_ASSERT( event.isCoalescence() );
@@ -357,7 +359,7 @@ class TestForest : public CppUnit::TestCase {
     forest2->states_[1] = 1;
     forest2->active_node(0)->set_population(0);
     forest2->active_node(1)->set_population(1);
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
 
     for (size_t i = 0; i < 100; ++i) {
       CPPUNIT_ASSERT_NO_THROW( forest2->sampleEventType(0.5, 0, *tii, event) );
@@ -372,7 +374,7 @@ class TestForest : public CppUnit::TestCase {
 
     forest2->active_node(0)->set_population(0);
     forest2->active_node(1)->set_population(0);
-    forest2->calcRates(*tii);
+    forest2->calcRates(*tii, forest2->recomb_opp_x_within_scrm);
     for (size_t i = 0; i < 100; ++i) {
       CPPUNIT_ASSERT_NO_THROW( forest2->sampleEventType(0.5, 0, *tii, event) );
       CPPUNIT_ASSERT( event.isMigration() );
@@ -422,7 +424,8 @@ class TestForest : public CppUnit::TestCase {
     forest2.set_active_node(1, forest2.nodes()->at(8));
     forest2.states_[0] = 1;
     forest2.states_[1] = 0;
-    forest2.calcRates(*tii);
+    double recomb_opp_x_within_scrm = 0;
+    forest2.calcRates(*tii, recomb_opp_x_within_scrm);
     forest2.active_nodes_timelines_[0] = 0;
     forest2.active_nodes_timelines_[1] = 0;
     
@@ -436,7 +439,8 @@ class TestForest : public CppUnit::TestCase {
     }
 
     ++tii;
-    forest2.calcRates(*tii);
+    
+    forest2.calcRates(*tii, recomb_opp_x_within_scrm);
     for (size_t i = 0; i < 1000; ++i) {
       forest2.sampleEvent(*tii, tmp_event_time, tmp_event_line, event); 
       CPPUNIT_ASSERT( event.isNoEvent() || ( forest2.nodes()->at(4)->height() <= event.time() && event.time() < forest2.nodes()->at(5)->height() ) );
