@@ -224,6 +224,8 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame(10.0 * model.default_pop_size, model.population_size(0)) );
+
+    CPPUNIT_ASSERT_THROW( model.addPopulationSizes(3, 0, true, true), std::invalid_argument);
   }
 
   void testAddGrowthRates() {

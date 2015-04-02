@@ -266,6 +266,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
     if (relative) { *it *= this->default_pop_size; }
 
     // Save inverse double value
+    if (*it <= 0.0) throw std::invalid_argument("population size <= 0");
     *it = 1.0/(2 * *it);
   }
 
@@ -318,6 +319,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
+  if (population_size <= 0.0) throw std::invalid_argument("population size <= 0");
   if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
   pop_sizes_list_.at(position)->at(pop) = 1.0/(2*population_size);
 }
@@ -518,31 +520,52 @@ void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
 } 
 
 
-std::ostream& operator<<(std::ostream& os, const Model& model) {
+std::ostream& operator<<(std::ostream& os, Model& model) {
+  size_t n_pops = model.population_number();
   os << "---- Model: ------------------------" << std::endl;
   os << "Sample size: " << model.sample_size() << std::endl;  
 
-  for (size_t idx = 0; idx < model.change_position_.size(); ++idx) {
-    os << std::endl << "At position " << model.change_position_.at(idx) << ":" << std::endl;  
-    os << " Mutation rate: " << model.mutation_rates_.at(idx) << std::endl;  
-    os << " Recombination rate: " << model.recombination_rates_.at(idx) << std::endl;  
+  model.resetSequencePosition();
+  for (size_t idx = 0; idx < model.countChangePositions(); ++idx) {
+    os << std::endl << "At position " << model.getCurrentSequencePosition() << ":" << std::endl;  
+    os << " Mutation rate: " << model.mutation_rate() << std::endl;  
+    os << " Recombination rate: " << model.recombination_rate() << std::endl;  
+    model.increaseSequencePosition();
   }
+  model.resetSequencePosition();
   
-  for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
-    os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
-    if (model.pop_sizes_list_.at(idx) != NULL) {
-      os << " Population sizes: " << *(model.pop_sizes_list_.at(idx)) << std::endl;
+  model.resetTime();
+  for (size_t idx = 0; idx < model.countChangeTimes(); ++idx) { 
+    os << std::endl << "At time " << model.getCurrentTime() << ":" << std::endl;  
+    
+    os << " Pop sizes:    ";
+    for (size_t pop = 0; pop < n_pops; ++pop) os << model.population_size(pop) << "\t";
+    os << std::endl;
+
+    os << " Growth rates: ";
+    for (size_t pop = 0; pop < n_pops; ++pop) os << model.growth_rate(pop) << "\t";
+    os << std::endl;
+
+    os << " Migration Matrix: " << std::endl;
+    for (size_t i = 0; i < n_pops; ++i) {
+      for (size_t j = 0; j < n_pops; ++j) {
+        os << std::setw(10) << std::right << model.migration_rate(i, j);
+      }
+      os << std::endl;
     }
-    if (model.growth_rates_list_.at(idx) != NULL) {
-      os << " Growth Rates: " << *(model.growth_rates_list_.at(idx)) << std::endl;
+    
+    for (size_t i = 0; i < n_pops; ++i) {
+      for (size_t j = 0; j < n_pops; ++j) {
+        if (model.single_mig_pop(i, j) != 0) {
+          os << " " << model.single_mig_pop(i, j) * 100 << "\% of pop " 
+             << i << " move to pop " << j << std::endl;
+        }
+      }
     }
-    if (model.mig_rates_list_.at(idx) != NULL) {
-      os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
-    }
-    if (model.single_mig_probs_list_.at(idx) != NULL) {
-      os << " Single Mig Rates: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
-    }
+
+    if (idx < model.countChangeTimes() - 1) model.increaseTime();
   }
+  model.resetTime();
   os << "------------------------------------" << std::endl;
   return(os);
 }
