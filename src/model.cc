@@ -266,6 +266,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
     if (relative) { *it *= this->default_pop_size; }
 
     // Save inverse double value
+    if (*it <= 0.0) throw std::invalid_argument("population size <= 0");
     *it = 1.0/(2 * *it);
   }
 
@@ -318,6 +319,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
+  if (population_size <= 0.0) throw std::invalid_argument("population size <= 0");
   if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
   pop_sizes_list_.at(position)->at(pop) = 1.0/(2*population_size);
 }
@@ -531,7 +533,11 @@ std::ostream& operator<<(std::ostream& os, const Model& model) {
   for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
     os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
     if (model.pop_sizes_list_.at(idx) != NULL) {
-      os << " Population sizes: " << *(model.pop_sizes_list_.at(idx)) << std::endl;
+      os << " Population sizes: ";
+      for (double pop_size : *(model.pop_sizes_list_.at(idx))) {
+        os << 0.5 / pop_size << " ";
+      }
+      os << std::endl;
     }
     if (model.growth_rates_list_.at(idx) != NULL) {
       os << " Growth Rates: " << *(model.growth_rates_list_.at(idx)) << std::endl;
