@@ -39,10 +39,10 @@ void Forest::createExampleTree() {
   leaf3->set_label(3);
   leaf4->set_label(4);
 
-  this->nodes()->add(leaf1);
-  this->nodes()->add(leaf2);
-  this->nodes()->add(leaf3);
   this->nodes()->add(leaf4);
+  this->nodes()->add(leaf3);
+  this->nodes()->add(leaf2);
+  this->nodes()->add(leaf1);
 
   Node* node12 = nodes()->createNode(1);
   this->addNodeToTree(node12, NULL, leaf1, leaf2);
@@ -302,6 +302,19 @@ bool Forest::checkTree(Node const* root) const {
     }
   }
 
+  // Check that parent if above node
+  if (!root->is_root()) {
+    Node* parent = root->parent();
+    Node const* current = root;
+    while (current != parent) {
+      if (current->is_last()) {
+        dout << root << ": node is above it's parent.";
+        return 0;
+      }
+      current = current->next();
+    } 
+  }
+
   return child1*child2;
 }
 
@@ -542,7 +555,10 @@ bool Forest::checkContemporaries(const double time) const {
       }
 
       if ( (*it)->height() > time || (*it)->parent_height() <= time ) {
-        dout << "Non-contemporary node " << *it << " in contemporaries" << std::endl; 
+        dout << "Non-contemporary node " << *it << " in contemporaries " 
+             << "at time " << time << " (node at " << (*it)->height() 
+             << "; parent at " << (*it)->parent_height() << ")." << std::endl; 
+        printNodes();
         return 0;
       }
 

@@ -75,12 +75,17 @@ echo "Testing Merge"
  test_scrm 20 2 -r 5 200 -I 2 10 10 1.5 -es 0.9 1 0.8 -es 1.6 2 0.5 -eM 2.0 1 -l 50 || exit 1
 echo ""
 
-echo "Testing Growth..."
+echo "Testing Growth"
  test_scrm 5 100 -r 20 200 -G 1.5 -l 25 || exit 1
  test_scrm 5 60 -r 2 200 -G -2.5 -eG 1 0.0 -l 25 || exit 1
  test_scrm 4 30 -r 2 200 -G -2.5 -eN 1 0.25 -eG 2 0.0 -eN 2.5 0.25 -l 25 || exit 1
 echo ""
 
-echo "Testing Variable Rates..."
+echo "Testing Variable Rates"
  test_scrm 3 200 -r 2 100 -t 5 -st 10 10 -sr 20 5 -st 30 1 -sr 40 0 -st 50 20 -T || exit 1
 echo ""
+
+echo "Split at time 0"
+ test_scrm 6 1 -I 2 3 3 0.5 -r 1 100 -es 0 2 0.5 -ej 1 3 1 -t 1  || exit 1
+echo ""
+

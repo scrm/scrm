@@ -1,6 +1,15 @@
 scrm Version History
 ========================
 
+scrm 1.4.1
+------------------------
+Released: Not yet
+
++ Added an error message when a population size is set to 0 (#52)
++ Bug fix: When -es was used at time 0, _scrm_ ran into an endless loop (#53)
+
+
+
 scrm 1.4.0
 ------------------------
 Released: 2015-03-29

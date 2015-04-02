@@ -134,7 +134,7 @@ void NodeContainer::add(Node* node, Node* after_node) {
   assert(first() != NULL);
 
   // Before first node?
-  if (node->height() <= first()->height()) {
+  if (node->height() < first()->height()) {
     node->set_next(first());
     node->set_previous(NULL);
     first()->set_previous(node);
