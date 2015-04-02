@@ -42,6 +42,7 @@
 #include <stdexcept>
 #include <cassert>
 #include <cmath>
+#include <iomanip>
 
 #include "summary_statistics/summary_statistic.h"
 
@@ -60,7 +61,6 @@ class Model
 #endif
    friend class Forest;
    friend class Param;
-   friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
    Model(size_t sample_size);
@@ -289,7 +289,7 @@ class Model
    }
 
    void increaseTime() { 
-     if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
+     if ( current_time_idx_ == change_times_.size() ) throw std::out_of_range("Model change times out of range");
      ++current_time_idx_;
 
      if ( pop_sizes_list_.at(current_time_idx_) != NULL ) 
@@ -305,6 +305,9 @@ class Model
    void increaseSequencePosition() {
     ++current_seq_idx_;
    }
+
+   size_t countChangeTimes() const { return change_times_.size(); }
+   size_t countChangePositions() const { return change_position_.size(); } 
   
    void print(std::ostream &os) const;
 
@@ -479,7 +482,7 @@ class Model
 
 
 
-std::ostream& operator<<(std::ostream& os, const Model& model); 
+std::ostream& operator<<(std::ostream& os, Model& model); 
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
