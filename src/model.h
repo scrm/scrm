@@ -414,6 +414,10 @@ class Model
 
   void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double default_value);
   void calcPopSizes();
+  void checkPopulation(const size_t pop) {
+    if (pop >= this->population_number()) 
+      throw std::invalid_argument("Invalid population"); 
+  }
 
   template <typename T>
   std::vector<T*> copyVectorList(const std::vector<T*> &source);

@@ -315,6 +315,7 @@ void Model::addPopulationSizes(const double time, const double pop_size,
  */
 void Model::addPopulationSize(const double time, const size_t pop, double population_size,
                               const bool &time_scaled, const bool &relative) {
+  checkPopulation(pop);
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
@@ -385,6 +386,7 @@ void Model::addGrowthRates(const double time, const double growth_rate,
  */
 void Model::addGrowthRate(const double time, const size_t population, 
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
+  checkPopulation(population);
   size_t position = addChangeTime(time, time_scaled);
   if (rate_scaled) growth_rate *= scaling_factor();
   if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace"), time_scaled); 
@@ -416,6 +418,8 @@ void Model::addGrowthRate(const double time, const size_t population,
  */
 void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
                              const bool &scaled_time, const bool &scaled_rates) {
+  checkPopulation(source);
+  checkPopulation(sink);
   size_t position = addChangeTime(time, scaled_time);
   if (scaled_rates) mig_rate *= scaling_factor();
   if (mig_rates_list_.at(position) == NULL) { 
