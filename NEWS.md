@@ -5,6 +5,8 @@ scrm 1.4.1
 ------------------------
 Released: Not yet
 
++ Bug fix: Wrong population size where calculated when migration rates
+  changes or population splits and merges occurred in an growth period (#56)
 + Added an error message when a population size is set to 0 (#52)
 + Bug fix: When -es was used at time 0, _scrm_ ran into an endless loop (#53)
 

@@ -17,7 +17,6 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "model.h"
@@ -539,7 +538,7 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
     os << std::endl << "At time " << model.getCurrentTime() << ":" << std::endl;  
     
     os << " Pop sizes:    ";
-    for (size_t pop = 0; pop < n_pops; ++pop) os << model.population_size(pop) << "\t";
+    for (size_t pop = 0; pop < n_pops; ++pop) os << model.population_size(pop, model.getCurrentTime()) << "\t";
     os << std::endl;
 
     os << " Growth rates: ";
@@ -617,55 +616,45 @@ void Model::finalize() {
 }
 
 void Model::calcPopSizes() {
+  // Set initial population sizes
   if (pop_sizes_list_.at(0) == NULL) addPopulationSizes(0, default_pop_size); 
+  else {
+    // Replace values not set by the user with the default size
+    for (size_t pop = 0; pop < population_number(); ++pop) {
+      if (std::isnan(pop_sizes_list_.at(0)->at(pop)))
+        addPopulationSize(0, pop, default_pop_size);
+    }
+  }
 
   size_t last_growth = -1;
-  size_t last_pop_size = 0;
   double duration = -1;
+  for (size_t i = 1; i < change_times_.size(); ++i) {
+    if (growth_rates_list_.at(i - 1) != NULL) last_growth = i - 1;
 
-  for (size_t i = 0; i < change_times_.size(); ++i) {
-    if (pop_sizes_list_.at(i) == NULL && growth_rates_list_.at(i) == NULL) {
-      // Pop sizes do not change at this time
-      continue;
-    }
-
-    if (pop_sizes_list_.at(i) == NULL && last_growth == -1) { 
-      // The first growth event also does not change the pop sizes 
-      last_growth = i;
-      continue;
-    }
-
-    // Make sure we always have a pop sizes vector in the remaining cases
+    // Make sure we always have a pop sizes vector
     if (pop_sizes_list_.at(i) == NULL) {
       addPopulationSizes(change_times_.at(i), nan("value to replace"));
       assert(pop_sizes_list_.at(i) != NULL); 
     }
 
     // Calculate the effective duration of a growth period if it ends here 
-    if (last_growth != -1) {  
-      duration = change_times_.at(i) - change_times_.at(std::max(last_pop_size, last_growth));
-    }
+    duration = change_times_.at(i) - change_times_.at(i - 1);
 
     // Calculate the population sizes: 
     for (size_t pop = 0; pop < population_number(); ++pop) {
       // If the user explicitly gave a value => always use this value
       if ( !std::isnan(pop_sizes_list_.at(i)->at(pop)) ) continue; 
       
-      // Else copy the last value we had...
-      if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
-        pop_sizes_list_.at(i)->at(pop) = scaling_factor() * 2;
-      else
-        pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
+      assert(!std::isnan(pop_sizes_list_.at(i - 1)->at(pop)));          
+      // Otherwise use last value
+      pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(i - 1)->at(pop);  
 
       // ... and scale it if there was growth 
-      if (last_growth != -1) {  
+      if (last_growth != -1) {
         pop_sizes_list_.at(i)->at(pop) *=  
           std::exp((growth_rates_list_.at(last_growth)->at(pop)) * duration);
       }
     }
-
-    last_pop_size = i;
-    if (growth_rates_list_.at(i) != NULL) last_growth = i;
   } 
 }
 
