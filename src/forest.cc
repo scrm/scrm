@@ -290,6 +290,7 @@ void Forest::buildInitialTree() {
   this->set_primary_root(first_node);
   dout << "done." << std::endl;
 
+  Node* last_added_node = NULL;
   for (size_t i=1; i < this->model().sample_size(); i++) {
     this->set_sample_size(i+1);
 
@@ -299,7 +300,8 @@ void Forest::buildInitialTree() {
     new_leaf->set_population(model().sample_population(i));
     dout << new_leaf << "(" << new_leaf->population() << ") "
          << "at height " << new_leaf->height() << std::endl;
-    nodes()->add(new_leaf);
+    nodes()->add(new_leaf, last_added_node);
+    if (new_leaf->height() == 0.0) last_added_node = new_leaf;
     dout << "* starting coalescences" << std::endl;
 
     //Coalesces the separate tree into the main tree

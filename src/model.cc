@@ -17,7 +17,6 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 */
 
 #include "model.h"
@@ -266,6 +265,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
     if (relative) { *it *= this->default_pop_size; }
 
     // Save inverse double value
+    if (*it <= 0.0) throw std::invalid_argument("population size <= 0");
     *it = 1.0/(2 * *it);
   }
 
@@ -315,9 +315,11 @@ void Model::addPopulationSizes(const double time, const double pop_size,
  */
 void Model::addPopulationSize(const double time, const size_t pop, double population_size,
                               const bool &time_scaled, const bool &relative) {
+  checkPopulation(pop);
   size_t position = addChangeTime(time, time_scaled);
   if (relative) population_size *= default_pop_size;
 
+  if (population_size <= 0.0) throw std::invalid_argument("population size <= 0");
   if (pop_sizes_list_.at(position) == NULL) addPopulationSizes(time, nan("value to replace"), time_scaled);
   pop_sizes_list_.at(position)->at(pop) = 1.0/(2*population_size);
 }
@@ -384,6 +386,7 @@ void Model::addGrowthRates(const double time, const double growth_rate,
  */
 void Model::addGrowthRate(const double time, const size_t population, 
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
+  checkPopulation(population);
   size_t position = addChangeTime(time, time_scaled);
   if (rate_scaled) growth_rate *= scaling_factor();
   if (growth_rates_list_.at(position) == NULL) addGrowthRates(time, nan("number to replace"), time_scaled); 
@@ -415,6 +418,8 @@ void Model::addGrowthRate(const double time, const size_t population,
  */
 void Model::addMigrationRate(double time, size_t source, size_t sink, double mig_rate,
                              const bool &scaled_time, const bool &scaled_rates) {
+  checkPopulation(source);
+  checkPopulation(sink);
   size_t position = addChangeTime(time, scaled_time);
   if (scaled_rates) mig_rate *= scaling_factor();
   if (mig_rates_list_.at(position) == NULL) { 
@@ -518,31 +523,52 @@ void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
 } 
 
 
-std::ostream& operator<<(std::ostream& os, const Model& model) {
+std::ostream& operator<<(std::ostream& os, Model& model) {
+  size_t n_pops = model.population_number();
   os << "---- Model: ------------------------" << std::endl;
   os << "Sample size: " << model.sample_size() << std::endl;  
 
-  for (size_t idx = 0; idx < model.change_position_.size(); ++idx) {
-    os << std::endl << "At position " << model.change_position_.at(idx) << ":" << std::endl;  
-    os << " Mutation rate: " << model.mutation_rates_.at(idx) << std::endl;  
-    os << " Recombination rate: " << model.recombination_rates_.at(idx) << std::endl;  
+  model.resetSequencePosition();
+  for (size_t idx = 0; idx < model.countChangePositions(); ++idx) {
+    os << std::endl << "At position " << model.getCurrentSequencePosition() << ":" << std::endl;  
+    os << " Mutation rate: " << model.mutation_rate() << std::endl;  
+    os << " Recombination rate: " << model.recombination_rate() << std::endl;  
+    model.increaseSequencePosition();
   }
+  model.resetSequencePosition();
   
-  for (size_t idx = 0; idx < model.change_times_.size(); ++idx) { 
-    os << std::endl << "At time " << model.change_times_.at(idx) << ":" << std::endl;  
-    if (model.pop_sizes_list_.at(idx) != NULL) {
-      os << " Population sizes: " << *(model.pop_sizes_list_.at(idx)) << std::endl;
+  model.resetTime();
+  for (size_t idx = 0; idx < model.countChangeTimes(); ++idx) { 
+    os << std::endl << "At time " << model.getCurrentTime() << ":" << std::endl;  
+    
+    os << " Pop sizes:    ";
+    for (size_t pop = 0; pop < n_pops; ++pop) os << model.population_size(pop, model.getCurrentTime()) << "\t";
+    os << std::endl;
+
+    os << " Growth rates: ";
+    for (size_t pop = 0; pop < n_pops; ++pop) os << model.growth_rate(pop) << "\t";
+    os << std::endl;
+
+    os << " Migration Matrix: " << std::endl;
+    for (size_t i = 0; i < n_pops; ++i) {
+      for (size_t j = 0; j < n_pops; ++j) {
+        os << std::setw(10) << std::right << model.migration_rate(i, j);
+      }
+      os << std::endl;
     }
-    if (model.growth_rates_list_.at(idx) != NULL) {
-      os << " Growth Rates: " << *(model.growth_rates_list_.at(idx)) << std::endl;
+    
+    for (size_t i = 0; i < n_pops; ++i) {
+      for (size_t j = 0; j < n_pops; ++j) {
+        if (model.single_mig_pop(i, j) != 0) {
+          os << " " << model.single_mig_pop(i, j) * 100 << "\% of pop " 
+             << i << " move to pop " << j << std::endl;
+        }
+      }
     }
-    if (model.mig_rates_list_.at(idx) != NULL) {
-      os << " Mig Rates: " << *(model.mig_rates_list_.at(idx)) << std::endl;
-    }
-    if (model.single_mig_probs_list_.at(idx) != NULL) {
-      os << " Single Mig Rates: " << *(model.single_mig_probs_list_.at(idx)) << std::endl;
-    }
+
+    if (idx < model.countChangeTimes() - 1) model.increaseTime();
   }
+  model.resetTime();
   os << "------------------------------------" << std::endl;
   return(os);
 }
@@ -594,55 +620,45 @@ void Model::finalize() {
 }
 
 void Model::calcPopSizes() {
+  // Set initial population sizes
   if (pop_sizes_list_.at(0) == NULL) addPopulationSizes(0, default_pop_size); 
+  else {
+    // Replace values not set by the user with the default size
+    for (size_t pop = 0; pop < population_number(); ++pop) {
+      if (std::isnan(pop_sizes_list_.at(0)->at(pop)))
+        addPopulationSize(0, pop, default_pop_size);
+    }
+  }
 
   size_t last_growth = -1;
-  size_t last_pop_size = 0;
   double duration = -1;
+  for (size_t i = 1; i < change_times_.size(); ++i) {
+    if (growth_rates_list_.at(i - 1) != NULL) last_growth = i - 1;
 
-  for (size_t i = 0; i < change_times_.size(); ++i) {
-    if (pop_sizes_list_.at(i) == NULL && growth_rates_list_.at(i) == NULL) {
-      // Pop sizes do not change at this time
-      continue;
-    }
-
-    if (pop_sizes_list_.at(i) == NULL && last_growth == -1) { 
-      // The first growth event also does not change the pop sizes 
-      last_growth = i;
-      continue;
-    }
-
-    // Make sure we always have a pop sizes vector in the remaining cases
+    // Make sure we always have a pop sizes vector
     if (pop_sizes_list_.at(i) == NULL) {
       addPopulationSizes(change_times_.at(i), nan("value to replace"));
       assert(pop_sizes_list_.at(i) != NULL); 
     }
 
     // Calculate the effective duration of a growth period if it ends here 
-    if (last_growth != -1) {  
-      duration = change_times_.at(i) - change_times_.at(std::max(last_pop_size, last_growth));
-    }
+    duration = change_times_.at(i) - change_times_.at(i - 1);
 
     // Calculate the population sizes: 
     for (size_t pop = 0; pop < population_number(); ++pop) {
       // If the user explicitly gave a value => always use this value
       if ( !std::isnan(pop_sizes_list_.at(i)->at(pop)) ) continue; 
       
-      // Else copy the last value we had...
-      if ( std::isnan(pop_sizes_list_.at(last_pop_size)->at(pop)) ) 
-        pop_sizes_list_.at(i)->at(pop) = scaling_factor() * 2;
-      else
-        pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(last_pop_size)->at(pop);  
+      assert(!std::isnan(pop_sizes_list_.at(i - 1)->at(pop)));          
+      // Otherwise use last value
+      pop_sizes_list_.at(i)->at(pop) = pop_sizes_list_.at(i - 1)->at(pop);  
 
       // ... and scale it if there was growth 
-      if (last_growth != -1) {  
+      if (last_growth != -1) {
         pop_sizes_list_.at(i)->at(pop) *=  
           std::exp((growth_rates_list_.at(last_growth)->at(pop)) * duration);
       }
     }
-
-    last_pop_size = i;
-    if (growth_rates_list_.at(i) != NULL) last_growth = i;
   } 
 }
 

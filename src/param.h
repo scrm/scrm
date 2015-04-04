@@ -64,6 +64,7 @@ class Param {
     argc_i = other.argc_i;
     argv_ = other.argv_;
     random_seed_ = other.random_seed_;  
+    seed_set_ = other.seed_set_;
     directly_called_ = other.directly_called_;
     help_ = other.help_;
     version_ = other.version_;
@@ -76,6 +77,7 @@ class Param {
     argc_i = other.argc_i;
     argv_ = other.argv_;
     random_seed_ = other.random_seed_;  
+    seed_set_ = other.seed_set_;
     directly_called_ = other.directly_called_;
     help_ = other.help_;
     version_ = other.version_;

@@ -554,7 +554,13 @@ class TestForest : public CppUnit::TestCase {
     Forest frst = Forest(&model, rg);
     CPPUNIT_ASSERT_NO_THROW( frst.buildInitialTree() );
     CPPUNIT_ASSERT_EQUAL( true, frst.checkTree() );
-    CPPUNIT_ASSERT( frst.nodes()->at(0)->population() != frst.nodes()->at(1)->population() );
+    size_t i = 0;
+    for (size_t j = 0; j < 4; ++j) {
+      CPPUNIT_ASSERT( frst.nodes()->at(j)->population() == 0 || 
+                      frst.nodes()->at(j)->population() == 1 );
+      i += frst.nodes()->at(j)->population();
+    }
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, i );
 
     model = Model(0);
     model.set_population_number(2);
