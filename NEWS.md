@@ -3,7 +3,7 @@ scrm Version History
 
 scrm 1.4.1
 ------------------------
-Released: Not yet
+Released: 2015-04-04
 
 + Bug fix: Wrong population size where calculated when migration rates
   changes or population splits and merges occurred in an growth period (#56)
