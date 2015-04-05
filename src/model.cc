@@ -526,27 +526,30 @@ void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
 std::ostream& operator<<(std::ostream& os, Model& model) {
   size_t n_pops = model.population_number();
   os << "---- Model: ------------------------" << std::endl;
-  os << "Sample size: " << model.sample_size() << std::endl;  
+  os << "Total Sample Size: " << model.sample_size() << std::endl;  
+  os << "N0 is assumed to be " << model.default_pop_size << std::endl; 
 
   model.resetSequencePosition();
   for (size_t idx = 0; idx < model.countChangePositions(); ++idx) {
-    os << std::endl << "At position " << model.getCurrentSequencePosition() << ":" << std::endl;  
-    os << " Mutation rate: " << model.mutation_rate() << std::endl;  
-    os << " Recombination rate: " << model.recombination_rate() << std::endl;  
+    os << std::endl << "At Position " << model.getCurrentSequencePosition() << ":" << std::endl;  
+    os << " Mutation Rate: " << model.mutation_rate() << std::endl;  
+    os << " Recombination Rate: " << model.recombination_rate() << std::endl;  
     model.increaseSequencePosition();
   }
   model.resetSequencePosition();
   
   model.resetTime();
   for (size_t idx = 0; idx < model.countChangeTimes(); ++idx) { 
-    os << std::endl << "At time " << model.getCurrentTime() << ":" << std::endl;  
+    os << std::endl << "At Time " << model.getCurrentTime() << ":" << std::endl;  
     
-    os << " Pop sizes:    ";
-    for (size_t pop = 0; pop < n_pops; ++pop) os << model.population_size(pop, model.getCurrentTime()) << "\t";
+    os << " Population Sizes: ";
+    for (size_t pop = 0; pop < n_pops; ++pop) 
+      os << std::setw(10) << std::right << model.population_size(pop, model.getCurrentTime());
     os << std::endl;
 
-    os << " Growth rates: ";
-    for (size_t pop = 0; pop < n_pops; ++pop) os << model.growth_rate(pop) << "\t";
+    os << " Growth Rates:     ";
+    for (size_t pop = 0; pop < n_pops; ++pop) 
+      os << std::setw(10) << std::right << model.growth_rate(pop);
     os << std::endl;
 
     os << " Migration Matrix: " << std::endl;

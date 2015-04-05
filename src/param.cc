@@ -397,6 +397,11 @@ void Param::parse(Model &model) {
       return;
     }
 
+    else if (argv_i == "-print-model" || argv_i == "--print-model") {
+      this->set_print_model(true);
+    } 
+
+
     // ------------------------------------------------------------------
     // Unsupported ms arguments
     // ------------------------------------------------------------------
@@ -507,12 +512,14 @@ void Param::printHelp(std::ostream& out) {
   out << "  -init <FILE>     Read genealogies at the beginning of the sequence." << std::endl;
 
   out << std::endl << "Other:" << std::endl;
-  out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up three" << std::endl 
+  out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up to three" << std::endl 
       << "                   integer numbers." << std::endl;
   out << "  -p <digits>      Specify the number of significant digits used in the output." << std::endl
       << "                   Defaults to 6." << std::endl;
   out << "  -v, --version    Prints the version of scrm." << std::endl;
   out << "  -h, --help       Prints this text." << std::endl;
+  out << "  -print-model,    " << std::endl
+      << "  --print-model    Prints information about the demographic model." << std::endl;
 
   out << std::endl << "Examples" << std::endl;
   out << "--------------------------------------------------------" << std::endl;
