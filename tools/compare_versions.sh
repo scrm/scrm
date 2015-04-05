@@ -39,19 +39,19 @@ function build_scrm {
   git checkout -q $1 > /dev/null || exit 1
   ./bootstrap 2> /dev/null > /dev/null || exit 1
   make -j4 scrm 2> /dev/null > /dev/null || exit 1
-  mv scrm ../scrm-"$1"
+  mv scrm ../scrm-"$2"
   cd ..; rm -rf scrm
 }
 
 tempdir=$(mktemp -d)
 cd $tempdir
 echo "Build scrm..."
-build_scrm $1
-bin1="./scrm-$1"
+build_scrm $1 "old" 
+bin1="./scrm-old"
 echo " $1: $($bin1 --version)"
 
-build_scrm $2
-bin2="./scrm-$2"
+build_scrm $2 "new"
+bin2="./scrm-new"
 echo " $2: $($bin2 --version)"
 echo ""
 
@@ -63,8 +63,8 @@ test_scrm 4 10000 -r 10 100 -t 5
 test_scrm 20 2 -r 500 100 -L
 test_scrm 2000 1 -r 10 100 -l 50 -L
 test_scrm 20 1 -r 4000 10000000 -l 300000 -T
-test_scrm 10 100 -r 10 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5
-test_scrm 50 100 -r 20 200 -G 1.5 -l 100
+test_scrm 10 100 -r 10 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5 -L
+test_scrm 50 100 -r 20 200 -G 1.5 -l 100 -L
 
 cd /
 rm -r "$tempdir"
