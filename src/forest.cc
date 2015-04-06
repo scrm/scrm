@@ -1067,7 +1067,7 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
 
 void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
   dout << "* * Fixed time event" << std::endl;
-  double prob;
+  double sample;
   bool migrated;
   size_t chain_cnt, pop_number = model().population_number();
 
@@ -1076,11 +1076,11 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
     chain_cnt = 0;
     while (true) {
       migrated = false;
+      sample = random_generator()->sample();
 
       for (size_t j = 0; j < pop_number; ++j) {
-        prob = model().single_mig_pop(active_node(i)->population(), j);
-        if (prob == 0.0) continue;
-        if (prob == 1.0 || prob <= random_generator()->sample() ) {
+        sample -= model().single_mig_pop(active_node(i)->population(), j);
+        if (sample < 0) {
           tmp_event_ = Event((*ti).start_height());
           tmp_event_.setToMigration(active_node(i), i, j);
           implementMigration(tmp_event_, false, ti);
