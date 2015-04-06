@@ -6,7 +6,9 @@ scrm 1.5.0
 Released: Not yet
 
 + New feature: Added flag "--print-model" which prints a textual representation
-  of the demographic model for verification and debugging. 
+  of the demographic model for verification and debugging (#60). 
++ Bug fix: When multiple population splits and/or merges occurred at the same
+  time, only one of them affected each line while the others were ignored (#61). 
 
 
 
