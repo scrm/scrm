@@ -545,6 +545,20 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL((size_t)1000, model.loci_number());
   }
 
+  void testPrintModel() {
+    Param pars;
+    pars = Param("scrm 4 7 -r 1 1001");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL(false, pars.print_model());
+
+    pars = Param("scrm 4 7 -r 1 1001 -print-model");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL(true, pars.print_model());
+
+    pars = Param("scrm 4 7 --print-model");
+    CPPUNIT_ASSERT_NO_THROW(pars.parse(model));
+    CPPUNIT_ASSERT_EQUAL(true, pars.print_model());
+  }
 };
 
 //Uncomment this to activate the test

@@ -56,6 +56,10 @@ int main(int argc, char *argv[]){
     *output << user_para << std::endl;
     *output << rg.seed() << std::endl;
 
+    if (user_para.print_model()) {
+      *output << model << std::endl;
+    }
+
     // Create the forest
     Forest forest = Forest(&model, &rg);
 
