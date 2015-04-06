@@ -29,6 +29,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testImplementCoalescence );
   CPPUNIT_TEST( testBuildInitialTree ); 
   CPPUNIT_TEST( testImplementRecombination ); 
+  CPPUNIT_TEST( testImplementFixTimeEvent ); 
   CPPUNIT_TEST( testPrintTree );
   CPPUNIT_TEST( testCopyConstructor );
   CPPUNIT_TEST( testCheckForNodeAtHeight );
@@ -184,7 +185,7 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testPrintTree() {
-    CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
+    //CPPUNIT_ASSERT_NO_THROW( forest->printTree() );
   }
 
   void testSelectFirstTime() {
@@ -672,6 +673,41 @@ class TestForest : public CppUnit::TestCase {
         CPPUNIT_ASSERT( new_root->last_update() == 17 );
       }
     }
+  }
+
+  void testImplementFixTimeEvent() {
+    Model* model2 = new Model(5);
+    model2->set_population_number(3);
+    model2->addSingleMigrationEvent(0.5, 0, 1, 1.0);
+    Forest* forest2 = new Forest(model2, rg);
+    forest2->createExampleTree();
+    Node* new_root = forest2->cut(TreePoint(forest2->nodes()->at(1), 0.5, false));
+    forest2->set_active_node(0, new_root);
+    forest2->set_active_node(1, forest2->local_root());
+    forest2->states_[0] = 1;
+    forest2->states_[1] = 0;
+    TimeIntervalIterator tii(forest2, new_root);
+
+    CPPUNIT_ASSERT( new_root->population() == 0 );
+    forest2->implementFixedTimeEvent(tii);
+    forest2->printTree();
+    CPPUNIT_ASSERT( new_root->is_root() );
+    CPPUNIT_ASSERT( new_root->population() == 1 );
+
+    // Chained events
+    new_root->set_population(0);
+    model2->addSingleMigrationEvent(0.5, 1, 2, 1.0);
+    forest2->implementFixedTimeEvent(tii);
+    forest2->printTree();
+    CPPUNIT_ASSERT( new_root->is_root() );
+    CPPUNIT_ASSERT( new_root->population() == 2 );
+
+    // Circe detection
+    model2->addSingleMigrationEvent(0.5, 2, 0, 1.0);
+    CPPUNIT_ASSERT_THROW( forest2->implementFixedTimeEvent(tii), 
+                          std::logic_error );
+
+    delete forest2, model2;
   }
 
   void testSamplePoint() {

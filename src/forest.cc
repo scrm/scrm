@@ -1031,14 +1031,13 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
   assert( event.node()->is_root() );
 
   // There is only little to do if we can reuse the event.node() 
-  if ( event.node()->is_unimportant() ) {
+  if ( event.node()->is_unimportant() || 
+       ( event.node()->height() == event.time() && event.node()->is_migrating() ) ) {
     dout << "Reusing: " << event.node() << "... " << std::flush;
     nodes()->move(event.node(), event.time());
     event.node()->set_population(event.mig_pop());
     updateAbove(event.node());
-    assert(event.node()->is_migrating());
-  }
-  else {
+  } else {
     // Otherwise create a new node that marks the migration event,
     Node* mig_node = nodes()->createNode(event.time());
     dout << "Marker: " << mig_node << "... " << std::flush; 
@@ -1068,17 +1067,35 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
 
 void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
   dout << "* * Fixed time event" << std::endl;
+  double prob;
+  bool migrated;
+  size_t chain_cnt, pop_number = model().population_number();
+
   for (size_t i = 0; i < 2; ++i) {
     if (states_[i] != 1) continue;
-    double prob;
-    for (size_t j = 0; j < model().population_number(); ++j) {
-      prob = model().single_mig_pop(active_node(i)->population(), j);
-      if (prob == 0.0) continue;
-      if (prob == 1.0 || prob <= random_generator()->sample() ) {
-        tmp_event_ = Event((*ti).start_height());
-        tmp_event_.setToMigration(active_node(i), i, j);
-        implementMigration(tmp_event_, false, ti);
+    chain_cnt = 0;
+    while (true) {
+      migrated = false;
+
+      for (size_t j = 0; j < pop_number; ++j) {
+        prob = model().single_mig_pop(active_node(i)->population(), j);
+        if (prob == 0.0) continue;
+        if (prob == 1.0 || prob <= random_generator()->sample() ) {
+          tmp_event_ = Event((*ti).start_height());
+          tmp_event_.setToMigration(active_node(i), i, j);
+          implementMigration(tmp_event_, false, ti);
+          migrated = true;
+          break;
+        }
       }
+
+      // Stop if no migration occurred
+      if (!migrated) break;
+
+      // Resolve a maximum of 10k chained events for each node
+      if (chain_cnt == 10000) 
+        throw std::logic_error("Circle detected when moving individuals between populations");
+      ++chain_cnt;
     }
   }
   assert( printTree() );
