@@ -60,7 +60,7 @@ void Param::parse(Model &model) {
   model = Model();
 
   size_t sample_size = 0;
-  double par_bool = 0.0;
+  double par_dbl = 0.0;
   double time = 0.0;
   size_t source_pop, sink_pop;
 
@@ -129,9 +129,9 @@ void Param::parse(Model &model) {
     // Recombination 
     // ------------------------------------------------------------------
     else if (argv_i == "-r") {
-      par_bool = readNextInput<double>();
+      par_dbl = readNextInput<double>();
       model.setLocusLength(readNextInt());
-      model.setRecombinationRate(par_bool, true, true, 0.0);
+      model.setRecombinationRate(par_dbl, true, true, 0.0);
     }
 
     else if (argv_i == "-sr") {
@@ -279,9 +279,27 @@ void Param::parse(Model &model) {
       source_pop = readNextInt() - 1;
       sink_pop = model.population_number();
       double fraction = readNextInput<double>();
+      if (fraction < 0.0) 
+        throw std::invalid_argument("Probability in `-es` argument is negative."); 
+      if (fraction > 1.0)
+        throw std::invalid_argument("Probability in `-es` argument greater than one."); 
 
       model.addPopulation();
-      model.addSingleMigrationEvent(time, source_pop, sink_pop, fraction, true); 
+      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true); 
+    }
+
+
+    else if (argv_i == "-eps") {
+      time = readNextInput<double>();
+      source_pop = readNextInt() - 1;
+      sink_pop = readNextInt() - 1;
+      double fraction = readNextInput<double>();
+      if (fraction < 0.0) 
+        throw std::invalid_argument("Probability in `-eps` argument is negative."); 
+      if (fraction > 1.0)
+        throw std::invalid_argument("Probability in `-eps` argument greater than one."); 
+
+      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true); 
     }
 
 
@@ -484,6 +502,8 @@ void Param::printHelp(std::ostream& out) {
   out << "  -es <t> <i> <p>  Population admixture. Replaces a fraction of 1-p of" << std::endl
       << "                   population i with individuals a from population npop + 1" << std::endl
       << "                   which is ignored afterwards (forward in time). " << std::endl;
+  out << "  -eps <t> <i> <j> <p>  Partial Population admixture. Replaces a fraction of 1-p of" << std::endl
+      << "                   population i with individuals a from population j." << std::endl;
   out << "  -ej <t> <i> <j>  Speciation event at time t. Creates population j" << std::endl
       << "                   from individuals of population i." << std::endl;
 
