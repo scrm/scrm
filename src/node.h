@@ -43,10 +43,6 @@
 class Node
 {
  public:
- void extract_bl_and_label ( std::string::iterator in_it );
- double bl_;
- double bl() const { return this->bl_; }
- void set_bl ( double bl ) { this->bl_ = bl; }
 #ifdef UNITTEST
   friend class TestForest;
   friend class TestNode;
@@ -57,6 +53,11 @@ class Node
   ~Node();
 
   //Getters & Setters
+  void extract_bl_and_label ( std::string::iterator in_it );
+  double bl_;
+  double bl() const { return this->bl_; }
+  void set_bl ( double bl ) { this->bl_ = bl; }
+
   double height() const { return this->height_; }
   void set_height(const double height) { this->height_ = height; }
 

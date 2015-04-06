@@ -34,6 +34,7 @@ function test_scrm {
   echo " done."
 }
 
+
 echo "Testing Initial Tree"
  test_scrm 5 1000 -t 5 || exit 1
  test_scrm 3 1000 -t 5 -L -oSFS || exit 1
@@ -85,7 +86,8 @@ echo "Testing Variable Rates"
  test_scrm 3 200 -r 2 100 -t 5 -st 10 10 -sr 20 5 -st 30 1 -sr 40 0 -st 50 20 -T || exit 1
 echo ""
 
-echo "Split at time 0"
+echo "Various edge cases"
  test_scrm 6 1 -I 2 3 3 0.5 -r 1 100 -es 0 2 0.5 -ej 1 3 1 -t 1  || exit 1
+ test_scrm 10 10 -es 1.0 1 0.5 -ej 1.0 2 1 || exit 1
 echo ""
 
