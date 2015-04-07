@@ -10,6 +10,8 @@ Released: 2015-04-07
 + Bug fix: When multiple population splits and/or merges occurred at the same
   time, only one of them affected each line while the others were ignored (#61). 
 + New feature: Added support for partial population admixtures (`-eps`, #62).
++ In addition to using "-seed" scrm now also supports "-seeds", as ms also 
+  supports both.
 
 
 

@@ -381,7 +381,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------
-    else if (argv_i == "-seed" || argv_i == "--seed") {
+    else if (argv_i == "-seed" || argv_i == "--seed" ||
+             argv_i == "-seeds" || argv_i == "--seeds") {
       std::vector<size_t> seeds(3, 0);
       // Always require one seed
       seeds.at(0) = readNextInt();
