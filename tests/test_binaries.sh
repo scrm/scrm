@@ -4,7 +4,6 @@
 # 
 # Author:   Paul R. Staab 
 # Email:    staab (at) bio.lmu.de
-# Date:     2013-10-10
 # Licence:  GPLv3 or later
 #
 
@@ -66,14 +65,12 @@ echo "Testing Size Change"
   test_scrm 10 2 -r 10 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5 -l 10 || exit 1 
 echo ""
 
-echo "Testing Split"
+echo "Testing Splits & Merges"
  test_scrm 5 30 -r 20 200 -I 2 3 2 0.4 -ej 1.1 2 1 -l 25  || exit 1
  test_scrm 6 30 -r 20 200 -I 3 2 2 2 -ej 0.2 2 1 -ej 0.25 3 1 -l 25 || exit 1
-echo ""
-
-echo "Testing Merge"
  test_scrm 20 2 -r 5 200 -I 2 10 10 1.5 -es 1.6 2 0.5 -eM 2.0 1 -l 25 || exit 1
  test_scrm 20 2 -r 5 200 -I 2 10 10 1.5 -es 0.9 1 0.8 -es 1.6 2 0.5 -eM 2.0 1 -l 50 || exit 1
+ test_scrm 20 2 -r 5 200 -I 2 10 10 -eps 1.0 2 1 0.0 || exit 1
 echo ""
 
 echo "Testing Growth"
