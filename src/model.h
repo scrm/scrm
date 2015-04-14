@@ -496,59 +496,5 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T> &vec) {
 }
 
 
-/**
- * @brief Sets the recombination rate
- *
- * @param rate The recombination rate per sequence length per time unit. 
- * The sequence length can be either per locus or per base pair and the time
- * can be given in units of 4N0 generations ("scaled") or per generation. 
- *
- * @param loci_length The length of every loci.
- * @param per_locus Set to TRUE, if the rate is given per_locus, and to FALSE
- * if the rate is per base pair.
- * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
- * it isn't
- */
-inline void Model::setRecombinationRate(double rate,  
-                                        const bool &per_locus, 
-                                        const bool &scaled,
-                                        const double seq_position) { 
-
-  if (rate < 0.0) { 
-    throw std::invalid_argument("Recombination rate must be non-negative");
-  }
-
-  if (scaled) rate /= 4.0 * default_pop_size; 
-  if (per_locus) {
-    if (loci_length() <= 1) {
-      throw std::invalid_argument("Locus length must be at least two");
-    }
-    rate /= loci_length()-1;
-  }
-
-  recombination_rates_[addChangePosition(seq_position)] = rate; 
-}
-
-
-/**
- * @brief Sets the mutation rate
- *
- * @param rate The mutation rate per locus, either scaled as theta=4N0*u or
- * unscaled as u.
- * @param per_locus TRUE if the rate is per locus, FALSE if per base.
- * @param scaled Set this to TRUE if you give the mutation rate in scaled
- * units (e.g. as theta rather than as u).
- */
-inline void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled, 
-                                   const double seq_position) { 
-  if (scaled) rate /= 4.0 * default_pop_size; 
-
-  size_t idx = addChangePosition(seq_position);
-  if (per_locus) {
-    mutation_rates_.at(idx) = rate / loci_length();
-  } else {
-    mutation_rates_.at(idx) = rate;
-  }
-}
 
 #endif
