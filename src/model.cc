@@ -564,7 +564,7 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
       for (size_t j = 0; j < n_pops; ++j) {
         if (model.single_mig_pop(i, j) != 0) {
           os << " " << model.single_mig_pop(i, j) * 100 << "\% of pop " 
-             << i << " move to pop " << j << std::endl;
+             << i + 1 << " move to pop " << j + 1 << std::endl;
         }
       }
     }
