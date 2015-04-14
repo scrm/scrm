@@ -496,17 +496,17 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
  */
 void Model::addSymmetricMigration(const double time, const double mig_rate, 
                                   const bool &time_scaled, const bool &rate_scaled) {
-  std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
-  this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
-}
+    std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
+    this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
+  }
 
 
-void Model::addSingleMigrationEvent(const double time, const size_t source_pop, 
-                                    const size_t sink_pop, const double fraction,
-                                    const bool &time_scaled) {
-  
-  size_t position = addChangeTime(time, time_scaled);
-  size_t popnr = population_number();
+  void Model::addSingleMigrationEvent(const double time, const size_t source_pop, 
+                                      const size_t sink_pop, const double fraction,
+                                      const bool &time_scaled) {
+    
+    size_t position = addChangeTime(time, time_scaled);
+    size_t popnr = population_number();
   
   if ( time < 0.0 ) throw std::invalid_argument("Single migration event: Negative time");
   if ( source_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
@@ -564,7 +564,7 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
       for (size_t j = 0; j < n_pops; ++j) {
         if (model.single_mig_pop(i, j) != 0) {
           os << " " << model.single_mig_pop(i, j) * 100 << "\% of pop " 
-             << i << " move to pop " << j << std::endl;
+             << i + 1 << " move to pop " << j + 1 << std::endl;
         }
       }
     }
@@ -780,5 +780,61 @@ void Model::addPopToVectorList(std::vector<std::vector<double>*> &vector_list) {
   for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
     if (*it == NULL) continue;
     (*it)->push_back(nan("value to replace"));
+  }
+}
+
+
+/**
+ * @brief Sets the recombination rate
+ *
+ * @param rate The recombination rate per sequence length per time unit. 
+ * The sequence length can be either per locus or per base pair and the time
+ * can be given in units of 4N0 generations ("scaled") or per generation. 
+ *
+ * @param loci_length The length of every loci.
+ * @param per_locus Set to TRUE, if the rate is given per_locus, and to FALSE
+ * if the rate is per base pair.
+ * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
+ * it isn't
+ */
+void Model::setRecombinationRate(double rate,  
+                                 const bool &per_locus, 
+                                 const bool &scaled,
+                                 const double seq_position) { 
+
+  if (rate < 0.0) { 
+    throw std::invalid_argument("Recombination rate must be non-negative");
+  }
+
+  if (scaled) rate /= 4.0 * default_pop_size; 
+  if (per_locus) {
+    if (loci_length() <= 1) {
+      throw std::invalid_argument("Locus length must be at least two");
+    }
+    rate /= loci_length()-1;
+  }
+
+  recombination_rates_[addChangePosition(seq_position)] = rate; 
+}
+
+
+/**
+ * @brief Sets the mutation rate
+ *
+ * @param rate The mutation rate per locus, either scaled as theta=4N0*u or
+ * unscaled as u.
+ * @param per_locus TRUE if the rate is per locus, FALSE if per base.
+ * @param scaled Set this to TRUE if you give the mutation rate in scaled
+ * units (e.g. as theta rather than as u).
+ */
+void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled, 
+                            const double seq_position) { 
+  if (scaled) rate /= 4.0 * default_pop_size; 
+
+  size_t idx = addChangePosition(seq_position);
+  if (per_locus) {
+    mutation_rates_.at(idx) = rate / loci_length();
+  } else {
+    mutation_rates_.at(idx) = rate;
   }
 }
