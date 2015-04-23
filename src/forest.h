@@ -245,7 +245,6 @@ class Forest
   }
 
   bool pruneNodeIfNeeded(Node* node, const bool prune_orphans = true);
-  void doCompletePruning();
 
   // Calculation of Rates
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;

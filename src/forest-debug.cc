@@ -496,12 +496,12 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
   bool Forest::printNodes() const {
-    std::cout << std::setw(10) << std::right << "Node";
-    std::cout << std::setw(10) << std::right << "Height";
+    std::cout << std::setw(15) << std::right << "Node";
+    std::cout << std::setw(15) << std::right << "Height";
     std::cout << std::setw(6) << std::right << "label";
-    std::cout << std::setw(10) << std::right << "Parent";
-    std::cout << std::setw(10) << std::right << "1th_child";
-    std::cout << std::setw(10) << std::right << "2nd_child";
+    std::cout << std::setw(15) << std::right << "Parent";
+    std::cout << std::setw(15) << std::right << "1th_child";
+    std::cout << std::setw(15) << std::right << "2nd_child";
     std::cout << std::setw(6) << std::right << "local";
     std::cout << std::setw(6) << std::right << "pop";
     std::cout << std::setw(10) << std::right << "l_upd";
@@ -510,14 +510,14 @@ std::vector<Node const*> Forest::determinePositions() const {
     std::cout << std::endl;
 
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i);
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
+      std::cout << std::setw(15) << std::right << this->getNodes()->get(i);
+      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->height();
       std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       if (!getNodes()->get(i)->is_root()) 
-        std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->parent();
-      else std::cout << std::setw(10) << std::right << 0;
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->first_child();
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->second_child();
+        std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->parent();
+      else std::cout << std::setw(15) << std::right << 0;
+      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->first_child();
+      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->second_child();
       std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
       std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
       std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
