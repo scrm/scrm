@@ -414,7 +414,6 @@ void Forest::sampleNextGenealogy() {
     return;
   }
 
-  dout << tmp_event_time_ << std::endl;
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
 
@@ -443,9 +442,6 @@ void Forest::sampleNextGenealogy() {
   assert( this->checkTree() );
   assert( this->printTree() );
   assert( this->printNodes() );
-
-  // Rarely prune all possible nodes 
-  if (segment_count_ % 100000 == 0 && model().exact_window_length() != -1) this->doCompletePruning();
 
   this->sampleNextBase();
   this->calcSegmentSumStats();
@@ -1204,14 +1200,6 @@ void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
-}
-
-void Forest::doCompletePruning() {
-  dout << "Pruning Tree:" << std::endl;
-  for (NodeIterator ni = nodes()->iterator(nodes()->first()->next()); ni.good(); ++ni) {
-    pruneNodeIfNeeded((*ni)->previous());
-  }
-  pruneNodeIfNeeded(nodes()->last());
 }
 
 void Forest::clear() {

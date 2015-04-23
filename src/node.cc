@@ -61,7 +61,13 @@ void Node::change_child(Node* from, Node* to) {
   }
   else if ( this->second_child() == from )
     this->set_second_child(to);
-  else throw std::invalid_argument("Can't find child node to replace");
+  else {
+    dout << "Error when changing child of " << this << " form "
+         << from << " to " << to << std::endl;
+    dout << "Children are " << this->first_child() << " and "
+         << this->second_child() << std::endl;
+    throw std::invalid_argument("Can't find child node to replace");
+  }
 }
 
 void Node::remove_child(Node* child) {
