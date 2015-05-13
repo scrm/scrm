@@ -54,11 +54,11 @@ If you encounter problems while using _scrm_, please
 ## Citation
 _scrm_ is described in the manuscript
 
-Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
-**scrm: efficiently simulating long sequences using the approximated coalescent
-with recombination**. 
-Bioinformatics (2015) 31 (10): 1680-1682.
-[doi:10.1093/bioinformatics/btu861](http://bioinformatics.oxfordjournals.org/content/31/10/1680).
+> Paul R. Staab, Sha Zhu, Dirk Metzler and Gerton Lunter.
+> **scrm: efficiently simulating long sequences using the approximated coalescent
+> with recombination**. 
+> Bioinformatics (2015) 31 (10): 1680-1682.
+> [doi:10.1093/bioinformatics/btu861](http://bioinformatics.oxfordjournals.org/content/31/10/1680).
 
 ## Licence
 You can freely use all code in this project under the conditions of the GNU
