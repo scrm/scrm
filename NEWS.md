@@ -1,6 +1,17 @@
 scrm Version History
 ========================
 
+scrm 1.5.1
+------------------------
+Released: 2015-05-18
+
++ Bug fix: Fixed a cache invalidation error that could lead to runs being
+  aborted after 100k recombinations (#70). Thanks to Jerome Kelleher for 
+  report this.
++ Minor: Small updates to the documentation and citation information.
+
+
+
 scrm 1.5.0
 ------------------------
 Released: 2015-04-07
