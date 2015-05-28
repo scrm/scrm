@@ -20,7 +20,7 @@ script:
 - ./tests/test_binaries.sh
 - make algorithmtest
 before_deploy:
-  - ./.travis/build_src_pgk.sh
+  - ./.travis/build_src_pkg.sh
   - ./.travis/build_static_binaries.sh
 deploy:
   provider: releases
