@@ -26,9 +26,9 @@ deploy:
   provider: releases
   api_key:
     secure: UrEhKzTdSr7NB4ptDYcWKN02XjfgJgN1fNFu8G2a52Jpk1Z3UeenbmKxIDLj11JUlU427br7t1oQyScYSYEGEM5VEI0aWf7D2i9cPfSRD9QYnHOPG2XZE/xgkwWAm0s4TjnTBmudGSxs9g2KRjDXLz1f191jVGIghnHlxw/C9Ok=
-  file: 
-    - scrm-src.tar.gz 
-    - scrm-x64-static.tar.gz
+  file:
+    - "scrm-src.tar.gz"
+    - "scrm-x64-static.tar.gz"
   on:
     tags: true
     condition: "$CC = gcc"
