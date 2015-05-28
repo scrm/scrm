@@ -33,7 +33,7 @@ Node::Node(double height, size_t label) { init(height, label); }
 Node::~Node() {}
 
 void Node::init(double height, size_t label) {
-  this->set_last_update(-1);
+  this->set_last_update(0);
   this->set_population(0);
 
   this->set_height(height);

@@ -305,10 +305,12 @@ class TestForest : public CppUnit::TestCase {
     // => 50% Recombination, 50% Coalescence 
     forest2->writable_model()->setLocusLength(101);
     forest2->writable_model()->setRecombinationRate(0.4, false, true);
-    forest2->set_current_base(20);
+    forest2->set_current_base(10);
+    forest2->active_node(1)->make_nonlocal(forest2->current_rec_);
+    forest2->set_next_base(20);
+    forest2->current_rec_++;
     forest2->states_[0] = 1;
     forest2->states_[1] = 2;
-    forest2->active_node(1)->make_nonlocal(10);
     forest2->writable_model()->resetTime(); // set migration to 0
     forest2->calcRates(*tii);
 
@@ -342,8 +344,14 @@ class TestForest : public CppUnit::TestCase {
     //    2/3 active_node 1
     forest2->states_[0] = 2;
     forest2->states_[1] = 2;
-    forest2->active_node(0)->make_nonlocal(15);
-    forest2->active_node(1)->make_nonlocal(10);
+
+    forest2->set_current_base(10.0);
+    forest2->set_next_base(15.0);
+    forest2->set_next_base(20.0);
+    
+    forest2->current_rec_ += 2;
+    forest2->active_node(0)->make_nonlocal(forest2->current_rec_ - 1);
+    forest2->active_node(1)->make_nonlocal(forest2->current_rec_ - 2);
     forest2->calcRates(*tii);
 
     count = 0;
@@ -360,7 +368,7 @@ class TestForest : public CppUnit::TestCase {
     // => always coalescence
     forest2->states_[0] = 1;
     forest2->active_node(0)->make_local();
-    forest2->active_node(1)->set_last_update(20);
+    forest2->active_node(1)->set_last_update(forest2->current_rec_);
     forest2->calcRates(*tii);
     for (size_t i = 0; i < 1000; ++i) {
       forest2->sampleEventType(0.5, 0, *tii, event);
@@ -412,7 +420,8 @@ class TestForest : public CppUnit::TestCase {
 
     Node* node = forest->nodes()->at(6);
 
-    forest->set_current_base(7);
+    forest->set_next_base(7.0);
+    forest->current_rec_++;
     CPPUNIT_ASSERT_EQUAL( 2.0, forest->calcRecombinationRate(node) );
 
     forest->writable_model()->increaseSequencePosition();
@@ -463,9 +472,11 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void testNodeIsOld() {
-    forest->writable_model()->set_exact_window_length(-1);
-    forest->set_current_base(15);
+    forest->set_current_base(5.0);
+    forest->set_next_base(15);
+    forest->current_rec_++;
 
+    forest->writable_model()->set_exact_window_length(-1);
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
@@ -475,15 +486,23 @@ class TestForest : public CppUnit::TestCase {
     forest->writable_model()->set_exact_window_length(5);
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
-    CPPUNIT_ASSERT( forest->nodeIsOld(forest->nodes()->at(6)) );
+    CPPUNIT_ASSERT(  forest->nodeIsOld(forest->nodes()->at(6)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
+
+    forest->writable_model()->set_exact_window_length(9.5);
+    CPPUNIT_ASSERT( forest->nodeIsOld(forest->nodes()->at(6)) );
+    forest->writable_model()->set_exact_window_length(10.5);
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
   }
 
   void testPrune() {
     // Old node
+    forest->set_current_base(5.0);
+    forest->set_next_base(15);
+    forest->current_rec_++;
+
     forest->writable_model()->set_exact_window_length(5);
-    forest->set_current_base(15);
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(1)) );
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(2)) );
@@ -508,10 +527,14 @@ class TestForest : public CppUnit::TestCase {
          *inbetween2 = new Node(18), 
          *child = new Node(17);
 
-    parent->make_nonlocal(15);
-    inbetween1->make_nonlocal(15);
-    inbetween2->make_nonlocal(13);
-    child->make_nonlocal(13);
+    forest->set_current_base(13);
+    inbetween2->make_nonlocal(forest->current_rec_);
+    child->make_nonlocal(forest->current_rec_);
+
+    forest->set_next_base(15);
+    forest->current_rec_++;
+    parent->make_nonlocal(forest->current_rec_);
+    inbetween1->make_nonlocal(forest->current_rec_);
     forest->nodes()->add(parent);
     forest->nodes()->add(inbetween1);
     forest->nodes()->add(inbetween2);
@@ -597,7 +620,7 @@ class TestForest : public CppUnit::TestCase {
 
     Node* single_branch = forest->local_root()->first_child();
     CPPUNIT_ASSERT( !single_branch->local() );
-    CPPUNIT_ASSERT_EQUAL( forest->current_base(), single_branch->last_update() );
+    CPPUNIT_ASSERT_EQUAL( forest->segment_count(), single_branch->last_update() );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, single_branch->countChildren() );
     CPPUNIT_ASSERT_EQUAL( 3.5, single_branch->height() );
   }
@@ -636,13 +659,12 @@ class TestForest : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT( !single_branch->local() );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, single_branch->countChildren() );
-    CPPUNIT_ASSERT_EQUAL( 5.0, single_branch->last_update() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)1, single_branch->last_update() );
   }
 
   void testImplementCoalescence() {
     for (size_t i=0; i<100; ++i) {
       forest->createExampleTree(); 
-      forest->set_current_base(17);
 
       Node* new_root = forest->cut(TreePoint(forest->nodes()->at(1), 1.5, false));
       TimeIntervalIterator tii(forest, new_root);
@@ -667,10 +689,10 @@ class TestForest : public CppUnit::TestCase {
         CPPUNIT_ASSERT( !(new_root->first_child()->local() && new_root->second_child()->local()) ); 
         Node* child = new_root->first_child();
         if (!new_root->second_child()->local()) child = new_root->second_child();
-        CPPUNIT_ASSERT( child->last_update() == 17 );
+        CPPUNIT_ASSERT( child->last_update() == 1 );
         CPPUNIT_ASSERT( child->length_below() == 0 );
 
-        CPPUNIT_ASSERT( new_root->last_update() == 17 );
+        CPPUNIT_ASSERT( new_root->last_update() == 1 );
       }
     }
   }

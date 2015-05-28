@@ -40,7 +40,11 @@ void Forest::initialize(Model* model,
 
   this->set_model(model);
   this->set_random_generator(rg);
-  this->set_current_base(1);
+
+  current_rec_ = 0;
+  rec_bases_ = std::vector<double>(1, -1);
+  rec_bases_.reserve(1000);
+
   this->set_sample_size(0);
 
   this->coalescence_finished_ = true;
@@ -75,9 +79,8 @@ Forest::Forest(const Forest &current_forest) {
 
   // Copy state information
   this->set_sample_size(current_forest.sample_size());
-  this->set_current_base(current_forest.current_base());
-  this->set_next_base(current_forest.next_base());
-  this->segment_count_ = current_forest.segment_count_;
+  this->rec_bases_ = current_forest.rec_bases_;
+  this->current_rec_ = current_forest.current_rec_;
 
   // Copy the nodes
   this->nodes_ = NodeContainer(*current_forest.getNodes());
@@ -126,7 +129,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
   if ( !cut_point.base_node()->local() )
     new_leaf->make_nonlocal(cut_point.base_node()->last_update());
   else
-    new_leaf->make_nonlocal(current_base());
+    new_leaf->make_nonlocal(current_rec_);
   assert( !new_leaf->local() );
 
   new_leaf->set_population(cut_point.base_node()->population());
@@ -197,7 +200,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
     // Assure that everything is non-local
-    if (node->local()) node->make_nonlocal(current_base());
+    if (node->local()) node->make_nonlocal(current_rec_);
 
     // Update the primary root if needed
     if ( node->is_root() ) {
@@ -210,7 +213,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
     return;
   }
 
-  node->set_last_change(current_base());
+  node->set_last_change(current_rec_);
 
   // Calculate new values for samples_below and length_below for the current
   // node
@@ -237,10 +240,10 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   // Update whether the node is local or not 
   if (!invariants_only) {
     if (samples_below == 0) {
-      if ( node->local() ) node->make_nonlocal(current_base());
+      if ( node->local() ) node->make_nonlocal(current_rec_);
     }
     else if ( samples_below == sample_size() ) {
-      if ( node->local() ) node->make_nonlocal(current_base());
+      if ( node->local() ) node->make_nonlocal(current_rec_);
 
       // Are we the local root?
       if (node->countChildren() == 2 && 
@@ -278,9 +281,11 @@ void Forest::updateAbove(Node* node, bool above_local_root,
  */
 void Forest::buildInitialTree() {
   dout << "===== BUILDING INITIAL TREE =====" << std::endl;
-  assert( this->nodes()->size() == 0 );
-  this->set_current_base(0.0);
-  this->segment_count_ = 1;
+  assert(this->nodes()->size() == 0);
+  assert(this->segment_count() == 0);
+  assert(this->rec_bases_.size() == 1);
+  ++current_rec_;
+  this->set_next_base(0.0);
 
   dout << "* Adding first node... ";
   Node* first_node = nodes()->createNode(model().sample_time(0), 1);
@@ -314,6 +319,7 @@ void Forest::buildInitialTree() {
     assert(this->printNodes());
   }
   this->sampleNextBase();
+  dout << "Next Sequence position: " << this->next_base() << std::endl;
   this->calcSegmentSumStats();
 }
 
@@ -404,9 +410,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_pf_update
  */
 void Forest::sampleNextGenealogy() {
-  this->set_current_base(next_base_);
-
-  if (current_base_ == model().getCurrentSequencePosition()) {
+  if (next_base() == model().getCurrentSequencePosition()) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl << "Position: " << this->current_base() << ": Changing rates." << std::endl;
     this->sampleNextBase();
@@ -417,9 +421,9 @@ void Forest::sampleNextGenealogy() {
   assert( tmp_event_time_ >= 0 );
   this->contemporaries_.buffer(tmp_event_time_);
 
-  ++segment_count_;
+  ++current_rec_;
   dout << std::endl << "===== BUILDING NEXT GENEALOGY =====" << std::endl;
-  dout << "Segment Nr: " << segment_count_ << std::endl;
+  dout << "Segment Nr: " << current_rec_ << std::endl;
   dout << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
 
@@ -444,6 +448,7 @@ void Forest::sampleNextGenealogy() {
   assert( this->printNodes() );
 
   this->sampleNextBase();
+  dout << "Next Sequence position: " << this->next_base() << std::endl;
   this->calcSegmentSumStats();
 }
 
@@ -466,7 +471,7 @@ void Forest::sampleCoalescences(Node *start_node) {
   coalescence_finished_ = false;
 
   // This assertion needs an exception for building the initial tree
-  assert ( segment_count_ == 1 || 
+  assert ( current_rec_ == 1 || 
            active_node(1)->in_sample() || 
            start_node->height() <= active_node(1)->height() );
 
@@ -763,10 +768,12 @@ double Forest::calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) c
 
 
 double Forest::calcRecombinationRate(Node const* node) const {
-  assert( !node->local() );
-  if (node->last_update() >= model().getCurrentSequencePosition()) {
+  assert(!node->local());
+  double last_update_pos = get_rec_base(node->last_update());
+
+  if (last_update_pos >= model().getCurrentSequencePosition()) {
     // Rec rate is constant for the relevant sequence part
-    return ( model().recombination_rate() * (this->current_base() - node->last_update()) );
+    return ( model().recombination_rate() * (this->current_base() - last_update_pos) );
   } else {
     // Rec rate may change. Accumulate the total rate.
 
@@ -774,13 +781,13 @@ double Forest::calcRecombinationRate(Node const* node) const {
         (this->current_base() - model().getCurrentSequencePosition()); 
     size_t idx = model().get_position_index() - 1;
 
-    while (model().change_position(idx) > node->last_update()) {
+    while (model().change_position(idx) > last_update_pos) {
       assert(idx > 0);
       rate += model().recombination_rate(idx) * (model().change_position(idx+1)-model().change_position(idx));
       --idx;
     }
 
-    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-node->last_update());
+    rate += model().recombination_rate(idx) * (model().change_position(idx+1)-last_update_pos);
     return rate;
   }
 }
@@ -1211,8 +1218,9 @@ void Forest::clear() {
   nodes()->clear();
 
   // Reset Position & Segment Counts
-  this->set_current_base(0.0);
-  this->segment_count_ = 0;
+  this->rec_bases_.clear();
+  this->set_next_base(-1.0);
+  this->current_rec_ = 0;
 
   // Clear Summary Statistics
   this->clearSumStats();
@@ -1264,7 +1272,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
     } else if ( (*(it)) == ';' ) {
       dout <<" Node " << node << " closed " << std::endl;
       this->nodes()->add( node );
-      node->make_nonlocal( this->current_base() );
+      node->make_nonlocal(current_rec_);
       return node;
     } else {
       continue;
@@ -1276,8 +1284,7 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
 
 
 void Forest::readNewick( std::string &in_str ){
-  this->set_current_base(0.0);
-  this->segment_count_ = 1;
+  this->current_rec_ = 1;
   std::string::iterator it = in_str.begin();
   (void)this->readNewickNode( in_str, it );
   this->set_local_root( this->nodes()->last() );
@@ -1289,8 +1296,28 @@ void Forest::readNewick( std::string &in_str ){
   }
   assert(this->printNodes());
   assert(this->printTree());
-dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
+  dout << "contemporaries_.size()"<<contemporaries_.size(0) <<std::endl;
   this->sampleNextBase();
   this->calcSegmentSumStats();
   this->tmp_event_time_ = this->local_root()->height();
 }
+
+
+// Must be called AFTER the tree was modified.
+void Forest::sampleNextBase(const bool replace) {
+  double length = random_generator()->sampleExpoLimit(getLocalTreeLength() * model().recombination_rate(),
+                                                      model().getNextSequencePosition() - current_base());
+  double next_base = -1;
+  if (length == -1) {
+    // No recombination until the model changes
+    next_base = model().getNextSequencePosition();
+    if (next_base < model().loci_length()) writable_model()->increaseSequencePosition();
+  } else {
+    // Recombination in the sequence segment
+    next_base = current_base() + length;
+  }
+
+  if (replace) set_current_base(next_base);
+  else set_next_base(next_base);
+} 
+

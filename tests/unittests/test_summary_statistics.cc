@@ -135,6 +135,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->createScaledExampleTree();
     forest->writable_model()->setMutationRate(0.0001);
     forest->set_current_base(0.0);
+    forest->set_next_base(15.0);
     SegSites seg_sites = SegSites();
     CPPUNIT_ASSERT_EQUAL( 0.0, seg_sites.position() );
 
@@ -192,11 +193,6 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     rg->set_seed(1234);
     seg_sites.calculate(*forest);
     CPPUNIT_ASSERT_EQUAL( mutation_count, seg_sites.countMutations() );
-
-    // Check for exception with the position counter if off
-    forest->set_current_base(5.0);
-    forest->set_next_base(15.0);
-    CPPUNIT_ASSERT_THROW( seg_sites.calculate(*forest), std::logic_error );
   }
 
   void testSiteFrequencies() {
