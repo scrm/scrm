@@ -20,7 +20,8 @@ make dist || exit 1
 release=`ls scrm-*.tar.gz` || exit 1
 
 # Build statically linked binaries
-CXXFLAGS="-O3" LDFLAGS='-static' ./configure || exit 1 
+make clean
+CXXFLAGS="-O3" LDFLAGS="-static" ./configure || exit 1 
 make && tar -zcvf "scrm-$version-x64-static.tar.gz" scrm doc/manual.html
 
 # Remove gcc-4.8
@@ -52,13 +53,9 @@ mv ../$release releases/ || exit 1
 mv ../scrm-$version-* releases/ || exit 1
 rm releases/scrm-current*
 cd releases
-ln -s $release scrm-current.tar.gz
-ln -s "scrm-$version-x64-static.tar.gz" scrm-current-x64-static.tar.gz
-#ln -s scrm-$version-win64.zip scrm-current-win64.zip
-#ln -s scrm-$version-win32.zip scrm-current-win32.zip
 cd ..
 make
-git add releases/$release releases/scrm-$version-* releases/scrm-current-* releases/releases*
+git add releases/$release releases/scrm-$version-* releases/releases*
 
 # And push everything to GitHub
 echo "Pushing to GitHub..."
