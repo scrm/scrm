@@ -284,8 +284,9 @@ void Forest::buildInitialTree() {
   assert(this->nodes()->size() == 0);
   assert(this->segment_count() == 0);
   assert(this->rec_bases_.size() == 1);
-  ++current_rec_;
+  assert(this->model().getCurrentSequencePosition() == 0.0);
   this->set_next_base(0.0);
+  ++current_rec_;
 
   dout << "* Adding first node... ";
   Node* first_node = nodes()->createNode(model().sample_time(0), 1);

@@ -35,10 +35,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testCheckForNodeAtHeight );
   CPPUNIT_TEST( testPrintLocusSumStats );
   CPPUNIT_TEST( testSampleNextPosition ); 
-  /*
-  CPPUNIT_TEST( testRegisterSecondaryRoot );
-  CPPUNIT_TEST( testUnregisterSecondaryRoot );
-  */
+  CPPUNIT_TEST( testClear ); 
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -811,39 +808,24 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL(1.0, forest->model().recombination_rate());
   }
 
-  /*
-  void testRegisterSecondaryRoot() {
-    Node* node1 = new Node(5);
-    forest->registerSecondaryRoot(node1);
-    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node1) );
+  void testClear() {
+    forest->createScaledExampleTree();
+    forest->writable_model()->setRecombinationRate(0.0);
+    forest->writable_model()->setRecombinationRate(1.0, false, false, 3);
+    forest->writable_model()->addSymmetricMigration(1.0, 0.5);
+    forest->writable_model()->increaseSequencePosition();
+    forest->writable_model()->increaseTime();
+    CPPUNIT_ASSERT_EQUAL(3.0, forest->model().getCurrentSequencePosition());
+    CPPUNIT_ASSERT_EQUAL(1.0, forest->model().getCurrentTime());
 
-    Node* node2 = new Node(10);
-    forest->registerSecondaryRoot(node2);
-    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
-
-    delete node1, node2;
+    forest->clear();
+    CPPUNIT_ASSERT_EQUAL((size_t)0, forest->nodes()->size());
+    CPPUNIT_ASSERT_EQUAL((size_t)1, forest->rec_bases_.size());
+    CPPUNIT_ASSERT_EQUAL((size_t)0, forest->segment_count());
+    CPPUNIT_ASSERT_EQUAL(-1.0, forest->current_base());
+    CPPUNIT_ASSERT_EQUAL(0.0, forest->model().getCurrentSequencePosition());
+    CPPUNIT_ASSERT_EQUAL(0.0, forest->model().getCurrentTime());
   }
-
-  void testUnregisterSecondaryRoot() {
-    Node* node1 = new Node(5);
-    forest->registerSecondaryRoot(node1);
-    Node* node2 = new Node(10);
-    forest->registerSecondaryRoot(node2);
-
-    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node1) );
-    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
-
-    forest->unregisterSecondaryRoot(node1);
-    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node1) );
-    CPPUNIT_ASSERT( forest->isRegisteredSecondaryRoot(node2) );
-
-    forest->unregisterSecondaryRoot(node2);
-    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node1) );
-    CPPUNIT_ASSERT( !forest->isRegisteredSecondaryRoot(node2) );
-
-    delete node1, node2;
-  }
-  */
 };
 
 
