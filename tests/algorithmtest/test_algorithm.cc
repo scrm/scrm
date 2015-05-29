@@ -129,13 +129,23 @@ class TestAlgorithm : public CppUnit::TestCase {
   void testPruning() {
     Model model = Model(10);
     model.setRecombinationRate(1, false, true);
-    model.set_exact_window_length(0);
+    model.set_window_length_seq(0);
     testTree(model, 10000, 0.9, 0.53, 2.83, 1.24); 
 
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
 
-    model.set_exact_window_length(10);
+    model.set_window_length_seq(10);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+
+    model.disable_approximation();
+    model.set_window_length_rec(0);
+    testTree(model, 10000, 0.9, 0.53, 2.83, 1.24); 
+
+    model.set_window_length_rec(5);
+    testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
+
+    model.set_window_length_rec(10);
     testTree(model, 5000, 0.9, 0.53, 2.83, 1.24); 
   }
 
@@ -157,7 +167,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.addSampleSizes(0.0, sample_size);
     model.addSymmetricMigration(0.0, 0.5, true, true);
     model.addSymmetricMigration(0.3, 1.1, true, true);
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     model.finalize();
     testTree(model, 2000, 2.24, 1.36, 6.73, 3.04); 
 
@@ -174,7 +184,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.setRecombinationRate(1, false, true);
     testTree(model, 1000, 3.75, 2.68, 9.31, 5.67); 
 
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 1000, 3.75, 2.68, 9.31, 5.67); 
   }
 
@@ -189,7 +199,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     char *argv0[] = { "scrm", "10", "30", "-G", "-0.5", "-eG", "0.75", "2" };
     Param(8, argv0).parse(model);
     model.setRecombinationRate(1, false, true);
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 2500, 0.918, 0.38, 2.95, 1.00); 
 
     char *argv[] = { "scrm", "4", "30", "-G", "-2.5", "-eN", "1", "0.25",
@@ -219,7 +229,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.setRecombinationRate(1, false, true);
     testTree(model, 2500, 1.60, 0.54, 7.29, 1.48); 
 
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 2500, 1.60, 0.54, 7.29, 1.48); 
   }
 
@@ -230,7 +240,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.setRecombinationRate(1, false, true);
     testTree(model, 1000, 2.88, 2.26, 9.36, 4.87); 
 
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 1000, 2.88, 2.26, 9.36, 4.87); 
 
     char *argv2[] = { "scrm", "20", "10", "-I", "2", "10", "10", "1.5", "-es", "0.9", "1", "0.8", "-es", "1.6", "2", "0.5", "-eM", "2.0", "1" };
@@ -238,7 +248,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.setRecombinationRate(1, false, true);
     testTree(model, 1000, 3.82, 3.32, 11.39, 7.09); 
 
-    model.set_exact_window_length(5);
+    model.set_window_length_seq(5);
     testTree(model, 1000, 3.82, 3.32, 11.39, 7.09); 
   }
 };
