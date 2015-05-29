@@ -200,7 +200,8 @@ class Forest
   double next_base() const { return get_rec_base(current_rec_ + 1); }
   void set_current_base(double const base) { rec_bases_[current_rec_] = base; }; 
   void set_next_base(double const base) { rec_bases_.push_back(base); }; 
-  
+
+  size_t current_rec() const { return current_rec_; };
 
  private:
   Forest() { this->initialize(); }

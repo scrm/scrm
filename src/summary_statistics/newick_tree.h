@@ -33,12 +33,12 @@
 
 
 /**
- * @brief Save buffered tree along with the sequence position at which
+ * @brief Save buffered trees along with the recombination number at which
  * they where created. 
  */
 struct NewickBuffer {
-  double position;  ///< The sequence position at which the subtree was created.
-  std::string tree; ///< The subtree itself.
+  size_t recombination;  ///< The recombination at which the subtree was created.
+  std::string tree;      ///< The subtree itself.
 };
 
 class NewickTree : public SummaryStatistic
@@ -52,7 +52,6 @@ class NewickTree : public SummaryStatistic
     precision_ = precision; 
    }
 
-   //NewickTree(const NewickTree &nt) { (void)nt; }
    ~NewickTree() {}
 
    //Virtual methods

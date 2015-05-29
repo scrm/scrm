@@ -200,7 +200,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   // Fast forward above local root because this part is fairly straight forward
   if (above_local_root) {
     // Assure that everything is non-local
-    if (node->local()) node->make_nonlocal(current_rec_);
+    if (node->local()) node->make_nonlocal(current_rec());
 
     // Update the primary root if needed
     if ( node->is_root() ) {
@@ -213,7 +213,7 @@ void Forest::updateAbove(Node* node, bool above_local_root,
     return;
   }
 
-  node->set_last_change(current_rec_);
+  node->set_last_change(current_rec());
 
   // Calculate new values for samples_below and length_below for the current
   // node
