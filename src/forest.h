@@ -103,7 +103,7 @@ class Forest
 
   size_t segment_count() const { return current_rec_; }
 
-  void sampleNextBase(const bool replace = false);
+  void sampleNextBase();
 
   /**
    * @brief Returns the length of the sequence for with the current tree is
