@@ -473,24 +473,44 @@ class TestForest : public CppUnit::TestCase {
     forest->set_next_base(15);
     forest->current_rec_++;
 
-    forest->writable_model()->set_exact_window_length(-1);
+    forest->writable_model()->disable_approximation();
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
 
-    forest->writable_model()->set_exact_window_length(5);
+    forest->writable_model()->set_window_length_seq(5);
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
     CPPUNIT_ASSERT(  forest->nodeIsOld(forest->nodes()->at(6)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
 
-    forest->writable_model()->set_exact_window_length(9.5);
+    forest->writable_model()->set_window_length_seq(9.5);
     CPPUNIT_ASSERT( forest->nodeIsOld(forest->nodes()->at(6)) );
-    forest->writable_model()->set_exact_window_length(10.5);
+    forest->writable_model()->set_window_length_seq(10.5);
     CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
+
+    forest->createExampleTree();
+    forest->writable_model()->set_window_length_rec(2);
+    forest->set_next_base(15);
+    forest->current_rec_++;
+    forest->set_next_base(20);
+    forest->current_rec_++;
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(6)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
+
+    forest->set_next_base(25);
+    forest->current_rec_++;
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(0)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(5)) );
+    CPPUNIT_ASSERT(  forest->nodeIsOld(forest->nodes()->at(6)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(7)) );
+    CPPUNIT_ASSERT(! forest->nodeIsOld(forest->nodes()->at(8)) );
   }
 
   void testPrune() {
@@ -499,7 +519,12 @@ class TestForest : public CppUnit::TestCase {
     forest->set_next_base(15);
     forest->current_rec_++;
 
-    forest->writable_model()->set_exact_window_length(5);
+    forest->writable_model()->disable_approximation();
+    forest->writable_model()->set_window_length_seq(5);
+    CPPUNIT_ASSERT( forest->model().has_approximation() );
+    CPPUNIT_ASSERT( forest->model().has_window_seq() );
+    CPPUNIT_ASSERT( !forest->model().has_window_rec() );
+
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(0)) );
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(1)) );
     CPPUNIT_ASSERT(! forest->pruneNodeIfNeeded(forest->nodes()->at(2)) );
@@ -544,8 +569,9 @@ class TestForest : public CppUnit::TestCase {
     inbetween2->set_parent(inbetween1);
     inbetween1->set_parent(parent);
 
+    CPPUNIT_ASSERT( !forest->nodeIsOld(inbetween2) );
     CPPUNIT_ASSERT( forest->pruneNodeIfNeeded(inbetween2) );
-    CPPUNIT_ASSERT( child->parent() == inbetween1 );
+    CPPUNIT_ASSERT_EQUAL(inbetween1, child->parent());
     CPPUNIT_ASSERT( inbetween1->parent() == parent );
     CPPUNIT_ASSERT( parent->is_root() );
     CPPUNIT_ASSERT( parent->first_child() == inbetween1 );

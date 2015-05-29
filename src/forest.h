@@ -232,7 +232,15 @@ class Forest
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    return (current_base() - get_rec_base(node->last_update()) > model().exact_window_length());
+    if ( model().has_window_rec() && 
+         segment_count() - node->last_update() > model().window_length_rec()) {
+      return true;
+    }
+    if ( model().has_window_seq() && 
+         current_base() - get_rec_base(node->last_update()) > model().window_length_seq()) {
+      return true;
+    }
+    return false;
   }
 
   bool nodeIsActive(Node const* node) const {

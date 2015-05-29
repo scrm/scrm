@@ -1146,7 +1146,7 @@ Node* Forest::possiblyMoveUpwards(Node* node, const TimeInterval &time_interval)
 
 bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
   assert(node != NULL);
-  if (model().exact_window_length() == -1) return false;
+  if (!model().has_approximation()) return false;
   if (node->in_sample()) return false;
 
   if (node->is_root()) {

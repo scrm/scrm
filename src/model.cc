@@ -57,7 +57,11 @@ Model::Model(const Model& model) {
   pop_number_ = model.pop_number_;
   loci_number_ = model.loci_number_;
   loci_length_ = model.loci_length_;
-  exact_window_length_ = model.exact_window_length_;
+  window_length_seq_ = model.window_length_seq_;
+  window_length_rec_ = model.window_length_rec_;
+  has_appr_ = model.has_appr_;
+  has_window_seq_ = model.has_window_seq_;
+  has_window_rec_ = model.has_window_rec_;
   has_migration_ = model.has_migration_;
 
   // Vector members
@@ -118,7 +122,10 @@ void Model::init() {
   this->setMutationRate(0.0);
   this->setRecombinationRate(0.0);
 
-  this->set_exact_window_length(-1);
+  this->disable_approximation();
+  this->set_window_length_seq(0);
+  this->set_window_length_rec(0);
+
   this->setSequenceScaling(ms);
 
   this->resetTime();
@@ -723,7 +730,8 @@ void swap(Model& first, Model& second) {
   swap(first.pop_number_, second.pop_number_);
   swap(first.loci_number_, second.loci_number_);
   swap(first.loci_length_, second.loci_length_);
-  swap(first.exact_window_length_, second.exact_window_length_);
+  swap(first.window_length_seq_, second.window_length_seq_);
+  swap(first.window_length_rec_, second.window_length_rec_);
   swap(first.has_migration_, second.has_migration_);
 
   // Vector members

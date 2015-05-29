@@ -250,7 +250,6 @@ class Model
    size_t sample_population(size_t sample_id) const { return sample_populations_.at(sample_id); };
    double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
 
-   size_t exact_window_length() const { return exact_window_length_; }
    size_t population_number() const { return pop_number_; }
   
    
@@ -270,7 +269,28 @@ class Model
     else return change_position_.at(current_seq_idx_ + 1);
    }
 
-   void set_exact_window_length(const size_t ewl) { exact_window_length_ = ewl; }
+   double window_length_seq() const { return window_length_seq_; }
+   size_t window_length_rec() const { return window_length_rec_; }
+   bool has_window_rec() const { return has_window_rec_; }
+   bool has_window_seq() const { return has_window_seq_; }
+   bool has_approximation() const { return has_appr_; }
+   void set_window_length_seq(const double ewl) { 
+     if (ewl < 0) throw std::invalid_argument("Exact window length can not be negative");
+     window_length_seq_ = ewl; 
+     has_window_seq_ = true;
+     has_appr_ = true;
+   }
+   void set_window_length_rec(const size_t ewl) { 
+     window_length_rec_ = ewl; 
+     has_window_rec_ = true;
+     has_appr_ = true;
+   }
+   void disable_approximation() {
+     has_appr_ = false;
+     has_window_rec_ = false;
+     has_window_seq_ = false;
+   }
+
    void set_population_number(const size_t pop_number) { 
     pop_number_ = pop_number; 
     if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
@@ -477,7 +497,11 @@ class Model
    size_t loci_number_;
    size_t loci_length_;
 
-   size_t exact_window_length_;
+   double window_length_seq_;
+   size_t window_length_rec_;
+   bool has_window_seq_;
+   bool has_window_rec_;
+   bool has_appr_;
 
    SeqScale seq_scale_;
 

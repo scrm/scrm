@@ -98,7 +98,9 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(40.04/(4*model.default_pop_size*1001), model.mutation_rate()) );
     CPPUNIT_ASSERT( areSame(1.24/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
+    CPPUNIT_ASSERT( model.has_approximation() );
+    CPPUNIT_ASSERT( model.has_window_seq() );
+    CPPUNIT_ASSERT_EQUAL( 1000.0, model.window_length_seq() );
 
     char *argv2[] = { "scrm", "15", "10", "-t", "3.74", "-I", "3", "7", "8", "5" };
     CPPUNIT_ASSERT_THROW( Param(10, argv2).parse(model), std::invalid_argument ); 
@@ -487,7 +489,7 @@ class TestParam : public CppUnit::TestCase {
   }
 
   void testStringConstructor() {
-    Param pars = Param("scrm 4 7 -t 40.04 -r 0.5 1001 -l 1000");
+    Param pars = Param("scrm 4 7 -t 40.04 -r 0.5 1001 -l 1000.5");
     CPPUNIT_ASSERT_NO_THROW( pars.parse(model) );
 
     CPPUNIT_ASSERT_EQUAL( (size_t)4, model.sample_size() );
@@ -495,7 +497,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(40.04/(4*model.default_pop_size*1001), model.mutation_rate()) );
     CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size*1000), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)1001, model.loci_length() );
-    CPPUNIT_ASSERT_EQUAL( (size_t)1000, model.exact_window_length() );
+    CPPUNIT_ASSERT_EQUAL( 1000.5, model.window_length_seq() );
   }
 
   void testParseSequenceScaling() {

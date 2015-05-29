@@ -321,7 +321,7 @@ void Param::parse(Model &model) {
     // Pruning 
     // ------------------------------------------------------------------
     else if (argv_i == "-l"){
-      model.set_exact_window_length(readNextInt());
+      model.set_window_length_seq(readNextInput<double>());
     }
 
     // ------------------------------------------------------------------

@@ -24,6 +24,7 @@
 
 void Forest::createExampleTree() {
   this->clear();
+  this->writable_model()->disable_approximation();
   // Only set the number of samples to 4, but keep rest of the model
   this->writable_model()->sample_times_.clear();
   this->writable_model()->sample_populations_.clear();
