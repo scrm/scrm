@@ -54,7 +54,7 @@ class Param {
 
   ~Param() {
     for (size_t i = 0; i < argv_vec_.size(); ++i) {
-      delete[] argv_vec_[i];
+      //delete[] argv_vec_[i];
     }
   }
  
