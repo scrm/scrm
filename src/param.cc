@@ -22,42 +22,21 @@
 
 #include "param.h"
 
-Param::Param(const std::string &arg) { 
-  std::istringstream iss(arg);
-
-  std::string token;
-  char *tmp;
-  while(iss >> token) {
-    tmp = new char[token.size() + 1];
-    copy(token.begin(), token.end(), tmp);
-    tmp[token.size()] = '\0';
-    argv_vec_.push_back(tmp);
-  }
-  argv_vec_.push_back(0);
-  this->read_init_genealogy_ = false;
-  directly_called_ = true;
-  argv_ = &argv_vec_[0];
-  argc_ = argv_vec_.size() - 1;
-  init();
-}
-
 std::ostream& operator<< (std::ostream& stream, const Param& param) {
   stream << "scrm";
-  for (int i = 1; i < param.argc_; ++i) {
-    stream << " " << param.argv_[i];
-  }
+  for (std::string arg : param.argv_) stream << " " << arg;
   return stream;
 }
 
 /*! 
- * \brief Read in ms parameters and jonvert to scrm parameters
+ * \brief Read in ms parameters and convert to scrm parameters
  * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
  * and -ej options in ms are time t in unit of 4N_0 generations. 
  * In scrm, we define time t in number of generations. 
  */
-void Param::parse(Model &model) {
+Model Param::parse() {
   this->read_init_genealogy_ = false;
-  model = Model();
+  Model model;
 
   size_t sample_size = 0;
   double par_dbl = 0.0;
@@ -78,45 +57,36 @@ void Param::parse(Model &model) {
   // increased by using -es.
   double min_time = 0.0;
 
-  std::string argv_i = "";
-  argc_i = 0;
-
-  if (argc_ == 0) return;
   if (!directly_called_) {
     dout << "Indirectly called" << std::endl;
   } else {
     // Check that have have at least one argument
-    if (argc_ == 1) throw std::invalid_argument("Too few command line arguments.");
+    if (argv_.size() == 0) throw std::invalid_argument("Too few command line arguments.");
 
     // Check if we need to print the help & version (only valid one argument commands)
-    argv_i = argv_[1];
-    if (argv_i == "-h" || argv_i == "--help") {
+    if (*argv_i == "-h" || *argv_i == "--help") {
       this->set_help(true);
-      return;
+      return model;
     }
-    if (argv_i == "-v" || argv_i == "--version") {
+    if (*argv_i == "-v" || *argv_i == "--version") {
       this->set_version(true);
-      return;
+      return model;
     }
 
     // Check that have have at least two arguments
-    if (argc_ == 2) throw std::invalid_argument("Too few command line arguments.");
+    if (argv_.size() == 1) throw std::invalid_argument("Too few command line arguments.");
   }
 
-  while( argc_i < argc_ ){
-    argv_i = argv_[argc_i];
+  sample_size = convert<double>(*argv_i);
+  model.set_loci_number(readNextInt());
 
-    if (argc_i == 0) {
-      sample_size = readNextInt();
-      model.set_loci_number(readNextInt());
-    }
-
+  while (++argv_i != argv_.end()) {
     // ------------------------------------------------------------------
     // Mutation 
     // ------------------------------------------------------------------
-    else if (argv_i == "-t" || argv_i == "-st") {
+    if (*argv_i == "-t" || *argv_i == "-st") {
       // Position
-      if (argv_i == "-st") time = readNextInput<double>(); 
+      if (*argv_i == "-st") time = readNextInput<double>(); 
       else time = 0.0;
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
@@ -128,13 +98,13 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Recombination 
     // ------------------------------------------------------------------
-    else if (argv_i == "-r") {
+    else if (*argv_i == "-r") {
       par_dbl = readNextInput<double>();
       model.setLocusLength(readNextInt());
       model.setRecombinationRate(par_dbl, true, true, 0.0);
     }
 
-    else if (argv_i == "-sr") {
+    else if (*argv_i == "-sr") {
       time = readNextInput<double>(); // Position
       model.setRecombinationRate(readNextInput<double>(), true, true, time);
     }
@@ -143,7 +113,7 @@ void Param::parse(Model &model) {
     // Subpopulations 
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0
-    else if (argv_i == "-I") {
+    else if (*argv_i == "-I") {
       model.set_population_number(readNextInt());
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
@@ -154,12 +124,12 @@ void Param::parse(Model &model) {
       try {
         model.addSymmetricMigration(0.0, readNextInput<double>()/(model.population_number()-1), true, true);
       } catch (std::invalid_argument e) {
-        --argc_i;
+        --argv_i;
       }
     }
 
     // Add samples at arbitrary times
-    else if (argv_i == "-eI") {
+    else if (*argv_i == "-eI") {
       time = readNextInput<double>();
       if (time < min_time) {
         throw std::invalid_argument(std::string("If you use '-eI' in a model with population merges ('-es'),") +
@@ -175,8 +145,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Populations sizes 
     // ------------------------------------------------------------------
-    else if (argv_i == "-eN" || argv_i == "-N") {
-      if (argv_i == "-eN") time = readNextInput<double>();
+    else if (*argv_i == "-eN" || *argv_i == "-N") {
+      if (*argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
       if (time < min_time) {
         throw std::invalid_argument(std::string("If you use '-N' or '-eN' in a model with population merges ('-es'),") +
@@ -186,8 +156,8 @@ void Param::parse(Model &model) {
       if (time != 0.0) model.addGrowthRates(time, 0.0, true);
     }
 
-    else if (argv_i == "-en" || argv_i == "-n") {
-      if (argv_i == "-en") time = readNextInput<double>();
+    else if (*argv_i == "-en" || *argv_i == "-n") {
+      if (*argv_i == "-en") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInt() - 1;
       model.addPopulationSize(time, pop, readNextInput<double>(), true, true);
@@ -197,8 +167,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Exponential Growth 
     // ------------------------------------------------------------------
-    else if (argv_i == "-G" || argv_i == "-eG") {
-      if (argv_i == "-eG") time = readNextInput<double>();
+    else if (*argv_i == "-G" || *argv_i == "-eG") {
+      if (*argv_i == "-eG") time = readNextInput<double>();
       else time = 0.0;
       if (time < min_time) {
         throw std::invalid_argument(std::string("If you use '-G' or '-eG' in a model with population merges ('-es'),") +
@@ -207,8 +177,8 @@ void Param::parse(Model &model) {
       model.addGrowthRates(time, readNextInput<double>(), true, true); 
     }
 
-    else if (argv_i == "-g" || argv_i == "-eg") {
-      if (argv_i == "-eg") time = readNextInput<double>();
+    else if (*argv_i == "-g" || *argv_i == "-eg") {
+      if (*argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInt() - 1;
       model.addGrowthRate(time, pop, readNextInput<double>(), true, true); 
@@ -217,8 +187,8 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Migration
     // ------------------------------------------------------------------
-    else if (argv_i == "-ma" || argv_i == "-ema") {
-      if (argv_i == "-ema") {
+    else if (*argv_i == "-ma" || *argv_i == "-ema") {
+      if (*argv_i == "-ema") {
         time = readNextInput<double>();
       }
       else time = 0.0;
@@ -231,7 +201,7 @@ void Param::parse(Model &model) {
         for (size_t j = 0; j < model.population_number(); ++j) {
           if (i==j) {
             migration_rates.push_back(0.0);
-            ++argc_i;
+            ++argv_i;
           }
           else migration_rates.push_back(readNextInput<double>());
         }
@@ -239,8 +209,8 @@ void Param::parse(Model &model) {
       model.addMigrationRates(time, migration_rates, true, true);
     }
 
-    else if (argv_i == "-m" || argv_i == "-em") {
-      if (argv_i == "-em") {
+    else if (*argv_i == "-m" || *argv_i == "-em") {
+      if (*argv_i == "-em") {
         time = readNextInput<double>();
       }
       else time = 0.0;
@@ -254,8 +224,8 @@ void Param::parse(Model &model) {
       model.addMigrationRate(time, source_pop, sink_pop, readNextInput<double>(), true, true);
     }
 
-    else if (argv_i == "-M" || argv_i == "-eM") {
-      if (argv_i == "-eM") {
+    else if (*argv_i == "-M" || *argv_i == "-eM") {
+      if (*argv_i == "-eM") {
         time = readNextInput<double>();
       }
       else time = 0.0;
@@ -269,7 +239,7 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Population merges
     // ------------------------------------------------------------------
-    else if (argv_i == "-es") {
+    else if (*argv_i == "-es") {
       time = readNextInput<double>();
       if (time < min_time) {
         throw std::invalid_argument(std::string("You must sort multiple population merges ('-es'),") +
@@ -289,7 +259,7 @@ void Param::parse(Model &model) {
     }
 
 
-    else if (argv_i == "-eps") {
+    else if (*argv_i == "-eps") {
       time = readNextInput<double>();
       source_pop = readNextInt() - 1;
       sink_pop = readNextInt() - 1;
@@ -306,7 +276,7 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Population splits
     // ------------------------------------------------------------------
-    else if (argv_i == "-ej") {
+    else if (*argv_i == "-ej") {
       time = readNextInput<double>();
       source_pop = readNextInt() - 1;
       sink_pop = readNextInt() - 1;
@@ -320,14 +290,14 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Pruning 
     // ------------------------------------------------------------------
-    else if (argv_i == "-l"){
+    else if (*argv_i == "-l"){
       model.set_window_length_seq(readNextInput<double>());
     }
 
     // ------------------------------------------------------------------
     // Read initial trees from file
     // ------------------------------------------------------------------
-    else if ( argv_i == "-init" ){
+    else if ( *argv_i == "-init" ){
       this->read_init_genealogy_ = true;
       std::string tmp_string = readNextInput<std::string>();
       std::ifstream in_file( tmp_string.c_str() );
@@ -347,50 +317,51 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Summary Statistics
     // ------------------------------------------------------------------
-    else if (argv_i == "-T") {
+    else if (*argv_i == "-T") {
       newick_trees = true;
     }
 
-    else if (argv_i == "-O"){
+    else if (*argv_i == "-O"){
       orientedForest = true;
     }
 
-    else if (argv_i == "-SC" || argv_i == "--SC") {
-      std::string tmp_string = readNextInput<std::string>();
-      if (tmp_string.compare("rel") == 0) model.setSequenceScaling(relative);
-      else if (tmp_string.compare("abs") == 0) model.setSequenceScaling(absolute);
-      else if (tmp_string.compare("ms") == 0) model.setSequenceScaling(ms);
+    else if (*argv_i == "-SC" || *argv_i == "--SC") {
+      if (++argv_i == argv_.end()) throw std::invalid_argument("Missing sequence scaling argument.");
+
+      if (*argv_i == "rel") model.setSequenceScaling(relative);
+      else if (*argv_i == "abs") model.setSequenceScaling(absolute);
+      else if (*argv_i == "ms") model.setSequenceScaling(ms);
       else throw 
         std::invalid_argument(std::string("Unknown sequence scaling argument: ") +
-                              tmp_string +
+                              *argv_i +
                               std::string(". Valid are 'rel', 'abs' or 'ms'."));
     }
 
-    else if (argv_i == "-L") {
+    else if (*argv_i == "-L") {
       tmrca = true;
     }
 
-    else if (argv_i == "-oSFS") {
+    else if (*argv_i == "-oSFS") {
       sfs = true;
     }
 
-    else if (argv_i == "-p") {
+    else if (*argv_i == "-p") {
       this->precision_ = readNextInt() ;
     }
 
     // ------------------------------------------------------------------
     // Seeds
     // ------------------------------------------------------------------
-    else if (argv_i == "-seed" || argv_i == "--seed" ||
-             argv_i == "-seeds" || argv_i == "--seeds") {
+    else if (*argv_i == "-seed" || *argv_i == "--seed" ||
+             *argv_i == "-seeds" || *argv_i == "--seeds") {
       std::vector<size_t> seeds(3, 0);
       // Always require one seed
       seeds.at(0) = readNextInt();
       try {
         // Maybe read in up to 3 seeds (ms compatibility)
-        for (size_t i = 1; i < 3; i++) seeds.at(i) = readNextInt();
+        for (size_t i = 1; i < 3; ++i) seeds.at(i) = readNextInt();
       } catch (std::invalid_argument e) {
-        --argc_i;
+        --argv_i;
       }
 
       if (seeds.at(1) != 0 || seeds.at(2) != 0) {
@@ -406,17 +377,15 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Help & Version
     // ------------------------------------------------------------------
-    else if (argv_i == "-h" || argv_i == "--help") {
+    else if (*argv_i == "-h" || *argv_i == "--help") {
       this->set_help(true);
-      return;
     }
 
-    else if (argv_i == "-v" || argv_i == "--version") {
+    else if (*argv_i == "-v" || *argv_i == "--version") {
       this->set_version(true);
-      return;
     }
 
-    else if (argv_i == "-print-model" || argv_i == "--print-model") {
+    else if (*argv_i == "-print-model" || *argv_i == "--print-model") {
       this->set_print_model(true);
     } 
 
@@ -424,19 +393,17 @@ void Param::parse(Model &model) {
     // ------------------------------------------------------------------
     // Unsupported ms arguments
     // ------------------------------------------------------------------
-    else if (argv_i == "-c") {
+    else if (*argv_i == "-c") {
       throw std::invalid_argument("scrm does not support gene conversion.");
     }
 
-    else if (argv_i == "-s") {
+    else if (*argv_i == "-s") {
       throw std::invalid_argument("scrm does not support simulating a fixed number of mutations.");
     }
 
     else {  
-      throw std::invalid_argument(std::string("unknown/unexpected argument: ") + argv_i);
+      throw std::invalid_argument(std::string("unknown/unexpected argument: ") + *argv_i);
     }
-
-    ++argc_i;
   }
 
   if (model.sample_size() == 0) {
@@ -462,6 +429,7 @@ void Param::parse(Model &model) {
 
   model.finalize();
   model.resetTime();
+  return model;
 }
 
 void Param::printHelp(std::ostream& out) {

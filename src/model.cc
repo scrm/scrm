@@ -63,6 +63,7 @@ Model::Model(const Model& model) {
   has_window_seq_ = model.has_window_seq_;
   has_window_rec_ = model.has_window_rec_;
   has_migration_ = model.has_migration_;
+  seq_scale_ = model.seq_scale_;
 
   // Vector members
   sample_times_ = model.sample_times_;
@@ -733,6 +734,11 @@ void swap(Model& first, Model& second) {
   swap(first.window_length_seq_, second.window_length_seq_);
   swap(first.window_length_rec_, second.window_length_rec_);
   swap(first.has_migration_, second.has_migration_);
+
+  swap(first.seq_scale_, second.seq_scale_);
+  swap(first.has_appr_, second.has_appr_);
+  swap(first.has_window_seq_, second.has_window_seq_);
+  swap(first.has_window_rec_, second.has_window_rec_);
 
   // Vector members
   swap(first.sample_times_, second.sample_times_);
