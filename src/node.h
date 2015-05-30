@@ -71,14 +71,14 @@ class Node
   size_t population() const { return population_; }
   void set_population(const size_t pop) { population_ = pop; }
 
-  bool local() const { return (last_update_ == -1); }
+  bool local() const { return (last_update_ == 0); }
 
   void make_local() { 
-    last_update_ = -1; 
+    last_update_ = 0; 
   }
-  void make_nonlocal(const double current_base) { 
+  void make_nonlocal(const size_t current_recombination) { 
     assert( this->local() ); 
-    set_last_update(current_base);
+    set_last_update(current_recombination);
   }
 
 	Node *parent() const {
@@ -93,10 +93,10 @@ class Node
   Node *first_child() const { return this->first_child_; }
   void set_first_child(Node *first_child) { this->first_child_ = first_child; }
 
-  double last_update() const { return last_update_; }
+  size_t last_update() const { return last_update_; }
 
-  double last_change() const { return last_change_; }
-  void set_last_change(const double pos) { last_change_ = pos; }
+  size_t last_change() const { return last_change_; }
+  void set_last_change(const size_t pos) { last_change_ = pos; }
 
   size_t samples_below() const { return samples_below_; }
   void set_samples_below(size_t samples) { samples_below_ = samples; }
@@ -156,15 +156,15 @@ class Node
   Node(double height, size_t label);
 
   void init(double heigh=-1, size_t label=0);
-  void set_last_update(const double position) { last_update_ = position; }; 
+  void set_last_update(const size_t recombination) { last_update_ = recombination; }; 
 
   size_t label_;
   double height_;        // The total height of the node
-  double last_update_;   // The sequence position on which the branch above the node
+  size_t last_update_;   // The recombination on which the branch above the node
                          // was last checked for recombination events or 0 if
                          // the node is local 
-
-  double last_change_;
+  size_t last_change_;   // The recombination at which the subtree below the node
+                         // changed most recently.
 
   size_t population_;    // The number of the population the node belong to. 
   

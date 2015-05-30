@@ -135,6 +135,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->createScaledExampleTree();
     forest->writable_model()->setMutationRate(0.0001);
     forest->set_current_base(0.0);
+    forest->set_next_base(15.0);
     SegSites seg_sites = SegSites();
     CPPUNIT_ASSERT_EQUAL( 0.0, seg_sites.position() );
 
@@ -192,11 +193,6 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     rg->set_seed(1234);
     seg_sites.calculate(*forest);
     CPPUNIT_ASSERT_EQUAL( mutation_count, seg_sites.countMutations() );
-
-    // Check for exception with the position counter if off
-    forest->set_current_base(5.0);
-    forest->set_next_base(15.0);
-    CPPUNIT_ASSERT_THROW( seg_sites.calculate(*forest), std::logic_error );
   }
 
   void testSiteFrequencies() {
@@ -205,7 +201,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    SegSites* seg_sites = new SegSites();
+    std::shared_ptr<SegSites> seg_sites = std::make_shared<SegSites>();
     seg_sites->positions_.push_back(0.5);
     seg_sites->positions_.push_back(0.7);
     seg_sites->positions_.push_back(0.8);
@@ -246,8 +242,6 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
-
-    delete seg_sites;
   }
 
   void testOrientedForestGenerateTreeData() {

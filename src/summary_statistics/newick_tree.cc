@@ -48,7 +48,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   // Use tree from buffer if possible
   std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
   if (use_buffer && it != buffer_.end()) {
-    if (it->second.position > node->last_change()) {
+    if (it->second.recombination > node->last_change()) {
       // Check that the buffered tree is correct.
       assert(it->second.tree.compare(generateTree(node, forest, false)) == 0);
       return it->second.tree;
@@ -71,7 +71,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
 
   // And add to to the buffer
   if (use_buffer) {
-    NewickBuffer buf = {forest.current_base(), tree.str()};
+    NewickBuffer buf = {forest.current_rec(), tree.str()};
     buffer_[node] = buf; 
   }
 

@@ -24,10 +24,15 @@
 
 void Forest::createExampleTree() {
   this->clear();
+  this->writable_model()->disable_approximation();
   // Only set the number of samples to 4, but keep rest of the model
   this->writable_model()->sample_times_.clear();
   this->writable_model()->sample_populations_.clear();
   this->writable_model()->addSampleSizes(0.0, std::vector<size_t>(1, 4));
+
+  this->rec_bases_.push_back(5.0);  
+  this->current_rec_ = 1;
+  //this->rec_bases_.push_back(105.0);  
 
   Node* leaf1 = nodes()->createNode(0, 1);
   Node* leaf2 = nodes()->createNode(0, 2);
@@ -57,9 +62,9 @@ void Forest::createExampleTree() {
 
   // Add a non-local tree
   Node* nl_node = nodes()->createNode(4); 
-  nl_node->make_nonlocal(5);
+  nl_node->make_nonlocal(current_rec_);
   Node* nl_root = nodes()->createNode(6);
-  nl_root->make_nonlocal(5);
+  nl_root->make_nonlocal(current_rec_);
   
   nl_node->set_parent(nl_root);
   nl_root->set_first_child(nl_node);
@@ -72,8 +77,6 @@ void Forest::createExampleTree() {
   updateAbove(leaf3);
   updateAbove(leaf4);
 
-  this->set_current_base(5);  
-  this->set_next_base(105);
   this->set_sample_size(4);
 
   this->contemporaries_ = ContemporariesContainer(model().population_number(), 

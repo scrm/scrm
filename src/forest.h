@@ -101,27 +101,9 @@ class Forest
   }
   void set_sample_size(const size_t size ) { sample_size_ = size; }
 
-  double current_base() const { return current_base_; }
-  void set_current_base(const double base) { current_base_ = base; }
+  size_t segment_count() const { return current_rec_; }
 
-  double next_base() const { return next_base_; }
-  void set_next_base(const double base){ next_base_ = base; }
-
-  size_t segment_count() const { return segment_count_; }
-
-  // Must be called AFTER the tree was modified.
-  void sampleNextBase() {
-    double length = random_generator()->sampleExpoLimit(getLocalTreeLength() * model().recombination_rate(),
-                                                        model().getNextSequencePosition() - current_base_);
-    if (length == -1) {
-      // No recombination until the model changes
-      set_next_base(model().getNextSequencePosition());
-      if (next_base_ < model().loci_length()) writable_model()->increaseSequencePosition();
-    } else {
-      // Recombination in the sequence segment
-      next_base_ = current_base_ + length;
-    }
-  } 
+  void sampleNextBase();
 
   /**
    * @brief Returns the length of the sequence for with the current tree is
@@ -142,7 +124,8 @@ class Forest
   }
 
   void set_random_generator(RandomGenerator *rg) {
-    this->random_generator_ = rg; }
+    this->random_generator_ = rg; 
+  }
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
   NodeContainer const *getNodes() const { return &nodes_; };
@@ -207,7 +190,19 @@ class Forest
   void calcSegmentSumStats();
   void clearSumStats();
   void printLocusSumStats(std::ostream &output) const;
-  
+
+  double get_rec_base(const size_t idx) const {
+    assert(idx < rec_bases_.size());
+    return rec_bases_[idx];
+  }
+
+  double current_base() const { return get_rec_base(current_rec_); }
+  double next_base() const { return get_rec_base(current_rec_ + 1); }
+  void set_current_base(double const base) { rec_bases_[current_rec_] = base; }; 
+  void set_next_base(double const base) { rec_bases_.push_back(base); }; 
+
+  size_t current_rec() const { return current_rec_; };
+
  private:
   Forest() { this->initialize(); }
 
@@ -237,7 +232,15 @@ class Forest
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    return (current_base() - node->last_update() > model().exact_window_length());
+    if ( model().has_window_rec() && 
+         segment_count() - node->last_update() > model().window_length_rec()) {
+      return true;
+    }
+    if ( model().has_window_seq() && 
+         current_base() - get_rec_base(node->last_update()) > model().window_length_seq()) {
+      return true;
+    }
+    return false;
   }
 
   bool nodeIsActive(Node const* node) const {
@@ -280,10 +283,10 @@ class Forest
   // secondary roots: roots of trees that contain only non-local nodes
   // std::unordered_set<Node*> secondary_roots_;
 
-  double current_base_;     // The current position of the sequence we are simulating
-  double next_base_;
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
-  size_t segment_count_;    // Counts next number segments already created 
+  size_t current_rec_;      // A counter for recombinations
+
+  std::vector<double> rec_bases_; // Genetic positions of the recombinations 
 
   Model* model_;
   RandomGenerator* random_generator_;

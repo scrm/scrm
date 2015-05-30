@@ -38,8 +38,7 @@ int main(int argc, char *argv[]){
 
     // Parse command line arguments
     Param user_para(argc, argv);
-    Model model;
-    user_para.parse(model);
+    Model model = user_para.parse();
     output->precision(user_para.precision());
 
     // Print help if user asked for it
