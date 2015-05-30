@@ -63,9 +63,9 @@ void Model::init() {
   this->setMutationRate(0.0);
   this->setRecombinationRate(0.0);
 
-  this->disable_approximation();
   this->set_window_length_seq(0);
   this->set_window_length_rec(0);
+  this->disable_approximation();
 
   this->setSequenceScaling(ms);
 
