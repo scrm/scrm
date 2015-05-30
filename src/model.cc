@@ -33,65 +33,6 @@ Model::Model(size_t sample_size) {
   this->resetTime();
 }
 
-Model::~Model() { 
-  deleteParList(pop_sizes_list_);
-  deleteParList(growth_rates_list_);
-  deleteParList(mig_rates_list_);
-  deleteParList(total_mig_rates_list_);
-  deleteParList(single_mig_probs_list_);
-
-  for (SummaryStatistic* sum_stat : this->summary_statistics_) delete sum_stat;
-}
-
-// Copy constructor
-Model::Model(const Model& model) {
-  //normal members
-  default_pop_size = model.default_pop_size;
-  default_loci_length = model.default_loci_length;
-  default_growth_rate = model.default_growth_rate;
-  default_mig_rate = model.default_mig_rate;
-  scaling_factor_ = model.scaling_factor_;
-  
-  mutation_rates_ = model.mutation_rates_;
-  recombination_rates_ = model.recombination_rates_;
-  pop_number_ = model.pop_number_;
-  loci_number_ = model.loci_number_;
-  loci_length_ = model.loci_length_;
-  window_length_seq_ = model.window_length_seq_;
-  window_length_rec_ = model.window_length_rec_;
-  has_appr_ = model.has_appr_;
-  has_window_seq_ = model.has_window_seq_;
-  has_window_rec_ = model.has_window_rec_;
-  has_migration_ = model.has_migration_;
-  seq_scale_ = model.seq_scale_;
-
-  // Vector members
-  sample_times_ = model.sample_times_;
-  sample_populations_ = model.sample_populations_;
-  change_times_ = model.change_times_;
-  change_position_ = model.change_position_;
-
-  // Vector lists
-  pop_sizes_list_ = copyVectorList(model.pop_sizes_list_);
-  growth_rates_list_ = copyVectorList(model.growth_rates_list_);
-  mig_rates_list_ = copyVectorList(model.mig_rates_list_);
-  total_mig_rates_list_ = copyVectorList(model.total_mig_rates_list_);
-  single_mig_probs_list_ = copyVectorList(model.single_mig_probs_list_);
-
-  // Summary Statistics
-  for (SummaryStatistic* sum_stat : model.summary_statistics_) {
-    this->summary_statistics_.push_back(sum_stat->clone());  
-  }
-
-  // Pointers
-  current_time_idx_ = model.current_time_idx_; 
-  current_seq_idx_ = model.current_seq_idx_; 
-  current_pop_sizes_ = model.pop_sizes_list_.at(current_time_idx_);
-  current_growth_rates_ = model.growth_rates_list_.at(current_time_idx_); 
-  current_mig_rates_ = model.mig_rates_list_.at(current_time_idx_);
-  current_total_mig_rates_ = model.total_mig_rates_list_.at(current_time_idx_);
-}
-
 void Model::init() {
   default_pop_size = 10000;
   default_loci_length = 100000;
@@ -140,10 +81,7 @@ void Model::reset() {
   deleteParList(total_mig_rates_list_);
   deleteParList(single_mig_probs_list_);
 
-  for (SummaryStatistic* sum_stat : this->summary_statistics_) {
-    delete sum_stat;
-  }
-
+  summary_statistics_.clear();
   init();
 }
 
@@ -717,53 +655,6 @@ std::vector<T*> Model::copyVectorList(const std::vector<T*> &source) {
 }
 
 
-void swap(Model& first, Model& second) {
-  using std::swap;
-  swap(first.default_pop_size, second.default_pop_size);
-  swap(first.default_loci_length, second.default_loci_length);
-  swap(first.default_growth_rate, second.default_growth_rate);
-  swap(first.default_mig_rate, second.default_mig_rate);
-
-  swap(first.change_position_, second.change_position_);
-  swap(first.mutation_rates_, second.mutation_rates_);
-  swap(first.recombination_rates_, second.recombination_rates_);
-
-  swap(first.pop_number_, second.pop_number_);
-  swap(first.loci_number_, second.loci_number_);
-  swap(first.loci_length_, second.loci_length_);
-  swap(first.window_length_seq_, second.window_length_seq_);
-  swap(first.window_length_rec_, second.window_length_rec_);
-  swap(first.has_migration_, second.has_migration_);
-
-  swap(first.seq_scale_, second.seq_scale_);
-  swap(first.has_appr_, second.has_appr_);
-  swap(first.has_window_seq_, second.has_window_seq_);
-  swap(first.has_window_rec_, second.has_window_rec_);
-
-  // Vector members
-  swap(first.sample_times_, second.sample_times_);
-  swap(first.sample_populations_, second.sample_populations_);
-  swap(first.change_times_, second.change_times_);
-
-  // Vector lists
-  swap(first.pop_sizes_list_, second.pop_sizes_list_);
-  swap(first.growth_rates_list_, second.growth_rates_list_);
-  swap(first.mig_rates_list_, second.mig_rates_list_);
-  swap(first.total_mig_rates_list_, second.total_mig_rates_list_);
-  swap(first.single_mig_probs_list_, second.single_mig_probs_list_);
-
-  // Pointer lists
-  swap(first.summary_statistics_, second.summary_statistics_);
-
-  // Pointers
-  swap(first.current_time_idx_, second.current_time_idx_); 
-  swap(first.current_pop_sizes_, second.current_pop_sizes_);
-  swap(first.current_growth_rates_, second.current_growth_rates_); 
-  swap(first.current_mig_rates_, second.current_mig_rates_);
-  swap(first.current_total_mig_rates_, second.current_total_mig_rates_);
-}
-
-
 void Model::addPopulation() {
   // Create the new population
   size_t new_pop = population_number();
@@ -778,6 +669,7 @@ void Model::addPopulation() {
   addPopToMatrixList(single_mig_probs_list_, new_pop, 0);
 }
 
+
 void Model::addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, size_t new_pop, double default_value) {
   for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {
     if (*it == NULL) continue;
@@ -789,6 +681,7 @@ void Model::addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, s
     }
   }
 }
+
 
 void Model::addPopToVectorList(std::vector<std::vector<double>*> &vector_list) {
   for (auto it = vector_list.begin(); it!= vector_list.end(); ++it) {

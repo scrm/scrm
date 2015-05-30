@@ -43,6 +43,7 @@
 #include <cassert>
 #include <cmath>
 #include <iomanip>
+#include <memory>
 
 #include "summary_statistics/summary_statistic.h"
 
@@ -66,20 +67,7 @@ class Model
    Model(size_t sample_size);
 
    Model(const Model& model);
-   //Move Operator
-   Model(Model&& model) : Model() {
-    swap(*this, model);
-   }
-   //Assignment Operator
-   Model& operator=(Model model) {
-    swap(*this, model);  
-    return(*this);
-   };
-
-
    void init();
-   
-   ~Model();
    
    // Default values;
    double default_pop_size;
@@ -385,10 +373,10 @@ class Model
    }
 
    SummaryStatistic* getSummaryStatistic(const size_t i) const {
-     return summary_statistics_.at(i);
+     return summary_statistics_.at(i).get();
    }
 
-   void addSummaryStatistic(SummaryStatistic* sum_stat) {
+   void addSummaryStatistic(std::shared_ptr<SummaryStatistic> sum_stat) {
      summary_statistics_.push_back(sum_stat);
    }
 
@@ -505,7 +493,7 @@ class Model
 
    SeqScale seq_scale_;
 
-   std::vector<SummaryStatistic*> summary_statistics_;
+   std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
 };
 
 

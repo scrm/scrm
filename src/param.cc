@@ -46,7 +46,7 @@ Model Param::parse() {
   // Placeholders for summary statistics.
   // Statistics are added only after all parameters are parse, so that they will
   // be added in the correct order.
-  SegSites* seg_sites = NULL;
+  std::shared_ptr<SegSites> seg_sites;
   bool tmrca = false,
        newick_trees = false,
        orientedForest = false,
@@ -90,8 +90,8 @@ Model Param::parse() {
       else time = 0.0;
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
-      if (directly_called_ && seg_sites == NULL){
-        seg_sites = new SegSites();
+      if (directly_called_ && !seg_sites){
+        seg_sites = std::make_shared<SegSites>();
       }
     }
 
@@ -417,14 +417,14 @@ Model Param::parse() {
   }
 
   // Add summary statistics in order of their output
-  if (newick_trees) model.addSummaryStatistic(new NewickTree(this->precision()));
-  if (orientedForest) model.addSummaryStatistic(new OrientedForest(model.sample_size()));
-  if (tmrca) model.addSummaryStatistic(new TMRCA());
-  if (seg_sites != NULL) model.addSummaryStatistic(seg_sites);
+  if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision()));
+  if (orientedForest) model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size()));
+  if (tmrca) model.addSummaryStatistic(std::make_shared<TMRCA>());
+  if (seg_sites.get() != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
     if (seg_sites == NULL) 
       throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
-    model.addSummaryStatistic(new FrequencySpectrum(seg_sites, model));
+    model.addSummaryStatistic(std::make_shared<FrequencySpectrum>(seg_sites, model));
   }
 
   model.finalize();

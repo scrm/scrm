@@ -201,7 +201,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    SegSites* seg_sites = new SegSites();
+    std::shared_ptr<SegSites> seg_sites = std::make_shared<SegSites>();
     seg_sites->positions_.push_back(0.5);
     seg_sites->positions_.push_back(0.7);
     seg_sites->positions_.push_back(0.8);
@@ -242,8 +242,6 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     sfs.calculate(*forest);
     sfs.printLocusOutput(output);
     CPPUNIT_ASSERT( output.str().compare("SFS: 0 0 0 \n") == 0 );
-
-    delete seg_sites;
   }
 
   void testOrientedForestGenerateTreeData() {

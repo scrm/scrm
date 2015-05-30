@@ -38,7 +38,7 @@
 class FrequencySpectrum : public SummaryStatistic
 {
  public:
-   FrequencySpectrum(SegSites* seg_sites, const Model &model) : seg_sites_(seg_sites) {
+   FrequencySpectrum(std::shared_ptr<SegSites> seg_sites, const Model &model) : seg_sites_(seg_sites) {
      sfs_ = std::vector<size_t>(model.sample_size() - 1, 0);
      at_mutation_ = 0;
      //total_sfs_ = std::vector<size_t>(model_.sample_size() - 1, 0);
@@ -57,7 +57,7 @@ class FrequencySpectrum : public SummaryStatistic
    std::vector<size_t> const & sfs() const { return sfs_; }
 
  private:
-   SegSites* const seg_sites_;
+   std::shared_ptr<SegSites> seg_sites_;
    std::vector<size_t> sfs_;
    //std::vector<size_t> total_sfs_;
    size_t at_mutation_;

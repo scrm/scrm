@@ -15,10 +15,6 @@ class TestModel : public CppUnit::TestCase {
 
   CPPUNIT_TEST_SUITE( TestModel );
 
-  CPPUNIT_TEST( testDeleteParList );
-  CPPUNIT_TEST( testCopyVectorList );
-  CPPUNIT_TEST( testCopyConstructor );
-  CPPUNIT_TEST( testAssignmentConstructor );
   CPPUNIT_TEST( testSetGetMutationRate );
   CPPUNIT_TEST( testAddChangePositions );
   CPPUNIT_TEST( testSetGetRecombinationRate );
@@ -45,24 +41,6 @@ class TestModel : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE_END();
 
  public:
-  void testCopyVectorList() {
-    Model model = Model();
-    auto parList = std::vector<std::vector<double>*>();
-    parList.push_back(NULL);
-    parList.push_back(new std::vector<double>(5, 1.0));
-    parList.push_back(NULL);
-    parList.push_back(new std::vector<double>(2, 2.0));
-    auto parListCopy = model.copyVectorList(parList);
-    CPPUNIT_ASSERT( parListCopy.at(0) == NULL );
-    CPPUNIT_ASSERT( parListCopy.at(2) == NULL );
-    CPPUNIT_ASSERT( parListCopy.at(1)->at(0) == 1.0 );
-    CPPUNIT_ASSERT( parListCopy.at(3)->at(0) == 2.0 );
-    model.deleteParList(parList);
-    CPPUNIT_ASSERT_NO_THROW( parListCopy.at(1)->at(0) );
-    CPPUNIT_ASSERT_NO_THROW( parListCopy.at(3)->at(0) );
-    model.deleteParList(parListCopy);
-  }
-
   void testAddChangeTime() {
     Model model = Model();
     std::vector<double> *v1 = new std::vector<double>(1, 1), 
@@ -535,47 +513,6 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW( model.check() );
   } 
 
-  void testCopyConstructor() {
-    Model model = Model(5);
-    model.set_population_number(2);
-    model.addSymmetricMigration(1, 1.0);
-    model.addGrowthRates(2, 2.0);
-    model.addPopulationSizes(3, 3000);
-    model.finalize();
-    model.increaseTime();
-
-    Model model2 = Model(model);
-    CPPUNIT_ASSERT_EQUAL( model.sample_size(), model2.sample_size() );
-    CPPUNIT_ASSERT_EQUAL( model.getCurrentTime(), model2.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( model.population_number(), model2.population_number() );
-    CPPUNIT_ASSERT_EQUAL( model.total_migration_rate(0), model2.total_migration_rate(1));
-    model.increaseTime(); model2.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( model.growth_rate(0), model2.growth_rate(0));
-    model.increaseTime(); model2.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( model.population_size(0), model2.population_size(0));
-  }
-  
-  void testAssignmentConstructor() {
-    Model model = Model(5); 
-    model.set_population_number(2);
-    Model model2 = Model(7);
-    model.addSymmetricMigration(1, 1.0);
-    model.addGrowthRates(2, 2.0);
-    model.addPopulationSizes(3, 3000);
-    model.finalize();
-    model.increaseTime();
-
-    model2 = model;
-    CPPUNIT_ASSERT_EQUAL( model.sample_size(), model2.sample_size() );
-    CPPUNIT_ASSERT_EQUAL( model.getCurrentTime(), model2.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( model.population_number(), model2.population_number() );
-    CPPUNIT_ASSERT_EQUAL( model.total_migration_rate(0), model2.total_migration_rate(1));
-    model.increaseTime(); model2.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( model.growth_rate(0), model2.growth_rate(0));
-    model.increaseTime(); model2.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( model.population_size(0), model2.population_size(0));
-  }
-
   void testPopSizeAfterGrowth() {
     // Growth only
     Model model = Model(5); 
@@ -677,7 +614,7 @@ class TestModel : public CppUnit::TestCase {
   void testAddSummaryStatistic() {
     Model model = Model(5);
     CPPUNIT_ASSERT(model.countSummaryStatistics() == 0); 
-    model.addSummaryStatistic(new TMRCA());
+    model.addSummaryStatistic(std::make_shared<TMRCA>());
     CPPUNIT_ASSERT(model.countSummaryStatistics() == 1); 
   }
 
