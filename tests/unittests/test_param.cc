@@ -137,6 +137,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.sample_population(17), (size_t)2 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(4), (double)0.0 );
     CPPUNIT_ASSERT_EQUAL( model.sample_time(17), (double)0.0 );
+    //std::cout << model << std::endl;
+    model.finalize();
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
@@ -226,10 +228,12 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.5/(4*model.default_pop_size), model.migration_rate(0, 2)) );
 
     model = Param("20 1 -I 2 13 7 -m 1 2 1.5").parse();
+    //std::cout << model << std::endl;
+    CPPUNIT_ASSERT( areSame(0.0, model.migration_rate(1, 0)) );
     CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
-    CPPUNIT_ASSERT( areSame(0.0/(4*model.default_pop_size), model.migration_rate(1, 0)) );
 
     model = Param("20 1 -I 2 13 7 -m 1 2 1.5 -m 2 1 0.5").parse();
+    //std::cout << model << std::endl;
     CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size), model.migration_rate(0, 1)) );
     CPPUNIT_ASSERT( areSame(0.5/(4*model.default_pop_size), model.migration_rate(1, 0)) );
 

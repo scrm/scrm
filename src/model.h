@@ -66,7 +66,6 @@ class Model
    Model();
    Model(size_t sample_size);
 
-   Model(const Model& model);
    void init();
    
    // Default values;
@@ -213,9 +212,9 @@ class Model
     * @return The probability/fraction of migration.
     */
    double single_mig_pop(const size_t source, const size_t sink) const {
-    if (single_mig_probs_list_.at(current_time_idx_) == NULL) return 0.0;
+    if (single_mig_probs_list_.at(current_time_idx_).empty()) return 0.0;
     if (sink == source) return 0.0;
-    return single_mig_probs_list_.at(current_time_idx_)->at( getMigMatrixIndex(source, sink) ); 
+    return single_mig_probs_list_.at(current_time_idx_).at( getMigMatrixIndex(source, sink) ); 
    }
 
    void setMutationRate(double rate,
@@ -229,7 +228,7 @@ class Model
                              const double seq_position = 0);
 
    bool hasFixedTimeEvent(const double at_time) const {
-     if (single_mig_probs_list_.at(current_time_idx_) == NULL) return false; 
+     if (single_mig_probs_list_.at(current_time_idx_).empty()) return false; 
      if (getCurrentTime() != at_time) return false;
      return true;
    }
@@ -285,10 +284,18 @@ class Model
    }
 
    void resetTime() { 
-     current_pop_sizes_ = pop_sizes_list_.at(0);
-     current_growth_rates_ = growth_rates_list_.at(0);
-     current_mig_rates_ = mig_rates_list_.at(0);
-     current_total_mig_rates_ = total_mig_rates_list_.at(0);
+     if (pop_sizes_list_[0].empty()) current_pop_sizes_ = NULL;
+     else current_pop_sizes_ = &(pop_sizes_list_[0]);
+
+     if (growth_rates_list_[0].empty()) current_growth_rates_ = NULL;
+     else current_growth_rates_ = &(growth_rates_list_[0]);
+
+     if (mig_rates_list_[0].empty()) current_mig_rates_ = NULL;
+     else current_mig_rates_ = &(mig_rates_list_[0]);
+
+     if (total_mig_rates_list_[0].empty()) current_total_mig_rates_ = NULL;
+     else current_total_mig_rates_ = &(total_mig_rates_list_[0]);
+
      current_time_idx_ = 0;
    };
 
@@ -300,14 +307,14 @@ class Model
      if ( current_time_idx_ == change_times_.size() ) throw std::out_of_range("Model change times out of range");
      ++current_time_idx_;
 
-     if ( pop_sizes_list_.at(current_time_idx_) != NULL ) 
-       current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
-     if ( growth_rates_list_.at(current_time_idx_) != NULL ) 
-       current_growth_rates_ = growth_rates_list_.at(current_time_idx_); 
-     if ( mig_rates_list_.at(current_time_idx_) != NULL ) 
-       current_mig_rates_ = mig_rates_list_.at(current_time_idx_); 
-     if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
-       current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
+     if ( ! pop_sizes_list_.at(current_time_idx_).empty() ) 
+       current_pop_sizes_ = &(pop_sizes_list_.at(current_time_idx_));
+     if ( ! growth_rates_list_.at(current_time_idx_).empty() ) 
+       current_growth_rates_ = &(growth_rates_list_.at(current_time_idx_)); 
+     if ( ! mig_rates_list_.at(current_time_idx_).empty() ) 
+       current_mig_rates_ = &(mig_rates_list_.at(current_time_idx_)); 
+     if ( ! total_mig_rates_list_.at(current_time_idx_).empty() ) 
+       current_total_mig_rates_ = &(total_mig_rates_list_.at(current_time_idx_)); 
    };
 
    void increaseSequencePosition() {
@@ -420,15 +427,12 @@ class Model
    bool has_migration_;
    bool has_migration() { return has_migration_; };
 
-  void fillVectorList(std::vector<std::vector<double>*> &vector_list, const double default_value);
+  void fillVectorList(std::vector<std::vector<double> > &vector_list, const double default_value);
   void calcPopSizes();
   void checkPopulation(const size_t pop) {
     if (pop >= this->population_number()) 
       throw std::invalid_argument("Invalid population"); 
   }
-
-  template <typename T>
-  std::vector<T*> copyVectorList(const std::vector<T*> &source);
 
   friend void swap(Model& first, Model& second);
 
@@ -437,10 +441,10 @@ class Model
     return i * (population_number()-1) + j - ( i < j );
   }
 
-  void addPopToMatrixList(std::vector<std::vector<double>*> &vector_list, 
+  void addPopToMatrixList(std::vector<std::vector<double> > &vector_list, 
                           size_t new_pop,
                           double default_value = nan("value to replace"));
-  void addPopToVectorList(std::vector<std::vector<double>*> &vector_list);
+  void addPopToVectorList(std::vector<std::vector<double> > &vector_list);
 
    double scaling_factor_; // 1 / (4N0);
 
@@ -454,15 +458,15 @@ class Model
    // These pointer vectors hold the actual model parameters that can change in
    // time. Each index represents one period in time within which the model
    // parameters are constant. NULL means that the parameters do not change.
-   std::vector<std::vector<double>*> growth_rates_list_;
-   std::vector<std::vector<double>*> mig_rates_list_;
-   std::vector<std::vector<double>*> total_mig_rates_list_;
-   std::vector<std::vector<double>*> single_mig_probs_list_;
+   std::vector<std::vector<double> > growth_rates_list_;
+   std::vector<std::vector<double> > mig_rates_list_;
+   std::vector<std::vector<double> > total_mig_rates_list_;
+   std::vector<std::vector<double> > single_mig_probs_list_;
 
    // Population sizes are saved as 1/(2N), where N is the actual population
    // size (do to fast multiplication rather than slow division in the
    // algorithm)
-   std::vector<std::vector<double>*> pop_sizes_list_;
+   std::vector<std::vector<double> > pop_sizes_list_;
    
    // These vectors contain the model parameters that may change along the sequence.
    // Again, each index represents an sequence segment within with the model

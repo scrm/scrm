@@ -103,7 +103,7 @@ class Param {
     ++argv_i;
 
     if (argv_i == argv_.end()) {
-      throw std::invalid_argument(std::string("Not enough parameters when parsing options: ") + *argv_i);
+      throw std::invalid_argument(std::string("Unexpected end of arguments"));
     }
 
     return convert<T>(*argv_i);

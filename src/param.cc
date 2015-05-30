@@ -428,7 +428,6 @@ Model Param::parse() {
   }
 
   model.finalize();
-  model.resetTime();
   return model;
 }
 
