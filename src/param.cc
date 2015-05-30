@@ -291,7 +291,14 @@ Model Param::parse() {
     // Pruning 
     // ------------------------------------------------------------------
     else if (*argv_i == "-l"){
-      model.set_window_length_seq(readNextInput<double>());
+      if (++argv_i == argv_.end()) throw std::invalid_argument("Missing sequence scaling argument.");
+      if (*argv_i == "-1") {
+        model.disable_approximation(); 
+      } else if (argv_i->back() == 'r') {
+        model.set_window_length_rec(convert<double>(argv_i->substr(0, argv_i->size()-1)));
+      } else {
+        model.set_window_length_seq(convert<double>(*argv_i));
+      }
     }
 
     // ------------------------------------------------------------------

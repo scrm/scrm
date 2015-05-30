@@ -49,7 +49,9 @@ echo ""
 
 echo "Testing Pruning"
  test_scrm 10 200 -r 10 500 -l 10 -t 5 -oSFS || exit 1
- test_scrm 3 500 -r 10 500 -l 0 -t 5 -oSFS || exit 1
+ test_scrm 3 500 -r 10 500 -l 0 -t 1 -oSFS || exit 1
+ test_scrm 10 200 -r 10 500 -l 2r -L || exit 1
+ test_scrm 10 200 -r 1 500 -l -1 -T || exit 1
 echo ""
 
 echo "Testing Migration"
@@ -83,7 +85,7 @@ echo "Testing Variable Rates"
  test_scrm 3 200 -r 2 100 -t 5 -st 10 10 -sr 20 5 -st 30 1 -sr 40 0 -st 50 20 -T || exit 1
 echo ""
 
-echo "Various edge cases"
+echo "Various Edge Cases"
  test_scrm 6 1 -I 2 3 3 0.5 -r 1 100 -es 0 2 0.5 -ej 1 3 1 -t 1  || exit 1
  test_scrm 10 10 -es 1.0 1 0.5 -ej 1.0 2 1 || exit 1
 echo ""

@@ -26,6 +26,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testParseSequenceScaling );
   CPPUNIT_TEST( testErrorOnInfintieRecRate );
   CPPUNIT_TEST( testScientificNotation );
+  CPPUNIT_TEST( testApproximation );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -492,6 +493,25 @@ class TestParam : public CppUnit::TestCase {
     pars = Param("4 7 --print-model");
     CPPUNIT_ASSERT_NO_THROW(model = pars.parse());
     CPPUNIT_ASSERT_EQUAL(true, pars.print_model());
+  }
+
+  void testApproximation() {
+    Model model = Param("2 2 -r 10 100 -l -1").parse();
+    CPPUNIT_ASSERT( !model.has_approximation() );
+    CPPUNIT_ASSERT( !model.has_window_rec() );
+    CPPUNIT_ASSERT( !model.has_window_seq() );
+
+    model = Param("2 2 -r 10 100 -l 10").parse();
+    CPPUNIT_ASSERT(  model.has_approximation() );
+    CPPUNIT_ASSERT( !model.has_window_rec() );
+    CPPUNIT_ASSERT(  model.has_window_seq() );
+    CPPUNIT_ASSERT_EQUAL( 10.0, model.window_length_seq() );
+
+    model = Param("2 2 -r 10 100 -l 10r").parse();
+    CPPUNIT_ASSERT(  model.has_approximation() );
+    CPPUNIT_ASSERT(  model.has_window_rec() );
+    CPPUNIT_ASSERT( !model.has_window_seq() );
+    CPPUNIT_ASSERT_EQUAL( (size_t)10, model.window_length_rec() );
   }
 };
 
