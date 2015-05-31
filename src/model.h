@@ -265,10 +265,12 @@ class Model
      if (ewl < 0) throw std::invalid_argument("Exact window length can not be negative");
      window_length_seq_ = ewl; 
      has_window_seq_ = true;
+     has_window_rec_ = false;
      has_appr_ = true;
    }
    void set_window_length_rec(const size_t ewl) { 
      window_length_rec_ = ewl; 
+     has_window_seq_ = false;
      has_window_rec_ = true;
      has_appr_ = true;
    }
