@@ -107,7 +107,7 @@ class Model
     * @return true if the model has recombination, false otherwise 
     */
    bool has_recombination() const { 
-     return has_recombination_t; 
+     return has_recombination_; 
    };
 
 
