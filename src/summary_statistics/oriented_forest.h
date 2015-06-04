@@ -33,11 +33,12 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
-   OrientedForest(const size_t sample_size) {
+   OrientedForest(const size_t sample_size, const size_t precision) {
     parents_ = std::vector<int>(2*sample_size-1, 0);
     heights_ = std::vector<double>(2*sample_size-1, 0.0);
+    output_buffer_.exceptions(std::ios::failbit); 
+    output_buffer_.precision(precision);
    }
-   ~OrientedForest() {}
 
    //Virtual methods
    void calculate(const Forest &forest);
@@ -48,7 +49,7 @@ class OrientedForest : public SummaryStatistic
    }
 
    OrientedForest* clone() const {
-     return new OrientedForest(this->parents_.size());
+     return new OrientedForest(this->parents_.size(), this->output_buffer_.precision());
    }
 
    std::string getTrees() const { return output_buffer_.str(); }
@@ -63,7 +64,7 @@ class OrientedForest : public SummaryStatistic
 
    std::vector<int> parents_;
    std::vector<double> heights_;
-   std::ostringstream output_buffer_;
+   std::stringstream output_buffer_;
 };
 
 #endif
