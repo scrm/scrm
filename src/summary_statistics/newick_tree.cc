@@ -34,7 +34,7 @@ void NewickTree::calculate(const Forest &forest) {
 }
 
 void NewickTree::printLocusOutput(std::ostream &output) const {
-  output << output_buffer_.str();  
+  output << output_buffer_.rdbuf();  
 }
 
 /**

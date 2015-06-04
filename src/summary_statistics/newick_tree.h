@@ -46,10 +46,12 @@ class NewickTree : public SummaryStatistic
  public:
    NewickTree() { 
     precision_ = 6; 
+    output_buffer_.exceptions(std::ios::failbit); 
    }
 
    NewickTree(size_t precision) { 
     precision_ = precision; 
+    output_buffer_.exceptions(std::ios::failbit); 
    }
 
    ~NewickTree() {}
@@ -71,7 +73,7 @@ class NewickTree : public SummaryStatistic
  private:
    std::string generateTree(Node *node, const Forest &forest,
                             const bool use_buffer = true);
-   std::ostringstream output_buffer_;
+   std::stringstream output_buffer_;
    size_t precision_;
 
    /**
