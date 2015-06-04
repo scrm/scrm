@@ -66,7 +66,6 @@ class Model
    Model();
    Model(size_t sample_size);
 
-   void init();
    
    // Default values;
    double default_pop_size;
@@ -101,6 +100,16 @@ class Model
      if (idx == -1) return recombination_rates_.at(current_seq_idx_); 
      else return recombination_rates_.at(idx);
    }
+
+   /**
+    * @brief Returns if the model has recombination.
+    *
+    * @return true if the model has recombination, false otherwise 
+    */
+   bool has_recombination() const { 
+     return has_recombination_; 
+   };
+
 
    /**
     * @brief Returns the length of all loci, in base pairs
@@ -375,7 +384,7 @@ class Model
    void finalize(); 
   
    void check();
-   void reset();
+   //void reset();
 
    size_t countSummaryStatistics() const {
      return summary_statistics_.size(); 
@@ -426,7 +435,6 @@ class Model
    }
 
    void updateTotalMigRates(const size_t position);
-   bool has_migration_;
    bool has_migration() { return has_migration_; };
 
   void fillVectorList(std::vector<std::vector<double> > &vector_list, const double default_value);
@@ -496,6 +504,9 @@ class Model
    bool has_window_seq_;
    bool has_window_rec_;
    bool has_appr_;
+
+   bool has_migration_;
+   bool has_recombination_;
 
    SeqScale seq_scale_;
 

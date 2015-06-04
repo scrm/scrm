@@ -22,19 +22,22 @@
 #include "newick_tree.h"
 
 void NewickTree::calculate(const Forest &forest) {
-  if (forest.model().recombination_rate() == 0.0) {
-    output_buffer_ << generateTree(forest.local_root(), forest) 
-                   << ";" << std::endl;  
-  } else {
-    if (forest.calcSegmentLength() == 0.0) return;
-    output_buffer_ << "[" << forest.calcSegmentLength() << "]" 
-                   << generateTree(forest.local_root(), forest)
-                   << ";" << std::endl;
-  }
+  if (forest.calcSegmentLength() == 0.0) return;
+  output_buffer_.push_back(generateTree(forest.local_root(), forest)); 
+  segment_length_.push_back(forest.calcSegmentLength());
 }
 
 void NewickTree::printLocusOutput(std::ostream &output) const {
-  output << output_buffer_.str();  
+  assert( output_buffer_.size() == segment_length_.size() );
+  if (!has_rec_) {
+    assert( output_buffer_.size() == 1 );
+    output << *(output_buffer_.begin()) << ";" << std::endl;
+  } else {
+    size_t i = 0;
+    for (auto tree : output_buffer_) {
+      output << "[" << segment_length_[i++] << "]" << tree << ";" << std::endl;
+    }
+  }
 }
 
 /**
@@ -58,6 +61,7 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   // Generate a new tree
   std::stringstream tree;
   tree.precision(this->precision_);
+  tree.exceptions(std::ios::failbit); 
   if (node->in_sample()) tree << node->label();
   else { 
     Node *left = node->getLocalChild1();

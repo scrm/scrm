@@ -23,33 +23,14 @@
 
 
 Model::Model() { 
-  this->init();
-}
-
-Model::Model(size_t sample_size) {
-  this->init();
-  this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
-  this->resetTime();
-}
-
-void Model::init() {
   default_pop_size = 10000;
   default_loci_length = 100000;
   default_growth_rate = 0.0;
   default_mig_rate = 0.0;
   scaling_factor_ = 1.0 / (4 * default_pop_size);
 
-  sample_times_ = std::vector<double>();
-  sample_populations_ = std::vector<size_t>();
-
-  change_times_ = std::vector<double>();
-  pop_sizes_list_ = std::vector<std::vector<double> >();
-  growth_rates_list_ = std::vector<std::vector<double> >();
-  mig_rates_list_ = std::vector<std::vector<double> >();
-  total_mig_rates_list_ = std::vector<std::vector<double> >(); 
-  single_mig_probs_list_ = std::vector<std::vector<double> >();
-
   has_migration_ = false;
+  has_recombination_ = false;
 
   this->addChangeTime(0.0);
   this->addChangePosition(0.0);
@@ -72,6 +53,14 @@ void Model::init() {
   this->resetSequencePosition();
 }
 
+
+Model::Model(size_t sample_size) : Model() {
+  this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
+  this->resetTime();
+}
+
+
+/*
 void Model::reset() {
   pop_sizes_list_.clear();
   growth_rates_list_.clear();
@@ -79,9 +68,8 @@ void Model::reset() {
   total_mig_rates_list_.clear();
   single_mig_probs_list_.clear();
   summary_statistics_.clear();
-
-  init();
 }
+*/
 
 /** 
  * Function to add a new change time to the model.
@@ -695,6 +683,7 @@ void Model::setRecombinationRate(double rate,
     rate /= loci_length()-1;
   }
 
+  if (rate > 0.0) has_recombination_ = true;
   recombination_rates_[addChangePosition(seq_position)] = rate; 
 }
 

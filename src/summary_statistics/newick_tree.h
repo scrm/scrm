@@ -44,41 +44,40 @@ struct NewickBuffer {
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree() { 
-    precision_ = 6; 
-   }
-
-   NewickTree(size_t precision) { 
+  NewickTree() : NewickTree(6, true) { }
+  NewickTree(size_t precision) : NewickTree(precision, true) { }
+  NewickTree(size_t precision, bool has_recombination) { 
     precision_ = precision; 
-   }
+    has_rec_ = has_recombination;
+  }
 
-   ~NewickTree() {}
+  ~NewickTree() {}
 
-   //Virtual methods
-   void calculate(const Forest &forest);
-   void printLocusOutput(std::ostream &output) const;
+  //Virtual methods
+  void calculate(const Forest &forest);
+  void printLocusOutput(std::ostream &output) const;
 
-   NewickTree* clone() const { return new NewickTree(); };
+  NewickTree* clone() const { return new NewickTree(precision_, has_rec_); };
 
-   void clear() {
-     output_buffer_.str("");
-     output_buffer_.clear();
-     buffer_.clear();
-   }
-
-   std::string getTrees() const { return output_buffer_.str(); }
+  void clear() {
+    output_buffer_.clear();
+    segment_length_.clear();
+    buffer_.clear();
+  }
 
  private:
-   std::string generateTree(Node *node, const Forest &forest,
-                            const bool use_buffer = true);
-   std::ostringstream output_buffer_;
-   size_t precision_;
+  std::string generateTree(Node *node, const Forest &forest,
+                           const bool use_buffer = true);
+  std::list<std::string> output_buffer_;
+  std::vector<double> segment_length_;
+  size_t precision_;
+  bool has_rec_;
 
-   /**
-    * A map to buffer already created subtrees indexed by their 
-    * root.
-    */
-   std::map<Node const*, NewickBuffer> buffer_;
+  /**
+   * A map to buffer already created subtrees indexed by their 
+   * root.
+   */
+  std::map<Node const*, NewickBuffer> buffer_;
 };
 
 #endif

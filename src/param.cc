@@ -424,8 +424,11 @@ Model Param::parse() {
   }
 
   // Add summary statistics in order of their output
-  if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision()));
-  if (orientedForest) model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size()));
+  if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision(), 
+                                                                           model.has_recombination()));
+  if (orientedForest) {
+    model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size(), this->precision()));
+  }
   if (tmrca) model.addSummaryStatistic(std::make_shared<TMRCA>());
   if (seg_sites.get() != NULL) model.addSummaryStatistic(seg_sites);
   if (sfs) {
