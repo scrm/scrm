@@ -436,18 +436,23 @@ class TestModel : public CppUnit::TestCase {
 
   void testSetGetRecombinationRate() {
     Model model = Model();
+    CPPUNIT_ASSERT( !model.has_recombination() );
+
     model.setLocusLength(101);
     model.setRecombinationRate(0.001);
     CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+    CPPUNIT_ASSERT( model.has_recombination() );
 
     model.setRecombinationRate(0.001, false, false);
     CPPUNIT_ASSERT_EQUAL( 0.001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+    CPPUNIT_ASSERT( model.has_recombination() );
 
     model.setRecombinationRate(0.001, true, false);
     CPPUNIT_ASSERT_EQUAL( 0.00001, model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
+    CPPUNIT_ASSERT( model.has_recombination() );
 
     model.setRecombinationRate(0.001, false, true);
     CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size), model.recombination_rate() );
@@ -518,7 +523,6 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame( n_2*std::exp(-2), model.population_size(1) ) );
     CPPUNIT_ASSERT( areSame( n_1*std::exp(-2*2), model.population_size(0, 4.5) ) );
     CPPUNIT_ASSERT( areSame( n_2*std::exp(-2*2), model.population_size(1, 4.5) ) );
-    model.reset();
     
     // Growth with a pop size change in between
     model = Model(5); 
@@ -579,7 +583,6 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
 
-    model.reset();
     model = Model(5); 
     model.set_population_number(2);
     model.addSymmetricMigration(0, 1.0);

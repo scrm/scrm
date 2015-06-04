@@ -33,6 +33,7 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
+  OrientedForest(const size_t sample_size) : OrientedForest(sample_size, 6) { }
   OrientedForest(const size_t sample_size, const size_t precision) {
     parents_ = std::vector<int>(2*sample_size-1, 0);
     heights_ = std::vector<double>(2*sample_size-1, 0.0);

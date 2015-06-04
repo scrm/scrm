@@ -265,8 +265,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
       CPPUNIT_ASSERT( of.heights_.at(5) == 3.0 );
     } else {
       CPPUNIT_ASSERT( of.parents_.at(0) == 6 );
-      CPPUNIT_ASSERT( of.parents_.at(1) == 6 );
-      CPPUNIT_ASSERT( of.parents_.at(2) == 5 );
+      CPPUNIT_ASSERT( of.parents_.at(1) == 6 ); CPPUNIT_ASSERT( of.parents_.at(2) == 5 );
       CPPUNIT_ASSERT( of.parents_.at(3) == 5 );
       CPPUNIT_ASSERT( of.heights_.at(5) == 1.0 );
     }
@@ -301,7 +300,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
     
-    NewickTree of(4);
+    NewickTree of(4, forest->model().has_recombination());
     std::ostringstream output;
     of.calculate(*forest);
     of.printLocusOutput(output);
@@ -310,8 +309,8 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     
     output.str("");
     output.clear();
-    of.clear();
     forest->writable_model()->setRecombinationRate(0.0001);
+    of = NewickTree(4, forest->model().has_recombination());
     of.calculate(*forest);
     of.printLocusOutput(output);
     //std::cout << output.str() << std::endl;
