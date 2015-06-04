@@ -44,43 +44,43 @@ struct NewickBuffer {
 class NewickTree : public SummaryStatistic
 {
  public:
-   NewickTree() { 
+  NewickTree() { 
     precision_ = 6; 
     output_buffer_.exceptions(std::ios::failbit); 
-   }
+  }
 
-   NewickTree(size_t precision) { 
+  NewickTree(size_t precision) { 
     precision_ = precision; 
     output_buffer_.exceptions(std::ios::failbit); 
-   }
+  }
 
-   ~NewickTree() {}
+  ~NewickTree() {}
 
-   //Virtual methods
-   void calculate(const Forest &forest);
-   void printLocusOutput(std::ostream &output) const;
+  //Virtual methods
+  void calculate(const Forest &forest);
+  void printLocusOutput(std::ostream &output) const;
 
-   NewickTree* clone() const { return new NewickTree(); };
+  NewickTree* clone() const { return new NewickTree(); };
 
-   void clear() {
-     output_buffer_.str("");
-     output_buffer_.clear();
-     buffer_.clear();
-   }
+  void clear() {
+    output_buffer_.str("");
+    output_buffer_.clear();
+    buffer_.clear();
+  }
 
-   std::string getTrees() const { return output_buffer_.str(); }
+  std::string getTrees() const { return output_buffer_.str(); }
 
  private:
-   std::string generateTree(Node *node, const Forest &forest,
-                            const bool use_buffer = true);
-   std::stringstream output_buffer_;
-   size_t precision_;
+  std::string generateTree(Node *node, const Forest &forest,
+                           const bool use_buffer = true);
+  std::stringstream output_buffer_;
+  size_t precision_;
 
-   /**
-    * A map to buffer already created subtrees indexed by their 
-    * root.
-    */
-   std::map<Node const*, NewickBuffer> buffer_;
+  /**
+   * A map to buffer already created subtrees indexed by their 
+   * root.
+   */
+  std::map<Node const*, NewickBuffer> buffer_;
 };
 
 #endif

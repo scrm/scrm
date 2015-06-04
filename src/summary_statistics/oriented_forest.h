@@ -33,38 +33,38 @@
 class OrientedForest : public SummaryStatistic
 {
  public:
-   OrientedForest(const size_t sample_size, const size_t precision) {
+  OrientedForest(const size_t sample_size, const size_t precision) {
     parents_ = std::vector<int>(2*sample_size-1, 0);
     heights_ = std::vector<double>(2*sample_size-1, 0.0);
     output_buffer_.exceptions(std::ios::failbit); 
     output_buffer_.precision(precision);
-   }
+  }
 
-   //Virtual methods
-   void calculate(const Forest &forest);
-   void printLocusOutput(std::ostream &output) const;
-   void clear() {
-     output_buffer_.str("");
-     output_buffer_.clear();
-   }
+  //Virtual methods
+  void calculate(const Forest &forest);
+  void printLocusOutput(std::ostream &output) const;
+  void clear() {
+    output_buffer_.str("");
+    output_buffer_.clear();
+  }
 
-   OrientedForest* clone() const {
-     return new OrientedForest(this->parents_.size(), this->output_buffer_.precision());
-   }
+  OrientedForest* clone() const {
+    return new OrientedForest(this->parents_.size(), this->output_buffer_.precision());
+  }
 
-   std::string getTrees() const { return output_buffer_.str(); }
+  std::string getTrees() const { return output_buffer_.str(); }
 
 #ifdef UNITTEST
-   friend class TestSummaryStatistics;
+  friend class TestSummaryStatistics;
 #endif
 
  private:
-   OrientedForest() {}
-   void generateTreeData(Node const* node, size_t &pos, int parent_pos);
+  OrientedForest() {}
+  void generateTreeData(Node const* node, size_t &pos, int parent_pos);
 
-   std::vector<int> parents_;
-   std::vector<double> heights_;
-   std::stringstream output_buffer_;
+  std::vector<int> parents_;
+  std::vector<double> heights_;
+  std::stringstream output_buffer_;
 };
 
 #endif
