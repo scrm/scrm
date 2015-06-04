@@ -1,6 +1,24 @@
 scrm Version History
 ========================
 
+scrm 1.6.0
+------------------------
+Released: 2015-06-04
+
+### New Features
++ It is now possible to specify the approximation exact window in number 
+  of recombination events (#73).
++ scrm now uses a conservative approximation by default (#75).
+
+### Bug Fixes
++ Critical:  Position based rates changes (`-sr` and `-st`) were only
+  applied to the first locus. All other loci are simulated with the rates from
+  the end of the first one (#74).
++ In large models, the Newick trees could get larger than the character limit
+  of a C++ string. In this cases, only incomplete trees were printed (#76).
+
+
+
 scrm 1.5.1
 ------------------------
 Released: 2015-05-18
