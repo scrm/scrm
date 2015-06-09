@@ -15,6 +15,7 @@ before_install:
 before_script:
 - ./bootstrap
 script:
+- ./.travis/build_win_binaries.sh
 - make scrm scrm_dbg
 - make unittests
 - ./tests/test_binaries.sh
