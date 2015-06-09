@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo apt-get install -y mingw-w64 || exit 1
+sudo apt-get install -y gcc-mingw-w64 || exit 1
 
 # 64 bit
 CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3' LDFLAGS='-static-libgcc -static -lpthread' \
