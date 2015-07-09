@@ -1,6 +1,16 @@
 scrm Version History
 ========================
 
+scrm 1.6.1
+------------------------
+Released: 2015-07-09
+
+### Bug Fixes
++ scrm had extensive memory consumption when simulating trees in 
+  large models (#79). This is now fixed, it is however no longer
+  possible to use "-O" and "-T" at the same time.
+
+
 scrm 1.6.0
 ------------------------
 Released: 2015-06-04

@@ -55,21 +55,19 @@ class NewickTree : public SummaryStatistic
 
   //Virtual methods
   void calculate(const Forest &forest);
-  void printLocusOutput(std::ostream &output) const;
+  void printSegmentOutput(std::ostream &output) const;
+  void printLocusOutput(std::ostream &output) const {};
 
   NewickTree* clone() const { return new NewickTree(precision_, has_rec_); };
 
   void clear() {
-    output_buffer_.clear();
-    segment_length_.clear();
     buffer_.clear();
   }
 
  private:
-  std::string generateTree(Node *node, const Forest &forest,
-                           const bool use_buffer = true);
-  std::list<std::string> output_buffer_;
-  std::vector<double> segment_length_;
+  std::string generateTree(Node const* node, const Forest &forest, const bool use_buffer);
+  std::string tree_;
+  double segment_length_;
   size_t precision_;
   bool has_rec_;
 

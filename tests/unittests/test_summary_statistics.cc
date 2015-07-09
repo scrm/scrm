@@ -247,27 +247,28 @@ class TestSummaryStatistics : public CppUnit::TestCase {
   void testOrientedForestGenerateTreeData() {
     OrientedForest of(4);
     size_t pos = 2*forest->sample_size()-2;
-    of.generateTreeData(forest->local_root(), pos, 0); 
+    double sf = forest->model().scaling_factor();
+    of.generateTreeData(forest->local_root(), pos, 0, sf); 
     CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
     CPPUNIT_ASSERT( of.heights_.at(1) == 0.0 );
     CPPUNIT_ASSERT( of.heights_.at(2) == 0.0 );
     CPPUNIT_ASSERT( of.heights_.at(3) == 0.0 );
     CPPUNIT_ASSERT( of.parents_.at(4) == 7 );
     CPPUNIT_ASSERT( of.parents_.at(5) == 7 );
-    CPPUNIT_ASSERT( of.heights_.at(6) == 10.0 && of.parents_.at(6) == 0 );
+    CPPUNIT_ASSERT( of.heights_.at(6) == 10.0 * sf && of.parents_.at(6) == 0 );
 
-    CPPUNIT_ASSERT( of.heights_.at(4) == 1.0 || of.heights_.at(4) == 3.0 );
+    CPPUNIT_ASSERT( of.heights_.at(4) == 1.0 * sf || of.heights_.at(4) == 3.0 * sf );
     if ( of.heights_.at(4) == 1.0 ) {
       CPPUNIT_ASSERT( of.parents_.at(0) == 5 );
       CPPUNIT_ASSERT( of.parents_.at(1) == 5 );
       CPPUNIT_ASSERT( of.parents_.at(2) == 6 );
       CPPUNIT_ASSERT( of.parents_.at(3) == 6 );
-      CPPUNIT_ASSERT( of.heights_.at(5) == 3.0 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 3.0 * sf);
     } else {
       CPPUNIT_ASSERT( of.parents_.at(0) == 6 );
       CPPUNIT_ASSERT( of.parents_.at(1) == 6 ); CPPUNIT_ASSERT( of.parents_.at(2) == 5 );
       CPPUNIT_ASSERT( of.parents_.at(3) == 5 );
-      CPPUNIT_ASSERT( of.heights_.at(5) == 1.0 );
+      CPPUNIT_ASSERT( of.heights_.at(5) == 1.0 * sf );
     }
   }
 
@@ -279,7 +280,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     OrientedForest of(4);
     std::ostringstream output;
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
                     output.str().compare("{\"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
@@ -289,7 +290,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->writable_model()->setRecombinationRate(0.0001);
     of.clear();
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("{\"length\":10, \"parents\":[5,5,6,6,7,7,0], \"node_times\":[0,0,0,0,1,3,10]}\n") == 0 ||
                     output.str().compare("{\"length\":10, \"parents\":[6,6,5,5,7,7,0], \"node_times\":[0,0,0,0,3,1,10]}\n") == 0 );
@@ -303,7 +304,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     NewickTree of(4, forest->model().has_recombination());
     std::ostringstream output;
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
     
@@ -312,7 +313,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->writable_model()->setRecombinationRate(0.0001);
     of = NewickTree(4, forest->model().has_recombination());
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
   }

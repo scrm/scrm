@@ -1208,17 +1208,27 @@ void Forest::calcSegmentSumStats() {
   }
 }
 
+
 void Forest::clearSumStats() {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->clear();
   }
 }
 
+
 void Forest::printLocusSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printLocusOutput(output);
   }
 }
+
+
+void Forest::printSegmentSumStats(std::ostream &output) const {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
+    model().getSummaryStatistic(i)->printSegmentOutput(output);
+  }
+}
+
 
 void Forest::clear() {
   // Clear roots tracking

@@ -309,9 +309,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW(model = Param("20 10 -O").parse(); );
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
 
-    CPPUNIT_ASSERT_NO_THROW(model = Param("20 10 -T -O").parse(); );
-    CPPUNIT_ASSERT( model.summary_statistics_.size() == 2 );
-
     CPPUNIT_ASSERT_NO_THROW(model = Param("20 10 -t 5").parse(); );
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
 
