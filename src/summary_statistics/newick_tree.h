@@ -65,7 +65,7 @@ class NewickTree : public SummaryStatistic
   }
 
  private:
-  std::string generateTree(Node *node, const Forest &forest);
+  std::string generateTree(Node *node, const Forest &forest, const bool use_buffer);
   std::string tree_;
   double segment_length_;
   size_t precision_;

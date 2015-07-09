@@ -24,7 +24,7 @@
 
 void NewickTree::calculate(const Forest &forest) {
   segment_length_ = forest.calcSegmentLength();
-  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest); 
+  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest, true); 
 }
 
 
@@ -42,7 +42,7 @@ void NewickTree::printSegmentOutput(std::ostream &output) const {
  *
  * @return A part of the tree in newick format
  */
-std::string NewickTree::generateTree(Node *node, const Forest &forest) {
+std::string NewickTree::generateTree(Node *node, const Forest &forest, const bool use_buffer) {
   // Use tree from buffer if possible
   std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
   if (it != buffer_.end()) {
@@ -63,14 +63,16 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest) {
     Node *left = node->getLocalChild1();
     Node *right = node->getLocalChild2();
 
-    tree << "(" << generateTree(left, forest) << ":" <<
+    tree << "(" << generateTree(left, forest, use_buffer) << ":" <<
            (node->height() - left->height()) * forest.model().scaling_factor() <<
-           "," << generateTree(right, forest) << ":" <<
+           "," << generateTree(right, forest, use_buffer) << ":" <<
            (node->height() - right->height()) * forest.model().scaling_factor() << ")";
 
     // And add to to the buffer
-    NewickBuffer buf = {forest.current_rec(), tree.str()};
-    buffer_[node] = buf; 
+    if (use_buffer) {
+      NewickBuffer buf = {forest.current_rec(), tree.str()};
+      buffer_[node] = buf; 
+    }
   }
 
   return tree.str();

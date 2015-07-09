@@ -22,53 +22,54 @@
 #include "oriented_forest.h"
 
 void OrientedForest::calculate(const Forest &forest) {
+  segment_length_ = forest.calcSegmentLength();
+  if (segment_length_ == 0.0) return;
+  has_rec_ = forest.model().has_recombination();
+
   size_t pos = 2*forest.sample_size()-2;
-  generateTreeData(forest.local_root(), pos, 0); 
+  generateTreeData(forest.local_root(), pos, 0, forest.model().scaling_factor()); 
+}
 
-  output_buffer_ << "{" ;
 
-  if (forest.model().recombination_rate() > 0.0) {
-    output_buffer_ << "\"length\":" << forest.calcSegmentLength() << ", " ;
-  } 
+void OrientedForest::printSegmentOutput(std::ostream &output) const {
+  if (segment_length_ == 0.0) return;
+  output << "{" ;
+  if (has_rec_) output << "\"length\":" << segment_length_ << ", ";
 
   // Print parents
-  output_buffer_ << "\"parents\":[" ;
+  output << "\"parents\":[" ;
   for (int parent : parents_) { 
-    output_buffer_ << parent << ( parent != 0 ? "," : "" );
+    output << parent << ( parent != 0 ? "," : "" );
   }
-  output_buffer_ << "], ";
+  output << "], ";
 
   // Print heights
-  output_buffer_ << "\"node_times\":[" ;
-  double tmrca = heights_.at(2*forest.sample_size()-2);
+  output << "\"node_times\":[" ;
+  double tmrca = heights_.back();
   for (double height : heights_) {
-    output_buffer_ << height * forest.model().scaling_factor()
-                   << ( height != tmrca ? "," : "" );
+    output << height << ( height != tmrca ? "," : "" );
   }
-  output_buffer_ << "]}" << std::endl;
+  output << "]}" << std::endl;
 }
 
-void OrientedForest::printLocusOutput(std::ostream &output) const {
-  output << output_buffer_.rdbuf();  
-}
 
-void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_pos) {
+void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_pos, const double scaling_factor) {
   // Samples have a fixed position in the arrays, given by their label.
   if (node->in_sample()) {
-    heights_.at(node->label()-1) = node->height();
+    heights_.at(node->label()-1) = node->height() * scaling_factor;
     parents_.at(node->label()-1) = parent_pos;
     return;
   }
 
   // Otherwise take the position given by pos and decrease it.
-  heights_.at(pos) = node->height();
+  heights_.at(pos) = node->height() * scaling_factor;
   parents_.at(pos) = parent_pos;
   parent_pos = pos--;
 
   if (node->getLocalChild1() != NULL) {
-    generateTreeData(node->getLocalChild1(), pos, parent_pos+1);
+    generateTreeData(node->getLocalChild1(), pos, parent_pos+1, scaling_factor);
     if (node->getLocalChild2() != NULL) {
-      generateTreeData(node->getLocalChild2(), pos, parent_pos+1);
+      generateTreeData(node->getLocalChild2(), pos, parent_pos+1, scaling_factor);
     }
   }
 }

@@ -427,7 +427,8 @@ Model Param::parse() {
   if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision(), 
                                                                            model.has_recombination()));
   if (orientedForest) {
-    model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size(), this->precision()));
+    if (newick_trees) throw std::invalid_argument("scrm does not support '-T' and '-O' at the same time"); 
+    model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size()));
   }
   if (tmrca) model.addSummaryStatistic(std::make_shared<TMRCA>());
   if (seg_sites.get() != NULL) model.addSummaryStatistic(seg_sites);
