@@ -21,23 +21,17 @@
 
 #include "newick_tree.h"
 
+
 void NewickTree::calculate(const Forest &forest) {
-  if (forest.calcSegmentLength() == 0.0) return;
-  output_buffer_.push_back(generateTree(forest.local_root(), forest)); 
-  segment_length_.push_back(forest.calcSegmentLength());
+  segment_length_ = forest.calcSegmentLength();
+  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest); 
 }
 
-void NewickTree::printLocusOutput(std::ostream &output) const {
-  assert( output_buffer_.size() == segment_length_.size() );
-  if (!has_rec_) {
-    assert( output_buffer_.size() == 1 );
-    output << *(output_buffer_.begin()) << ";" << std::endl;
-  } else {
-    size_t i = 0;
-    for (auto tree : output_buffer_) {
-      output << "[" << segment_length_[i++] << "]" << tree << ";" << std::endl;
-    }
-  }
+
+void NewickTree::printSegmentOutput(std::ostream &output) const {
+  if (segment_length_ == 0.0) return;
+  if (has_rec_) output << "[" << segment_length_ << "]";
+  output << tree_ << ";" << std::endl;
 }
 
 /**

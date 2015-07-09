@@ -72,11 +72,12 @@ int main(int argc, char *argv[]){
       if ( user_para.read_init_genealogy() )
         forest.readNewick ( user_para.init_genealogy[ rep_i % user_para.init_genealogy.size()] );
       else forest.buildInitialTree();
-      //std::cout  << "contemporaries_.size()"<<forest.contemporaries()->size(0) <<std::endl;
+      forest.printSegmentSumStats(*output);
 
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
+        forest.printSegmentSumStats(*output);
       }
       
       forest.printLocusSumStats(*output);

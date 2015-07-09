@@ -303,7 +303,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     NewickTree of(4, forest->model().has_recombination());
     std::ostringstream output;
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
     
@@ -312,7 +312,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->writable_model()->setRecombinationRate(0.0001);
     of = NewickTree(4, forest->model().has_recombination());
     of.calculate(*forest);
-    of.printLocusOutput(output);
+    of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
   }
