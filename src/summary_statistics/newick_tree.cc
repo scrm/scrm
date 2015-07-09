@@ -24,7 +24,7 @@
 
 void NewickTree::calculate(const Forest &forest) {
   segment_length_ = forest.calcSegmentLength();
-  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest, true); 
+  if (segment_length_ > 0.0) tree_ = generateTree(forest.local_root(), forest, has_rec_); 
 }
 
 
