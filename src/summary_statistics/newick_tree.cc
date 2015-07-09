@@ -34,6 +34,7 @@ void NewickTree::printSegmentOutput(std::ostream &output) const {
   output << tree_ << ";" << std::endl;
 }
 
+
 /**
  * @brief Prints a part of the tree in newick format
  *
@@ -41,10 +42,10 @@ void NewickTree::printSegmentOutput(std::ostream &output) const {
  *
  * @return A part of the tree in newick format
  */
-std::string NewickTree::generateTree(Node *node, const Forest &forest, const bool use_buffer) {
+std::string NewickTree::generateTree(Node *node, const Forest &forest) {
   // Use tree from buffer if possible
   std::map<Node const*, NewickBuffer>::iterator it = buffer_.find(node);
-  if (use_buffer && it != buffer_.end()) {
+  if (it != buffer_.end()) {
     if (it->second.recombination > node->last_change()) {
       // Check that the buffered tree is correct.
       assert(it->second.tree.compare(generateTree(node, forest, false)) == 0);
@@ -56,19 +57,18 @@ std::string NewickTree::generateTree(Node *node, const Forest &forest, const boo
   std::stringstream tree;
   tree.precision(this->precision_);
   tree.exceptions(std::ios::failbit); 
+
   if (node->in_sample()) tree << node->label();
   else { 
     Node *left = node->getLocalChild1();
     Node *right = node->getLocalChild2();
 
-    tree << "(" << generateTree(left, forest, use_buffer) << ":" <<
+    tree << "(" << generateTree(left, forest) << ":" <<
            (node->height() - left->height()) * forest.model().scaling_factor() <<
-           "," << generateTree(right, forest, use_buffer) << ":" <<
+           "," << generateTree(right, forest) << ":" <<
            (node->height() - right->height()) * forest.model().scaling_factor() << ")";
-  }
 
-  // And add to to the buffer
-  if (use_buffer) {
+    // And add to to the buffer
     NewickBuffer buf = {forest.current_rec(), tree.str()};
     buffer_[node] = buf; 
   }
