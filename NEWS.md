@@ -1,6 +1,15 @@
 scrm Version History
 ========================
 
+scrm 1.6.2
+------------------------
+Released: Not yet
+
+### Improvements
++ scrm now throws an error when mutation or recombination rate changes
+  have invalid sequence positions (#82).
+
+ 
 scrm 1.6.1
 ------------------------
 Released: 2015-07-09

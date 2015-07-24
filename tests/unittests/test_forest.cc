@@ -817,9 +817,9 @@ class TestForest : public CppUnit::TestCase {
 
   void testPrintLocusSumStats() {
     ostringstream output;
-    forest->printLocusSumStats(output);
-
     forest->writable_model()->addSummaryStatistic(std::make_shared<TMRCA>());
+    forest->set_current_base(0);
+    forest->set_next_base(forest->model().loci_length());
     forest->calcSegmentSumStats();
     forest->printLocusSumStats(output);
     CPPUNIT_ASSERT( output.str() != "" );

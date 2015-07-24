@@ -52,6 +52,7 @@ void Forest::initialize(Model* model,
   this->contemporaries_ = ContemporariesContainer(model->population_number(), 
                                                   model->sample_size(),
                                                   rg);
+
   tmp_event_time_ = -1;
 }
 
@@ -1340,5 +1341,8 @@ void Forest::sampleNextBase() {
     // Recombination in the sequence segment
     set_next_base(current_base() + length);
   }
+
+  assert(next_base() > current_base());
+  assert(next_base() <= model().loci_length());
 } 
 
