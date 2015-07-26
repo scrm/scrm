@@ -360,21 +360,21 @@ class TestParam : public CppUnit::TestCase {
   void testParseVariableRates() {
     // -st
     Model model;
-    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-st", "10", "5.1", "-st", "4.5", "3.2"};
+    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-st", "0.7", "5.1", "-st", "0.5", "3.2"};
     CPPUNIT_ASSERT_NO_THROW( model = Param(11, argv).parse(); );
-    double scale = 1 / ( 4 * model.default_pop_size * model.default_loci_length );
+    double scale = 1 / ( 4 * model.default_pop_size );
     CPPUNIT_ASSERT( areSame(3.74 * scale, model.mutation_rate()) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getNextSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.getNextSequencePosition() );
 
     model.increaseSequencePosition();
     CPPUNIT_ASSERT( areSame(3.2 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getNextSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.getCurrentSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.7, model.getNextSequencePosition() );
 
     model.increaseSequencePosition();
     CPPUNIT_ASSERT( areSame(5.1 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.7, model.getCurrentSequencePosition() );
 
     // -sr
     char *argv2[] = { "scrm", "20", "10", "-r", "3.74", "100", "-sr", "10", "5.1", "-sr", "4.5", "3.2"};

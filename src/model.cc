@@ -24,7 +24,6 @@
 
 Model::Model() { 
   default_pop_size = 10000;
-  default_loci_length = 100000;
   default_growth_rate = 0.0;
   default_mig_rate = 0.0;
   scaling_factor_ = 1.0 / (4 * default_pop_size);
@@ -32,15 +31,13 @@ Model::Model() {
   has_migration_ = false;
   has_recombination_ = false;
 
+  this->set_loci_number(1);
+  this->setLocusLength(1);
   this->addChangeTime(0.0);
   this->addChangePosition(0.0);
 
   this->set_population_number(1);
 
-  this->set_loci_number(1);
-  this->loci_length_ = this->default_loci_length;
-
-  this->setLocusLength(default_loci_length);
   this->setMutationRate(0.0);
   this->setRecombinationRate(0.0);
 
@@ -56,6 +53,7 @@ Model::Model() {
 
 Model::Model(size_t sample_size) : Model() {
   this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
+  this->setLocusLength(1000);
   this->resetTime();
 }
 
@@ -131,7 +129,11 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  * @returns The position the time has now in the vector
  */
 size_t Model::addChangePosition(const double position) {
-  size_t idx = 0;
+  if (position < 0 || position > loci_length()) {
+    std::stringstream ss;
+    ss << "Rate change position " << position << " is outside of the simulated sequence.";
+    throw std::invalid_argument(ss.str());
+  }
 
   if ( change_position_.size() == 0 ) {
     change_position_ = std::vector<double>(1, position);
@@ -140,6 +142,7 @@ size_t Model::addChangePosition(const double position) {
     return 0;
   }
 
+  size_t idx = 0;
   std::vector<double>::iterator ti; 
   for (ti = change_position_.begin(); ti != change_position_.end(); ++ti) {
     if ( *ti == position ) return idx;
@@ -708,3 +711,4 @@ void Model::setMutationRate(double rate, const bool &per_locus, const bool &scal
     mutation_rates_.at(idx) = rate;
   }
 }
+
