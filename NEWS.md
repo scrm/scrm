@@ -14,6 +14,8 @@ Released: Not yet
 ### Improvements
 + scrm now throws an error when mutation or recombination rate changes
   have invalid sequence positions (#82).
++ The length of segments between recombinations is now always reported
+  in non-scientific notation (#81).
 
  
 scrm 1.6.1

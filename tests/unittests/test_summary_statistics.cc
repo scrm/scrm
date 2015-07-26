@@ -316,6 +316,30 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("[10]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
+
+    /** Scientific notation is disabled when using absolute scaling **/
+    output.str("");
+    output.clear();
+    forest->createScaledExampleTree();
+    forest->set_current_base(0.0);
+    forest->set_next_base(10000000.0);
+    of.calculate(*forest);
+    of.printSegmentOutput(output);
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("[10000000]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
+
+    /** Relative sequence scaling **/
+    forest->writable_model()->setSequenceScaling(relative);
+    forest->writable_model()->setLocusLength(10000);
+    forest->createScaledExampleTree();
+    forest->set_current_base(0.0);
+    forest->set_next_base(100);
+    output.str("");
+    output.clear();
+    of.calculate(*forest);
+    of.printSegmentOutput(output);
+    //std::cout << output.str() << std::endl;
+    CPPUNIT_ASSERT( output.str().compare("[0.01]((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
   }
 };
 
