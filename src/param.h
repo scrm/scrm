@@ -72,6 +72,7 @@ class Param {
     this->set_version(false);
     this->set_precision(6);
     this->set_print_model(false);
+    this->set_print_transpose(false);
     this->argv_i = argv_.begin();
   }
 
