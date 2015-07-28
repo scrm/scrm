@@ -42,6 +42,7 @@ class OrientedForest : public SummaryStatistic
   void calculate(const Forest &forest);
   void printLocusOutput(std::ostream &output) const {};
   void printSegmentOutput(std::ostream &output) const;
+  void printLocusOutputTranspose(std::ostream &output) const{};
   void clear() { }
 
   OrientedForest* clone() const {

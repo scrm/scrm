@@ -39,6 +39,7 @@ class TMRCA : public SummaryStatistic
    //Virtual methods
    void calculate(const Forest &forest);
    void printLocusOutput(std::ostream &output) const;
+   void printLocusOutputTranspose(std::ostream &output) const{};
    void clear() {
      tmrca_.clear();
      tree_length_.clear();

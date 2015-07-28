@@ -36,6 +36,8 @@ class SummaryStatistic
    // Virtual methods
    virtual void calculate(const Forest &forest) =0;
    virtual void printLocusOutput(std::ostream &output) const =0;
+   virtual void printLocusOutputTranspose(std::ostream &output) const =0;
+
    virtual void clear() =0;
    virtual SummaryStatistic* clone() const =0; 
 

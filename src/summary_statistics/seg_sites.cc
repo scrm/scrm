@@ -32,6 +32,7 @@ void SegSites::calculate(const Forest &forest) {
 
   while (position_at < forest.next_base()) {
     TreePoint mutation = forest.samplePoint();
+    heights_.push_back(mutation.height() / (4 * forest.model().default_pop_size));
     haplotypes_.push_back(getHaplotypes(mutation, forest));
     if (forest.model().getSequenceScaling() == absolute) {
       positions_.push_back(position_at);
@@ -39,7 +40,7 @@ void SegSites::calculate(const Forest &forest) {
       positions_.push_back(position_at / forest.model().loci_length());
     }
     position_at += forest.random_generator()->sampleExpo(forest.getLocalTreeLength() * forest.model().mutation_rate());
-  }	
+  }
 
   set_position(forest.next_base());
 }
@@ -54,6 +55,26 @@ void SegSites::printLocusOutput(std::ostream &output) const {
   for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
     for (size_t j = 0; j < haplotypes_.size(); j++){
       output << haplotypes_[j][i];
+    }
+    output <<"\n";
+  }
+}
+
+
+void SegSites::printLocusOutputTranspose(std::ostream &output) const {
+  output << "segsites: "<< countMutations() << std::endl;
+  if ( countMutations() == 0 ) return;
+
+  output << "positions height";
+  for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
+    output << " " << i+1;
+  }
+  output <<"\n";
+
+  for (size_t j = 0; j < haplotypes_.size(); j++){
+    output << positions_[j] << " " << heights_[j];
+    for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
+      output << " " << haplotypes_[j][i];
     }
     output <<"\n";
   }

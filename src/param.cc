@@ -394,7 +394,11 @@ Model Param::parse() {
 
     else if (*argv_i == "-print-model" || *argv_i == "--print-model") {
       this->set_print_model(true);
-    } 
+    }
+
+    else if (*argv_i == "-print-transpose" || *argv_i == "--print-transpose") {
+      this->set_print_transpose(true);
+    }
 
 
     // ------------------------------------------------------------------

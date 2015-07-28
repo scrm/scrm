@@ -1224,6 +1224,13 @@ void Forest::printLocusSumStats(std::ostream &output) const {
 }
 
 
+void Forest::printLocusSumStatsTranspose(std::ostream &output) const {
+  for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
+    model().getSummaryStatistic(i)->printLocusOutputTranspose(output);
+  }
+}
+
+
 void Forest::printSegmentSumStats(std::ostream &output) const {
   for (size_t i = 0; i < model().countSummaryStatistics(); ++i) {
     model().getSummaryStatistic(i)->printSegmentOutput(output);

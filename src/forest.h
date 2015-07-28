@@ -190,6 +190,7 @@ class Forest
   void calcSegmentSumStats();
   void clearSumStats();
   void printLocusSumStats(std::ostream &output) const;
+  void printLocusSumStatsTranspose(std::ostream &output) const;
   void printSegmentSumStats(std::ostream &output) const;
 
   double get_rec_base(const size_t idx) const {

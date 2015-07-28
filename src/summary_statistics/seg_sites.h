@@ -44,6 +44,8 @@ class SegSites : public SummaryStatistic
   //Virtual methods
   void calculate(const Forest &forest);
   void printLocusOutput(std::ostream &output) const;
+  void printLocusOutputTranspose(std::ostream &output) const;
+
   SegSites* clone() const { return new SegSites(*this); }
 
   void clear() { 
@@ -65,6 +67,7 @@ class SegSites : public SummaryStatistic
   std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
 
   std::vector<double> positions_;
+  std::vector<double> heights_;
   std::vector<std::valarray<bool>> haplotypes_;	
   void traversal(Node const* node, std::valarray<bool> &haplotype) const;
 
