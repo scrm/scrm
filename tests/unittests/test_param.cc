@@ -27,6 +27,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testErrorOnInfintieRecRate );
   CPPUNIT_TEST( testScientificNotation );
   CPPUNIT_TEST( testApproximation );
+  CPPUNIT_TEST( testTransposeSegSites );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -512,8 +513,12 @@ class TestParam : public CppUnit::TestCase {
   }
 
   void testTransposeSegSites() {
-    Model model = Param("2 2 -r 10 100 -t 5 -print-transpose").parse();
+    Model model = Param("2 2 -r 10 100 -t 5 -transpose-segsites").parse();
     SegSites* ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(ss->get_transpose());
+
+    model = Param("2 2 -t 5 --transpose-segsites").parse();
+    ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
     CPPUNIT_ASSERT(ss->get_transpose());
 
     model = Param("2 2 -r 10 100 -t 5").parse();
