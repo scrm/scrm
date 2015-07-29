@@ -50,7 +50,8 @@ Model Param::parse() {
   bool tmrca = false,
        newick_trees = false,
        orientedForest = false,
-       sfs = false; 
+       sfs = false,
+       transpose = false;
 
 
   // The minimal time at which -eM, -eN, -eG, -eI, -ema and -es are allowed to happen. Is
@@ -397,7 +398,7 @@ Model Param::parse() {
     }
 
     else if (*argv_i == "-print-transpose" || *argv_i == "--print-transpose") {
-      this->set_print_transpose(true);
+      transpose = true;
     }
 
 
@@ -436,6 +437,7 @@ Model Param::parse() {
   }
   if (tmrca) model.addSummaryStatistic(std::make_shared<TMRCA>());
   if (seg_sites.get() != NULL) model.addSummaryStatistic(seg_sites);
+  if (seg_sites.get() != NULL && transpose ) seg_sites->set_transpose(true);
   if (sfs) {
     if (seg_sites == NULL) 
       throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 

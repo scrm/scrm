@@ -49,7 +49,6 @@ class FrequencySpectrum : public SummaryStatistic
    //Virtual methods
    void calculate(const Forest &forest);
    void printLocusOutput(std::ostream &output) const;
-   void printLocusOutputTranspose(std::ostream &output) const{};
    void clear() { 
      for (size_t i = 0; i < sfs_.size(); ++i) sfs_.at(i) = 0;
      at_mutation_ = 0;

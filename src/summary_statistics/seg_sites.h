@@ -34,7 +34,7 @@
 class SegSites : public SummaryStatistic
 {
  public:
-  SegSites() { set_position(0.0); }
+  SegSites( ) { set_position(0.0); set_transpose(false);}
   ~SegSites() {}
 
 #ifdef UNITTEST
@@ -44,7 +44,6 @@ class SegSites : public SummaryStatistic
   //Virtual methods
   void calculate(const Forest &forest);
   void printLocusOutput(std::ostream &output) const;
-  void printLocusOutputTranspose(std::ostream &output) const;
 
   SegSites* clone() const { return new SegSites(*this); }
 
@@ -62,6 +61,7 @@ class SegSites : public SummaryStatistic
   std::valarray<bool> const* getHaplotype(const size_t mutation) const {
     return &(haplotypes_.at(mutation));
   }
+  void set_transpose(const bool transpose) { transpose_ = transpose; };
 
  private:
   std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
@@ -73,6 +73,7 @@ class SegSites : public SummaryStatistic
 
   void set_position(const double position) { position_ = position; };
   double position_;
+  bool transpose_;
 };
 
 #endif

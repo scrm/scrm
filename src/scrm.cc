@@ -80,11 +80,7 @@ int main(int argc, char *argv[]){
       }
       assert(forest.next_base() == model.loci_length());
 
-      if ( user_para.print_transpose() ){
-        forest.printLocusSumStatsTranspose(*output);
-      } else {
-        forest.printLocusSumStats(*output);
-      }
+      forest.printLocusSumStats(*output);
       forest.clear();
     }
 

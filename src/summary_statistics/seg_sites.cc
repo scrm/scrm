@@ -49,34 +49,30 @@ void SegSites::calculate(const Forest &forest) {
 void SegSites::printLocusOutput(std::ostream &output) const {
   output << "segsites: "<< countMutations() << std::endl;
   if ( countMutations() == 0 ) return;
-
-  output << "positions: " << positions_ << std::endl;
-
-  for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
-    for (size_t j = 0; j < haplotypes_.size(); j++){
-      output << haplotypes_[j][i];
-    }
-    output <<"\n";
-  }
-}
-
-
-void SegSites::printLocusOutputTranspose(std::ostream &output) const {
-  output << "segsites: "<< countMutations() << std::endl;
-  if ( countMutations() == 0 ) return;
-
-  output << "positions height";
-  for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
-    output << " " << i+1;
-  }
-  output <<"\n";
-
-  for (size_t j = 0; j < haplotypes_.size(); j++){
-    output << positions_[j] << " " << heights_[j];
+  std::cout << "transpose is "<<transpose_<<std::endl;
+  if ( transpose_ ){
+    output << "positions height";
     for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
-      output << " " << haplotypes_[j][i];
+      output << " " << i+1;
     }
     output <<"\n";
+  
+    for (size_t j = 0; j < haplotypes_.size(); j++){
+      output << positions_[j] << " " << heights_[j];
+      for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
+        output << " " << haplotypes_[j][i];
+      }
+      output <<"\n";
+    }
+  } else {
+    output << "positions: " << positions_ << std::endl;
+  
+    for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
+      for (size_t j = 0; j < haplotypes_.size(); j++){
+        output << haplotypes_[j][i];
+      }
+      output <<"\n";
+    }
   }
 }
 

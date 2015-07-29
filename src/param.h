@@ -72,7 +72,6 @@ class Param {
     this->set_version(false);
     this->set_precision(6);
     this->set_print_model(false);
-    this->set_print_transpose(false);
     this->argv_i = argv_.begin();
   }
 
@@ -84,7 +83,6 @@ class Param {
   size_t precision() const { return precision_; }
   bool seed_is_set() const { return this->seed_set_; }
   bool print_model() const { return this->print_model_; }
-  bool print_transpose() const { return this->print_transpose_; }
 
   void set_precision ( const size_t p ) { this->precision_ = p; }
   void set_random_seed(const size_t seed) { 
@@ -92,7 +90,6 @@ class Param {
     this->seed_set_ = true; 
   }
   void set_print_model(const bool print_model) { print_model_ = print_model; }
-  void set_print_transpose(const bool print_transpose) { print_transpose_ = print_transpose; }
 
   // Other methods
   void printHelp(std::ostream& stream);
@@ -145,6 +142,5 @@ class Param {
   bool version_;
   bool read_init_genealogy_;
   bool print_model_;
-  bool print_transpose_;
 };
 #endif
