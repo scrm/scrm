@@ -510,6 +510,16 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !model.has_window_seq() );
     CPPUNIT_ASSERT_EQUAL( (size_t)10, model.window_length_rec() );
   }
+
+  void testTransposeSegSites() {
+    Model model = Param("2 2 -r 10 100 -t 5 -print-transpose").parse();
+    SegSites* ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(ss->get_transpose());
+
+    model = Param("2 2 -r 10 100 -t 5").parse();
+    ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(!ss->get_transpose());
+  }
 };
 
 //Uncomment this to activate the test

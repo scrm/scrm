@@ -36,14 +36,14 @@ function test_scrm {
 
 echo "Testing Initial Tree"
  test_scrm 5 1000 -t 5 || exit 1
- test_scrm 3 1000 -t 5 -L -oSFS || exit 1
+ test_scrm 3 1000 -t 5 -L -oSFS -transpose-segsites || exit 1
  test_scrm 100 20 -O || exit 1
  test_scrm 250 1 -T || exit 1
 echo ""
 
 echo "Testing Recombinations"
  test_scrm 4 500 -r 5 100 || exit 1
- test_scrm 6 500 -r 1 100 -t 5 -L -T || exit 1
+ test_scrm 6 500 -r 1 100 -t 5 -L -T -transpose-segsites || exit 1
  test_scrm 8 500 -r 1 100 -t 5 -oSFS -O || exit 1
 echo ""
 

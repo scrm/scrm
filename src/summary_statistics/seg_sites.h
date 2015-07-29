@@ -62,6 +62,7 @@ class SegSites : public SummaryStatistic
     return &(haplotypes_.at(mutation));
   }
   void set_transpose(const bool transpose) { transpose_ = transpose; };
+  bool get_transpose() const { return transpose_; }
 
  private:
   std::valarray<bool> getHaplotypes(TreePoint mutation, const Forest &Forest); 
