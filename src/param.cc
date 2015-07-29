@@ -397,7 +397,7 @@ Model Param::parse() {
       this->set_print_model(true);
     }
 
-    else if (*argv_i == "-print-transpose" || *argv_i == "--print-transpose") {
+    else if (*argv_i == "-transpose-segsites" || *argv_i == "--transpose-segsites") {
       transpose = true;
     }
 
