@@ -47,10 +47,9 @@ void SegSites::calculate(const Forest &forest) {
 
 
 void SegSites::printLocusOutput(std::ostream &output) const {
-  output << "segsites: "<< countMutations() << std::endl;
   if ( countMutations() == 0 ) return;
-  std::cout << "transpose is "<<transpose_<<std::endl;
-  if ( transpose_ ){
+  if ( transpose_ ) {
+    output << "transposed segsites" << std::endl;
     output << "positions height";
     for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
       output << " " << i+1;
@@ -65,6 +64,7 @@ void SegSites::printLocusOutput(std::ostream &output) const {
       output <<"\n";
     }
   } else {
+    output << "segsites: "<< countMutations() << std::endl;
     output << "positions: " << positions_ << std::endl;
   
     for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
