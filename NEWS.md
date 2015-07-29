@@ -1,9 +1,15 @@
 scrm Version History
 ========================
 
-scrm 1.6.2
+scrm 1.7.0
 ------------------------
 Released: Not yet
+
+### New Features
++ New command line option "--transpose-segsites" that prints the segregating
+  sites matrix with rows repesenting mutations instead of individuals. This
+  also adds the time at which the mutation occurred as additional information
+  (#85).
 
 ### Improvements
 + scrm now throws an error when mutation or recombination rate changes
