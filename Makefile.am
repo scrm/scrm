@@ -48,10 +48,10 @@ debug_src = src/random/constant_generator.cc src/random/constant_generator.h \
 
 unit_test_src = tests/unittests/test_forest.cc tests/unittests/test_model.cc\
 				tests/unittests/test_node.cc tests/unittests/test_node_container.cc\
-			   	tests/cppunit/test_runner.cc tests/unittests/test_time_interval.cc\
-			   	tests/unittests/test_fastfunc.cc tests/unittests/test_param.cc\
+				tests/cppunit/test_runner.cc tests/unittests/test_time_interval.cc\
+				tests/unittests/test_fastfunc.cc tests/unittests/test_param.cc\
 				tests/unittests/test_random_generator.cc tests/unittests/test_summary_statistics.cc\
-			    tests/unittests/test_contemporaries_container.cc	
+				tests/unittests/test_contemporaries_container.cc
 
 alg_test_src = tests/cppunit/test_runner.cc tests/algorithmtest/test_algorithm.cc 
 

@@ -79,7 +79,7 @@ int main(int argc, char *argv[]){
         forest.printSegmentSumStats(*output);
       }
       assert(forest.next_base() == model.loci_length());
-      
+
       forest.printLocusSumStats(*output);
       forest.clear();
     }
