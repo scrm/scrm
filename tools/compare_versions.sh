@@ -59,7 +59,7 @@ echo "Command | Equal results | time $1 | time $2 | memory $1 | memory $2"
 echo "------- | ------------- | ----------- | -------- | ------------- | ---------"
 test_scrm 100 100 -t 5 -T
 test_scrm 20 100 -r 10 100 -t 3 -T -L
-test_scrm 4 10000 -r 10 100 -t 5
+test_scrm 4 1000 -r 10 100 -t 5 --transpose-segsites
 test_scrm 20 2 -r 500 100 -L
 test_scrm 2000 1 -r 10 100 -l 50 -L -T
 test_scrm 20 1 -r 4000 10000000 -l 300000 -T
