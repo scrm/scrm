@@ -16,6 +16,8 @@ Released: Not yet
   have invalid sequence positions (#82).
 + The length of segments between recombinations is now always reported
   in non-scientific notation (#81).
++ Improved the error message when lines could not coalescence because
+  of missing migration or negative population growth (#87).
 
  
 scrm 1.6.1

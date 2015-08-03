@@ -816,8 +816,24 @@ double Forest::calcRecombinationRate(Node const* node) const {
  *    coalescence has finished. 
  */
 void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished) {
-  if (ti.end_height() == DBL_MAX) 
-    throw std::logic_error("Lines did not coalescence. If you use an negative growth parameter (population rapidly declining forward in time), you need to set it to a non-negative value at some time.");
+  if (ti.end_height() == DBL_MAX) {
+    std::stringstream message;
+    message << "Lines did not coalescence." << std::endl;
+    if (active_node(0)->population() != active_node(1)->population()) {
+      message << "The lines were in populations " << active_node(0)->population() + 1
+          << " and " << active_node(1)->population() + 1 << "." << std::endl 
+          << "You should add on opportunity for migration between these populations."
+          << std::endl;
+    }
+
+    else if (model().growth_rate(active_node(0)->population())) {
+        message << "Population " << active_node(0)->population() + 1
+                << " has a negative growth factor for infinite time." << std::endl
+                << "This can prevent coalescence. " << std::endl;
+    }
+
+    throw std::logic_error(message.str());
+  }
   if (states_[0] == 2) {
     set_active_node(0, possiblyMoveUpwards(active_node(0), ti));
     if (active_node(0)->local()) {
@@ -1105,7 +1121,10 @@ void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
       }
 
       // Stop if no migration occurred
-      if (!migrated) break;
+      if (!migrated) {
+        dout << "* * No fixed time migration occurred" << std::endl;
+        break;
+      }
 
       // Resolve a maximum of 10k chained events for each node
       if (chain_cnt == 10000) 
