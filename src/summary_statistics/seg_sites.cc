@@ -50,7 +50,7 @@ void SegSites::printLocusOutput(std::ostream &output) const {
   if ( transpose_ ) {
     output << "transposed segsites: " << countMutations() << std::endl;
     if ( countMutations() == 0 ) return;
-    output << "positions height";
+    output << "position time";
     for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
       output << " " << i+1;
     }
