@@ -69,6 +69,8 @@ class SegSites : public SummaryStatistic
 
   std::vector<double> positions_;
   std::vector<double> heights_;
+  std::vector<double> heightsLower_;
+  std::vector<double> heightsUpper_;
   std::vector<std::valarray<bool>> haplotypes_;	
   void traversal(Node const* node, std::valarray<bool> &haplotype) const;
 

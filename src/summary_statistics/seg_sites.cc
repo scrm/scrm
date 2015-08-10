@@ -32,10 +32,15 @@ void SegSites::calculate(const Forest &forest) {
 
   while (position_at < forest.next_base()) {
     TreePoint mutation = forest.samplePoint();
-    double mutTime = mutation.height() / (4 * forest.model().default_pop_size);
+    double scaler = (4 * forest.model().default_pop_size);
+    double mutTime = mutation.height() / scaler;
     heights_.push_back(mutTime);
+    double lowerTime = mutation.base_node()->height() / scaler;
+    heightsLower_.push_back(lowerTime);
+    double upperTime = mutation.base_node()->parent_height() / scaler;
+    heightsUpper_.push_back(upperTime);
     std::cout << "Mutation: {\"seq-pos\":" << position_at 
-              << ", \"time\":" << mutTime << "}" << std::endl;
+              << ", \"time\":" << lowerTime << ", " << mutTime << ", " << upperTime << "}" << std::endl;
     haplotypes_.push_back(getHaplotypes(mutation, forest));
     if (forest.model().getSequenceScaling() == absolute) {
       positions_.push_back(position_at);
@@ -53,14 +58,14 @@ void SegSites::printLocusOutput(std::ostream &output) const {
   if ( transpose_ ) {
     output << "transposed segsites: " << countMutations() << std::endl;
     if ( countMutations() == 0 ) return;
-    output << "position time";
+    output << "position timeL time timeU";
     for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
       output << " " << i+1;
     }
     output <<"\n";
   
     for (size_t j = 0; j < haplotypes_.size(); j++){
-      output << positions_[j] << " " << heights_[j];
+      output << positions_[j] << " " << heightsLower_[j] << " " << heights_[j] << " " << heightsUpper_[j];
       for (size_t i = 0; i < haplotypes_.at(0).size(); i++){
         output << " " << haplotypes_[j][i];
       }
