@@ -131,6 +131,7 @@ class ContemporariesConstIterator {
 };
 
 class ContemporariesContainer {
+  friend class ForestState;
  public:
   ContemporariesContainer();
   ContemporariesContainer(const size_t pop_number, 

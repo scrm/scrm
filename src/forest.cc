@@ -536,7 +536,7 @@ void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
     assert( active_node(1)->first_child() == NULL  || active_node(1)->first_child()->local() ||
             active_node(1)->second_child() == NULL || active_node(1)->second_child()->local() );
 
-    assert( checkContemporaries(*ti) );
+    assert( checkContemporaries((*ti).start_height()) );
 
     // Sample the time at which the next event happens (if any)
     sampleEvent(*ti, tmp_event_time_, tmp_event_);
@@ -545,7 +545,7 @@ void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
     assert( tmp_event_.isNoEvent() || tmp_event_.time() <= (*ti).end_height() );
 
     if ( recordEvents ){
-        this->record_all_event(*ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
+        this->record_all_event(ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
     }
     // Go on if nothing happens in this time interval
     if ( tmp_event_.isNoEvent() ) {

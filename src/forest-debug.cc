@@ -354,11 +354,11 @@ bool Forest::printTree() const {
       if ( (*position)->height() == start_height ) {
         if ( (*position)->local() || *position == local_root() ) dout << "╦";
         else dout << "┬";
-        if ( (*position)->numberOfChildren() == 2 ) {
+        if ( (*position)->countChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
           if ( *position == local_root() ) h_line = 1;
         }
-        if ( (*position)->numberOfChildren() == 1 ) {
+        if ( (*position)->countChildren() == 1 ) {
           h_line = 0;
         }
       } 
@@ -391,7 +391,7 @@ bool Forest::printTree() const {
         else dout << "─";
       }
     }
-    dout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
+    dout << " - " << std::setw(7) << std::setprecision(7) << std::right << start_height << " - "; 
     for (position = positions.begin(); position != positions.end(); ++position) {
       if (*position == NULL) continue;
       if ( (*position)->height() == start_height ) {
@@ -683,8 +683,7 @@ bool Forest::checkContemporaries(const double time) const {
       } 
       if (!found) { 
         scrmdout << "Node " << *ni << " (height " << (*ni)->height() 
-             <<") not in contemporaries." << std::endl;
-        dout << ti.start_height() << " " << ti.end_height() << std::endl;
+             << ") not in contemporaries at time " << time << std::endl;
         return 0;
       }
     }

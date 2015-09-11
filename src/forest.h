@@ -191,7 +191,7 @@ class Forest
   //record events
   virtual void record_Recombevent_b4_extension ( ) { }
   virtual void record_Recombevent_atNewGenealogy ( double event_height ){ }
-  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ) { }
+  virtual void record_all_event( TimeIntervalIterator const &ti, double &recomb_opp_x_within_scrm ) { }
   double recomb_opp_x_within_scrm; // DEBUG
 
   // Calc & Print Summary Statistics
