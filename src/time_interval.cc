@@ -59,7 +59,6 @@ TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
 
 TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
                                            Node* start_node) {
-
   this->forest_ = forest;
   this->contemporaries_ = &forest->contemporaries_;
   this->model_ = forest->model_;

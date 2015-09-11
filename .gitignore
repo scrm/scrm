@@ -86,3 +86,5 @@ algorithm_tests
 unit_tests
 stuff
 .dirstamp
+unit_tests.trs
+algorithm_tests.trs

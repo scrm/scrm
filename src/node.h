@@ -40,6 +40,13 @@
 #include <string>
 
 
+#ifndef NDEBUG
+#define scrmdout (std::cout << "        scrm ")
+#else
+#pragma GCC diagnostic ignored "-Wunused-value"
+#define scrmdout 0 && (std::cout << "        scrm ")
+#endif
+
 class Node
 {
  public:
@@ -110,6 +117,9 @@ class Node
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
 
+  void set_mutation_state(int state){mutation_state_ = state;}
+  int mutation_state() const { return mutation_state_ ; }
+
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
     return ( this->label() != 0 ); 
@@ -178,6 +188,9 @@ class Node
   Node *parent_;
   Node *first_child_;
   Node *second_child_;
+
+  // The allelic state of this (child) node.  0=ref, 1=variant, -1=no data
+  int mutation_state_;
 };
 
 inline bool Node::is_migrating() const { 

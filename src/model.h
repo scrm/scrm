@@ -62,7 +62,11 @@ class Model
    friend class TestForest;
 #endif
    friend class Forest;
+   friend class ForestState;
    friend class Param;
+   friend class PfParam;
+   friend class CountModel;
+   friend std::ostream& operator<< (std::ostream& stream, const Model& model);
 
    Model();
    Model(size_t sample_size);
@@ -247,15 +251,23 @@ class Model
    double sample_time(size_t sample_id) const { return sample_times_.at(sample_id); };
 
    size_t population_number() const { return pop_number_; }
-  
-   
+
    double getCurrentTime() const { return change_times_.at(current_time_idx_); }
    double getNextTime() const { 
     if ( current_time_idx_ + 1 >= change_times_.size() ) return DBL_MAX;
     else return change_times_.at(current_time_idx_ + 1);
    }
+   size_t getTimeIdx( double time ) const { // time intervals are half-open [start,end).  First interval is of form [0,end)
+      assert (time >= 0);
+      size_t idx = 0;
+      for (;idx < change_times_.size(); idx++) {
+          if (time < change_times_.at(idx)) break;
+      }
+      return idx - 1;
+   }
 
    double getCurrentSequencePosition() const { 
+    // Returns position of the next (recombination) rate change
     if ( current_seq_idx_ >= change_position_.size() ) return loci_length();
     return change_position_.at(current_seq_idx_); 
    }
@@ -294,7 +306,7 @@ class Model
     if (pop_number_<1) throw std::out_of_range("Population number out of range"); 
    }
 
-   void resetTime() { 
+   void resetTime( ) { 
      if (pop_sizes_list_[0].empty()) current_pop_sizes_ = NULL;
      else current_pop_sizes_ = &(pop_sizes_list_[0]);
 
@@ -309,6 +321,23 @@ class Model
 
      current_time_idx_ = 0;
    };
+
+   void resetTime( double current_time ) {
+     current_time_idx_ = 0;
+     while (getNextTime() <= current_time ) {
+        if ( current_time_idx_ == change_times_.size() - 1) throw std::out_of_range("Model change times out of range");
+        ++current_time_idx_;
+     }
+     // is the check for non-NULL-ness redundant?  Change into an assert?
+     if ( !pop_sizes_list_.at(current_time_idx_).empty() )
+       current_pop_sizes_ = &(pop_sizes_list_.at(current_time_idx_));
+     if ( !growth_rates_list_.at(current_time_idx_).empty() )
+       current_growth_rates_ = &(growth_rates_list_.at(current_time_idx_));
+     if ( !mig_rates_list_.at(current_time_idx_).empty() )
+       current_mig_rates_ = &(mig_rates_list_.at(current_time_idx_));
+     if ( !total_mig_rates_list_.at(current_time_idx_).empty() )
+       current_total_mig_rates_ = &(total_mig_rates_list_.at(current_time_idx_));
+   }
 
    void resetSequencePosition() {
      current_seq_idx_ = 0; 
@@ -326,7 +355,20 @@ class Model
        current_mig_rates_ = &(mig_rates_list_.at(current_time_idx_)); 
      if ( ! total_mig_rates_list_.at(current_time_idx_).empty() ) 
        current_total_mig_rates_ = &(total_mig_rates_list_.at(current_time_idx_)); 
+//=======  JOE: I think the following can be replaced
+     //// is the check for non-NULL-ness redundant?  Change into an assert?
+     //if ( pop_sizes_list_.at(current_time_idx_) != NULL ) 
+       //current_pop_sizes_ = pop_sizes_list_.at(current_time_idx_);
+     //if ( growth_rates_list_.at(current_time_idx_) != NULL ) 
+       //current_growth_rates_ = growth_rates_list_.at(current_time_idx_); 
+     //if ( mig_rates_list_.at(current_time_idx_) != NULL ) 
+       //current_mig_rates_ = mig_rates_list_.at(current_time_idx_); 
+     //if ( total_mig_rates_list_.at(current_time_idx_) != NULL ) 
+       //current_total_mig_rates_ = total_mig_rates_list_.at(current_time_idx_); 
+//>>>>>>> squashing_JZ
    };
+
+   size_t getNumEpochs() const { return change_times_.size(); }
 
    void increaseSequencePosition() {
     ++current_seq_idx_;
@@ -334,7 +376,10 @@ class Model
 
    size_t countChangeTimes() const { return change_times_.size(); }
    size_t countChangePositions() const { return change_position_.size(); } 
-  
+   void decreaseSequencePosition() {
+    --current_seq_idx_;
+   }
+
    void print(std::ostream &os) const;
 
 

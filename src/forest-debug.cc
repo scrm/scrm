@@ -151,7 +151,7 @@ bool Forest::checkTreeLength() const {
   double local_length = calcTreeLength();
 
   if ( !areSame(local_length, getLocalTreeLength(), 0.000001) ) {
-    dout << "Error: local tree length is " << this->getLocalTreeLength() << " ";
+    scrmdout << "Error: local tree length is " << this->getLocalTreeLength() << " ";
     dout << "but should be " << local_length << std::endl;
     return(0);
   }
@@ -352,6 +352,87 @@ bool Forest::printTree() const {
     for (position = positions.begin(); position != positions.end(); ++position) {
       assert( *position != NULL );
       if ( (*position)->height() == start_height ) {
+        if ( (*position)->local() || *position == local_root() ) dout << "╦";
+        else dout << "┬";
+        if ( (*position)->numberOfChildren() == 2 ) {
+          h_line = 1 + !((*position)->local());
+          if ( *position == local_root() ) h_line = 1;
+        }
+        if ( (*position)->numberOfChildren() == 1 ) {
+          h_line = 0;
+        }
+      } 
+      else if ( (*position)->height() < start_height &&
+                (*position)->parent_height() >= end_height ) {
+        if ( (*position)->local() ) dout << "║";
+        else dout << "│";
+
+      } 
+      else if ( (*position)->parent_height() == start_height ) {
+        if ( *position == (*position)->parent()->first_child() ) {
+          if ( (*position)->local() ) { 
+            dout << "╚";
+            h_line = 1;
+          }
+          else {
+            dout << "└";
+            h_line = 2;
+          }
+        }
+        else {
+          if ( (*position)->local() ) dout << "╝";
+          else dout << "┘";
+          h_line = 0;
+        }
+      }
+      else {
+        if ( h_line == 0 ) dout << " ";
+        else if ( h_line == 1 ) dout << "═";
+        else dout << "─";
+      }
+    }
+    dout << " - " << std::setw(7) << setprecision(7) << std::right << start_height << " - "; 
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      if (*position == NULL) continue;
+      if ( (*position)->height() == start_height ) {
+        if ((*position)->label() != 0) dout << (*position)->label() << ":";
+        if (!(*position)->is_migrating()) dout << *position << "(" << (*position)->population() << ") ";
+        else dout << *position << "(" << (*position)->first_child()->population()
+                  << "->" << (*position)->population() << ") ";
+        if (nodeIsOld(*position)) dout << "old ";
+      }
+    }
+    dout << std::endl;
+  }
+  return true;
+}
+
+
+void Forest::printTree_cout() const {
+  //this->printNodes();
+  std::vector<Node const*> positions = this->determinePositions();
+  //this->printPositions(positions);
+  std::vector<Node const*>::iterator position;
+  int h_line;
+  double start_height = 0, 
+         end_height = getNodes()->get(0)->height();
+
+  for (ConstNodeIterator ni = getNodes()->iterator(); ni.good(); ) {
+    if ( !(*ni)->is_root() && (*ni)->height_above() == 0.0 ) {
+      std::cout << "A rare situation occurred were a parent and a child have exactly "
+           << "the same height. We can't print such trees here, the algorithm however"
+           << "should not be affected." << std::endl; 
+      //return 1;
+    }
+    h_line = 0;
+    start_height = end_height;
+    while ( ni.height() <= end_height ) ++ni;
+    end_height = ni.height(); 
+    //std::cout << start_height << " - " << end_height << std::endl;
+
+    for (position = positions.begin(); position != positions.end(); ++position) {
+      assert( *position != NULL );
+      if ( (*position)->height() == start_height ) {
         if ( (*position)->local() || *position == local_root() ) std::cout << "╦";
         else std::cout << "┬";
         if ( (*position)->countChildren() == 2 ) {
@@ -404,8 +485,8 @@ bool Forest::printTree() const {
     }
     std::cout << std::endl;
   }
-  return true;
 }
+
 
 /**
  *  For printing the tree, each node gets assigned its own column in the printed area, 
@@ -499,37 +580,37 @@ std::vector<Node const*> Forest::determinePositions() const {
   }
 
   bool Forest::printNodes() const {
-    std::cout << std::setw(15) << std::right << "Node";
-    std::cout << std::setw(15) << std::right << "Height";
-    std::cout << std::setw(6) << std::right << "label";
-    std::cout << std::setw(15) << std::right << "Parent";
-    std::cout << std::setw(15) << std::right << "1th_child";
-    std::cout << std::setw(15) << std::right << "2nd_child";
-    std::cout << std::setw(6) << std::right << "local";
-    std::cout << std::setw(6) << std::right << "pop";
-    std::cout << std::setw(10) << std::right << "l_upd";
-    std::cout << std::setw(6) << std::right << "s_bel";
-    std::cout << std::setw(10) << std::right << "l_bel";
-    std::cout << std::endl;
+    scrmdout << std::setw(10) << std::right << "Node";
+    dout << std::setw(10) << std::right << "Height";
+    dout << std::setw(6) << std::right << "label";
+    dout << std::setw(10) << std::right << "Parent";
+    dout << std::setw(10) << std::right << "1th_child";
+    dout << std::setw(10) << std::right << "2nd_child";
+    dout << std::setw(6) << std::right << "local";
+    dout << std::setw(6) << std::right << "pop";
+    dout << std::setw(10) << std::right << "l_upd";
+    dout << std::setw(6) << std::right << "s_bel";
+    dout << std::setw(10) << std::right << "l_bel";
+    dout << std::endl;
 
     for(size_t i = 0; i < this->getNodes()->size(); ++i) {
-      std::cout << std::setw(15) << std::right << this->getNodes()->get(i);
-      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->height();
-      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
+      scrmdout << std::setw(10) << std::right << this->getNodes()->get(i);
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->height();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->label();
       if (!getNodes()->get(i)->is_root()) 
-        std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->parent();
-      else std::cout << std::setw(15) << std::right << 0;
-      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->first_child();
-      std::cout << std::setw(15) << std::right << this->getNodes()->get(i)->second_child();
-      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
-      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
-      std::cout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
-      std::cout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
-      std::cout << std::endl;
+        dout << std::setw(15) << std::right << this->getNodes()->get(i)->parent();
+      else dout << std::setw(15) << std::right << 0;
+      dout << std::setw(15) << std::right << this->getNodes()->get(i)->first_child();
+      dout << std::setw(15) << std::right << this->getNodes()->get(i)->second_child();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->local();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->population();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->last_update();
+      dout << std::setw(6) << std::right << this->getNodes()->get(i)->samples_below();
+      dout << std::setw(10) << std::right << this->getNodes()->get(i)->length_below();
+      dout << std::endl;
     }
-    std::cout << "Local Root:    " << this->local_root() << std::endl;
-    std::cout << "Primary Root:  " << this->primary_root() << std::endl;
+    scrmdout << "Local Root:    " << this->local_root() << std::endl;
+    scrmdout << "Primary Root:  " << this->primary_root() << std::endl;
     return true;
   }
 
@@ -601,8 +682,9 @@ bool Forest::checkContemporaries(const double time) const {
         }
       } 
       if (!found) { 
-        dout << "Node " << *ni << " (height " << (*ni)->height() 
-             << ") not in contemporaries at time " << time << std::endl;
+        scrmdout << "Node " << *ni << " (height " << (*ni)->height() 
+             <<") not in contemporaries." << std::endl;
+        dout << ti.start_height() << " " << ti.end_height() << std::endl;
         return 0;
       }
     }

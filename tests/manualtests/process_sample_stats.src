@@ -36,8 +36,8 @@ mstime(){
         do 
         grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> msTrees
         done
-        hybrid-Lambda -gt msTrees -tmrca mstmrca
-        hybrid-Lambda -gt msTrees -bl msbl
+        hybrid-Lambda -gt msTrees -tmrca -o ms
+        hybrid-Lambda -gt msTrees -bl -o ms
         find . -name "xx*" -print0 | xargs -0 rm    
     }	
 	
@@ -47,8 +47,8 @@ scrmtime(){
         do 
         grep ";" xx${file} | sed -e 's/\[.*\]//g' | tail -1 >> scrmTrees
         done
-        hybrid-Lambda -gt scrmTrees -tmrca scrmtmrca
-        hybrid-Lambda -gt scrmTrees -bl scrmbl
+        hybrid-Lambda -gt scrmTrees -tmrca -o scrm
+        hybrid-Lambda -gt scrmTrees -bl -o scrm
         find . -name "xx*" -print0 | xargs -0 rm    
     }	
 		

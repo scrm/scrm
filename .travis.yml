@@ -19,6 +19,7 @@ script:
 - make unittests
 - ./tests/test_binaries.sh
 - make algorithmtest
+#- tests/constant_pop_size_many_epoch.sh 
 before_deploy:
   - ./.travis/build_src_pkg.sh
   - ./.travis/build_static_binaries.sh

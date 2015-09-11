@@ -37,9 +37,6 @@
 #define scrm_src_forest
 
 #include <string>
-
-#include "macros.h" // Needs to be before cassert
-
 #include <vector>
 #include <unordered_set>
 #include <stdexcept>
@@ -58,6 +55,7 @@
 #include "tree_point.h"
 #include "random/random_generator.h"
 #include "summary_statistics/summary_statistic.h"
+extern int recombination_counter; //DEBUG
 
 class TimeInterval;
 class TimeIntervalIterator;
@@ -77,6 +75,8 @@ class Forest
   friend class TestModel;
   friend class TestNodeContainer;
 #endif
+  friend class ForestState;
+  friend class ParticleContainer;
   friend class TimeInterval;
   friend class TimeIntervalIterator;
 
@@ -105,6 +105,17 @@ class Forest
 
   void sampleNextBase();
 
+  // Resamples next recombination base, in case a state was duplicated
+  // Note that current_base_ must be up to date
+  void resampleNextBase() {
+      // first undo any (now possibly premature) change in the recombination rate
+      if (next_base() == model().getCurrentSequencePosition()) {
+          writable_model()->decreaseSequencePosition();
+      }
+      // the remainder is the same as for sampleNextBase; the previous next_base_ is overwritten
+      sampleNextBase();
+  }
+
   /**
    * @brief Returns the length of the sequence for with the current tree is
    * valid
@@ -132,7 +143,7 @@ class Forest
 
   // Central functions
   void buildInitialTree();
-  void sampleNextGenealogy();
+  void sampleNextGenealogy( bool recordEvents = false );
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
 
   void clear();
@@ -159,6 +170,7 @@ class Forest
   int countBelowLinesLeft(Node const* node) const;
   int countBelowLinesRight(Node const* node) const;
   bool printTree() const;
+  void printTree_cout() const;
   std::vector<Node const*> determinePositions() const;
   void printPositions(const std::vector<Node const*> &positions) const;
 
@@ -174,17 +186,13 @@ class Forest
     else return local_root()->length_below();
   }
 
-  //derived class from Forest
-  virtual void record_Recombevent(size_t pop_i, 
-    double opportunity, 
-    eventCode event_code){
-    (void)pop_i;
-    (void)opportunity;
-    (void)event_code;  
-  }
-  virtual void record_all_event( TimeInterval const &ti){
-    (void) ti;   
-  }
+  Node* trackLocalNode(Node *node) const;
+
+  //record events
+  virtual void record_Recombevent_b4_extension ( ) { }
+  virtual void record_Recombevent_atNewGenealogy ( double event_height ){ }
+  virtual void record_all_event( TimeInterval const &ti, double &recomb_opp_x_within_scrm ) { }
+  double recomb_opp_x_within_scrm; // DEBUG
 
   // Calc & Print Summary Statistics
   void calcSegmentSumStats();
@@ -216,7 +224,7 @@ class Forest
                    const bool &invariants_only = false);
 
   // Tools for doing coalescence & recombination
-  void sampleCoalescences(Node *start_node);
+  void sampleCoalescences(Node *start_node,  bool recordEvents = true );
   size_t getNodeState(Node const *node, const double current_time) const;
   Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
@@ -254,7 +262,7 @@ class Forest
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcRecombinationRate(Node const* node) const;
-  void calcRates(const TimeInterval &ti);
+  void calcRates(const TimeInterval &ti, double &recomb_opp_x_within_scrm);
 
   void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
 
