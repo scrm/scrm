@@ -218,6 +218,16 @@ class ContemporariesContainer {
   std::vector<std::unordered_set<Node*> > contemporaries_set1_, contemporaries_set2_;
   std::vector<std::vector<Node*> > contemporaries_vec1_, contemporaries_vec2_;
 
+  size_t numberOfLocalContemporaries() const {
+    size_t num = 0;
+    for ( size_t pop_i = 0 ; pop_i < this->contemporaries_vector().size() ; pop_i++ ){
+      for ( size_t i = 0 ; i < this->contemporaries_vector().at(pop_i).size(); i++ ) {
+        if ( this->contemporaries_vector().at(pop_i)[i]->local() ) num++;
+      }
+    }
+    return num;
+  }
+
   bool use_first_;
   bool use_set_;
   double buffer_time_;
