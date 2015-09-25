@@ -35,37 +35,20 @@
 
 class ContemporariesIterator {
  public:
-  ContemporariesIterator(std::unordered_set<Node*>::iterator it) {
-    it_set_ = it; 
-    use_set_ = true;
-  };
-
-  ContemporariesIterator(std::vector<Node*>::iterator it) {
-    it_vec_ = it; 
-    use_set_ = false;
-  };
+  ContemporariesIterator(std::unordered_set<Node*>::iterator it) : it_set_(it), use_set_(true) { };
+  ContemporariesIterator(std::vector<Node*>::iterator it) : it_vec_(it), use_set_(false) { };
 
   Node* operator*() const {
     if (use_set_) return *it_set_;
     else return *it_vec_;
   }
 
-  Node* operator++() { 
-    if (use_set_) {
-      ++it_set_; 
-      return *it_set_; 
-    } else {
-      ++it_vec_; 
-      return *it_vec_; 
-    }
+  ContemporariesIterator& operator++() { 
+    if (use_set_) (++it_set_); 
+    else ++it_vec_; 
+    return *this;
   }
 
-  Node* operator++(int) { 
-    Node* node = **this;
-    ++*this;
-    return node;
-  }
-  
   bool operator==(const ContemporariesIterator &other) const {
     if (use_set_) return (it_set_ == other.it_set_); 
     else return (it_vec_ == other.it_vec_);
@@ -76,6 +59,8 @@ class ContemporariesIterator {
   }
 
  private:
+  ContemporariesIterator();
+
   std::unordered_set<Node*>::iterator it_set_;
   std::vector<Node*>::iterator it_vec_;
   bool use_set_;
@@ -84,38 +69,22 @@ class ContemporariesIterator {
 
 class ContemporariesConstIterator {
  public:
-  ContemporariesConstIterator(std::unordered_set<Node*>::const_iterator it) {
-    it_set_ = it; 
-    use_set_ = true;
-  };
-
-  ContemporariesConstIterator(std::vector<Node*>::const_iterator it) {
-    it_vec_ = it; 
-    use_set_ = false;
-  };
+  ContemporariesConstIterator(std::unordered_set<Node*>::const_iterator it) : it_set_(it), use_set_(true) { };
+  ContemporariesConstIterator(std::vector<Node*>::const_iterator it) : it_vec_(it), use_set_(false) { };
 
   Node const* operator*() const {
     if (use_set_) return *it_set_;
     else return *it_vec_;
   }
 
-  Node const* operator++() { 
-    if (use_set_) {
-      ++it_set_; 
-      return *it_set_; 
-    } else {
-      ++it_vec_; 
-      return *it_vec_; 
-    }
+  ContemporariesConstIterator& operator++() { 
+    if (use_set_) ++it_set_; 
+    else ++it_vec_; 
+    return *this; 
   }
 
-  Node const* operator++(int) { 
-    Node const* node = **this;
-    ++*this;
-    return node;
-  }
-  
   bool operator==(const ContemporariesConstIterator &other) const {
+    if (use_set_ != other.use_set_) return false;
     if (use_set_) return (it_set_ == other.it_set_); 
     else return (it_vec_ == other.it_vec_);
   }
@@ -223,6 +192,7 @@ class ContemporariesContainer {
   RandomGenerator* rg_;
 };
 
+
 inline ContemporariesContainer::ContemporariesContainer() {
   contemporaries_vec1_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(100));
   contemporaries_vec2_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(100));
@@ -232,6 +202,7 @@ inline ContemporariesContainer::ContemporariesContainer() {
   buffer_time_ = -1;
   use_set_ = false;
 }
+
 
 inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number, 
                                                         const size_t sample_number,

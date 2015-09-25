@@ -86,3 +86,4 @@ algorithm_tests
 unit_tests
 stuff
 .dirstamp
+configure.lineno
