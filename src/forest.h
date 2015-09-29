@@ -212,6 +212,8 @@ class Forest
 
   size_t current_rec() const { return current_rec_; };
 
+  bool coalescence_finished() const { return this->coalescence_finished_; }
+
  private:
   Forest() { this->initialize(); }
 
@@ -278,6 +280,7 @@ class Forest
     else if (time_line == 2) return model().growth_rate(active_node(1)->population());
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
+
 
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest

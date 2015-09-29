@@ -318,6 +318,8 @@ void Forest::buildInitialTree() {
     //assert(this->checkTree());
     //assert(this->checkLeafsOnLocalTree());
     assert(this->printTree());
+    assert(this->printNodes());
+    assert(this->coalescence_finished());
   }
   this->sampleNextBase();
   dout << "Next Sequence position: " << this->next_base() << std::endl;
@@ -457,7 +459,8 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( this->checkLeafsOnLocalTree() );
   assert( this->checkTree() );
   assert( this->printTree() );
-  //assert( this->printNodes() );
+  assert( this->printNodes() );
+  assert( this->coalescence_finished() );
 
   this->sampleNextBase();
   if ( recordEvents ) {
@@ -546,15 +549,15 @@ void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
         this->record_all_event(ti, recomb_opp_x_within_scrm); // Record the recombination events within this interval, recomb_opp_x_within_scrm is for checking purpose
     }
     // Go on if nothing happens in this time interval
+
+    // Implement the event
     if ( tmp_event_.isNoEvent() ) {
       this->implementNoEvent(*ti, coalescence_finished_);
-      if (coalescence_finished_) return;
     }
 
-    // First take care of pairwise coalescence
     else if ( tmp_event_.isPwCoalescence() ) {
       this->implementPwCoalescence(active_node(0), active_node(1), tmp_event_.time());
-      return;
+      this->coalescence_finished_ = true;
     }
 
     else if ( tmp_event_.isRecombination() ) {
@@ -563,14 +566,15 @@ void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
 
     else if ( tmp_event_.isMigration() ) {
       this->implementMigration(tmp_event_, true, ti);
-      //assert( this->printTree() );
     }
 
     else if ( tmp_event_.isCoalescence() ) {
       this->implementCoalescence(tmp_event_, ti);
       assert( checkInvariants(tmp_event_.node()) );
-      if (coalescence_finished_) return;
+      assert( this->printTree() );
     }
+
+    if (coalescence_finished()) return;
   }
 }
 

@@ -19,6 +19,12 @@ Released: Not yet
 + Improved the error message when lines could not coalescence because
   of missing migration or negative population growth (#87).
 
+### Bug Fixes
++ `Forest.coalescence_finished` has not set to `true` after a pairwise
+  coalescence event (#89). This had no effect on the command line version
+  of scrm.
+
+
  
 scrm 1.6.1
 ------------------------

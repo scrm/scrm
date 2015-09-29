@@ -40,7 +40,6 @@ class OrientedForest : public SummaryStatistic
 
   //Virtual methods
   void calculate(const Forest &forest);
-  void printLocusOutput(std::ostream &output) const {};
   void printSegmentOutput(std::ostream &output) const;
   void clear() { }
 
