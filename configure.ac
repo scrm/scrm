@@ -41,12 +41,12 @@ fi
 
 # Enable Warnings
 AX_CXXFLAGS_WARN_ALL
-AX_CHECK_COMPILE_FLAG([-Wextra], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wextra"], [], [-Werror])
+#AX_CHECK_COMPILE_FLAG([-Wextra], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wextra"], [], [-Werror])
 # AX_CHECK_COMPILE_FLAG([-Wshadow], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wshadow"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-Wnon-virtual-dtor], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wnon-virtual-dtor"], [], [-Werror])
 #AX_CHECK_COMPILE_FLAG([-Wold-style-cast], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wold-style-cast"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-Wcast-align], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wcast-align"], [], [-Werror])
-AX_CHECK_COMPILE_FLAG([-Wunused], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wunused"], [], [-Werror])
+#AX_CHECK_COMPILE_FLAG([-Wunused], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wunused"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-Woverloaded-virtual], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Woverloaded-virtual"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-pedantic], [OPT_CXXFLAGS="$OPT_CXXFLAGS -pedantic"], [], [-Werror])
 
