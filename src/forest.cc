@@ -445,7 +445,6 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   TreePoint rec_point = this->samplePoint();
   assert( rec_point.base_node()->local() );
   assert( this->printTree() );
-recombination_counter++;
 
   scrmdout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;
