@@ -97,7 +97,7 @@ Forest::Forest(const Forest &current_forest) {
   this->contemporaries_ = ContemporariesContainer(model().population_number(),
                                                   model().sample_size(),
                                                   random_generator());
-  this->tmp_event_time_ = -1;
+  this->tmp_event_time_ = current_forest.tmp_event_time_;
   this->coalescence_finished_ = true;
 
   //dout<<"  #################### check copied forest ###############"<<std::endl;
@@ -445,6 +445,7 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   TreePoint rec_point = this->samplePoint();
   assert( rec_point.base_node()->local() );
   assert( this->printTree() );
+//recombination_counter++;
 
   scrmdout << "* Recombination at height " << rec_point.height() << " ";
   dout << "(above " << rec_point.base_node() << ")"<< std::endl;

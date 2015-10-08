@@ -108,10 +108,13 @@ class Forest
   // Resamples next recombination base, in case a state was duplicated
   // Note that current_base_ must be up to date
   void resampleNextBase() {
+      assert ( rec_bases_.size() > 1 );
+      assert ( current_rec_ > 0 );
       // first undo any (now possibly premature) change in the recombination rate
       if (next_base() == model().getCurrentSequencePosition()) {
           writable_model()->decreaseSequencePosition();
       }
+      rec_bases_.pop_back();
       // the remainder is the same as for sampleNextBase; the previous next_base_ is overwritten
       sampleNextBase();
   }
