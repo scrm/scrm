@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -39,17 +39,17 @@ void Node::init(double height, size_t label) {
   this->set_height(height);
   this->set_label(label);
   if (label == 0) this->set_samples_below(1);
-  else this->set_samples_below(0); 
+  else this->set_samples_below(0);
   this->set_length_below(0);
   this->set_last_change(0);
-
+  this->set_mutation_state(2);
   this->set_parent(NULL);
   this->set_second_child(NULL);
   this->set_first_child(NULL);
   this->set_previous(NULL);
   this->set_next(NULL);
 }
-  
+
 
 void Node::change_child(Node* from, Node* to) {
   if ( this->first_child() == from ) {
@@ -75,7 +75,7 @@ void Node::remove_child(Node* child) {
     this->set_first_child(this->second_child());
     this->set_second_child(NULL);
     return;
-  } 
+  }
 
   if ( this->second_child() == child ) {
     this->set_second_child(NULL);
@@ -90,21 +90,21 @@ void Node::remove_child(Node* child) {
  *
  * This should only be executed on local nodes!
  *
- * @return The node that is this node's parent on the local tree. 
+ * @return The node that is this node's parent on the local tree.
  */
 Node* Node::getLocalParent() const {
   assert( this->local() );
   assert( !this->is_root());
   assert( this->parent()->countChildren() > 0 );
-  if (parent()->countChildren(true) == 2) return parent(); 
+  if (parent()->countChildren(true) == 2) return parent();
   return parent()->getLocalParent();
 }
 
 /**
- * @brief Returns one child of this node when looking 
+ * @brief Returns one child of this node when looking
  * only at the local tree.
- * 
- * The up to two children of a node are in basically 
+ *
+ * The up to two children of a node are in basically
  * arbitrary order. The only difference between child_1 and
  * child_2 is that if a node has only one child, than
  * it is always child_1.
@@ -112,7 +112,7 @@ Node* Node::getLocalParent() const {
  * This should only be executed on local nodes!
  *
  * @return NULL if this node has no children on the local tree,
- * or a pointer to the child otherwise. 
+ * or a pointer to the child otherwise.
  */
 Node* Node::getLocalChild1() const {
   if (first_child() == NULL || !first_child()->local()) return NULL;
@@ -120,15 +120,15 @@ Node* Node::getLocalChild1() const {
     if (first_child()->first_child()->local()) return first_child()->getLocalChild1();
     else return first_child()->getLocalChild2();
   }
-  // Child has 0 or 2 local children => it is part of local tree 
+  // Child has 0 or 2 local children => it is part of local tree
   return first_child();
 }
 
 /**
- * @brief Returns one child of this node when looking 
+ * @brief Returns one child of this node when looking
  * only at the local tree.
- * 
- * The up to two children of a node are in basically 
+ *
+ * The up to two children of a node are in basically
  * arbitrary order. The only difference between child_1 and
  * child_2 is that if a node has only one child, than
  * it is always child_1.
@@ -136,7 +136,7 @@ Node* Node::getLocalChild1() const {
  * This should only be executed on local nodes!
  *
  * @return NULL if this node has less than two children on the local tree,
- * or a pointer to the child otherwise. 
+ * or a pointer to the child otherwise.
  */
 Node* Node::getLocalChild2() const {
   if (second_child() == NULL || !second_child()->local()) return NULL;
@@ -144,7 +144,7 @@ Node* Node::getLocalChild2() const {
     if (second_child()->first_child()->local()) return second_child()->getLocalChild1();
     else return second_child()->getLocalChild2();
   }
-  // Child has 0 or 2 local children => it is part of local tree 
+  // Child has 0 or 2 local children => it is part of local tree
   return second_child();
 }
 
