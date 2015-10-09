@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -63,7 +63,7 @@ class TimeInterval {
 
  private:
   double start_height_;
-  double end_height_; 
+  double end_height_;
   Forest* forest_;
   TimeIntervalIterator const* tii_;
 };
@@ -106,7 +106,7 @@ class TimeIntervalIterator {
  private:
   TimeIntervalIterator(Forest *forest);
   TimeIntervalIterator( TimeIntervalIterator const &other );
-  TimeIntervalIterator& operator= ( TimeIntervalIterator const &other ); 
+  TimeIntervalIterator& operator= ( TimeIntervalIterator const &other );
 
   Forest* forest() { return forest_; }
   ContemporariesContainer* contemporaries() { return contemporaries_; }
@@ -129,11 +129,11 @@ class TimeIntervalIterator {
   Node *tmp_child_1_, *tmp_child_2_, *tmp_prev_node_;
 };
 
-/** 
+/**
  * Finds all nodes which code for branches at the height of a given node in the
  * tree (i.e. the node's contemporaries). Saves this nodes in the contemporaries_
  * member.
- * 
+ *
  * @param node Node for which we are searching contemporaries
  * @return Nothing. Nodes are saved in contemporaries_.
  */
@@ -142,7 +142,8 @@ inline void TimeIntervalIterator::searchContemporaries(Node *node) {
   // sample space. This is relatively high, but the iterative bottom-up approach
   // is faster than the recursion.
   if (node->height() >= contemporaries()->buffer_time()) {
-    searchContemporariesBottomUp(node, true);
+    //searchContemporariesBottomUp(node, true);
+    searchContemporariesBottomUp(node);
   } else {
     searchContemporariesBottomUp(node);
   }
