@@ -25,12 +25,13 @@
 #include<fstream>
 #include<iomanip>
 #include<iostream>
-
+extern int node_created;
+extern int node_deleted;
 
 Node::Node() { init(); }
 Node::Node(double height) { init(height); }
 Node::Node(double height, size_t label) { init(height, label); }
-Node::~Node() {}
+Node::~Node() { }
 
 void Node::init(double height, size_t label) {
   this->set_last_update(0);

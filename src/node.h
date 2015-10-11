@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -23,7 +23,7 @@
  * node.h
  *
  * A Node is the most elemental unit of a tree/forest. It represents the
- * point of coalescence of two branches, as well as the single branch above. 
+ * point of coalescence of two branches, as well as the single branch above.
  *
  */
 
@@ -56,7 +56,7 @@ class Node
   friend class TestNodeContainer;
 #endif
   friend class NodeContainer;
-  
+
   ~Node();
 
   //Getters & Setters
@@ -80,17 +80,17 @@ class Node
 
   bool local() const { return (last_update_ == 0); }
 
-  void make_local() { 
-    last_update_ = 0; 
+  void make_local() {
+    last_update_ = 0;
   }
-  void make_nonlocal(const size_t current_recombination) { 
-    assert( this->local() ); 
+  void make_nonlocal(const size_t current_recombination) {
+    assert( this->local() );
     set_last_update(current_recombination);
   }
 
 	Node *parent() const {
-    assert( this->parent_ != NULL ); 
-    return this->parent_; 
+    assert( this->parent_ != NULL );
+    return this->parent_;
   }
   void set_parent(Node *parent) { this->parent_ = parent; }
 
@@ -113,7 +113,7 @@ class Node
 
   void change_child(Node* from, Node* to);
   size_t countChildren(const bool only_local = false) const;
-  
+
   void set_label(size_t label) { label_ = label; }
   size_t label() const { return label_; }
 
@@ -122,34 +122,34 @@ class Node
 
   bool is_root() const { return ( this->parent_ == NULL ); }
   bool in_sample() const {
-    return ( this->label() != 0 ); 
+    return ( this->label() != 0 );
   }
 
-  bool is_migrating() const; 
+  bool is_migrating() const;
 
   bool is_first() const { return( previous_ == NULL ); }
   bool is_last() const { return( next_ == NULL ); }
 
-  // Uminportant Nodes are nodes that sit at the top of the single 
-  // top branch of a tree after it got cut away from the primary tree. 
+  // Uminportant Nodes are nodes that sit at the top of the single
+  // top branch of a tree after it got cut away from the primary tree.
   // These Nodes can be reused or removed if they are involved in an event.
   bool is_unimportant() const {
-    return (this->countChildren() == 1 && !this->is_migrating()); 
+    return (this->countChildren() == 1 && !this->is_migrating());
   }
 
   bool is_contemporary(const double time) {
-    return ( time <= height() && height() <= parent_height() ); 
+    return ( time <= height() && height() <= parent_height() );
   }
 
   void remove_child(Node* child);
 
-  Node* next() const { 
+  Node* next() const {
     if ( next_ == NULL ) throw std::out_of_range("Node has no next node");
-    return next_; 
+    return next_;
   }
-  Node* previous() const { 
+  Node* previous() const {
     if ( previous_ == NULL ) throw std::out_of_range("Node has no previous node");
-    return previous_; 
+    return previous_;
   }
 
   void set_next(Node* next) { next_ = next; }
@@ -166,18 +166,18 @@ class Node
   Node(double height, size_t label);
 
   void init(double heigh=-1, size_t label=0);
-  void set_last_update(const size_t recombination) { last_update_ = recombination; }; 
+  void set_last_update(const size_t recombination) { last_update_ = recombination; };
 
   size_t label_;
   double height_;        // The total height of the node
   size_t last_update_;   // The recombination on which the branch above the node
                          // was last checked for recombination events or 0 if
-                         // the node is local 
+                         // the node is local
   size_t last_change_;   // The recombination at which the subtree below the node
                          // changed most recently.
 
-  size_t population_;    // The number of the population the node belong to. 
-  
+  size_t population_;    // The number of the population the node belong to.
+
   size_t samples_below_; // the number of sampled nodes in the subtree below this node
   double length_below_;  // the total length of local branches in the subtree below this node
 
@@ -193,19 +193,19 @@ class Node
   int mutation_state_;
 };
 
-inline bool Node::is_migrating() const { 
+inline bool Node::is_migrating() const {
   if ( this->countChildren() != 1 ) return false;
   return ( this->population() != this->first_child()->population() );
-} 
+}
 
-inline size_t Node::countChildren(const bool only_local) const { 
+inline size_t Node::countChildren(const bool only_local) const {
   if (first_child() == NULL) return 0;
   if (!only_local) {
     if (second_child() == NULL) return 1;
     else return 2;
   } else {
     if (second_child() == NULL) {
-      if (first_child()->local()) return 1; 
+      if (first_child()->local()) return 1;
       else return 0;
     } else {
       return first_child()->local() + second_child()->local();

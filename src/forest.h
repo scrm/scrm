@@ -82,7 +82,7 @@ class Forest
 
   Forest(Model *model, RandomGenerator *random_generator);
   Forest(const Forest &current_forest);
-  virtual ~Forest() {};
+  virtual ~Forest() { dout << " ~Forest() was called ..." << std::endl;};
 
   //Getters & Setters
   const Model &model() const { return *model_; }
