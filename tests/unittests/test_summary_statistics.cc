@@ -58,7 +58,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     tmrca.calculate(*forest);
     CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(1) );
     CPPUNIT_ASSERT_EQUAL( 24.0, tmrca.tree_length().at(1) );
-    
+
     tmrca.clear();
     CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tmrca().size() );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, tmrca.tree_length().size() );
@@ -164,13 +164,13 @@ class TestSummaryStatistics : public CppUnit::TestCase {
 
     // Check distribution
     seg_sites.calculate(*forest);
-    CPPUNIT_ASSERT( seg_sites.countMutations() > 0 ); 
+    CPPUNIT_ASSERT( seg_sites.countMutations() > 0 );
     int freqs[4] = { 0 };
     int types[2] = { 0 };
     int sum = 0;
     for (auto it = seg_sites.haplotypes_.begin(); it != seg_sites.haplotypes_.end(); ++it) {
       for (size_t i = 0; i < 4; ++i) {
-        if ((*it)[i]) ++freqs[i]; 
+        if ((*it)[i]) ++freqs[i];
         sum += (*it)[i];
       }
       CPPUNIT_ASSERT( sum == 1 || sum == 2 );
@@ -200,7 +200,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->writable_model()->setMutationRate(0.0001);
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
-    
+
     std::shared_ptr<SegSites> seg_sites = std::make_shared<SegSites>();
     seg_sites->positions_.push_back(0.5);
     seg_sites->positions_.push_back(0.7);
@@ -248,7 +248,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     OrientedForest of(4);
     size_t pos = 2*forest->sample_size()-2;
     double sf = forest->model().scaling_factor();
-    of.generateTreeData(forest->local_root(), pos, 0, sf); 
+    of.generateTreeData(forest->local_root(), pos, 0, sf);
     CPPUNIT_ASSERT( of.heights_.at(0) == 0.0 );
     CPPUNIT_ASSERT( of.heights_.at(1) == 0.0 );
     CPPUNIT_ASSERT( of.heights_.at(2) == 0.0 );
@@ -276,7 +276,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
-    
+
     OrientedForest of(4);
     std::ostringstream output;
     of.calculate(*forest);
@@ -300,14 +300,14 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     forest->createScaledExampleTree();
     forest->set_current_base(0.0);
     forest->set_next_base(10.0);
-    
+
     NewickTree of(4, forest->model().has_recombination());
     std::ostringstream output;
     of.calculate(*forest);
     of.printSegmentOutput(output);
     //std::cout << output.str() << std::endl;
     CPPUNIT_ASSERT( output.str().compare("((1:1,2:1):9,(3:3,4:3):7);\n") == 0 );
-    
+
     output.str("");
     output.clear();
     forest->writable_model()->setRecombinationRate(0.0001);

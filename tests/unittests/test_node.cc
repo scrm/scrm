@@ -145,12 +145,12 @@ class TestNode : public CppUnit::TestCase {
   }
 
   void testLocalNavigation() {
-    Node* n1 = new Node(7.5);
+    Node* n1 = forest->nodes()->createNode(7.5);
     n1->make_local();
-    Node* n2 = new Node(6.5);
+    Node* n2 = forest->nodes()->createNode(6.5);
     n2->make_nonlocal(1.0);
 
-    Node *n3 = forest->nodes()->at(4), 
+    Node *n3 = forest->nodes()->at(4),
          *root = forest->local_root(),
          *n4 = forest->nodes()->at(5);
 
@@ -163,7 +163,7 @@ class TestNode : public CppUnit::TestCase {
     CPPUNIT_ASSERT(n1->getLocalParent() == root);
     CPPUNIT_ASSERT(n3->getLocalParent() == root);
 
-    CPPUNIT_ASSERT( (root->getLocalChild1() == n3 && root->getLocalChild2() == n4) || 
+    CPPUNIT_ASSERT( (root->getLocalChild1() == n3 && root->getLocalChild2() == n4) ||
                     (root->getLocalChild1() == n4 && root->getLocalChild2() == n3) );
 
     CPPUNIT_ASSERT(forest->nodes()->at(0)->getLocalChild1() == NULL);

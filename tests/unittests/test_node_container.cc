@@ -33,10 +33,10 @@ class TestNodeContainer : public CppUnit::TestCase {
 
  public:
   void setUp() {
-    node1 = new Node(1, 1);
-    node2 = new Node(2, 2);
-    node3 = new Node(3, 0);
     nc = NodeContainer();
+    node1 = nc.createNode(1, 1);
+    node2 = nc.createNode(2, 2);
+    node3 = nc.createNode(3, 0);
     nc.add(node1);
     nc.add(node2);
     nc.add(node3);
@@ -61,28 +61,28 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)3, nc.size() );
 
     // Add new first node
-    Node* node = new Node(0);
+    Node* node = nc.createNode(0);
     nc.add(node);
     CPPUNIT_ASSERT_EQUAL( (size_t)4, nc.size() );
     CPPUNIT_ASSERT( nc.get(0) == node );
     CPPUNIT_ASSERT( nc.first() == node );
 
     // Add new last node
-    node = new Node(10);
+    node = nc.createNode(10);
     nc.add(node);
     CPPUNIT_ASSERT_EQUAL( (size_t)5, nc.size() );
     CPPUNIT_ASSERT( nc.get(4) == node );
     CPPUNIT_ASSERT( nc.last() == node );
 
-    // Add something in between 
-    node = new Node(3);
+    // Add something in between
+    node = nc.createNode(3);
     nc.add(node);
     CPPUNIT_ASSERT_EQUAL( (size_t)6, nc.size() );
     CPPUNIT_ASSERT( nc.get(4) == node );
   }
 
   void testRemove() {
-    Node *node = new Node(2.5);
+    Node *node = nc.createNode(2.5);
     nc.add(node);
     nc.remove(node);
     CPPUNIT_ASSERT( nc.size() == 3 );
@@ -106,7 +106,7 @@ class TestNodeContainer : public CppUnit::TestCase {
 
 
   void testMove() {
-    Node* node4 = new Node(4);
+    Node* node4 = nc.createNode(4);
     nc.add(node4);
 
     // Middle -> Middle (forwards)
@@ -134,7 +134,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( nc.first() == node2 );
     CPPUNIT_ASSERT( nc.last() == node1 );
     CPPUNIT_ASSERT( node1->height() == 10 );
-        
+
     // end -> start
     nc.move(node1, 1);
     CPPUNIT_ASSERT( nc.get(0) == node1 );
@@ -193,7 +193,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     --it; --it;
     CPPUNIT_ASSERT_THROW( --it, std::out_of_range );
   }
-  
+
 
   void testReverseIterator() {
     ReverseConstNodeIterator it = nc.reverse_iterator();
@@ -205,7 +205,7 @@ class TestNodeContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT( !it.good() );
     CPPUNIT_ASSERT_THROW( ++it, std::out_of_range );
   }
-  
+
 
   void testNodeIteratorHeight() {
     NodeIterator it = nc.iterator();
