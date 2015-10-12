@@ -22,11 +22,11 @@
 #include "tmrca.h"
 
 void TMRCA::calculate(const Forest &forest) {
-  //std::cout << "forest.calcSegmentLength() "<<forest.calcSegmentLength() <<std::endl;
-  if (forest.rec_bases_.size() == 1) return;
+  if (forest.calcSegmentLength() == 0) return;
   tmrca_.push_back(forest.getTMRCA(true));
   tree_length_.push_back(forest.getLocalTreeLength(true));
 }
+
 
 void TMRCA::printLocusOutput(std::ostream &output) const {
   for (size_t i = 0; i < tmrca_.size(); ++i) {

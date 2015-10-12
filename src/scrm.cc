@@ -84,8 +84,6 @@ int main(int argc, char *argv[]){
       forest.clear();
     }
 
-    // Clean-up and exit
-    rg.clearFastFunc();
     return EXIT_SUCCESS;
   }
 

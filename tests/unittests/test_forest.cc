@@ -57,9 +57,10 @@ class TestForest : public CppUnit::TestCase {
   }
 
   void tearDown() {
-    delete forest, forest_2pop;
-    delete model, model_2pop;
-
+    delete forest;
+    delete model;
+    delete forest_2pop;
+    delete model_2pop;
     delete rg;
   }
 
@@ -404,9 +405,6 @@ class TestForest : public CppUnit::TestCase {
       CPPUNIT_ASSERT_NO_THROW( forest2->sampleEventType(0.5, 1, *tii, event) );
       CPPUNIT_ASSERT( event.isCoalescence() || event.isPwCoalescence() );
     };
-
-    delete forest2->writable_model();
-    //delete forest2;
   }
 
   void testCalcRecombinationRate() {
@@ -545,10 +543,10 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT( forest->checkTree() == 1 );
 
     // In-Between Nodes should be pruned, iff they are of same age
-    Node *parent = new Node(20),
-         *inbetween1 = new Node(19),
-         *inbetween2 = new Node(18),
-         *child = new Node(17);
+    Node *parent = forest->nodes()->createNode(20),
+         *inbetween1 = forest->nodes()->createNode(19),
+         *inbetween2 = forest->nodes()->createNode(18),
+         *child = forest->nodes()->createNode(17);
 
     forest->set_current_base(13);
     inbetween2->make_nonlocal(forest->current_rec_);
@@ -753,7 +751,8 @@ class TestForest : public CppUnit::TestCase {
     CPPUNIT_ASSERT_THROW( forest2->implementFixedTimeEvent(tii),
                           std::logic_error );
 
-    delete forest2, model2;
+    delete forest2;
+    delete model2;
   }
 
   void testSamplePoint() {
@@ -787,16 +786,28 @@ class TestForest : public CppUnit::TestCase {
 
   void testCopyConstructor() {
     forest->createScaledExampleTree();
+    forest->set_next_base(10.0);
     CPPUNIT_ASSERT( forest->coalescence_finished_ == true );
-    Forest forest2 (*forest);
 
-    CPPUNIT_ASSERT_EQUAL( forest->nodes()->size(), forest2.nodes()->size() );
-    CPPUNIT_ASSERT( forest2.model_ == forest->model_ );
+    Forest forest2(*forest);
+
+    CPPUNIT_ASSERT_EQUAL(forest->nodes()->size(), forest2.nodes()->size() );
+    CPPUNIT_ASSERT(forest2.model_ == forest->model_);
+    CPPUNIT_ASSERT(forest2.local_root() != NULL);
+    CPPUNIT_ASSERT(forest2.local_root() != forest->local_root());
+
+    CPPUNIT_ASSERT_EQUAL(forest->rec_bases_.size(), forest2.rec_bases_.size());
+    CPPUNIT_ASSERT_EQUAL(forest->current_base(), forest2.current_base());
 
     for (auto it = forest2.nodes()->iterator(); it.good(); ++it) {
       CPPUNIT_ASSERT( (*it)->label() <= 4 );
       CPPUNIT_ASSERT( (*it)->parent() != NULL || (*it)->first_child() != NULL );
     }
+
+    CPPUNIT_ASSERT( forest2.checkLeafsOnLocalTree() );
+    CPPUNIT_ASSERT( forest2.checkTree() );
+
+    forest2.sampleNextGenealogy();
     CPPUNIT_ASSERT( forest2.checkTree() );
   }
 

@@ -94,7 +94,6 @@ class TestAlgorithm : public CppUnit::TestCase {
   }
 
   void tearDown() {
-    rg->clearFastFunc();
     delete rg;
   }
 

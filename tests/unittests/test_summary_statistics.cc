@@ -50,6 +50,7 @@ class TestSummaryStatistics : public CppUnit::TestCase {
 
   void testTMRCA() {
     forest->createScaledExampleTree();
+    forest->set_next_base(10);
     TMRCA tmrca = TMRCA();
     tmrca.calculate(*forest);
     CPPUNIT_ASSERT_EQUAL( 10.0, tmrca.tmrca().at(0) );

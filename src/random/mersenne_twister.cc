@@ -40,13 +40,6 @@ MersenneTwister::MersenneTwister(const bool use_seed, size_t seed){
   this->construct_common(seed);
 }
 
-MersenneTwister::MersenneTwister(FastFunc* ff):RandomGenerator(ff) {
-  this->construct_common(generateRandomSeed());
-}
-
-MersenneTwister::MersenneTwister(const size_t seed, FastFunc* ff):RandomGenerator(ff) {
-  this->construct_common(seed);
-}
 
 /**
  * @brief Generates a random seed using entropy provided by the operating
