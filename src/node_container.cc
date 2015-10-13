@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -33,7 +33,7 @@ NodeContainer::NodeContainer() {
   size_ = 0;
 
   node_counter_ = 0;
-  lane_counter_ = 0; 
+  lane_counter_ = 0;
   std::vector<Node>* new_lane = new std::vector<Node>();
   new_lane->reserve(10000);
   node_lanes_.push_back(new_lane);
@@ -43,17 +43,23 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
   size_ = 0;
   set_first(NULL);
   set_last(NULL);
-  this->unsorted_node_ = NULL;
-  this->last_node_ = NULL;
-  this->first_node_ = NULL;
 
-  std::map<Node const*, Node*> node_mapping;  
+  node_counter_ = 0;
+  lane_counter_ = 0;
+  std::vector<Node>* new_lane = new std::vector<Node>();
+  new_lane->reserve(10000);
+  node_lanes_.push_back(new_lane);
+
+  this->unsorted_node_ = NULL;
+
+  std::map<Node const*, Node*> node_mapping;
   node_mapping[NULL] = NULL;
 
   for (auto it = nc.iterator(); it.good(); ++it) {
-    Node *node = new Node(**it);
+    Node *node = this->createNode(**it);
+    //Node *node = new Node(**it);
     node_mapping[*it] = node;
-    add(node);
+    this->add(node);
   }
   assert( this->sorted() );
 
@@ -62,7 +68,6 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
     (*it)->set_first_child(node_mapping[(*it)->first_child()]);
     (*it)->set_second_child(node_mapping[(*it)->second_child()]);
   }
-
   unsorted_node_ = node_mapping[nc.unsorted_node_];
 }
 
@@ -78,7 +83,7 @@ Node* NodeContainer::at(size_t nr) const {
     current = current->next();
   }
 
-  if ( current == NULL ) throw std::out_of_range("NodeContainer out of range"); 
+  if ( current == NULL ) throw std::out_of_range("NodeContainer out of range");
   return current;
 }
 
@@ -162,14 +167,14 @@ void NodeContainer::add(Node* node, Node* after_node) {
   while ( current->height() <= node->height() ) {
     assert( !current->is_last() );
     if ( !current->is_root() ) {
-      if ( current->parent_height() < node->height() ) { 
+      if ( current->parent_height() < node->height() ) {
         current = current->parent();
         continue;
       }
     }
     current = current->next();
   }
- 
+
   // And add the node;
   this->add_before(node, current);
   assert( this->sorted() );
@@ -177,7 +182,7 @@ void NodeContainer::add(Node* node, Node* after_node) {
 
 
 void NodeContainer::remove(Node *node, const bool &del) {
-  --size_; 
+  --size_;
   if ( node->is_first() && node->is_last() ) {
     this->set_first(NULL);
     this->set_last(NULL);
@@ -194,7 +199,7 @@ void NodeContainer::remove(Node *node, const bool &del) {
     node->previous()->set_next(node->next());
     node->next()->set_previous(node->previous());
   }
-  
+
   if (del) free_slots_.push(node);
   assert( this->sorted() );
 }
@@ -238,6 +243,7 @@ void NodeContainer::clear() {
   std::stack<Node*>().swap(free_slots_);
 }
 
+
 void NodeContainer::add_before(Node* add, Node* next_node){
   add->set_next(next_node);
   add->set_previous(next_node->previous());
@@ -271,7 +277,7 @@ bool NodeContainer::sorted() const {
       return 0;
     }
   }
-  
+
   if ( !current->is_last() ) {
     dout << "NodeContainer: Last Node not last" << std::endl;
     return 0;
@@ -287,13 +293,17 @@ void swap(NodeContainer& first, NodeContainer& second) {
   swap(first.last_node_, second.last_node_);
   swap(first.size_, second.size_);
   swap(first.unsorted_node_, second.unsorted_node_);
+  swap(first.node_counter_, second.node_counter_);
+  swap(first.lane_counter_, second.lane_counter_);
+  swap(first.node_lanes_, second.node_lanes_);
+  swap(first.free_slots_, second.free_slots_);
 }
 
 
 std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc) {
   for ( ConstNodeIterator it = nc.iterator(); it.good(); ++it ) {
     stream << *it << "(" << (*it)->height() << ")";
-    if (*it != nc.last()) stream << " <--> "; 
+    if (*it != nc.last()) stream << " <--> ";
   }
   return stream;
 }

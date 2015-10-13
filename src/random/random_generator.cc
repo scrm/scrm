@@ -74,5 +74,5 @@ double RandomGenerator::sampleExpoExpoLimit(double b, double c, double limit){
       assert( result > 0 );
       return result;
     }
-    }
+  }
 }

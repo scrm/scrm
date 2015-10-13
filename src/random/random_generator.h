@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <memory>
 
 #include "fastfunc.h"
 
@@ -35,10 +36,10 @@ class RandomGenerator
 {
  friend class MersenneTwister;
  public:
-  RandomGenerator() { this->ff_ = new FastFunc(); };
-  RandomGenerator( FastFunc* ff ) { this->ff_ = ff; };
+  RandomGenerator() : ff_(std::make_shared<FastFunc>()) { };
+  RandomGenerator(std::shared_ptr<FastFunc> ff) : ff_(ff) { };
+
   virtual ~RandomGenerator() {}
-  void clearFastFunc() { delete this->ff_; }
 
   //Getters & Setters
   size_t seed() const { return seed_; }
@@ -47,7 +48,6 @@ class RandomGenerator
     this->seed_ = seed;
   }
 
-  virtual void initialize() =0;
   virtual double sample() =0;
 
   // Base class methods
@@ -57,13 +57,13 @@ class RandomGenerator
   }
 
   // Uniformly samples a number out of 0, ..., range-1
-  // Unit tested 
+  // Unit tested
   int sampleInt(const int max_value) {
     return(static_cast<int>(this->sample()*max_value));
   }
 
-  // Samples from an exponential distribution 
-  // Unit tested 
+  // Samples from an exponential distribution
+  // Unit tested
   double sampleExpo(const double lambda) {
     return sampleUnitExponential() / lambda;
   }
@@ -82,7 +82,8 @@ class RandomGenerator
 #endif
 
   // fast functions
-  FastFunc *ff() { return this->ff_; }
+  std::shared_ptr<FastFunc> ff() { return this->ff_; }
+
 
  protected:
   // Sample from a unit exponential distribution
@@ -99,7 +100,7 @@ class RandomGenerator
   size_t seed_;
   // cache for a unit-exponentially distributed variable
   double unit_exponential_;
-  FastFunc *ff_;
+  std::shared_ptr<FastFunc> ff_;
 };
 
 #endif
