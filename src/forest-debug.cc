@@ -32,7 +32,6 @@ void Forest::createExampleTree() {
 
   this->rec_bases_.push_back(5.0);  
   this->current_rec_ = 1;
-  //this->rec_bases_.push_back(105.0);  
 
   Node* leaf1 = nodes()->createNode(0, 1);
   Node* leaf2 = nodes()->createNode(0, 2);

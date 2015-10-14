@@ -206,8 +206,7 @@ class Forest
   void printSegmentSumStats(std::ostream &output) const;
 
   double get_rec_base(const size_t idx) const {
-    assert(idx < rec_bases_.size());
-    return rec_bases_[idx];
+    return rec_bases_.at(idx);
   }
 
   double current_base() const { return get_rec_base(current_rec_); }

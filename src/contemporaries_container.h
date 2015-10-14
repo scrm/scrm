@@ -106,6 +106,7 @@ class ContemporariesContainer {
   ContemporariesContainer(const size_t pop_number,
                           const size_t sample_number,
                           RandomGenerator *rg);
+  ~ContemporariesContainer(){};
 
   void add(Node* node);
   void remove(Node *node);

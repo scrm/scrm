@@ -97,7 +97,13 @@ Forest::Forest(const Forest &current_forest) {
   this->contemporaries_ = ContemporariesContainer(model().population_number(),
                                                   model().sample_size(),
                                                   random_generator());
-  this->tmp_event_time_ = current_forest.tmp_event_time_;
+//<<<<<<< HEAD
+  //this->tmp_event_time_ = current_forest.tmp_event_time_;
+//=======
+
+  this->tmp_event_time_ = this->getTMRCA(false); // Disable buffer for next genealogy.
+
+//>>>>>>> myMaster
   this->coalescence_finished_ = true;
 
   //dout<<"  #################### check copied forest ###############"<<std::endl;

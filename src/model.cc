@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -22,7 +22,7 @@
 #include "model.h"
 
 
-Model::Model() { 
+Model::Model() {
   default_pop_size = 10000;
   default_growth_rate = 0.0;
   default_mig_rate = 0.0;
@@ -69,7 +69,7 @@ void Model::reset() {
 }
 */
 
-/** 
+/**
  * Function to add a new change time to the model.
  *
  * It preserves the relation between the times and the *param*_list_ containers.
@@ -78,7 +78,7 @@ void Model::reset() {
  *
  * @param time The time that is added
  * @param scaled set to TRUE if the time is in units of 4N0 generations, and
- * FALSE if it is in units of generations. 
+ * FALSE if it is in units of generations.
  *
  * @returns The position the time has now in the vector
  */
@@ -96,16 +96,16 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
     return position;
   }
 
-  std::vector<double>::iterator ti; 
+  std::vector<double>::iterator ti;
   for (ti = change_times_.begin(); ti != change_times_.end(); ++ti) {
     if ( *ti == time ) return position;
-    if ( *ti > time ) break; 
+    if ( *ti > time ) break;
     ++position;
   }
 
   change_times_.insert(ti, time);
-  
-  // Add Null at the right position in all parameter vectors 
+
+  // Add Null at the right position in all parameter vectors
   pop_sizes_list_.insert(pop_sizes_list_.begin() + position, std::vector<double>());
   growth_rates_list_.insert(growth_rates_list_.begin() + position, std::vector<double>());
   mig_rates_list_.insert(mig_rates_list_.begin() + position, std::vector<double>());
@@ -115,7 +115,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 }
 
 
-/** 
+/**
  * Function to add a new change time to the model.
  *
  * It preserves the relation between the times and the *param*_list_ containers.
@@ -124,7 +124,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  *
  * @param time The time that is added
  * @param scaled set to TRUE if the time is in units of 4N0 generations, and
- * FALSE if it is in units of generations. 
+ * FALSE if it is in units of generations.
  *
  * @returns The position the time has now in the vector
  */
@@ -143,16 +143,16 @@ size_t Model::addChangePosition(const double position) {
   }
 
   size_t idx = 0;
-  std::vector<double>::iterator ti; 
+  std::vector<double>::iterator ti;
   for (ti = change_position_.begin(); ti != change_position_.end(); ++ti) {
     if ( *ti == position ) return idx;
     if ( *ti > position ) break;
-    ++idx; 
+    ++idx;
   }
 
   change_position_.insert(ti, position);
-  
-  // Add Null at the right position in all parameter vectors 
+
+  // Add Null at the right position in all parameter vectors
   recombination_rates_.insert(recombination_rates_.begin() + idx, -1);
   mutation_rates_.insert(mutation_rates_.begin() + idx, -1);
 
@@ -174,9 +174,9 @@ void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes
 
 /**
  * @brief This changes the size of all populations to the given values at a
- * specific point in time. 
+ * specific point in time.
  *
- * The sizes apply for with point on backwards in time.    
+ * The sizes apply for with point on backwards in time.
  *
  * @param time The time at which the population changes their sizes.
  * @param pop_sizes A vector of new population sizes. Can either be given as
@@ -186,10 +186,10 @@ void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes, 
+void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes,
                                const bool &time_scaled, const bool &relative) {
 
-  if ( pop_sizes.size() != population_number() ) 
+  if ( pop_sizes.size() != population_number() )
     throw std::logic_error("Population size values do not meet the number of populations");
 
   size_t position = addChangeTime(time, time_scaled);
@@ -202,8 +202,8 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
 
       // Save inverse double value
       if (pop_size <= 0.0) throw std::invalid_argument("population size <= 0");
-      pop_size = 1.0 / (2 * pop_size); 
-    } 
+      pop_size = 1.0 / (2 * pop_size);
+    }
     pop_sizes_list_[position].push_back(pop_size);
   }
 }
@@ -211,9 +211,9 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
 
 /**
  * @brief This changes the size of all populations to a given value at a
- * specific point in time. 
+ * specific point in time.
  *
- * The sizes apply for with point on backwards in time.    
+ * The sizes apply for with point on backwards in time.
  *
  * @param time The time at which the population changes their sizes.
  * @param pop_sizes The size to which we set all populations. Can either be given as
@@ -223,17 +223,17 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
  * @param relative set to TRUE, if the population sizes are given relative to
  *    N0, or to FALSE if they are absolute values.
  */
-void Model::addPopulationSizes(const double time, const double pop_size, 
+void Model::addPopulationSizes(const double time, const double pop_size,
                                const bool &time_scaled, const bool &relative) {
   addPopulationSizes(time, std::vector<double>(population_number(), pop_size), time_scaled, relative);
 }
-  
+
 
 /**
  * @brief This changes the size of a single populations to a given value at a
- * specific point in time. 
+ * specific point in time.
  *
- * The sizes apply for with point on backwards in time.    
+ * The sizes apply for with point on backwards in time.
  * Requires Model.finalization() to be called after the model is set up.
  *
  * @param time The time at which the population change its size.
@@ -261,7 +261,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
  * @brief Set the population size growth rates at a certain time point.
  *
  * The population growth or shrinks exponentially from that time point on
- * backwards in time. 
+ * backwards in time.
  * Requires Model.finalization() to be called after the model is set up.
  *
  * @param time The time at which to set the growth rates
@@ -271,7 +271,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
  */
 void Model::addGrowthRates(const double time, const std::vector<double> &growth_rates,
                            const bool &time_scaled, const bool &rate_scaled) {
-  if ( growth_rates.size() != population_number() ) 
+  if ( growth_rates.size() != population_number() )
     throw std::logic_error("Growth rates values do not meet the number of populations");
   size_t position = addChangeTime(time, time_scaled);
 
@@ -287,7 +287,7 @@ void Model::addGrowthRates(const double time, const std::vector<double> &growth_
  * @brief Set the population size growth rates at a certain time point.
  *
  * The population growth or shrinks exponentially from that time point on
- * backwards in time. 
+ * backwards in time.
  * Requires Model.finalization() to be called after the model is set up.
  *
  * @param time The time at which to set the growth rates
@@ -305,7 +305,7 @@ void Model::addGrowthRates(const double time, const double growth_rate,
  * @brief Set the population size growth rates of a population at a certain time point.
  *
  * The population growth or shrinks exponentially from that time point on
- * backwards in time. 
+ * backwards in time.
  * Requires Model.finalization() to be called after the model is set up.
  *
  * @param time The time at which to set the growth rates
@@ -314,19 +314,19 @@ void Model::addGrowthRates(const double time, const double growth_rate,
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  */
-void Model::addGrowthRate(const double time, const size_t population, 
+void Model::addGrowthRate(const double time, const size_t population,
                           double growth_rate, const bool &time_scaled, const bool &rate_scaled) {
   checkPopulation(population);
   size_t position = addChangeTime(time, time_scaled);
   if (rate_scaled) growth_rate *= scaling_factor();
-  if (growth_rates_list_.at(position).empty()) addGrowthRates(time, nan("number to replace"), time_scaled); 
+  if (growth_rates_list_.at(position).empty()) addGrowthRates(time, nan("number to replace"), time_scaled);
   growth_rates_list_.at(position).at(population) = growth_rate;
 }
 
 
 /**
  * @brief Sets a migration rate form a specific population to another starting from a
- * certain time point (going backwards in time); 
+ * certain time point (going backwards in time);
  *
  * This requires model finalization, e.g. call model.finalize() after you set up
  * the model completely.
@@ -337,8 +337,8 @@ void Model::addGrowthRate(const double time, const size_t population,
  *        looking backwards in time. Is the sink population when looking forward.
  * @param sink The population to which the individuals migrate to (also
  *        when looking backwards in time)
- * @param mig_rate The backwards scaled migration rate M_ij = 4N0 * m_ij, 
- *        where m_ij is the fraction for population i = source that migrates 
+ * @param mig_rate The backwards scaled migration rate M_ij = 4N0 * m_ij,
+ *        where m_ij is the fraction for population i = source that migrates
  *        to population j = sink (again, when looking backwards in time).
  * @param scaled_time Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
@@ -352,16 +352,16 @@ void Model::addMigrationRate(double time, size_t source, size_t sink, double mig
   checkPopulation(sink);
   size_t position = addChangeTime(time, scaled_time);
   if (scaled_rates) mig_rate *= scaling_factor();
-  if (mig_rates_list_.at(position).empty()) { 
-    addSymmetricMigration(time, nan("value to replace"), scaled_time); 
+  if (mig_rates_list_.at(position).empty()) {
+    addSymmetricMigration(time, nan("value to replace"), scaled_time);
   }
-  mig_rates_list_.at(position).at(getMigMatrixIndex(source, sink)) = mig_rate;  
+  mig_rates_list_.at(position).at(getMigMatrixIndex(source, sink)) = mig_rate;
 }
 
 
-/** 
+/**
  * @brief Sets the migration matrix to the given values for the time following at
- * certain time point (backwards in time). 
+ * certain time point (backwards in time).
  *
  * This requires model finalization, e.g. call model.finalize() after you set up
  * the model completely.
@@ -373,7 +373,7 @@ void Model::addMigrationRate(double time, size_t source, size_t sink, double mig
  *        M_ij = 4N0 * m_ij and m_ij is the faction of population i that
  *        migrates to population j (viewed backwards in time; forwards the
  *        migration is from population j to i). The diagonal elements of the
- *        matrix are ignored and can be set to "x" for better readability. 
+ *        matrix are ignored and can be set to "x" for better readability.
  * @param scaled_time Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  * @param scaled_rate Set to true if the rate is given as M = 4*N0*m and to
@@ -384,7 +384,7 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
   double popnr = population_number();
   double scaling = 1;
   if (scaled_rates) scaling = scaling_factor();
-  if ( mig_rates.size() != population_number()*population_number() ) 
+  if ( mig_rates.size() != population_number()*population_number() )
     throw std::logic_error("Migration rates values do not meet the number of populations");
 
   size_t position = addChangeTime(time, scaled_time);
@@ -393,7 +393,7 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
   for (size_t i = 0; i < popnr; ++i) {
     for (size_t j = 0; j < popnr; ++j) {
       if (i == j) continue;
-      mig_rates_list_[position].push_back(mig_rates.at(i*popnr+j) * scaling); 
+      mig_rates_list_[position].push_back(mig_rates.at(i*popnr+j) * scaling);
     }
   }
 }
@@ -413,21 +413,21 @@ void Model::addMigrationRates(double time, const std::vector<double> &mig_rates,
  * @param time The time at which the migration is set to the given value.
  *        It applies backwards in time until it is changed again.
  * @param mig_rate The scaled migration rate M_ij = 4N0 * m_ij that is used
- *        between all populations i and j. m_ij is the fraction of population i 
+ *        between all populations i and j. m_ij is the fraction of population i
  *        that migrates to population j.
  * @param time_scaled Set to true if the time is given in units of 4*N0
  *    generations, or to false if the time is given in units of generations.
  * @param rate_scaled Set to true if the rate is given as M = 4*N0*m and to
  *  false if it is given as m.
  */
-void Model::addSymmetricMigration(const double time, const double mig_rate, 
+void Model::addSymmetricMigration(const double time, const double mig_rate,
                                   const bool &time_scaled, const bool &rate_scaled) {
     std::vector<double> mig_rates = std::vector<double>(population_number()*population_number(), mig_rate);
     this->addMigrationRates(time, mig_rates, time_scaled, rate_scaled);
   }
 
 
-void Model::addSingleMigrationEvent(const double time, const size_t source_pop, 
+void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
                                     const size_t sink_pop, const double fraction,
                                     const bool &time_scaled) {
 
@@ -443,37 +443,37 @@ void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
     single_mig_probs_list_.at(position) = std::vector<double>(popnr*popnr-popnr, 0.0);
   }
 
-  single_mig_probs_list_.at(position).at(getMigMatrixIndex(source_pop, sink_pop)) = fraction; 
+  single_mig_probs_list_.at(position).at(getMigMatrixIndex(source_pop, sink_pop)) = fraction;
   this->has_migration_ = true;
-} 
+}
 
 
 std::ostream& operator<<(std::ostream& os, Model& model) {
   size_t n_pops = model.population_number();
   os << "---- Model: ------------------------" << std::endl;
-  os << "Total Sample Size: " << model.sample_size() << std::endl;  
-  os << "N0 is assumed to be " << model.default_pop_size << std::endl; 
+  os << "Total Sample Size: " << model.sample_size() << std::endl;
+  os << "N0 is assumed to be " << model.default_pop_size << std::endl;
 
   model.resetSequencePosition();
   for (size_t idx = 0; idx < model.countChangePositions(); ++idx) {
-    os << std::endl << "At Position " << model.getCurrentSequencePosition() << ":" << std::endl;  
-    os << " Mutation Rate: " << model.mutation_rate() << std::endl;  
-    os << " Recombination Rate: " << model.recombination_rate() << std::endl;  
+    os << std::endl << "At Position " << model.getCurrentSequencePosition() << ":" << std::endl;
+    os << " Mutation Rate: " << model.mutation_rate() << std::endl;
+    os << " Recombination Rate: " << model.recombination_rate() << std::endl;
     model.increaseSequencePosition();
   }
   model.resetSequencePosition();
-  
+
   model.resetTime();
-  for (size_t idx = 0; idx < model.countChangeTimes(); ++idx) { 
-    os << std::endl << "At Time " << model.getCurrentTime() << ":" << std::endl;  
-    
+  for (size_t idx = 0; idx < model.countChangeTimes(); ++idx) {
+    os << std::endl << "At Time " << model.getCurrentTime() << ":" << std::endl;
+
     os << " Population Sizes: ";
-    for (size_t pop = 0; pop < n_pops; ++pop) 
+    for (size_t pop = 0; pop < n_pops; ++pop)
       os << std::setw(10) << std::right << model.population_size(pop, model.getCurrentTime());
     os << std::endl;
 
     os << " Growth Rates:     ";
-    for (size_t pop = 0; pop < n_pops; ++pop) 
+    for (size_t pop = 0; pop < n_pops; ++pop)
       os << std::setw(10) << std::right << model.growth_rate(pop);
     os << std::endl;
 
@@ -484,11 +484,11 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
       }
       os << std::endl;
     }
-    
+
     for (size_t i = 0; i < n_pops; ++i) {
       for (size_t j = 0; j < n_pops; ++j) {
         if (model.single_mig_pop(i, j) != 0) {
-          os << " " << model.single_mig_pop(i, j) * 100 << "% of pop " 
+          os << " " << model.single_mig_pop(i, j) * 100 << "% of pop "
              << i + 1 << " move to pop " << j + 1 << std::endl;
         }
       }
@@ -507,7 +507,7 @@ void Model::updateTotalMigRates(const size_t position) {
     total_mig_rates_list_.at(position) = std::vector<double>(population_number(), 0.0);
   }
 
-  std::vector<double>* mig_rates = &(total_mig_rates_list_.at(position)); 
+  std::vector<double>* mig_rates = &(total_mig_rates_list_.at(position));
 
   for (size_t i = 0; i < population_number(); ++i) {
     for (size_t j = 0; j < population_number(); ++j) {
@@ -527,7 +527,7 @@ void Model::finalize() {
   for (size_t j = 0; j < mig_rates_list_.size(); ++j) {
     if (mig_rates_list_.at(j).empty()) continue;
     updateTotalMigRates(j);
-  } 
+  }
 
   // Fill in missing recombination rates
   assert( mutation_rates_.at(0) != -1 );
@@ -550,7 +550,7 @@ void Model::finalize() {
 
 void Model::calcPopSizes() {
   // Set initial population sizes
-  if (pop_sizes_list_.at(0).empty()) addPopulationSizes(0, default_pop_size); 
+  if (pop_sizes_list_.at(0).empty()) addPopulationSizes(0, default_pop_size);
   else {
     // Replace values not set by the user with the default size
     for (size_t pop = 0; pop < population_number(); ++pop) {
@@ -567,28 +567,28 @@ void Model::calcPopSizes() {
     // Make sure we always have a pop sizes vector
     if (pop_sizes_list_.at(i).empty()) {
       addPopulationSizes(change_times_.at(i), nan("value to replace"));
-      assert( ! pop_sizes_list_.at(i).empty() ); 
+      assert( ! pop_sizes_list_.at(i).empty() );
     }
 
-    // Calculate the effective duration of a growth period if it ends here 
+    // Calculate the effective duration of a growth period if it ends here
     duration = change_times_.at(i) - change_times_.at(i - 1);
 
-    // Calculate the population sizes: 
+    // Calculate the population sizes:
     for (size_t pop = 0; pop < population_number(); ++pop) {
       // If the user explicitly gave a value => always use this value
-      if ( !std::isnan(pop_sizes_list_.at(i).at(pop)) ) continue; 
-      
-      assert(!std::isnan(pop_sizes_list_.at(i - 1).at(pop)));          
-      // Otherwise use last value
-      pop_sizes_list_.at(i).at(pop) = pop_sizes_list_.at(i - 1).at(pop);  
+      if ( !std::isnan(pop_sizes_list_.at(i).at(pop)) ) continue;
 
-      // ... and scale it if there was growth 
+      assert(!std::isnan(pop_sizes_list_.at(i - 1).at(pop)));
+      // Otherwise use last value
+      pop_sizes_list_.at(i).at(pop) = pop_sizes_list_.at(i - 1).at(pop);
+
+      // ... and scale it if there was growth
       if (last_growth != -1) {
-        pop_sizes_list_.at(i).at(pop) *=  
+        pop_sizes_list_.at(i).at(pop) *=
           std::exp((growth_rates_list_.at(last_growth).at(pop)) * duration);
       }
     }
-  } 
+  }
 }
 
 
@@ -598,13 +598,13 @@ void Model::check() {
 
   // Structure without migration?
   if (population_number() > 1 && !has_migration())
-    throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible"); 
+    throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible");
 }
 
 
 void Model::fillVectorList(std::vector<std::vector<double> > &vector_list, const double default_value) {
-  std::vector<double>* last = NULL; 
-  std::vector<double>* current = NULL; 
+  std::vector<double>* last = NULL;
+  std::vector<double>* current = NULL;
   for (size_t j = 0; j < vector_list.size(); ++j) {
     current = &(vector_list.at(j));
     if (current->empty()) continue;
@@ -613,7 +613,7 @@ void Model::fillVectorList(std::vector<std::vector<double> > &vector_list, const
       if ( !std::isnan(current->at(i)) ) continue;
 
       if (last == NULL) current->at(i) = default_value;
-      else current->at(i) = last->at(i); 
+      else current->at(i) = last->at(i);
     }
     last = current;
   }
@@ -659,9 +659,9 @@ void Model::addPopToVectorList(std::vector<std::vector<double> > &vector_list) {
 /**
  * @brief Sets the recombination rate
  *
- * @param rate The recombination rate per sequence length per time unit. 
+ * @param rate The recombination rate per sequence length per time unit.
  * The sequence length can be either per locus or per base pair and the time
- * can be given in units of 4N0 generations ("scaled") or per generation. 
+ * can be given in units of 4N0 generations ("scaled") or per generation.
  *
  * @param loci_length The length of every loci.
  * @param per_locus Set to TRUE, if the rate is given per_locus, and to FALSE
@@ -669,16 +669,16 @@ void Model::addPopToVectorList(std::vector<std::vector<double> > &vector_list) {
  * @param scaled Set to TRUE is the rate is scaled with 4N0, or to FALSE if
  * it isn't
  */
-void Model::setRecombinationRate(double rate,  
-                                 const bool &per_locus, 
+void Model::setRecombinationRate(double rate,
+                                 const bool &per_locus,
                                  const bool &scaled,
-                                 const double seq_position) { 
+                                 const double seq_position) {
 
-  if (rate < 0.0) { 
+  if (rate < 0.0) {
     throw std::invalid_argument("Recombination rate must be non-negative");
   }
 
-  if (scaled) rate /= 4.0 * default_pop_size; 
+  if (scaled) rate /= 4.0 * default_pop_size;
   if (per_locus) {
     if (loci_length() <= 1) {
       throw std::invalid_argument("Locus length must be at least two");
@@ -687,7 +687,7 @@ void Model::setRecombinationRate(double rate,
   }
 
   if (rate > 0.0) has_recombination_ = true;
-  recombination_rates_[addChangePosition(seq_position)] = rate; 
+  recombination_rates_[addChangePosition(seq_position)] = rate;
 }
 
 
@@ -700,9 +700,9 @@ void Model::setRecombinationRate(double rate,
  * @param scaled Set this to TRUE if you give the mutation rate in scaled
  * units (e.g. as theta rather than as u).
  */
-void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled, 
-                            const double seq_position) { 
-  if (scaled) rate /= 4.0 * default_pop_size; 
+void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled,
+                            const double seq_position) {
+  if (scaled) rate /= 4.0 * default_pop_size;
 
   size_t idx = addChangePosition(seq_position);
   if (per_locus) {

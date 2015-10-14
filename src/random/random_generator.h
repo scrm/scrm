@@ -27,6 +27,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <memory>
 
 #include "fastfunc.h"
 
@@ -35,10 +36,17 @@ class RandomGenerator
 {
  friend class MersenneTwister;
  public:
-  RandomGenerator() { this->ff_ = new FastFunc(); };
-  RandomGenerator( FastFunc* ff ) { this->ff_ = ff; };
-  virtual ~RandomGenerator() { }
-  void clearFastFunc() { delete this->ff_; }
+//<<<<<<< HEAD
+  //RandomGenerator() { this->ff_ = new FastFunc(); };
+  //RandomGenerator( FastFunc* ff ) { this->ff_ = ff; };
+  //virtual ~RandomGenerator() { }
+  //void clearFastFunc() { delete this->ff_; }
+//=======
+  RandomGenerator() : ff_(std::make_shared<FastFunc>()) { };
+  RandomGenerator(std::shared_ptr<FastFunc> ff) : ff_(ff) { };
+
+  virtual ~RandomGenerator() {}
+//>>>>>>> myMaster
 
   //Getters & Setters
   size_t seed() const { return seed_; }
@@ -47,7 +55,6 @@ class RandomGenerator
     this->seed_ = seed;
   }
 
-  virtual void initialize() =0;
   virtual double sample() =0;
 
   // Base class methods
@@ -82,7 +89,8 @@ class RandomGenerator
 #endif
 
   // fast functions
-  FastFunc *ff() { return this->ff_; }
+  std::shared_ptr<FastFunc> ff() { return this->ff_; }
+
 
  protected:
   // Sample from a unit exponential distribution
@@ -99,7 +107,7 @@ class RandomGenerator
   size_t seed_;
   // cache for a unit-exponentially distributed variable
   double unit_exponential_;
-  FastFunc *ff_;
+  std::shared_ptr<FastFunc> ff_;
 };
 
 #endif

@@ -274,6 +274,7 @@ void NodeContainer::clear() {
   std::stack<Node*>().swap(free_slots_);
 }
 
+
 void NodeContainer::add_before(Node* add, Node* next_node){
   add->set_next(next_node);
   add->set_previous(next_node->previous());
