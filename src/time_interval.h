@@ -148,8 +148,9 @@ inline void TimeIntervalIterator::searchContemporaries(Node *node) {
   //} else {
     //searchContemporariesBottomUp(node);
   //}
+  searchContemporariesBottomUp(node);
 //=======
-  searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
+  //searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
 //>>>>>>> myMaster
 }
 
