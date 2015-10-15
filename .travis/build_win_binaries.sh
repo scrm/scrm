@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo apt-get install -qqy mingw-w64 || exit 1
+
 # 64 bit
 CXX=i686-w64-mingw32-g++ CXXFLAGS='-O3' LDFLAGS='-static-libgcc -static -lpthread' \
   ./configure --host=i686-w64-mingw32 || exit 1
