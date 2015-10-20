@@ -74,7 +74,7 @@ class TimeIntervalIterator {
   friend class ForestState;
   friend class Forest;
  public:
-  TimeIntervalIterator(Forest* forest, Node* start_node);
+  TimeIntervalIterator(Forest* forest, Node* start_node, bool prune=true);
 
   void next();
   bool good() const { return this->good_; }
@@ -123,6 +123,7 @@ class TimeIntervalIterator {
 
   bool good_;
   bool model_changed_;
+  bool prune;
 
   Node* inside_node_;
 
@@ -139,20 +140,7 @@ class TimeIntervalIterator {
  * @return Nothing. Nodes are saved in contemporaries_.
  */
 inline void TimeIntervalIterator::searchContemporaries(Node *node) {
-//<<<<<<< HEAD
-  //// Prefer top-down search if the target is above .8 coalescence units in
-  //// sample space. This is relatively high, but the iterative bottom-up approach
-  //// is faster than the recursion.
-  //if (node->height() >= contemporaries()->buffer_time()) {
-    ////searchContemporariesBottomUp(node, true);
-    //searchContemporariesBottomUp(node);
-  //} else {
-    //searchContemporariesBottomUp(node);
-  //}
-  searchContemporariesBottomUp(node);
-//=======
-  //searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
-//>>>>>>> myMaster
+  searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
 }
 
 #endif
