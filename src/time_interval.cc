@@ -70,8 +70,9 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->current_time_ = start_node->height();
 
   model_->resetTime();
-  this->searchContemporaries(start_node);
-
+  if (prune){
+    this->searchContemporaries(start_node);
+  }
   // Skip through model changes
   while ( model_->getNextTime() <= current_time_ ) {
     model_->increaseTime();
@@ -151,6 +152,7 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
     double highest_time = -1;
     for (size_t pop = 0; pop < model()->population_number(); ++pop) {
       auto end = contemporaries()->buffer_end(pop);
+
       for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
         assert(!(*it)->is_root());
         //std::cout << "Checking " << *it << std::endl;

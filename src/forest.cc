@@ -1216,7 +1216,7 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
   if (node->is_root()) {
     // Orphaned nodes must go
     if (node->countChildren() == 0 && prune_orphans) {
-      dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+      scrmdout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
       assert(node != local_root());
       // If we are removing the primary root, it is difficult to find the new
       // primary root. It should however be automatically set during the updates
