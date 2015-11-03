@@ -491,8 +491,8 @@ double Forest::sampleNextGenealogy( bool recordEvents ) {
  */
 
 void Forest::sampleRecSeqPosition( bool recordEvents ) {
-  this->SampleNextBase();
-  
+  this->sampleNextBase();
+
   assert( this->printTree() );
   this->calcSegmentSumStats();
 }
