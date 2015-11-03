@@ -21,7 +21,7 @@
 
 #include "tmrca.h"
 
-void TMRCA::calculate(const Forest &forest) {
+void TMRCA::calculate( Forest &forest) {
   if (forest.calcSegmentLength() == 0) return;
   tmrca_.push_back(forest.getTMRCA(true));
   tree_length_.push_back(forest.getLocalTreeLength(true));

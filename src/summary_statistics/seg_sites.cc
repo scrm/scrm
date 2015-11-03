@@ -21,7 +21,7 @@
 
 #include "seg_sites.h"
 
-void SegSites::calculate(const Forest &forest) {
+void SegSites::calculate( Forest &forest) {
   if (forest.current_base() == 0.0) clear();
   if (position() == forest.next_base()) return;
   if (position() != forest.current_base()) 

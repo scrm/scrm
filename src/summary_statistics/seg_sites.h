@@ -42,7 +42,7 @@ class SegSites : public SummaryStatistic
 #endif
 
   //Virtual methods
-  void calculate(const Forest &forest);
+  void calculate( Forest &forest);
   void printLocusOutput(std::ostream &output) const;
 
   SegSites* clone() const { return new SegSites(*this); }

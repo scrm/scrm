@@ -21,7 +21,7 @@
 
 #include "frequency_spectrum.h"
 
-void FrequencySpectrum::calculate(const Forest &forest) {
+void FrequencySpectrum::calculate( Forest &forest) {
   // Calculate seg_sites even if it is not a summary statistic of its own
   if (seg_sites_->position() != forest.next_base()) seg_sites_->calculate(forest);
   assert(seg_sites_->position() == forest.next_base()); 

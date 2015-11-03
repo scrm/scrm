@@ -21,7 +21,7 @@
 
 #include "oriented_forest.h"
 
-void OrientedForest::calculate(const Forest &forest) {
+void OrientedForest::calculate( Forest &forest) {
   segment_length_ = forest.calcSegmentLength();
   if (segment_length_ == 0.0) return;
   has_rec_ = forest.model().has_recombination();
