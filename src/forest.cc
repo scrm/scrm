@@ -435,7 +435,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_scrm_next
  * @ingroup group_pf_update
  */
-void Forest::sampleNextGenealogy( bool recordEvents ) {
+double Forest::sampleNextGenealogy( bool recordEvents ) {
   ++current_rec_; // Move to next recombination;
 
   //this->set_current_base(next_base_);
@@ -444,12 +444,9 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-    this->record_Recombevent_atNewGenealogy( 0 );
-    this->sampleNextBase();
-    this->record_Recombevent_b4_extension();
-    this->calcSegmentSumStats();
     dout << "Next Position: " << this->next_base() << std::endl;
-    return;
+    //this->record_Recombevent_atNewGenealogy( 0 );
+    return 0; //enables the above line to be carried out at a higher level
   }
 
   assert( current_base() > model().getCurrentSequencePosition() );
@@ -485,19 +482,20 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( this->printNodes() );
   assert( this->coalescence_finished() );
 
-  this->sampleNextBase();
-  if ( recordEvents ) {
-      // record the recombination opportunity until the next recombination event
-      this->record_Recombevent_b4_extension();
-      // record the CURRENT recombination event with the next recombination opportunity
-      this->record_Recombevent_atNewGenealogy( rec_point.height() );
-  } else {
-    for (TimeIntervalIterator ti(this, this->nodes_.at(0)); ti.good(); ++ti) { }
-  }
+  return rec_point.height();
+}
+
+/**
+ * Function for sampling the sequence position of the next recombination event
+ *
+ */
+
+void Forest::sampleRecSeqPosition( bool recordEvents ) {
+  this->SampleNextBase();
+  
   assert( this->printTree() );
   this->calcSegmentSumStats();
 }
-
 
 /**
  * Function for doing a coalescence.
