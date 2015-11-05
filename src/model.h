@@ -558,6 +558,14 @@ class Model
    SeqScale seq_scale_;
 
    std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
+
+   //biased sampling
+    bool biased_sampling = true;
+    double bias_height_ = 20000;
+    double bias_ratio_ = 3;
+
+    double bias_height() const {return bias_height_;}
+    double bias_ratio() const {return bias_ratio_;}
 };
 
 
