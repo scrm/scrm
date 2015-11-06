@@ -111,6 +111,17 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
+    // Biased Sampling
+    // ------------------------------------------------------------------
+    else if (*argv_i == "-bh") {
+      model.setBiasHeight(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-br") {
+      model.setBiasRatio(readNextInput<double>());
+    }
+
+    // ------------------------------------------------------------------
     // Subpopulations 
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0

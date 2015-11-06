@@ -560,12 +560,17 @@ class Model
    std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
 
    //biased sampling
-    bool biased_sampling = true;
-    double bias_height_ = 20000;
-    double bias_ratio_ = 3;
+    bool biased_sampling = false; //this is turned on if br or bh is set
+    double bias_height_ = 0;
+    double bias_ratio_ = 1;
 
     double bias_height() const {return bias_height_;}
     double bias_ratio() const {return bias_ratio_;}
+
+    void setBiasHeight(double height) {biased_sampling = true;
+                                       bias_height_ = height;} //do we need to worry about scaling?
+    void setBiasRatio(double ratio) {biased_sampling = true;
+                                     bias_ratio_ = ratio;}
 };
 
 
