@@ -1,10 +1,11 @@
 scrm
 ====
 
-_scrm_ is a coalescent simulator for biological sequences. Different to similar programs, 
-it can approximate the coalescent with recombination as closely as needed, but still has 
-only linear runtime cost for long sequences. It allows you to rapidly simulate chromosome 
-scale sequences with an essentially correct genetic linkage structure.
+_scrm_ simulates the evolution of genetic sequences. It takes a neutral evolutionary model as input, 
+and generates random sequences that evolved under the model. As coalescent simulator, it traces
+the ancestry of the sampled sequences backwards in time and is therefore extremely efficient. Compared to 
+other coalescent simulators, it can simulate chromosome-scale sequences without a measureable reduction of
+genetic linkage between different sites.
 
 
 ## Installation
