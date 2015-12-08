@@ -117,8 +117,12 @@ Model Param::parse() {
       model.setBiasHeight(readNextInput<double>());
     }
 
-    else if (*argv_i == "-br") {
-      model.setBiasRatio(readNextInput<double>());
+    else if (*argv_i == "-brl") {
+      model.setBiasRatioLower(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-bru") {
+      model.setBiasRatioUpper(readNextInput<double>());
     }
 
     // ------------------------------------------------------------------
