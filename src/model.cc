@@ -116,17 +116,15 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
 
 
 /**
- * Function to add a new change time to the model.
+ * Adds a new change position to the model.
  *
- * It preserves the relation between the times and the *param*_list_ containers.
- * If the same time is added multiple times, it is just added once to the model,
- * but this should not make a difference when using this function.
+ * Change position are sequence positions where mutation or recombination rates
+ * change. This creates a new position, but does not add the new rates. 
  *
- * @param time The time that is added
- * @param scaled set to TRUE if the time is in units of 4N0 generations, and
- * FALSE if it is in units of generations.
+ * @param position The sequence position add which a change is added
  *
- * @returns The position the time has now in the vector
+ * @returns The index of the new rates in the recombination_rates_ and
+ * mutation_rates vectors.
  */
 size_t Model::addChangePosition(const double position) {
   if (position < 0 || position > loci_length()) {
