@@ -26,7 +26,7 @@ for nsam in "${msNsample[@]}"
 	ms ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > ms${out}
 	cat ms${out} | grep ";" | sed -e 's/\[.*\]//g' > ms${Trees}
 	hybrid-Lambda -gt ms${Trees} -bl ms${bl}
-	scrm ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > scrm${out}
+	../../../scrm ${nsam} ${rep} -T | tail -n +4 | grep -v "//" > scrm${out}
 	cat scrm${out} | grep ";" | sed -e 's/\[.*\]//g' > scrm${Trees}
 	hybrid-Lambda -gt scrm${Trees} -bl scrm${bl}
 	echo "rm(list=ls());
@@ -44,9 +44,9 @@ legend(\"topleft\",c(\"ms\",\"scrm\"), col=c(\"red\",\"blue\"), pch=16)
 dev.off();
 cat(paste(${nsam},\"|\",format(ee,digits=4),format(sdv,digits=4),\"|\",
 format(mean(msdata),digits=4),format(sd(msdata),digits=4),\"|\",
-format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4), 
+format(mean(scrmdata),digits=4),format(sd(scrmdata),digits=4),\"|\",test\$statistic,format(test\$p.value,digits=4),
 sep=\"\t\"),file=\"${compareBL}\",append=TRUE);cat(\"\n\",file=\"${compareBL}\",append=TRUE);" > dummy.r
 	R CMD BATCH dummy.r
-	rm ms${out} ms${Trees} ms${bl} scrm${out} scrm${Trees} scrm${bl} 
+	rm ms${out} ms${Trees} ms${bl} scrm${out} scrm${Trees} scrm${bl}
 	done
 

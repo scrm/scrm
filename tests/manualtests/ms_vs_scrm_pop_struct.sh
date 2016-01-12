@@ -23,14 +23,14 @@ source ../tmrca_r.src
 
 source ../bl_r.src
 
-source ../process_sample_stats.src	
+source ../process_sample_stats.src
 
 
-#case 1 
+#case 1
 echo "2_samples_case1" > current_case
 rm ms* scrm*
 ms 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01 -T > msout
-scrm 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01  -T > scrmout
+../../../scrm 2 ${rep} -t ${theta} -eN 0.4 10.01 -eN 1 0.01  -T > scrmout
 
 
 cat msout | sample_stats > ms_stats
@@ -46,7 +46,7 @@ hybrid-Lambda -gt scrmTrees -bl scrmbl
 
 foo
 
-#case 1 
+#case 1
 echo "2_samples_case1.1" > current_case
 rm ms* scrm*
 ms 2 ${rep} -t ${theta} -eN 0 1 -eN 0.4 10.01 -eN 1 0.01 -T > msout
