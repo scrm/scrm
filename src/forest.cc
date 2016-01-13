@@ -164,7 +164,7 @@ Node* Forest::cut(const TreePoint &cut_point) {
 
   // Set invariants of new root
   new_root->set_length_below(cut_point.base_node()->length_below() +
-                             cut_point.relative_height() );
+                             cut_point.height() - cut_point.base_node()->height() );
   new_root->set_samples_below(cut_point.base_node()->samples_below() );
 
   nodes()->add(new_root, new_leaf);
