@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -53,11 +53,11 @@ TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
   this->node_iterator_ = forest->nodes()->iterator();
   this->good_ = false;
   this->inside_node_ = NULL;
-  this->current_time_ = 0; 
+  this->current_time_ = 0;
   forest->writable_model()->resetTime();
 }
 
-TimeIntervalIterator::TimeIntervalIterator(Forest* forest, 
+TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
                                            Node* start_node) {
   this->forest_ = forest;
   this->contemporaries_ = &forest->contemporaries_;
@@ -70,9 +70,9 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
 
   model_->resetTime();
   this->searchContemporaries(start_node);
-  
+
   // Skip through model changes
-  while ( model_->getNextTime() <= current_time_ ) { 
+  while ( model_->getNextTime() <= current_time_ ) {
     model_->increaseTime();
   }
 
@@ -96,18 +96,18 @@ void TimeIntervalIterator::next() {
   double start_height = this->current_time_;
 
   // Ensure that both iterators point into the future to determine the end of the
-  // interval 
-  if ( start_height >= forest_->model().getNextTime() ) { 
+  // interval
+  if ( start_height >= forest_->model().getNextTime() ) {
     model_->increaseTime();
   }
 
   if ( start_height >= node_iterator_.height() ) {
-    // Update contemporaries 
+    // Update contemporaries
     contemporaries()->replaceChildren(*node_iterator_);
 
     // Pruning
     while ( !(*node_iterator_)->is_last() ) {
-      // Prunes the next node BEFORE node_iterator_ gets there, 
+      // Prunes the next node BEFORE node_iterator_ gets there,
       // and does there not invalidate it.
       if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
     }
@@ -129,14 +129,14 @@ void TimeIntervalIterator::next() {
     current_time_ = next_model_change_;
   }
   //std::cout << " Next Node: " << node_iterator_.height()
-  //          << " Next MC: " << next_model_change_ 
+  //          << " Next MC: " << next_model_change_
   //          << " CT " << current_time_ << std::endl;
 
   //Don't return TimeIntervals of length zero, as nothing can happen there...
   if (start_height == current_time_) return next();
-  
-  this->current_interval_ = TimeInterval(this, 
-                                         start_height, 
+
+  this->current_interval_ = TimeInterval(this,
+                                         start_height,
                                          current_time_);
 }
 
@@ -145,7 +145,7 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
   Node* start_node = NULL;
 
   if ( use_buffer ) {
-    assert( node->height() >= contemporaries()->buffer_time() ); 
+    assert( node->height() >= contemporaries()->buffer_time() );
     // check if the buffered contemporaries are contemporaries of node
     double highest_time = -1;
     for (size_t pop = 0; pop < model()->population_number(); ++pop) {
@@ -181,13 +181,13 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
     start_node = start_node->next();
     assert( start_node->height() >= contemporaries()->buffer_time() );
   } else {
-    start_node = forest()->nodes()->first(); 
+    start_node = forest()->nodes()->first();
   }
 
   for (NodeIterator ni = forest_->nodes()->iterator(start_node); *ni != node; ++ni) {
     assert(ni.good());
 
-    // Check if *ni is a contemporary of node 
+    // Check if *ni is a contemporary of node
     if ( (*ni)->parent_height() > node->height() ) {
       // Is is; it may however be a node we need to prune
       if ((*ni)->is_first()) tmp_prev_node_ = NULL;
@@ -201,7 +201,7 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
 
         // Maybe a child of the node became a contemporary by removing the node
         // This can only happen if the node has only one child.
-        if ( tmp_child_1_ != NULL && tmp_child_1_->parent_height() > node->height() ) { 
+        if ( tmp_child_1_ != NULL && tmp_child_1_->parent_height() > node->height() ) {
           this->contemporaries()->add(tmp_child_1_);
         }
       } else {
@@ -214,13 +214,13 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
 
 
 
-// Recalculates the borders of the current interval. 
+// Recalculates the borders of the current interval.
 // Used after one or more nodes where created inside the interval due to events
 // occurring within.
 void TimeIntervalIterator::recalculateInterval() {
   if (!node_iterator_.good()) {
     node_iterator_ = NodeIterator(forest_->nodes()->last());
-  } 
+  }
   else {
     // Set node iterator back to the node at the current start_height
     while ( (*node_iterator_)->height() > current_interval_.start_height() ) --node_iterator_;

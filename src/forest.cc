@@ -475,6 +475,8 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
       this->record_Recombevent_b4_extension();
       // record the CURRENT recombination event with the next recombination opportunity
       this->record_Recombevent_atNewGenealogy( rec_point.height() );
+  } else {
+    for (TimeIntervalIterator ti(this, this->nodes_.at(0)); ti.good(); ++ti) { }
   }
   assert( this->printTree() );
   this->calcSegmentSumStats();

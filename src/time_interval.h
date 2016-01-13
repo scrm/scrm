@@ -72,6 +72,7 @@ class TimeInterval {
 /* WARNING: DON'T USE MULTIPLE OF THESE AT THE SAME TIME */
 class TimeIntervalIterator {
   friend class ForestState;
+  friend class Forest;
  public:
   TimeIntervalIterator(Forest* forest, Node* start_node);
 
