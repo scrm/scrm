@@ -64,15 +64,13 @@ TimeIntervalIterator::TimeIntervalIterator(Forest* forest,
   this->model_ = forest->model_;
 
   this->good_ = true;
-  this->prune = prune;
   this->inside_node_ = NULL;
   this->node_iterator_ = forest->nodes()->iterator(start_node);
   this->current_time_ = start_node->height();
 
   model_->resetTime();
-  if (prune){
-    this->searchContemporaries(start_node);
-  }
+  this->searchContemporaries(start_node);
+
   // Skip through model changes
   while ( model_->getNextTime() <= current_time_ ) {
     model_->increaseTime();
@@ -106,14 +104,14 @@ void TimeIntervalIterator::next() {
   if ( start_height >= node_iterator_.height() ) {
     // Update contemporaries
     contemporaries()->replaceChildren(*node_iterator_);
-    
+
     // Pruning
     while ( !(*node_iterator_)->is_last() ) {
       // Prunes the next node BEFORE node_iterator_ gets there,
       // and does there not invalidate it.
       if (!forest_->pruneNodeIfNeeded((*node_iterator_)->next())) break;
     }
-    
+
     // Move node iterator forwards
     ++node_iterator_;
   }
@@ -152,7 +150,6 @@ void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool u
     double highest_time = -1;
     for (size_t pop = 0; pop < model()->population_number(); ++pop) {
       auto end = contemporaries()->buffer_end(pop);
-
       for (auto it = contemporaries()->buffer_begin(pop); it != end; ++it) {
         assert(!(*it)->is_root());
         //std::cout << "Checking " << *it << std::endl;
