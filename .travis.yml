@@ -7,11 +7,14 @@ compiler:
   - clang
 env:
   - CXXFLAGS="-Werror"
+  - CXXFLAGS="-m32 -Werror"
+matrix:
+  exclude:
+    - os: osx 
+      env: CXXFLAGS="-m32 -Werror"
 sudo: required
 dist: trusty
-before_install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get update -qq && sudo apt-get install -qqy automake libcppunit-dev valgrind; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update && brew install cppunit valgrind; fi
+before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
 before_script:
   - ./bootstrap
 script:
@@ -34,4 +37,5 @@ deploy:
   on:
     tags: true
     condition: "$CC = gcc"
+    condition: "$CXXFLAGS == -Werror"
     condition: "$TRAVIS_OS_NAME == linux"

@@ -256,9 +256,9 @@ class TestSummaryStatistics : public CppUnit::TestCase {
     CPPUNIT_ASSERT( of.heights_.at(3) == 0.0 );
     CPPUNIT_ASSERT( of.parents_.at(4) == 7 );
     CPPUNIT_ASSERT( of.parents_.at(5) == 7 );
-    CPPUNIT_ASSERT( of.heights_.at(6) == 10.0 * sf && of.parents_.at(6) == 0 );
+    CPPUNIT_ASSERT( areSame(of.heights_.at(6), 10.0 * sf) && of.parents_.at(6) == 0.0 );
 
-    CPPUNIT_ASSERT( of.heights_.at(4) == 1.0 * sf || of.heights_.at(4) == 3.0 * sf );
+    CPPUNIT_ASSERT( areSame(of.heights_.at(4), 1.0 * sf) || areSame(of.heights_.at(4), 3.0 * sf) );
     if ( of.heights_.at(4) == 1.0 ) {
       CPPUNIT_ASSERT( of.parents_.at(0) == 5 );
       CPPUNIT_ASSERT( of.parents_.at(1) == 5 );

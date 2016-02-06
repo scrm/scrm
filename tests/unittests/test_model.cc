@@ -153,20 +153,20 @@ class TestModel : public CppUnit::TestCase {
     model.addPopulationSizes(1, std::vector<double>(2, 5), true, false);
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT( model.population_size(0) == 5 );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 5) );
 
     model.addPopulationSizes(2, 10, true, false);
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT( model.population_size(0) == 10 );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 10) );
 
     auto pop_sizes2 = std::vector<double>();
     pop_sizes2.push_back(7);
     pop_sizes2.push_back(6);
     model.addPopulationSizes(0.0, pop_sizes2);
     model.resetTime();
-    CPPUNIT_ASSERT( model.population_size(0) == 7 );
-    CPPUNIT_ASSERT( model.population_size(1) == 6 );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 7) );
+    CPPUNIT_ASSERT( areSame(model.population_size(1), 6) );
 
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(3, 5)), std::logic_error );
