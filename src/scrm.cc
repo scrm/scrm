@@ -64,7 +64,6 @@ int main(int argc, char *argv[]){
 
     // Loop over the independent loci/chromosomes
     for (size_t rep_i=0; rep_i < model.loci_number(); ++rep_i) {
-
       // Mark the start of a new independent sample
       *output << std::endl << "//" << std::endl;
 
@@ -79,20 +78,21 @@ int main(int argc, char *argv[]){
         forest.sampleNextGenealogy();
         forest.printSegmentSumStats(*output);
       }
-      
+      assert(forest.next_base() == model.loci_length());
+
       forest.printLocusSumStats(*output);
       forest.clear();
     }
 
-    // Clean-up and exit
-    rg.clearFastFunc();
     return EXIT_SUCCESS;
   }
-  catch (const std::exception &e)
-  {
+
+  catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     std::cerr << "Try 'scrm --help' for more information." << std::endl;
     return EXIT_FAILURE;
   }
 }
+
 #endif
+

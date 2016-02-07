@@ -44,6 +44,7 @@
 #include <cmath>
 #include <iomanip>
 #include <memory>
+#include <sstream>
 
 #include "summary_statistics/summary_statistic.h"
 
@@ -69,7 +70,6 @@ class Model
    
    // Default values;
    double default_pop_size;
-   size_t default_loci_length;
    double default_growth_rate;
    double default_mig_rate;
 
@@ -402,9 +402,7 @@ class Model
 
   SeqScale getSequenceScaling() const { return seq_scale_; }
   void setSequenceScaling(SeqScale seq_scale) { seq_scale_ = seq_scale; };
-
-  private:
-   std::vector<double> change_times_;
+  
    void setLocusLength(const size_t length) { 
     // Rescale the rates that are per base pair
     for (size_t i = 0; i < change_position_.size(); ++i) {
@@ -413,6 +411,9 @@ class Model
     }
     loci_length_ = length; 
    }
+
+  private:
+   std::vector<double> change_times_;
 
    double change_position(size_t idx) const {
     return this->change_position_.at(idx);

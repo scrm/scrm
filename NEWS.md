@@ -1,6 +1,32 @@
 scrm Version History
 ========================
 
+scrm 1.7.0
+------------------------
+Released: 2016-02-07
+
+### New Features
++ New command line option "--transpose-segsites" that prints the segregating
+  sites matrix with rows repesenting mutations instead of individuals. This
+  also adds the time at which the mutation occurred as additional information
+  (#85).
+
+### Improvements
++ scrm now throws an error when mutation or recombination rate changes
+  have invalid sequence positions (#82).
++ The length of segments between recombinations is now always reported
+  in non-scientific notation (#81).
++ Improved the error message when lines could not coalescence because
+  of missing migration or negative population growth (#87).
+
+### Bug Fixes
++ `Forest.coalescence_finished` has not set to `true` after a pairwise
+  coalescence event (#89). This had no effect on the command line version
+  of scrm.
++ Fixes scrm's tests suite on 32 bit systems (#98).
+
+
+ 
 scrm 1.6.1
 ------------------------
 Released: 2015-07-09

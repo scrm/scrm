@@ -38,10 +38,11 @@ class TestContemporariesContainer : public CppUnit::TestCase {
   }
 
   void tearDown() {
-    delete rg, nc;
+    delete rg;
+    delete nc;
   }
 
-  void add() { 
+  void add() {
     // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
@@ -168,7 +169,7 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(0) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(1) );
     CPPUNIT_ASSERT_EQUAL( (size_t)0, cc.size(2) );
-    
+
     cc = ContemporariesContainer(3, 1000, rg);
     cc.add(node1);
     cc.add(node2);
@@ -246,16 +247,16 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     for (size_t i = 0; i < 1000; ++i) {
       CPPUNIT_ASSERT_EQUAL(node1, cc.sample(0));
       CPPUNIT_ASSERT_EQUAL(node2, cc.sample(1));
-    } 
+    }
 
     double count = 0;
     for (size_t i = 0; i < 10000; ++i) {
       Node* node = cc.sample(2);
       CPPUNIT_ASSERT( node == node3 || node == node4 );
       if (node == node3) ++count;
-    } 
+    }
     count /= 10000;
-    CPPUNIT_ASSERT( 0.49 < count && count < 0.51 ); 
+    CPPUNIT_ASSERT( 0.49 < count && count < 0.51 );
 
     // Set
     cc = ContemporariesContainer(3, 1000, rg);
@@ -267,16 +268,16 @@ class TestContemporariesContainer : public CppUnit::TestCase {
     for (size_t i = 0; i < 1000; ++i) {
       CPPUNIT_ASSERT_EQUAL(node1, cc.sample(0));
       CPPUNIT_ASSERT_EQUAL(node2, cc.sample(1));
-    } 
+    }
 
     count = 0;
     for (size_t i = 0; i < 10000; ++i) {
       Node* node = cc.sample(2);
       CPPUNIT_ASSERT( node == node3 || node == node4 );
       if (node == node3) ++count;
-    } 
+    }
     count /= 10000;
-    CPPUNIT_ASSERT( 0.49 < count && count < 0.51 ); 
+    CPPUNIT_ASSERT( 0.49 < count && count < 0.51 );
   }
 
   void buffer() {
@@ -368,7 +369,7 @@ class TestContemporariesContainer : public CppUnit::TestCase {
   }
 
   void empty() {
-    // Vector 
+    // Vector
     ContemporariesContainer cc = ContemporariesContainer(3, 10, rg);
     CPPUNIT_ASSERT( cc.empty() );
     cc.add(node1);

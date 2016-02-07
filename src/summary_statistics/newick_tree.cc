@@ -30,7 +30,11 @@ void NewickTree::calculate(const Forest &forest) {
 
 void NewickTree::printSegmentOutput(std::ostream &output) const {
   if (segment_length_ == 0.0) return;
-  if (has_rec_) output << "[" << segment_length_ << "]";
+  if (has_rec_) {
+    double intpart; // dummy variable for modf
+    if (modf(segment_length_, &intpart) == 0.0) output << "[" << (size_t)segment_length_ << "]";
+    else output << "[" << segment_length_ << "]";
+  }
   output << tree_ << ";" << std::endl;
 }
 

@@ -136,14 +136,7 @@ class TimeIntervalIterator {
  * @return Nothing. Nodes are saved in contemporaries_.
  */
 inline void TimeIntervalIterator::searchContemporaries(Node *node) {
-  // Prefer top-down search if the target is above .8 coalescence units in
-  // sample space. This is relatively high, but the iterative bottom-up approach
-  // is faster than the recursion.
-  if (node->height() >= contemporaries()->buffer_time()) {
-    searchContemporariesBottomUp(node, true);
-  } else {
-    searchContemporariesBottomUp(node);
-  }
+  searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
 }
 
 #endif

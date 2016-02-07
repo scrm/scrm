@@ -27,6 +27,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testErrorOnInfintieRecRate );
   CPPUNIT_TEST( testScientificNotation );
   CPPUNIT_TEST( testApproximation );
+  CPPUNIT_TEST( testTransposeSegSites );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -53,40 +54,40 @@ class TestParam : public CppUnit::TestCase {
 
   void testParseBasicCmdStructure() {
     Model model;
-    CPPUNIT_ASSERT_THROW(Param("scrm").parse(), std::invalid_argument); 
+    CPPUNIT_ASSERT_THROW(Param("scrm").parse(), std::invalid_argument);
 
     Param pars = Param("-h");
     model = pars.parse();
-    CPPUNIT_ASSERT( pars.help() ); 
+    CPPUNIT_ASSERT( pars.help() );
 
     pars = Param("--help");
     model = pars.parse();
-    CPPUNIT_ASSERT( pars.help() ); 
+    CPPUNIT_ASSERT( pars.help() );
 
     pars = Param("2 1 -h");
     model = pars.parse();
-    CPPUNIT_ASSERT(pars.help()); 
+    CPPUNIT_ASSERT(pars.help());
 
-    CPPUNIT_ASSERT_THROW( Param("1").parse(), std::invalid_argument ); 
-    CPPUNIT_ASSERT_THROW( Param("1 -t 5").parse(), std::invalid_argument ); 
-    CPPUNIT_ASSERT_THROW( Param("-t 5").parse(), std::invalid_argument ); 
+    CPPUNIT_ASSERT_THROW( Param("1").parse(), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( Param("1 -t 5").parse(), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( Param("-t 5").parse(), std::invalid_argument );
 
     pars = Param("2 1");
     model = pars.parse();
-    CPPUNIT_ASSERT( !pars.help() ); 
-    CPPUNIT_ASSERT( !pars.version() ); 
+    CPPUNIT_ASSERT( !pars.help() );
+    CPPUNIT_ASSERT( !pars.version() );
 
     pars = Param("-v");
     model = pars.parse();
-    CPPUNIT_ASSERT( pars.version() ); 
+    CPPUNIT_ASSERT( pars.version() );
 
     pars = Param("--version");
     model = pars.parse();
-    CPPUNIT_ASSERT( pars.version() ); 
+    CPPUNIT_ASSERT( pars.version() );
 
     pars = Param("2 1 -v");
     model = pars.parse();
-    CPPUNIT_ASSERT( pars.version() ); 
+    CPPUNIT_ASSERT( pars.version() );
   }
 
   void testParseSeeds() {
@@ -102,8 +103,8 @@ class TestParam : public CppUnit::TestCase {
     model = pars.parse();
     CPPUNIT_ASSERT_EQUAL(seed, pars.random_seed());
 
-    CPPUNIT_ASSERT_THROW(Param("20 10 -seed 1 2 3 4").parse(), std::invalid_argument); 
-    CPPUNIT_ASSERT_THROW(Param("20 10 -seed -t 2").parse(), std::invalid_argument); 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -seed 1 2 3 4").parse(), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(Param("20 10 -seed -t 2").parse(), std::invalid_argument);
   }
 
   void testParseCommonOptions() {
@@ -117,9 +118,9 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( model.has_window_seq() );
     CPPUNIT_ASSERT_EQUAL( 1000.0, model.window_length_seq() );
 
-    CPPUNIT_ASSERT_THROW( Param("15 10 -I 3 7 8 5").parse(), std::invalid_argument ); 
-    CPPUNIT_ASSERT_THROW( Param("15 10 -tv").parse(), std::invalid_argument ); 
-    CPPUNIT_ASSERT_THROW( Param("15 10 -t 17 1").parse(), std::invalid_argument ); 
+    CPPUNIT_ASSERT_THROW( Param("15 10 -I 3 7 8 5").parse(), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( Param("15 10 -tv").parse(), std::invalid_argument );
+    CPPUNIT_ASSERT_THROW( Param("15 10 -t 17 1").parse(), std::invalid_argument );
 
     model = Param("20 10 -t 3.74 -I 3 7 8 5 -T -M 5.0").parse();
     CPPUNIT_ASSERT_EQUAL( (size_t)3, model.population_number() );
@@ -156,7 +157,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(20) );
     CPPUNIT_ASSERT_EQUAL( 12.3 * 4 * model.default_pop_size, model.sample_time(22) );
 
-    // -N & -eN 
+    // -N & -eN
     model = Param("20 10 -t 3.74 -I 3 7 8 5 -N 0.3 -eN 8.2 0.75 -G 1.5 -M 5.0").parse();
     model.resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentTime() );
@@ -172,14 +173,14 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(1) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(2) );
 
-    // -n & -en 
+    // -n & -en
     model = Param("20 10 -t 3.74 -I 3 7 8 5 -G 1.5 -n 2 0.3 -eN 1.1 0.75 -en 2 3 0.1 -eG 1.5 2 -M 5.0").parse();
     model.finalize();
     model.resetTime();
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame(model.default_pop_size, model.population_size(0)) );
     CPPUNIT_ASSERT( areSame(0.3*model.default_pop_size, model.population_size(1)) );
-    CPPUNIT_ASSERT( areSame(model.default_pop_size, (size_t)model.population_size(2)) );
+    CPPUNIT_ASSERT( areSame(model.default_pop_size, model.population_size(2)) );
     CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(0)) );
     CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(1)) );
     CPPUNIT_ASSERT( areSame(1.5 / 4 / model.default_pop_size, model.growth_rate(2)) );
@@ -191,7 +192,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(2.0 * 4 * model.default_pop_size, model.getCurrentTime()) );
     CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(0) );
     CPPUNIT_ASSERT( 0.75*model.default_pop_size > model.population_size(1) );
-    CPPUNIT_ASSERT_EQUAL( (size_t)(0.10*model.default_pop_size), (size_t)model.population_size(2) );
+    CPPUNIT_ASSERT_EQUAL( 0.10 * model.default_pop_size, model.population_size(2) );
     CPPUNIT_ASSERT_EQUAL( 2.0 / 4 / model.default_pop_size  , model.growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 2.0 / 4 / model.default_pop_size, model.growth_rate(1) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(2) );
@@ -277,13 +278,13 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(1) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate() );
 
-    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eM 0.9 5.0").parse(), 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eM 0.9 5.0").parse(),
                          std::invalid_argument );
-    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eG 0.9 5.0").parse(), 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eG 0.9 5.0").parse(),
                          std::invalid_argument );
-    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eN 0.9 5.0").parse(), 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eN 0.9 5.0").parse(),
                          std::invalid_argument );
-    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -es 0.9 3 1").parse(), 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -es 0.9 3 1").parse(),
                          std::invalid_argument );
   }
 
@@ -315,7 +316,7 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_NO_THROW(model = Param("20 10 -L").parse());
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 1 );
 
-    CPPUNIT_ASSERT_THROW(Param("20 10 -oSFS").parse(), std::invalid_argument ); 
+    CPPUNIT_ASSERT_THROW(Param("20 10 -oSFS").parse(), std::invalid_argument );
 
     CPPUNIT_ASSERT_NO_THROW(model = Param("20 10 -oSFS -t 5").parse());
     CPPUNIT_ASSERT( model.summary_statistics_.size() == 2 );
@@ -330,7 +331,7 @@ class TestParam : public CppUnit::TestCase {
   void testParseGrowthOptions() {
     // -G && -eG
     Model model;
-    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10",
       "-G", "2", "-eG", "1", "3", "-M", "5.0" };
     CPPUNIT_ASSERT_NO_THROW( model = Param(16, argv).parse(); );
     model.resetTime();
@@ -342,8 +343,8 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT( areSame(3.0 / 4 / model.default_pop_size, model.growth_rate(1)) );
 
     // -g && -eg
-    char *argv2[] = { 
-      "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10", 
+    char *argv2[] = {
+      "scrm", "20", "10", "-t", "3.74", "-I", "2", "10", "10",
       "-g", "2", "0.1", "-eG", "1", "3", "-eg", "2", "1", "2.4", "-M", "5.0"};
     CPPUNIT_ASSERT_NO_THROW( model = Param(21, argv2).parse(); );
     model.resetTime();
@@ -360,21 +361,21 @@ class TestParam : public CppUnit::TestCase {
   void testParseVariableRates() {
     // -st
     Model model;
-    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-st", "10", "5.1", "-st", "4.5", "3.2"};
+    char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-st", "0.7", "5.1", "-st", "0.5", "3.2"};
     CPPUNIT_ASSERT_NO_THROW( model = Param(11, argv).parse(); );
-    double scale = 1 / ( 4 * model.default_pop_size * model.default_loci_length );
+    double scale = 1 / ( 4 * model.default_pop_size );
     CPPUNIT_ASSERT( areSame(3.74 * scale, model.mutation_rate()) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getNextSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.getNextSequencePosition() );
 
     model.increaseSequencePosition();
     CPPUNIT_ASSERT( areSame(3.2 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 4.5, model.getCurrentSequencePosition() );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getNextSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.5, model.getCurrentSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.7, model.getNextSequencePosition() );
 
     model.increaseSequencePosition();
     CPPUNIT_ASSERT( areSame(5.1 * scale, model.mutation_rate()) );
-    CPPUNIT_ASSERT_EQUAL( 10.0, model.getCurrentSequencePosition() );
+    CPPUNIT_ASSERT_EQUAL( 0.7, model.getCurrentSequencePosition() );
 
     // -sr
     char *argv2[] = { "scrm", "20", "10", "-r", "3.74", "100", "-sr", "10", "5.1", "-sr", "4.5", "3.2"};
@@ -421,10 +422,10 @@ class TestParam : public CppUnit::TestCase {
 
   void testParseUnsupportedMsArguments() {
     char *argv[] = { "scrm", "20", "10", "-t", "3.74", "-c", "10", "5.1", "-st", "4.5", "3.2"};
-    CPPUNIT_ASSERT_THROW( Param(11, argv).parse(), std::invalid_argument ); 
+    CPPUNIT_ASSERT_THROW( Param(11, argv).parse(), std::invalid_argument );
 
     char *argv2[] = { "scrm", "20", "10", "-s", "5"};
-    CPPUNIT_ASSERT_THROW( Param(5, argv2).parse(), std::invalid_argument ); 
+    CPPUNIT_ASSERT_THROW( Param(5, argv2).parse(), std::invalid_argument );
   }
 
 
@@ -509,6 +510,20 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT(  model.has_window_rec() );
     CPPUNIT_ASSERT( !model.has_window_seq() );
     CPPUNIT_ASSERT_EQUAL( (size_t)10, model.window_length_rec() );
+  }
+
+  void testTransposeSegSites() {
+    Model model = Param("2 2 -r 10 100 -t 5 -transpose-segsites").parse();
+    SegSites* ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(ss->get_transpose());
+
+    model = Param("2 2 -t 5 --transpose-segsites").parse();
+    ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(ss->get_transpose());
+
+    model = Param("2 2 -r 10 100 -t 5").parse();
+    ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
+    CPPUNIT_ASSERT(!ss->get_transpose());
   }
 };
 

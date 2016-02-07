@@ -23,27 +23,22 @@ class TestTimeInterval : public CppUnit::TestCase {
   CPPUNIT_TEST_SUITE_END();
 
  private:
-  Forest *forest, *forest2;
-  Model *model, *model2;
+  Forest *forest;
+  Model *model;
   MersenneTwister *rg;
 
  public:
   void setUp() {
     rg = new MersenneTwister(5);
     model = new Model(5);
-    model2 = new Model(5);
-    model2->set_population_number(3);
 
     forest = new Forest(model, rg);
     forest->createExampleTree();
-
-    forest2 = new Forest(model2, rg);
-    forest2->createExampleTree();
   }
 
   void tearDown() {
-    delete forest, forest2;
-    delete model, model2; 
+    delete forest;
+    delete model;
     delete rg;
   }
 
@@ -52,27 +47,27 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).start_height() == 0 );
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT_EQUAL( (size_t)4, it.contemporaries()->size(0) );
-    
+
     TimeIntervalIterator it2(forest, forest->nodes()->at(4));
     CPPUNIT_ASSERT( (*it2).start_height() == 1 );
     CPPUNIT_ASSERT( (*it2).end_height() == 3 );
     CPPUNIT_ASSERT_EQUAL( (size_t)3, it2.contemporaries()->size(0) );
-    
+
     TimeIntervalIterator it3(forest, forest->nodes()->at(5));
     CPPUNIT_ASSERT( (*it3).start_height() == 3 );
     CPPUNIT_ASSERT( (*it3).end_height() == 4 );
     CPPUNIT_ASSERT( it3.contemporaries()->size(0) == 2 );
- 
+
     TimeIntervalIterator it4(forest, forest->nodes()->at(6));
     CPPUNIT_ASSERT( (*it4).start_height() == 4 );
     CPPUNIT_ASSERT( (*it4).end_height() == 6 );
     CPPUNIT_ASSERT( it4.contemporaries()->size(0) == 3 );
- 
+
     TimeIntervalIterator it5(forest, forest->nodes()->at(7));
     CPPUNIT_ASSERT( (*it5).start_height() == 6 );
     CPPUNIT_ASSERT( (*it5).end_height() == 10 );
     CPPUNIT_ASSERT( it5.contemporaries()->size(0) == 2 );
-    
+
     TimeIntervalIterator it6(forest, forest->nodes()->at(8));
     CPPUNIT_ASSERT( (*it6).start_height() == 10 );
     CPPUNIT_ASSERT( (*it6).end_height() == DBL_MAX );
@@ -85,43 +80,43 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).end_height() == 1 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 4);
     CPPUNIT_ASSERT( it.good() );
-    
+
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 3);
     CPPUNIT_ASSERT( it.good() );
-  
+
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 3 );
     CPPUNIT_ASSERT( (*it).end_height() == 4 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 2 );
     CPPUNIT_ASSERT( it.good() );
- 
+
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 4 );
     CPPUNIT_ASSERT( (*it).end_height() == 6 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 3 );
     CPPUNIT_ASSERT( it.good() );
- 
+
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 6 );
     CPPUNIT_ASSERT( (*it).end_height() == 10 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 2 );
     CPPUNIT_ASSERT( it.good() );
-    
+
     ++it;
     CPPUNIT_ASSERT( (*it).start_height() == 10 );
     CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 0 );
     CPPUNIT_ASSERT( it.good() );
-  
+
     ++it;
     CPPUNIT_ASSERT( !it.good() );
 
     int i = 0;
     for (TimeIntervalIterator events(forest, forest->nodes()->at(0));
-         events.good(); ++events) { 
+         events.good(); ++events) {
       ++i;
     }
     CPPUNIT_ASSERT( i == 6 );
@@ -163,7 +158,7 @@ class TestTimeInterval : public CppUnit::TestCase {
     CPPUNIT_ASSERT( (*it).start_height() == 1 );
     CPPUNIT_ASSERT( (*it).end_height() == 1.5 );
     CPPUNIT_ASSERT( it.contemporaries()->size(0) == 3 );
-    
+
     CPPUNIT_ASSERT_NO_THROW( it.next() );
     CPPUNIT_ASSERT( (*it).start_height() == 1.5 );
     CPPUNIT_ASSERT( (*it).end_height() == 3 );
@@ -223,10 +218,10 @@ class TestTimeInterval : public CppUnit::TestCase {
     while ( (*it).end_height() < 1000 ) ++it;
     forest->nodes()->add(forest->nodes()->createNode(1000));
     it.recalculateInterval();
-    CPPUNIT_ASSERT( (*it).end_height() == 1000 ); 
+    CPPUNIT_ASSERT( (*it).end_height() == 1000 );
     CPPUNIT_ASSERT_NO_THROW( ++it );
-    CPPUNIT_ASSERT( (*it).start_height() == 1000 ); 
-    CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX ); 
+    CPPUNIT_ASSERT( (*it).start_height() == 1000 );
+    CPPUNIT_ASSERT( (*it).end_height() == DBL_MAX );
   }
 
   void testFindContemporaries() {
@@ -234,29 +229,29 @@ class TestTimeInterval : public CppUnit::TestCase {
     tii.contemporaries()->clear();
 
     tii.searchContemporariesBottomUp(forest->nodes()->at(4));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0));
     tii.contemporaries()->buffer(forest->nodes()->at(4)->height());
 
     tii.searchContemporariesBottomUp(forest->nodes()->at(5));
-    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0));
     tii.searchContemporariesBottomUp(forest->nodes()->at(5), true);
-    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)1, tii.contemporaries()->size(0));
     tii.contemporaries()->buffer(forest->nodes()->at(4)->height());
 
     tii.searchContemporariesBottomUp(forest->nodes()->at(6));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0));
     tii.searchContemporariesBottomUp(forest->nodes()->at(6), true);
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0));
 
     tii.searchContemporariesBottomUp(forest->nodes()->at(7));
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0));
     tii.searchContemporariesBottomUp(forest->nodes()->at(7), true);
-    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)2, tii.contemporaries()->size(0));
 
     tii.searchContemporariesBottomUp(forest->nodes()->at(8));
-    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0));
     tii.searchContemporariesBottomUp(forest->nodes()->at(8), true);
-    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0)); 
+    CPPUNIT_ASSERT_EQUAL((size_t)0, tii.contemporaries()->size(0));
   }
 };
 

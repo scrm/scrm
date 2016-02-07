@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -95,9 +95,9 @@ class Forest
   Node* primary_root() const { return primary_root_; }
   void set_primary_root(Node* primary_root) { primary_root_ = primary_root; };
 
-  size_t sample_size() const { 
-    if (sample_size_ == 0) return model().sample_size(); 
-    return this->sample_size_; 
+  size_t sample_size() const {
+    if (sample_size_ == 0) return model().sample_size();
+    return this->sample_size_;
   }
   void set_sample_size(const size_t size ) { sample_size_ = size; }
 
@@ -111,7 +111,7 @@ class Forest
    *
    * @param finite_sites If 'true', the length is measured in number of bases
    * (e.g. integer sequence positions) for which the tree is valid. Otherwise,
-   * the length is measured real valued number on a continuous chromosome.  
+   * the length is measured real valued number on a continuous chromosome.
    *
    * @return The length of the current segment (see above for its unit)
    */
@@ -124,7 +124,7 @@ class Forest
   }
 
   void set_random_generator(RandomGenerator *rg) {
-    this->random_generator_ = rg; 
+    this->random_generator_ = rg;
   }
   RandomGenerator* random_generator() const { return this->random_generator_; }
 
@@ -175,15 +175,15 @@ class Forest
   }
 
   //derived class from Forest
-  virtual void record_Recombevent(size_t pop_i, 
-    double opportunity, 
+  virtual void record_Recombevent(size_t pop_i,
+    double opportunity,
     eventCode event_code){
     (void)pop_i;
     (void)opportunity;
-    (void)event_code;  
+    (void)event_code;
   }
   virtual void record_all_event( TimeInterval const &ti){
-    (void) ti;   
+    (void) ti;
   }
 
   // Calc & Print Summary Statistics
@@ -193,16 +193,17 @@ class Forest
   void printSegmentSumStats(std::ostream &output) const;
 
   double get_rec_base(const size_t idx) const {
-    assert(idx < rec_bases_.size());
-    return rec_bases_[idx];
+    return rec_bases_.at(idx);
   }
 
   double current_base() const { return get_rec_base(current_rec_); }
   double next_base() const { return get_rec_base(current_rec_ + 1); }
-  void set_current_base(double const base) { rec_bases_[current_rec_] = base; }; 
-  void set_next_base(double const base) { rec_bases_.push_back(base); }; 
+  void set_current_base(double const base) { rec_bases_[current_rec_] = base; };
+  void set_next_base(double const base) { rec_bases_.push_back(base); };
 
   size_t current_rec() const { return current_rec_; };
+
+  bool coalescence_finished() const { return this->coalescence_finished_; }
 
  private:
   Forest() { this->initialize(); }
@@ -210,7 +211,7 @@ class Forest
   //Operations on the Tree
   Node* cut(const TreePoint &cut_point);
 
-  void updateAbove(Node* node, 
+  void updateAbove(Node* node,
                    bool above_local_root = false,
                    const bool &recursive = true,
                    const bool &invariants_only = false);
@@ -218,7 +219,7 @@ class Forest
   // Tools for doing coalescence & recombination
   void sampleCoalescences(Node *start_node);
   size_t getNodeState(Node const *node, const double current_time) const;
-  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point); 
+  Node* updateBranchBelowEvent(Node* node, const TreePoint &event_point);
   Node* possiblyMoveUpwards(Node* node, const TimeInterval &event);
 
   // Implementation of the different events
@@ -233,11 +234,11 @@ class Forest
   bool nodeIsOld(Node const* node) const {
     if ( node->local() ) return false;
     if ( node->is_root() ) return false;
-    if ( model().has_window_rec() && 
+    if ( model().has_window_rec() &&
          segment_count() - node->last_update() > model().window_length_rec()) {
       return true;
     }
-    if ( model().has_window_seq() && 
+    if ( model().has_window_seq() &&
          current_base() - get_rec_base(node->last_update()) > model().window_length_seq()) {
       return true;
     }
@@ -258,10 +259,10 @@ class Forest
 
   void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
 
-  void sampleEventType(const double time, const size_t time_line, 
+  void sampleEventType(const double time, const size_t time_line,
                        const TimeInterval &ti, Event &return_event) const;
 
-  void selectFirstTime(const double new_time, const size_t time_line, 
+  void selectFirstTime(const double new_time, const size_t time_line,
                        double &current_time, size_t &current_time_line) const;
 
   double getTimeLineGrowth(const size_t time_line) const {
@@ -270,6 +271,7 @@ class Forest
     else if (time_line == 2) return model().growth_rate(active_node(1)->population());
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
+
 
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
@@ -287,7 +289,7 @@ class Forest
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
   size_t current_rec_;      // A counter for recombinations
 
-  std::vector<double> rec_bases_; // Genetic positions of the recombinations 
+  std::vector<double> rec_bases_; // Genetic positions of the recombinations
 
   Model* model_;
   RandomGenerator* random_generator_;
@@ -299,7 +301,7 @@ class Forest
 
   // Temporarily used when doing the coalescence
 
-  // Rates: 
+  // Rates:
   double rates_[3];
 
   // States: Each (branch above an) active node can either be in state

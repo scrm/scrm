@@ -94,7 +94,6 @@ class TestAlgorithm : public CppUnit::TestCase {
   }
 
   void tearDown() {
-    rg->clearFastFunc();
     delete rg;
   }
 
@@ -179,9 +178,7 @@ class TestAlgorithm : public CppUnit::TestCase {
 
   void testSizeChange() {
     Model model = Model(0);
-    char *argv[] = { "scrm", "10", "1", "-I", "3", "3", "3", "4", "0.5",                                                                                                                                                          "-eN", "0.1", "0.05", "-eN", "0.2", "0.5" };
-    model = Param(15, argv).parse();
-    model.setRecombinationRate(1, false, true);
+    model = Param("10 1 -r 1 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5").parse();
     testTree(model, 1000, 3.75, 2.68, 9.31, 5.67); 
 
     model.set_window_length_seq(5);
@@ -190,27 +187,19 @@ class TestAlgorithm : public CppUnit::TestCase {
 
 
   void testGrowth() {
-    Model model = Model(10);
-    model.setRecombinationRate(1, false, true);
-    model.addGrowthRates(0.0, 5, true, true);
-    model.finalize();
+    Model model = Param("10 30 -r 50 50 -G 5").parse();
     testTree(model, 2500, 0.321, 0.089, 1.31, 0.28); 
 
-    char *argv0[] = { "scrm", "10", "30", "-G", "-0.5", "-eG", "0.75", "2" };
-    model = Param(8, argv0).parse();
-    model.setRecombinationRate(1, false, true);
-    model.set_window_length_seq(5);
+    model = Param("10 30 -r 50 50 -G -0.5 -eG 0.75 2 -l 5").parse();
     testTree(model, 2500, 0.918, 0.38, 2.95, 1.00); 
 
-    char *argv[] = { "scrm", "4", "30", "-G", "-2.5", "-eN", "1", "0.25",
-                     "-eG", "2", "0.0", "-eN", "2.5", "0.25" };
-    model = Param(14, argv).parse();
-    model.setRecombinationRate(1, false, true);
+    model = Param("4 30 -r 50 50 -G -2.5 -eN 1 0.25 -eG 2 0.0 -eN 2.5 0.25 -l 5").parse();
     testTree(model, 1000, 0.964, 0.34, 2.48, 0.97); 
   }
 
   void testSplit() {
     Model model = Model(0);
+    model.setLocusLength(100);
     model.setRecombinationRate(1, false, true);
     model.set_population_number(2);
     std::vector<size_t> sample_size;
@@ -223,9 +212,7 @@ class TestAlgorithm : public CppUnit::TestCase {
     model.finalize();
     testTree(model, 2500, 1.51, 0.55, 5.20, 1.44); 
 
-    char *argv[] = { "scrm", "15", "5", "-I", "3", "7", "3", "5", "0.5", "-ej", "0.5", "3", "2", "-ej", "1.0", "2", "1" };
-    model = Param(17, argv).parse();
-    model.setRecombinationRate(1, false, true);
+    model = Param("15 5 -r 50 50 -I 3 7 3 5 0.5 -ej 0.5 3 2 -ej 1.0 2 1").parse();
     testTree(model, 2500, 1.60, 0.54, 7.29, 1.48); 
 
     model.set_window_length_seq(5);
@@ -233,18 +220,14 @@ class TestAlgorithm : public CppUnit::TestCase {
   }
 
   void testMerge() {
-    Model model;
-    char *argv1[] = { "scrm", "20", "10", "-I", "2", "10", "10", "1.5", "-es", "1.6", "2", "0.5", "-eM", "2.0", "1" };
-    model = Param(15, argv1).parse();
-    model.setRecombinationRate(1, false, true);
+    Model model = Param("20 10 -r 50 50 -I 2 10 10 1.5 -es 1.6 2 0.5 -eM 2.0 1").parse();
     testTree(model, 1000, 2.88, 2.26, 9.36, 4.87); 
 
     model.set_window_length_seq(5);
     testTree(model, 1000, 2.88, 2.26, 9.36, 4.87); 
 
-    char *argv2[] = { "scrm", "20", "10", "-I", "2", "10", "10", "1.5", "-es", "0.9", "1", "0.8", "-es", "1.6", "2", "0.5", "-eM", "2.0", "1" };
-    model = Param(19, argv2).parse();
-    model.setRecombinationRate(1, false, true);
+
+    model = Param("20 10 -r 50 50 -I 2 10 10 1.5 -es 0.9 1 0.8 -es 1.6 2 0.5 -eM 2.0 1").parse();
     testTree(model, 1000, 3.82, 3.32, 11.39, 7.09); 
 
     model.set_window_length_seq(5);
