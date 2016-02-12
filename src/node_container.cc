@@ -35,7 +35,7 @@ NodeContainer::NodeContainer() {
   node_counter_ = 0;
   lane_counter_ = 0;
   std::vector<Node>* new_lane = new std::vector<Node>();
-  new_lane->reserve(10000);
+  new_lane->reserve(lane_max_size);
   node_lanes_.push_back(new_lane);
 }
 
@@ -78,7 +78,7 @@ NodeContainer::NodeContainer(const NodeContainer &nc) {
   node_counter_ = 0;
   lane_counter_ = 0;
   std::vector<Node>* new_lane = new std::vector<Node>();
-  new_lane->reserve(10000);
+  new_lane->reserve(lane_max_size);
   node_lanes_.push_back(new_lane);
 
   this->unsorted_node_ = NULL;

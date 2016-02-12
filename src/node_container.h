@@ -37,6 +37,12 @@
 
 #include "node.h"
 
+#ifndef LANE_MAX_SIZE
+#define LANE_MAX_SIZE 10000
+#endif
+
+const size_t lane_max_size = LANE_MAX_SIZE;
+
 class NodeIterator;
 class ConstNodeIterator;
 class ReverseConstNodeIterator;
@@ -74,12 +80,12 @@ class NodeContainer {
     }
 
     // Otherwise, use a new slot
-    if (node_counter_ >= 10000) {
+    if (node_counter_ >= lane_max_size) {
       ++lane_counter_;
       node_counter_ = 0;
       if (lane_counter_ == node_lanes_.size()) {
         std::vector<Node>* new_lane = new std::vector<Node>();
-        new_lane->reserve(10000);
+        new_lane->reserve(lane_max_size);
         node_lanes_.push_back(new_lane);
       }
     }
@@ -98,12 +104,12 @@ class NodeContainer {
     }
 
     // Otherwise, use a new slot
-    if (node_counter_ >= 10000) {
+    if (node_counter_ >= lane_max_size) {
       ++lane_counter_;
       node_counter_ = 0;
       if (lane_counter_ == node_lanes_.size()) {
         std::vector<Node>* new_lane = new std::vector<Node>();
-        new_lane->reserve(10000);
+        new_lane->reserve(lane_max_size);
         node_lanes_.push_back(new_lane);
       }
     }
