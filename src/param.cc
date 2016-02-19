@@ -113,8 +113,12 @@ Model Param::parse() {
     // ------------------------------------------------------------------
     // Biased Sampling
     // ------------------------------------------------------------------
-    else if (*argv_i == "-bh") {
+    else if (*argv_i == "-bias_height") {
       model.setBiasHeight(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-bias_strength") {
+      model.setBiasStrength(readNextInput<double>());
     }
 
     else if (*argv_i == "-brl") {

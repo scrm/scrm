@@ -460,8 +460,30 @@ class Model
     loci_length_ = length; 
    }
 
-  private:
    std::vector<double> change_times_;
+
+   //biased sampling
+    bool biased_sampling = false; //this is turned on if br or bh is set
+    double bias_height_ = 0;
+    double bias_ratio_lower_ = 1;
+    double bias_ratio_upper_ = 1;
+    double bias_strength_ = 1;
+
+    double bias_height() const {return bias_height_;}
+    double bias_ratio_lower() const {return bias_ratio_lower_;}
+    double bias_ratio_upper() const {return bias_ratio_upper_;}
+    double bias_strength() const {return bias_strength_;}
+
+    void setBiasHeight(double height) {biased_sampling = true;
+                                       bias_height_ = height;} //do we need to worry about scaling? currently in generations
+    void setBiasRatioLower(double ratio) {biased_sampling = true;
+                                     bias_ratio_lower_ = ratio;}
+    void setBiasRatioUpper(double ratio) {biased_sampling = true;
+                                     bias_ratio_upper_ = ratio;}
+    void setBiasStrength(double strength) {biased_sampling = true;
+                                     bias_strength_ = strength;}
+
+  private:
 
    double change_position(size_t idx) const {
     return this->change_position_.at(idx);
@@ -559,22 +581,7 @@ class Model
 
    std::vector<std::shared_ptr<SummaryStatistic> > summary_statistics_;
 
-   //biased sampling
-    bool biased_sampling = false; //this is turned on if br or bh is set
-    double bias_height_ = 0;
-    double bias_ratio_lower_ = 1;
-    double bias_ratio_upper_ = 1;
 
-    double bias_height() const {return bias_height_;}
-    double bias_ratio_lower() const {return bias_ratio_lower_;}
-    double bias_ratio_upper() const {return bias_ratio_upper_;}
-
-    void setBiasHeight(double height) {biased_sampling = true;
-                                       bias_height_ = height;} //do we need to worry about scaling? currently in generations
-    void setBiasRatioLower(double ratio) {biased_sampling = true;
-                                     bias_ratio_lower_ = ratio;}
-    void setBiasRatioUpper(double ratio) {biased_sampling = true;
-                                     bias_ratio_upper_ = ratio;}
 };
 
 
