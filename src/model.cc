@@ -22,14 +22,9 @@
 #include "model.h"
 
 
-Model::Model() {
-  default_pop_size = 10000;
-  default_growth_rate = 0.0;
-  default_mig_rate = 0.0;
-  scaling_factor_ = 1.0 / (4 * default_pop_size);
-
-  has_migration_ = false;
-  has_recombination_ = false;
+Model::Model() : 
+  has_migration_(false),
+  has_recombination_(false) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -51,23 +46,31 @@ Model::Model() {
 }
 
 
-Model::Model(size_t sample_size) : Model() {
+Model::Model(size_t sample_size) : 
+  has_migration_(false),
+  has_recombination_(false) {
+
+  this->set_loci_number(1);
+  this->setLocusLength(1);
+  this->addChangeTime(0.0);
+  this->addChangePosition(0.0);
+
+  this->set_population_number(1);
+
+  this->setMutationRate(0.0);
+  this->setRecombinationRate(0.0);
+
+  this->window_length_seq_ = 0;
+  this->set_window_length_rec(500);
+
+  this->setSequenceScaling(ms);
+
   this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   this->setLocusLength(1000);
   this->resetTime();
+  this->resetSequencePosition();
 }
 
-
-/*
-void Model::reset() {
-  pop_sizes_list_.clear();
-  growth_rates_list_.clear();
-  mig_rates_list_.clear();
-  total_mig_rates_list_.clear();
-  single_mig_probs_list_.clear();
-  summary_statistics_.clear();
-}
-*/
 
 /**
  * Function to add a new change time to the model.

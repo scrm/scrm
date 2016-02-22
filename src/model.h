@@ -69,9 +69,10 @@ class Model
 
    
    // Default values;
-   double default_pop_size;
-   double default_growth_rate;
-   double default_mig_rate;
+   constexpr static double default_pop_size = 10000.0;
+   constexpr static double default_growth_rate = 0.0;
+   constexpr static double default_mig_rate = 0.0;
+   constexpr static double scaling_factor_ = 1.0 / (4 * default_pop_size);
 
    // Getters & Setters
 
@@ -456,8 +457,6 @@ class Model
                           size_t new_pop,
                           double default_value = nan("value to replace"));
   void addPopToVectorList(std::vector<std::vector<double> > &vector_list);
-
-   double scaling_factor_; // 1 / (4N0);
 
    // Stores information about samples. Each index represents a sample.
    std::vector<size_t> sample_populations_;

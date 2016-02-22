@@ -262,7 +262,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,0) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0,2) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,1) );
-    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(2) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(2) );
 
     model.increaseTime();
@@ -275,7 +274,6 @@ class TestParam : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,0) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(1,2) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(2,1) );
-    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(1) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate() );
 
     CPPUNIT_ASSERT_THROW(Param("20 10 -I 2 10 10 1.5 -es 1.6 2 0.5 -eM 0.9 5.0").parse(),
@@ -348,7 +346,7 @@ class TestParam : public CppUnit::TestCase {
       "-g", "2", "0.1", "-eG", "1", "3", "-eg", "2", "1", "2.4", "-M", "5.0"};
     CPPUNIT_ASSERT_NO_THROW( model = Param(21, argv2).parse(); );
     model.resetTime();
-    CPPUNIT_ASSERT_EQUAL( model.default_growth_rate, model.growth_rate(0) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(0) );
     CPPUNIT_ASSERT_EQUAL( 0.1 / 4 / model.default_pop_size, model.growth_rate(1) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
