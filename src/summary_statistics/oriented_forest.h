@@ -43,6 +43,9 @@ class OrientedForest : public SummaryStatistic
   void printSegmentOutput(std::ostream &output) const;
   void clear() { }
 
+  std::vector<int> parents() const { return parents_; }
+  std::vector<double> heights() const { return heights_; }
+
   OrientedForest* clone() const {
     return new OrientedForest(this->parents_.size());
   }
