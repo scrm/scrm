@@ -82,6 +82,8 @@ class Model
    double default_pop_size() const { return Model::default_pop_size_; };
 
 
+    std::vector<double> change_times() const { return change_times_; }
+
    /**
     * @brief Returns the scaling factor for times and many parameters
     *
@@ -460,8 +462,6 @@ class Model
     loci_length_ = length; 
    }
 
-   std::vector<double> change_times_;
-
    //biased sampling
     bool biased_sampling = false; //this is turned on if br or bh is set
     double bias_height_ = 0;
@@ -484,6 +484,8 @@ class Model
                                      bias_strength_ = strength;}
 
   private:
+
+   std::vector<double> change_times_;
 
    double change_position(size_t idx) const {
     return this->change_position_.at(idx);
