@@ -504,11 +504,6 @@ void Forest::sampleRecSeqPosition( bool recordEvents ) {
  *                   of a tree.
  */
 void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
-  //DEBUG
-  std::cout << "Inside sampleCoalescences" << std::endl;
-  if (start_node == NULL) {
-  std::cout << "start_node is NULL" << std::endl;}
-  //
   assert( start_node->is_root() );
   // We can have one or active local nodes: If the coalescing node passes the
   // local root, it also starts a coalescence.
@@ -519,23 +514,12 @@ void Forest::sampleCoalescences( Node *start_node, bool recordEvents ) {
   tmp_event_ = Event(start_node->height());
   coalescence_finished_ = false;
 
-  //DEBUG
-  std::cout << "temprorary variables have been initialised" << std::endl;
-  //
-
   // This assertion needs an exception for building the initial tree
   assert ( current_rec() == 1 ||
            active_node(1)->in_sample() ||
            start_node->height() <= active_node(1)->height() );
 
-  //DEBUG
-  std::cout << "about to enter the TimeIntervalIterator loop" << std::endl;
-  //
-
   for (TimeIntervalIterator ti(this, start_node); ti.good(); ++ti) {
-    //DEBUG
-    std::cout << "In the TimeIntervalIterator loop" << std::endl;
-    //
     this->recomb_opp_x_within_scrm = 0; // DEBUG reset the recombination opportunity within this time interval to zero
     scrmdout << "* * Time interval: " << (*ti).start_height() << " - "
              << (*ti).end_height() << " (Last event at " << tmp_event_.time() << ")" << std::endl;
@@ -933,8 +917,6 @@ void Forest::implementNoEvent(const TimeInterval &ti, bool &coalescence_finished
  *
  */
 void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii) {
-  //DEBUG
-  std::cout << "Inside implement Coalescence" << std::endl;
   // Coalescence: sample target point and implement the coalescence
   assert( event.node() == active_node(event.active_node_nr()) );
 
@@ -1047,9 +1029,6 @@ void Forest::implementCoalescence(const Event &event, TimeIntervalIterator &tii)
  * @param time   The time at which the coalescence happens
  */
 void Forest::implementPwCoalescence(Node* root_1, Node* root_2, const double time) {
-  //DEBUG
-  std::cout << "Inside implementPwCoalescence" << std::endl;
-  //
   scrmdout << "* * Both nodes coalesced together" << std::endl;
   scrmdout << "* * Implementing..." << std::flush;
 
