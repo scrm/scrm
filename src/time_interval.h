@@ -139,7 +139,7 @@ class TimeIntervalIterator {
  * @return Nothing. Nodes are saved in contemporaries_.
  */
 inline void TimeIntervalIterator::searchContemporaries(Node *node) {
-  searchContemporariesBottomUp(node, node->height() >= contemporaries()->buffer_time());
+  searchContemporariesBottomUp(node);
 }
 
 #endif
