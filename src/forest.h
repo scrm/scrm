@@ -165,12 +165,12 @@ class Forest
   NodeContainer *nodes() { return &(this->nodes_); }
 
   double getTMRCA(const bool &scaled = false) const {
-    if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size);
+    if (scaled) return local_root()->height() / (4 * this->model_->default_pop_size());
     else return local_root()->height();
   }
 
   double getLocalTreeLength(const bool &scaled = false) const {
-    if (scaled) return local_root()->length_below() / (4 * this->model_->default_pop_size);
+    if (scaled) return local_root()->length_below() / (4 * this->model_->default_pop_size());
     else return local_root()->length_below();
   }
 
