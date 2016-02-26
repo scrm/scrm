@@ -152,21 +152,21 @@ class TestModel : public CppUnit::TestCase {
 
     model.addPopulationSizes(1, std::vector<double>(2, 5), true, false);
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT( model.population_size(0) == 5 );
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size(), model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 5) );
 
     model.addPopulationSizes(2, 10, true, false);
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT( model.population_size(0) == 10 );
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size(), model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 10) );
 
     auto pop_sizes2 = std::vector<double>();
     pop_sizes2.push_back(7);
     pop_sizes2.push_back(6);
     model.addPopulationSizes(0.0, pop_sizes2);
     model.resetTime();
-    CPPUNIT_ASSERT( model.population_size(0) == 7 );
-    CPPUNIT_ASSERT( model.population_size(1) == 6 );
+    CPPUNIT_ASSERT( areSame(model.population_size(0), 7) );
+    CPPUNIT_ASSERT( areSame(model.population_size(1), 6) );
 
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(1, 5)), std::logic_error );
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(1, std::vector<double>(3, 5)), std::logic_error );
@@ -180,17 +180,17 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
 
     CPPUNIT_ASSERT_EQUAL( 1.0, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 0.5 * model.default_pop_size, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 0.5 * model.default_pop_size(), model.population_size(0) );
 
     model.addPopulationSizes(1, std::vector<double>(2, .4), true, true);
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 0.4 * model.default_pop_size, model.population_size(0) );
+    CPPUNIT_ASSERT_EQUAL( 1.0 * 4 * model.default_pop_size(), model.getCurrentTime() );
+    CPPUNIT_ASSERT_EQUAL( 0.4 * model.default_pop_size(), model.population_size(0) );
 
     model.addPopulationSizes(2, 10, true, true);
     model.increaseTime();
-    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size, model.getCurrentTime() );
-    CPPUNIT_ASSERT( areSame(10.0 * model.default_pop_size, model.population_size(0)) );
+    CPPUNIT_ASSERT_EQUAL( 2.0 * 4 * model.default_pop_size(), model.getCurrentTime() );
+    CPPUNIT_ASSERT( areSame(10.0 * model.default_pop_size(), model.population_size(0)) );
 
     CPPUNIT_ASSERT_THROW( model.addPopulationSizes(3, 0, true, true), std::invalid_argument);
   }
@@ -221,13 +221,13 @@ class TestModel : public CppUnit::TestCase {
     model.finalize();
     model.resetTime();
 
-    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size() ) );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(0) ) );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(1) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size(),  model.population_size() ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size(),  model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size(),  model.population_size(1) ) );
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.0, model.getCurrentTime() );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size,  model.population_size(0) ) );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size * std::exp( -1.5 ),  model.population_size(0, 2.0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size(),  model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size()* std::exp( -1.5 ),  model.population_size(0, 2.0) ) );
   }
 
   void testAddMigRates() {
@@ -359,11 +359,9 @@ class TestModel : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT_EQUAL( (size_t)7, model.sample_size() );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 1.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
-    CPPUNIT_ASSERT_EQUAL( model.default_pop_size, model.population_size(0) );
 
     CPPUNIT_ASSERT_NO_THROW( model.increaseTime() ); // 2.0
     CPPUNIT_ASSERT_EQUAL( 1.5, model.growth_rate(0) );
@@ -405,10 +403,10 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT_EQUAL( 1.0, model.mutation_rate() );
 
     model.setMutationRate(10, false, true);
-    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size), model.mutation_rate() );
+    CPPUNIT_ASSERT_EQUAL( 10.0/(4*model.default_pop_size()), model.mutation_rate() );
 
     model.setMutationRate(10, true, true);
-    CPPUNIT_ASSERT_EQUAL(10.0/(4*model.default_pop_size*10),
+    CPPUNIT_ASSERT_EQUAL(10.0/(4*model.default_pop_size()*10),
                          model.mutation_rate() );
 
     // Test setting multiple rates
@@ -460,11 +458,11 @@ class TestModel : public CppUnit::TestCase {
     CPPUNIT_ASSERT( model.has_recombination() );
 
     model.setRecombinationRate(0.001, false, true);
-    CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size), model.recombination_rate() );
+    CPPUNIT_ASSERT_EQUAL( 0.001/(4*model.default_pop_size()), model.recombination_rate() );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
     model.setRecombinationRate(0.001, true, true);
-    CPPUNIT_ASSERT( areSame(0.00001/(4*model.default_pop_size), model.recombination_rate()) );
+    CPPUNIT_ASSERT( areSame(0.00001/(4*model.default_pop_size()), model.recombination_rate()) );
     CPPUNIT_ASSERT_EQUAL( (size_t)101, model.loci_length() );
 
     // Test setting multiple rates
@@ -551,8 +549,8 @@ class TestModel : public CppUnit::TestCase {
 
 
     model.resetTime();
-    double size0 = model.default_pop_size;
-    double size1 = model.default_pop_size;
+    double size0 = model.default_pop_size();
+    double size1 = model.default_pop_size();
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
 
@@ -569,12 +567,12 @@ class TestModel : public CppUnit::TestCase {
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.5, model.getCurrentTime() );
     CPPUNIT_ASSERT( areSame( 500, model.population_size(0) ) );
-    CPPUNIT_ASSERT( areSame( model.default_pop_size*std::exp(-0.5*0.5), model.population_size(1) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size()*std::exp(-0.5*0.5), model.population_size(1) ) );
 
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 2.5, model.getCurrentTime() );
     size0 = 500*std::exp(0.5*1.0);
-    size1 = model.default_pop_size*std::exp(-0.5*1.5);
+    size1 = model.default_pop_size()*std::exp(-0.5*1.5);
     CPPUNIT_ASSERT( areSame( size0, model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( size1, model.population_size(1) ) );
 
@@ -599,7 +597,7 @@ class TestModel : public CppUnit::TestCase {
     model.finalize();
     //std::cout << model << std::endl;
     model.resetTime();
-    CPPUNIT_ASSERT( areSame( model.default_pop_size, model.population_size(0) ) );
+    CPPUNIT_ASSERT( areSame( model.default_pop_size(), model.population_size(0) ) );
     CPPUNIT_ASSERT( areSame( 500.0, model.population_size(1) ) );
   }
 

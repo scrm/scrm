@@ -22,14 +22,9 @@
 #include "model.h"
 
 
-Model::Model() {
-  default_pop_size = 10000;
-  default_growth_rate = 0.0;
-  default_mig_rate = 0.0;
-  scaling_factor_ = 1.0 / (4 * default_pop_size);
-
-  has_migration_ = false;
-  has_recombination_ = false;
+Model::Model() : 
+  has_migration_(false),
+  has_recombination_(false) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -51,23 +46,31 @@ Model::Model() {
 }
 
 
-Model::Model(size_t sample_size) : Model() {
+Model::Model(size_t sample_size) : 
+  has_migration_(false),
+  has_recombination_(false) {
+
+  this->set_loci_number(1);
+  this->setLocusLength(1);
+  this->addChangeTime(0.0);
+  this->addChangePosition(0.0);
+
+  this->set_population_number(1);
+
+  this->setMutationRate(0.0);
+  this->setRecombinationRate(0.0);
+
+  this->window_length_seq_ = 0;
+  this->set_window_length_rec(500);
+
+  this->setSequenceScaling(ms);
+
   this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   this->setLocusLength(1000);
   this->resetTime();
+  this->resetSequencePosition();
 }
 
-
-/*
-void Model::reset() {
-  pop_sizes_list_.clear();
-  growth_rates_list_.clear();
-  mig_rates_list_.clear();
-  total_mig_rates_list_.clear();
-  single_mig_probs_list_.clear();
-  summary_statistics_.clear();
-}
-*/
 
 /**
  * Function to add a new change time to the model.
@@ -83,7 +86,7 @@ void Model::reset() {
  * @returns The position the time has now in the vector
  */
 size_t Model::addChangeTime(double time, const bool &scaled) {
-  if (scaled) time *= 4 * default_pop_size;
+  if (scaled) time *= 4 * default_pop_size();
 
   size_t position = 0;
   if ( change_times_.size() == 0 ) {
@@ -159,7 +162,7 @@ size_t Model::addChangePosition(const double position) {
 
 
 void Model::addSampleSizes(double time, const std::vector<size_t> &samples_sizes, const bool &scaled) {
-  if (scaled) time *= 4 * default_pop_size;
+  if (scaled) time *= 4 * default_pop_size();
 
   for (size_t pop = 0; pop < samples_sizes.size(); ++pop) {
     for (size_t i = 0; i < samples_sizes.at(pop); ++i) {
@@ -196,7 +199,7 @@ void Model::addPopulationSizes(double time, const std::vector<double> &pop_sizes
   for (double pop_size : pop_sizes) {
     if (!std::isnan(pop_size)) {
       // Scale to absolute values if necessary
-      if (relative) { pop_size *= this->default_pop_size; }
+      if (relative) { pop_size *= this->default_pop_size(); }
 
       // Save inverse double value
       if (pop_size <= 0.0) throw std::invalid_argument("population size <= 0");
@@ -247,7 +250,7 @@ void Model::addPopulationSize(const double time, const size_t pop, double popula
                               const bool &time_scaled, const bool &relative) {
   checkPopulation(pop);
   size_t position = addChangeTime(time, time_scaled);
-  if (relative) population_size *= default_pop_size;
+  if (relative) population_size *= default_pop_size();
 
   if (population_size <= 0.0) throw std::invalid_argument("population size <= 0");
   if (pop_sizes_list_.at(position).empty()) addPopulationSizes(time, nan("value to replace"), time_scaled);
@@ -450,7 +453,7 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
   size_t n_pops = model.population_number();
   os << "---- Model: ------------------------" << std::endl;
   os << "Total Sample Size: " << model.sample_size() << std::endl;
-  os << "N0 is assumed to be " << model.default_pop_size << std::endl;
+  os << "N0 is assumed to be " << model.default_pop_size() << std::endl;
 
   model.resetSequencePosition();
   for (size_t idx = 0; idx < model.countChangePositions(); ++idx) {
@@ -548,12 +551,12 @@ void Model::finalize() {
 
 void Model::calcPopSizes() {
   // Set initial population sizes
-  if (pop_sizes_list_.at(0).empty()) addPopulationSizes(0, default_pop_size);
+  if (pop_sizes_list_.at(0).empty()) addPopulationSizes(0, default_pop_size());
   else {
     // Replace values not set by the user with the default size
     for (size_t pop = 0; pop < population_number(); ++pop) {
       if (std::isnan(pop_sizes_list_.at(0).at(pop)))
-        addPopulationSize(0, pop, default_pop_size);
+        addPopulationSize(0, pop, default_pop_size());
     }
   }
 
@@ -676,7 +679,7 @@ void Model::setRecombinationRate(double rate,
     throw std::invalid_argument("Recombination rate must be non-negative");
   }
 
-  if (scaled) rate /= 4.0 * default_pop_size;
+  if (scaled) rate /= 4.0 * default_pop_size();
   if (per_locus) {
     if (loci_length() <= 1) {
       throw std::invalid_argument("Locus length must be at least two");
@@ -700,7 +703,7 @@ void Model::setRecombinationRate(double rate,
  */
 void Model::setMutationRate(double rate, const bool &per_locus, const bool &scaled,
                             const double seq_position) {
-  if (scaled) rate /= 4.0 * default_pop_size;
+  if (scaled) rate /= 4.0 * default_pop_size();
 
   size_t idx = addChangePosition(seq_position);
   if (per_locus) {

@@ -41,27 +41,22 @@ struct NewickBuffer {
   std::string tree;      ///< The subtree itself.
 };
 
+
 class NewickTree : public SummaryStatistic
 {
  public:
-  NewickTree() : NewickTree(6, true) { }
-  NewickTree(size_t precision) : NewickTree(precision, true) { }
-  NewickTree(size_t precision, bool has_recombination) { 
-    precision_ = precision; 
-    has_rec_ = has_recombination;
-  }
-
-  ~NewickTree() {}
+  NewickTree() : precision_(6), has_rec_(true) {}
+  NewickTree(size_t precision) : precision_(precision), has_rec_(true) {}
+  NewickTree(size_t precision, bool has_recombination) : 
+      precision_(precision), 
+      has_rec_(has_recombination) {}
 
   //Virtual methods
   void calculate(const Forest &forest);
   void printSegmentOutput(std::ostream &output) const;
 
   NewickTree* clone() const { return new NewickTree(precision_, has_rec_); };
-
-  void clear() {
-    buffer_.clear();
-  }
+  void clear() { buffer_.clear(); }
 
  private:
   std::string generateTree(Node const* node, const Forest &forest, const bool use_buffer);
