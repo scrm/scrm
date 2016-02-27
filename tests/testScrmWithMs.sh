@@ -5,7 +5,7 @@ cd msdir; gcc -o ms ms.c streec.c rand1.c -lm ; gcc -o sample_stats sample_stats
 
 wget --no-check-certificate https://github.com/hybridLambda/hybrid-Lambda/archive/release.tar.gz -o /dev/null
 tar -xf release.tar.gz
-cd hybrid-Lambda-release ; ./bootstrap ; make hybrid-Lambda ; cd ..
+cd hybrid-Lambda-release ; export CXXFLAGS="-Werror"; ./bootstrap ; make hybrid-Lambda ; cd ..
 
 mkdir test-demo
 cd test-demo
