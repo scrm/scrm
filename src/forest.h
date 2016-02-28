@@ -150,7 +150,6 @@ class Forest
   void buildInitialTree();
   void sampleNextGenealogy( bool recordEvents = false );
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
-
   void clear();
 
   //Debugging Tools
@@ -204,18 +203,12 @@ class Forest
   void clearSumStats();
   void printLocusSumStats(std::ostream &output) const;
   void printSegmentSumStats(std::ostream &output) const;
-
-  double get_rec_base(const size_t idx) const {
-    return rec_bases_.at(idx);
-  }
-
+  double get_rec_base(const size_t idx) const { return rec_bases_.at(idx); }
   double current_base() const { return get_rec_base(current_rec_); }
   double next_base() const { return get_rec_base(current_rec_ + 1); }
   void set_current_base(double const base) { rec_bases_[current_rec_] = base; };
   void set_next_base(double const base) { rec_bases_.push_back(base); };
-
   size_t current_rec() const { return current_rec_; };
-
   bool coalescence_finished() const { return this->coalescence_finished_; }
 
  private:
@@ -264,20 +257,18 @@ class Forest
 
   bool pruneNodeIfNeeded(Node* node, const bool prune_orphans = true);
 
+  void flushOldRecombinations();
+  
   // Calculation of Rates
   double calcCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcPwCoalescenceRate(const size_t pop, const TimeInterval &ti) const;
   double calcRecombinationRate(Node const* node) const;
   void calcRates(const TimeInterval &ti, double &recomb_opp_x_within_scrm);
-
   void sampleEvent(const TimeInterval &ti, double &event_time, Event &return_event) const;
-
   void sampleEventType(const double time, const size_t time_line,
                        const TimeInterval &ti, Event &return_event) const;
-
   void selectFirstTime(const double new_time, const size_t time_line,
                        double &current_time, size_t &current_time_line) const;
-
   double getTimeLineGrowth(const size_t time_line) const {
     if (time_line == 0) return 0.0;
     else if (time_line == 1) return model().growth_rate(active_node(0)->population());
@@ -285,19 +276,15 @@ class Forest
     else throw std::out_of_range("Trying to get growthrate of unknown time line.");
   }
 
-
   // Private Members
   NodeContainer nodes_;    // The nodes of the Tree/Forest
 
-  // We have 3 different kind of roots that are important:
+  // We have 2 different kind of roots that are important:
   // local root: root of the smallest subtree containing all local sequences
   Node* local_root_;
 
   // primary root: root of the tree that contains all local sequences
   Node* primary_root_;
-
-  // secondary roots: roots of trees that contain only non-local nodes
-  // std::unordered_set<Node*> secondary_roots_;
 
   size_t sample_size_;      // The number of sampled nodes (changes while building the initial tree)
   size_t current_rec_;      // A counter for recombinations

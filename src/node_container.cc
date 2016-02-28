@@ -39,37 +39,6 @@ NodeContainer::NodeContainer() {
   node_lanes_.push_back(new_lane);
 }
 
-//NodeContainer::NodeContainer(const NodeContainer &nc) {
-  //size_ = 0;
-  //set_first(NULL);
-  //set_last(NULL);
-  //size_ = 0;
-
-  //node_counter_ = 0;
-  //lane_counter_ = 0;
-  //std::vector<Node>* new_lane = new std::vector<Node>();
-  //new_lane->reserve(10000);
-  //node_lanes_.push_back(new_lane);
-
-  //std::map<Node const*, Node*> node_mapping;
-  //node_mapping[NULL] = NULL;
-
-  //for (auto it = nc.iterator(); it.good(); ++it) {
-    //Node *node = this->createNode(**it);
-    //node_mapping[*it] = node;
-    //add(node);
-  //}
-  //assert( this->sorted() );
-
-  //for (auto it = iterator(); it.good(); ++it) {
-    //if (!(*it)->is_root()) (*it)->set_parent(node_mapping[(*it)->parent()]);
-    //(*it)->set_first_child(node_mapping[(*it)->first_child()]);
-    //(*it)->set_second_child(node_mapping[(*it)->second_child()]);
-  //}
-
-  //unsorted_node_ = node_mapping[nc.unsorted_node_];
-//}
-
 NodeContainer::NodeContainer(const NodeContainer &nc) {
   size_ = 0;
   set_first(NULL);
@@ -154,8 +123,6 @@ void NodeContainer::push_front( Node* node ) {
     return;
 }
 
-
-
 // Adds 'node' to the container
 // If you know that the node is higher in the tree than a other node,
 // than you can specify the latter as 'after_node' to speedup the process.
@@ -190,7 +157,6 @@ void NodeContainer::add(Node* node, Node* after_node) {
   }
 
   assert( after_node == NULL || node->height() >= after_node->height() );
-
 
   if (after_node == NULL) after_node = first();
   Node* current = after_node;
@@ -339,3 +305,30 @@ std::ostream& operator<< (std::ostream& stream, const NodeContainer& nc) {
   return stream;
 }
 
+
+// both returns minimum value of _last_update / _last_change across Nodes
+// and modifies it to allow removing unused recombination positions
+size_t NodeContainer::getOrModifyMinLastUpdate( int change ) {
+
+  size_t minimum = 0x7fff;
+  if (change == 0) {
+    for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
+      if ((*it)->last_change() > 0) {      // value "0" means "root"?
+	minimum = std::min( minimum, (*it)->last_change() );
+      }
+      if ((*it)->last_update() > 0) {      // value "0" means "up-to-date"
+	minimum = std::min( minimum, (*it)->last_update() );
+      }
+    }
+  } else {
+    for ( NodeIterator it = this->iterator(); it.good(); ++it ) {
+      if ((*it)->last_change() > 0) {      // value "0" means "root"?
+	(*it)->set_last_change( (*it)->last_change() + change );
+      }
+      if ((*it)->last_update() > 0) {      // value "0" means "up-to-date"
+	(*it)->set_last_update( (*it)->last_update() + change );
+      }
+    }
+  }
+  return minimum;
+}

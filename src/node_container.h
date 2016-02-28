@@ -133,6 +133,9 @@ class NodeContainer {
   size_t size() const { return size_; };
   bool sorted() const;
 
+  size_t getMinLastUpdate() const { return const_cast<NodeContainer*>(this)->getOrModifyMinLastUpdate( 0 ); };
+  void modifyMinLastUpdate( int change ) { getOrModifyMinLastUpdate( change ); };
+  
 #ifdef UNITTEST
   friend class TestNodeContainer;
 #endif
@@ -143,16 +146,14 @@ class NodeContainer {
 
  private:
   friend void swap(NodeContainer& first, NodeContainer& second);
-  //const std::vector<Node*> nodes() const { return nodes_; }
 
   void add_before(Node* add, Node* next_node);
+  void set_first(Node* node) { first_node_ = node; }
+  void set_last(Node* node) { last_node_ = node; }
+  size_t getOrModifyMinLastUpdate( int change );
 
   Node* first_node_;
   Node* last_node_;
-
-  void set_first(Node* node) { first_node_ = node; }
-  void set_last(Node* node) { last_node_ = node; }
-
   Node* unsorted_node_;
   size_t size_;
 

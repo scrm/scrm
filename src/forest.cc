@@ -42,8 +42,11 @@ void Forest::initialize(Model* model,
   this->set_random_generator(rg);
 
   current_rec_ = 0;
-  rec_bases_ = std::vector<double>(1, -1);
-  rec_bases_.reserve(1000);
+  // modified to guarantee no change in capacity; see
+  // http://stackoverflow.com/questions/24260717
+  std::vector<double> init_rec_bases(1, -1 );
+  rec_bases_.reserve(100);
+  rec_bases_.assign( init_rec_bases.begin(), init_rec_bases.end() );
 
   this->set_sample_size(0);
 
@@ -97,13 +100,9 @@ Forest::Forest(const Forest &current_forest) {
   this->contemporaries_ = ContemporariesContainer(model().population_number(),
                                                   model().sample_size(),
                                                   random_generator());
-//<<<<<<< HEAD
-  //this->tmp_event_time_ = current_forest.tmp_event_time_;
-//=======
 
   this->tmp_event_time_ = this->getTMRCA(false); // Disable buffer for next genealogy.
 
-//>>>>>>> myMaster
   this->coalescence_finished_ = true;
 
   //dout<<"  #################### check copied forest ###############"<<std::endl;
@@ -278,6 +277,23 @@ void Forest::updateAbove(Node* node, bool above_local_root,
   if ( recursive && !node->is_root() ) {
     updateAbove(node->parent(), above_local_root, recursive, invariants_only);
   }
+}
+
+
+/**
+ * Function that flushes old recombinations from rec_bases_ array to avoid it growing too large 
+ */
+void Forest::flushOldRecombinations() {
+
+  size_t min_last_update = std::min( getNodes()->getMinLastUpdate(), segment_count() );
+  // make sure no pointer goes below 1, so that the last recombination can be changed without hitting -1
+  int elts_to_remove = std::max( 0, (int)min_last_update - 1 );
+  // implement change
+  nodes_.modifyMinLastUpdate( -elts_to_remove );
+  current_rec_ -= elts_to_remove;
+  // remove elements
+  rec_bases_.erase( rec_bases_.begin(), rec_bases_.begin() + elts_to_remove );
+
 }
 
 

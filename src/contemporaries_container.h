@@ -33,6 +33,9 @@
 #include "node.h"
 #include "random/random_generator.h"
 
+// number of slots in contemporariesContainer in addition to #samples (could be 0?)
+const size_t ADDITIONAL_CONTEMPORARIES = 10;
+
 class ContemporariesIterator {
  public:
   ContemporariesIterator(std::unordered_set<Node*>::iterator it) : it_set_(it), use_set_(true) { };
@@ -206,8 +209,8 @@ class ContemporariesContainer {
 
 
 inline ContemporariesContainer::ContemporariesContainer() {
-  contemporaries_vec1_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(100));
-  contemporaries_vec2_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(100));
+  contemporaries_vec1_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(ADDITIONAL_CONTEMPORARIES));
+  contemporaries_vec2_ = std::vector<std::vector<Node*> >(1, std::vector<Node*>(ADDITIONAL_CONTEMPORARIES));
 
   rg_ = NULL;
   use_first_ = true;
@@ -225,12 +228,12 @@ inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number,
   // special situations.
   if (sample_number <= 750) {
     contemporaries_vec1_ = std::vector<std::vector<Node*> >(pop_number);
-    for ( auto it : contemporaries_vec1_ ) it.reserve(sample_number + 200);
+    for ( auto it : contemporaries_vec1_ ) it.reserve(sample_number + ADDITIONAL_CONTEMPORARIES);
     contemporaries_vec2_ = std::vector<std::vector<Node*> >(pop_number);
-    for ( auto it : contemporaries_vec2_ ) it.reserve(sample_number + 200);
+    for ( auto it : contemporaries_vec2_ ) it.reserve(sample_number + ADDITIONAL_CONTEMPORARIES);
     use_set_ = false;
   } else {
-    size_t bucket_nr = std::ceil((sample_number + 200) * 1.4);
+    size_t bucket_nr = std::ceil((sample_number + ADDITIONAL_CONTEMPORARIES) * 1.4);
     contemporaries_set1_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
     contemporaries_set2_ = std::vector<std::unordered_set<Node*> >(pop_number, std::unordered_set<Node*>(bucket_nr));
     use_set_ = true;
@@ -239,6 +242,7 @@ inline ContemporariesContainer::ContemporariesContainer(const size_t pop_number,
   use_first_ = true;
   buffer_time_ = DBL_MAX;
 }
+
 
 inline void ContemporariesContainer::add(Node* node) {
   assert(node != NULL);
