@@ -32,7 +32,7 @@ void SegSites::calculate(const Forest &forest) {
 
   while (position_at < forest.next_base()) {
     TreePoint mutation = forest.samplePoint();
-    heights_.push_back(mutation.height() / (4 * forest.model().default_pop_size));
+    heights_.push_back(mutation.height() / (4 * forest.model().default_pop_size()));
     haplotypes_.push_back(getHaplotypes(mutation, forest));
     if (forest.model().getSequenceScaling() == absolute) {
       positions_.push_back(position_at);

@@ -3,7 +3,7 @@ scrm Version History
 
 scrm 1.7.0
 ------------------------
-Released: Not yet
+Released: 2016-02-07
 
 ### New Features
 + New command line option "--transpose-segsites" that prints the segregating
@@ -23,6 +23,7 @@ Released: Not yet
 + `Forest.coalescence_finished` has not set to `true` after a pairwise
   coalescence event (#89). This had no effect on the command line version
   of scrm.
++ Fixes scrm's tests suite on 32 bit systems (#98).
 
 
  

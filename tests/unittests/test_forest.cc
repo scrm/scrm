@@ -102,7 +102,7 @@ class TestForest : public CppUnit::TestCase {
 
   void testCalcRate() {
     TimeIntervalIterator tii(forest, forest->nodes()->at(0));
-    size_t pop_size = 2*forest->model().population_size(0);
+    double pop_size = 2*forest->model().population_size(0);
     Node *node1 = new Node(0.1);
     Node *node2 = new Node(0.2);
 
@@ -118,7 +118,7 @@ class TestForest : public CppUnit::TestCase {
 
     forest->states_[0] = 1;
     CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii, forest->recomb_opp_x_within_scrm) );
-    CPPUNIT_ASSERT_EQUAL( 4.0/pop_size, forest->rates_[0] );
+    CPPUNIT_ASSERT( areSame(4.0/pop_size, forest->rates_[0]) );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );
 
