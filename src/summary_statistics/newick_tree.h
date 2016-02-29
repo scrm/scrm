@@ -52,7 +52,7 @@ class NewickTree : public SummaryStatistic
       has_rec_(has_recombination) {}
 
   //Virtual methods
-  void calculate( Forest &forest);
+  void calculate(const Forest &forest);
   void printSegmentOutput(std::ostream &output) const;
 
   NewickTree* clone() const { return new NewickTree(precision_, has_rec_); };

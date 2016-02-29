@@ -370,7 +370,7 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
-TreePoint Forest::samplePoint(Node* node, double length_left) {
+TreePoint Forest::samplePoint(Node* node, double length_left) const{
   if (node == NULL) {
     // Called without arguments => initialization
     assert( this->checkTreeLength() );

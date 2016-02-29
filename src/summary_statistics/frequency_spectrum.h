@@ -47,7 +47,7 @@ class FrequencySpectrum : public SummaryStatistic
    FrequencySpectrum(const FrequencySpectrum &sp) : seg_sites_(sp.seg_sites_) { }
 
    //Virtual methods
-   void calculate( Forest &forest);
+   void calculate(const Forest &forest);
    void printLocusOutput(std::ostream &output) const;
    void clear() { 
      for (size_t i = 0; i < sfs_.size(); ++i) sfs_.at(i) = 0;

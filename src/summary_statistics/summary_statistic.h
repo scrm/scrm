@@ -34,7 +34,7 @@ class SummaryStatistic
    virtual ~SummaryStatistic() {};
 
    // Virtual methods
-   virtual void calculate( Forest &forest) =0;
+   virtual void calculate(const Forest &forest) =0;
    virtual void clear() =0;
    virtual SummaryStatistic* clone() const =0;
 
