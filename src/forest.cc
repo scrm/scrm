@@ -444,7 +444,6 @@ double Forest::sampleNextGenealogy( bool recordEvents ) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-    dout << "Next Position: " << this->next_base() << std::endl;
     //this->record_Recombevent_atNewGenealogy( 0 );
     return 0; //enables the above line to be carried out at a higher level
   }
@@ -492,6 +491,11 @@ double Forest::sampleNextGenealogy( bool recordEvents ) {
 
 void Forest::sampleRecSeqPosition( bool recordEvents ) {
   this->sampleNextBase();
+
+  if (current_base() == model().getCurrentSequencePosition()) {
+    // we are just here because rates changed
+    dout << "Next Position: " << this->next_base() << std::endl;
+  }
 
   assert( this->printTree() );
   this->calcSegmentSumStats();
