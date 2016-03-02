@@ -76,6 +76,7 @@ int main(int argc, char *argv[]){
       while (forest.next_base() < model.loci_length()) { 
         // Sample next genealogy
         forest.sampleNextGenealogy();
+        forest.sampleRecSeqPosition();
         forest.printSegmentSumStats(*output);
       }
       assert(forest.next_base() == model.loci_length());

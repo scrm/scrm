@@ -461,7 +461,7 @@ double Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( this->current_base() <= this->model().loci_length() );
 
   // Sample the recombination point
-  TreePoint rec_point = this->samplePoint();
+  TreePoint rec_point = model().biased_sampling ? sampleBiasedPoint() : samplePoint() ;
   assert( rec_point.base_node()->local() );
   assert( this->printTree() );
 //recombination_counter++;
