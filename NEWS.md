@@ -1,6 +1,20 @@
 scrm Version History
 ========================
 
+scrm 1.7.1
+------------------------
+Released: 2016-03-23
+
+### Bug Fixes
++ Fixes that bug that could lead to false results when the "-eI" option
+  was used to include non-contemporary samples. In that case, scrm
+  could skip the time interval between the MRCA of the contemporary samples
+  and the time of the "-eI" event (if any), and neglect all events 
+  during that time. We recommend to repeat all simulations which
+  used "-eI" with the updated version (#102).
+
+
+
 scrm 1.7.0
 ------------------------
 Released: 2016-02-07
