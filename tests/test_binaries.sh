@@ -88,5 +88,6 @@ echo ""
 echo "Various Edge Cases"
  test_scrm 6 1 -I 2 3 3 0.5 -r 1 100 -es 0 2 0.5 -ej 1 3 1 -t 1  || exit 1
  test_scrm 10 1 -es 1.0 1 0.5 -ej 1.0 2 1 || exit 1
+ test_scrm 4 1 -t 1.0 -I 2 2 0 -ej 1.0 1 2 -eI 3.5 0 2
 echo ""
 
