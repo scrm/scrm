@@ -370,7 +370,7 @@ void Forest::buildInitialTree() {
  *
  * \return The sampled point on the tree.
  */
-TreePoint Forest::samplePoint(Node* node, double length_left) const {
+TreePoint Forest::samplePoint(Node* node, double length_left) const{
   if (node == NULL) {
     // Called without arguments => initialization
     assert( this->checkTreeLength() );
@@ -435,7 +435,7 @@ TreePoint Forest::samplePoint(Node* node, double length_left) {
  * @ingroup group_scrm_next
  * @ingroup group_pf_update
  */
-void Forest::sampleNextGenealogy( bool recordEvents ) {
+double Forest::sampleNextGenealogy( bool recordEvents ) {
   ++current_rec_; // Move to next recombination;
 
   //this->set_current_base(next_base_);
@@ -444,12 +444,8 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
     // Don't implement a recombination if we are just here because rates changed
     dout << std::endl ;
     scrmdout << "Position: " << this->current_base() << ": Changing rates." << std::endl;
-    this->record_Recombevent_atNewGenealogy( 0 );
-    this->sampleNextBase();
-    this->record_Recombevent_b4_extension();
-    this->calcSegmentSumStats();
-    dout << "Next Position: " << this->next_base() << std::endl;
-    return;
+    //this->record_Recombevent_atNewGenealogy( 0 );
+    return 0; //enables the above line to be carried out at a higher level
   }
 
   assert( current_base() > model().getCurrentSequencePosition() );
@@ -464,7 +460,7 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( this->current_base() <= this->model().loci_length() );
 
   // Sample the recombination point
-  TreePoint rec_point = this->samplePoint();
+  TreePoint rec_point = model().biased_sampling ? sampleBiasedPoint() : samplePoint() ;
   assert( rec_point.base_node()->local() );
   assert( this->printTree() );
 //recombination_counter++;
@@ -485,19 +481,25 @@ void Forest::sampleNextGenealogy( bool recordEvents ) {
   assert( this->printNodes() );
   assert( this->coalescence_finished() );
 
+  return rec_point.height();
+}
+
+/**
+ * Function for sampling the sequence position of the next recombination event
+ *
+ */
+
+void Forest::sampleRecSeqPosition( bool recordEvents ) {
   this->sampleNextBase();
-  if ( recordEvents ) {
-      // record the recombination opportunity until the next recombination event
-      this->record_Recombevent_b4_extension();
-      // record the CURRENT recombination event with the next recombination opportunity
-      this->record_Recombevent_atNewGenealogy( rec_point.height() );
-  } else {
-    for (TimeIntervalIterator ti(this, this->nodes_.at(0)); ti.good(); ++ti) { }
+
+  if (current_base() == model().getCurrentSequencePosition()) {
+    // we are just here because rates changed
+    dout << "Next Position: " << this->next_base() << std::endl;
   }
+
   assert( this->printTree() );
   this->calcSegmentSumStats();
 }
-
 
 /**
  * Function for doing a coalescence.
@@ -1216,7 +1218,7 @@ bool Forest::pruneNodeIfNeeded(Node* node, const bool prune_orphans) {
   if (node->is_root()) {
     // Orphaned nodes must go
     if (node->countChildren() == 0 && prune_orphans) {
-      dout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
+      scrmdout << "* * * PRUNING: Removing node " << node << " from tree (orphaned)" << std::endl;
       assert(node != local_root());
       // If we are removing the primary root, it is difficult to find the new
       // primary root. It should however be automatically set during the updates

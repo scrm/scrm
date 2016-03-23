@@ -111,6 +111,25 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
+    // Biased Sampling
+    // ------------------------------------------------------------------
+    else if (*argv_i == "-bias_height") {
+      model.setBiasHeight(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-bias_strength") {
+      model.setBiasStrength(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-brl") {
+      model.setBiasRatioLower(readNextInput<double>());
+    }
+
+    else if (*argv_i == "-bru") {
+      model.setBiasRatioUpper(readNextInput<double>());
+    }
+
+    // ------------------------------------------------------------------
     // Subpopulations 
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0

@@ -53,6 +53,7 @@ class TestAlgorithm : public CppUnit::TestCase {
         for (size_t j = 1; j <= 5; j++) {
           while (forest.next_base() < j*5) {
             forest.sampleNextGenealogy();
+            forest.sampleNextBase();
           }
           tmrca[j] += forest.getTMRCA(true);
           tree_length[j] += forest.getLocalTreeLength(true);

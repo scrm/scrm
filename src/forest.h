@@ -148,8 +148,10 @@ class Forest
 
   // Central functions
   void buildInitialTree();
-  void sampleNextGenealogy( bool recordEvents = false );
+  double sampleNextGenealogy( bool recordEvents = false );
+  virtual void sampleRecSeqPosition( bool recordEvents = false );
   TreePoint samplePoint(Node* node = NULL, double length_left = -1) const;
+  virtual TreePoint sampleBiasedPoint(Node* node = NULL, double length_left = -1) { TreePoint tp; return tp;};
   void clear();
 
   //Debugging Tools
