@@ -1,3 +1,6 @@
+[![Project Status: Active - The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
+[![Build Status](https://travis-ci.org/scrm/scrm.png?branch=master)](https://travis-ci.org/scrm/scrm)
+
 scrm
 ====
 
@@ -14,12 +17,7 @@ You can download the latest stable release packaged for a variety of different
 platform from [_scrm_'s homepage][1]. 
 Instructions on building the binary from the source packages are available in the [wiki][3].
 
-### Stable/Development Version From GitHub
-
-Version             | Branch | Build Status
-------------------- | ------ | -----------------
-Stable Version      | stable | [![Build Status](https://travis-ci.org/scrm/scrm.png?branch=stable)](https://travis-ci.org/scrm/scrm)
-Development Version | master | [![Build Status](https://travis-ci.org/scrm/scrm.png?branch=master)](https://travis-ci.org/scrm/scrm)
+### Development Version From GitHub
 
 You can also install `scrm` directly from the git repository. Here, you need to install `autoconf` first:  
 
@@ -38,7 +36,6 @@ Afterwards you can build the binary using
 ./bootstrap
 make
 ```
-
 
 ## Usage
 We designed scrm to be compatible to the famous program `ms` from Richard R. Hudson. 
