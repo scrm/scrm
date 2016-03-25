@@ -49,7 +49,7 @@ TimeIntervalIterator::TimeIntervalIterator(Forest *forest) {
   // Used only for unit testing, and hence private.
   this->forest_ = forest;
   this->contemporaries_ = &(forest->contemporaries_);
-  this->contemporaries_->clear();
+  this->contemporaries_->clear(false);
   this->node_iterator_ = forest->nodes()->iterator();
   this->good_ = false;
   this->inside_node_ = NULL;
@@ -142,7 +142,7 @@ void TimeIntervalIterator::next() {
 }
 
 void TimeIntervalIterator::searchContemporariesBottomUp(Node* node, const bool use_buffer) {
-  contemporaries()->clear();
+  contemporaries()->clear(false);
   Node* start_node = NULL;
 
   if ( use_buffer ) {

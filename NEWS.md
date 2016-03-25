@@ -1,6 +1,18 @@
 scrm Version History
 ========================
 
+scrm 1.7.2
+------------------------
+Released: In Development
+
+### Bug Fixes
++ Fixes a different bug that could occur when using the "-eI" option.
+  The contemporaries buffer was always cleared correctly between 
+  repetitions, and could cause scrm to throw an error (#104).
+  Thanks again to @jackkamm for reporting this bug.
+
+
+
 scrm 1.7.1
 ------------------------
 Released: 2016-03-23
@@ -12,6 +24,7 @@ Released: 2016-03-23
   and the time of the "-eI" event (if any), and neglect all events 
   during that time. We recommend to repeat all simulations which
   used "-eI" with the updated version (#102).
+  Thanks to @jackkamm for reporting this bug.
 
 
 
