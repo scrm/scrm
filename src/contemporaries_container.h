@@ -111,7 +111,7 @@ class ContemporariesContainer {
   void remove(Node *node);
   void replaceChildren(Node *add_node);
   void replace(Node *add_node, Node *del_node_1, Node *del_node_2 = NULL);
-  void clear();
+  void clear(const bool clear_buffer = true);
   void buffer(const double current_time);
 
   Node* sample(const size_t pop) const;
@@ -261,17 +261,23 @@ inline void ContemporariesContainer::replace(Node *add_node, Node *del_node_1, N
   if (!add_node->is_root()) add(add_node);
 }
 
-inline void ContemporariesContainer::clear() {
+
+inline void ContemporariesContainer::clear(const bool clear_buffer) {
   if (use_set_) {
-    for (auto it = contemporaries_set().begin(); it != contemporaries_set().end(); ++it) {
-      if ((*it).size() > 0) (*it).clear();
+    for (auto & pop_container : contemporaries_set()) pop_container.clear();
+    if (clear_buffer) {
+      for (auto & pop_container : buffer_set()) pop_container.clear();
     }
   } else {
-    for (auto it = contemporaries_vector().begin(); it != contemporaries_vector().end(); ++it) {
-      if ((*it).size() > 0) (*it).clear();
+    for (auto & pop_container : contemporaries_vector()) pop_container.clear(); 
+    if (clear_buffer) {
+      for (auto & pop_container : buffer_vector()) pop_container.clear();  
     }
   }
+  if (clear_buffer) buffer_time_ = DBL_MAX;
+  assert(this->empty());
 }
+
 
 inline size_t ContemporariesContainer::size(const size_t pop) const {
   if (use_set_) return contemporaries_set().at(pop).size();
@@ -292,7 +298,7 @@ inline size_t ContemporariesContainer::size(const size_t pop) const {
 inline void ContemporariesContainer::buffer(const double current_time) {
   buffer_time_ = current_time;
   use_first_ = 1 - use_first_;
-  this->clear();
+  this->clear(false);
 }
 
 // Uniformly samples a random node from the current contemporaries.

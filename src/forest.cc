@@ -288,6 +288,7 @@ void Forest::buildInitialTree() {
   assert(this->segment_count() == 0);
   assert(this->rec_bases_.size() == 1);
   assert(this->model().getCurrentSequencePosition() == 0.0);
+  assert(this->contemporaries()->empty());
   this->set_next_base(0.0);
   ++current_rec_;
 
@@ -313,7 +314,11 @@ void Forest::buildInitialTree() {
     if (new_leaf->height() == 0.0) last_added_node = new_leaf;
     dout << "* starting coalescences" << std::endl;
 
-    //Coalesces the separate tree into the main tree
+    // This has changed the tree, so make sure that no buffered
+    // contemporaries are used
+    this->contemporaries()->clear();
+
+    // Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_leaf);
     dout << "* * Tree:" << std::endl;
 
@@ -1260,6 +1265,7 @@ void Forest::clear() {
 
   // Clear nodes
   nodes()->clear();
+  contemporaries()->clear(true);
 
   // Reset Position & Segment Counts
   this->rec_bases_.clear();
