@@ -314,10 +314,6 @@ void Forest::buildInitialTree() {
     if (new_leaf->height() == 0.0) last_added_node = new_leaf;
     dout << "* starting coalescences" << std::endl;
 
-    // This has changed the tree, so make sure that no buffered
-    // contemporaries are used
-    this->contemporaries()->clear();
-
     // Coalesces the separate tree into the main tree
     this->sampleCoalescences(new_leaf);
     dout << "* * Tree:" << std::endl;
