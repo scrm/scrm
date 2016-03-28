@@ -497,6 +497,10 @@ void Forest::sampleRecSeqPosition( bool recordEvents ) {
     dout << "Next Position: " << this->next_base() << std::endl;
   }
 
+  if (!recordEvents) { // Forces SCRM to prune tree in order to match trees in smcsmc when running tests
+    for (TimeIntervalIterator ti(this, this->nodes_.at(0)); ti.good(); ++ti) { }
+   }
+
   assert( this->printTree() );
   this->calcSegmentSumStats();
 }
