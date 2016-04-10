@@ -31,6 +31,7 @@ deploy:
     secure: UrEhKzTdSr7NB4ptDYcWKN02XjfgJgN1fNFu8G2a52Jpk1Z3UeenbmKxIDLj11JUlU427br7t1oQyScYSYEGEM5VEI0aWf7D2i9cPfSRD9QYnHOPG2XZE/xgkwWAm0s4TjnTBmudGSxs9g2KRjDXLz1f191jVGIghnHlxw/C9Ok=
   file:
     - "scrm-src.tar.gz"
+    - "scrm-x64-static"
     - "scrm-x64-static.tar.gz"
     - "scrm-win32.zip"
     - "scrm-win64.zip"
