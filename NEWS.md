@@ -3,7 +3,7 @@ scrm Version History
 
 scrm 1.7.2
 ------------------------
-Released: In Development
+Released: 2016-04-10
 
 ### Bug Fixes
 + Fixes a different bug that could occur when using the "-eI" option.
