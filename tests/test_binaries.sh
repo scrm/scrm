@@ -21,6 +21,13 @@ function test_scrm {
       exit 1
     fi
 
+    ./scrm_asan $@ -seed $i > /dev/null
+    if [ $? -ne 0 ]; then
+      echo ""
+      echo "ASAN error in \"./scrm $@ -seed $i\""
+      exit 1
+    fi
+
     # Test for memory leaks
     valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
     if [ $? -ne 0 ]; then

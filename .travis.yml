@@ -19,7 +19,7 @@ before_script:
   - ./bootstrap
 script:
   - make unittests
-  - make scrm scrm_dbg && ./tests/test_binaries.sh
+  - make scrm scrm_asan scrm_dbg && ./tests/test_binaries.sh
   - make algorithmtest
 before_deploy:
   - ./.travis/build_src_pkg.sh
