@@ -4,7 +4,7 @@
 make scrm scrm_dbg || exit 1
 make scrm_asan 2> /dev/null
 supports_sanitizers=$?
-if [ "$supports_sanitizers" == 0 ]; then
+if [ "$supports_sanitizers" == "0" ]; then
   echo "Using address sanitizers"
 fi
 
@@ -22,7 +22,7 @@ function test_scrm {
       exit 1
     fi
 
-    if [ "$supports_sanitizers" == 0 ]; then
+    if [ "$supports_sanitizers" == "0" ]; then
       ./scrm_asan $@ -seed $i > /dev/null
       if [ $? -ne 0 ]; then
         echo ""
@@ -71,13 +71,13 @@ echo ""
 echo "Testing Migration"
  test_scrm 5 5 -r 5 100 -I 2 3 2 1.2 || exit 1
  test_scrm 10 2 -r 20 200 -I 5 2 2 2 2 2 0.75 -l 5 || exit 1
- test_scrm 10 2 -r 10 100 -I 2 7 3 0.5 -eM 0.3 1.1 --print-model || exit 1
+ test_scrm 10 2 -r 10 100 -I 2 7 3 0.5 -eM 0.3 1.1 -O || exit 1
  test_scrm 10 2 -r 10 100 -I 2 7 3 -m 1 2 0.3 -em 0.5 2 1 0.6 -eM 2.0 1 || exit 1
  test_scrm 20 2 -I 3 2 2 2 1.0 -eI 1.0 2 2 2 -eI 2.0 2 3 3 || exit 1
 echo ""
 
 echo "Testing Size Change"
-  test_scrm 10 2 -r 1 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5 --print-model || exit 1 
+  test_scrm 10 2 -r 1 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5 -O || exit 1 
   test_scrm 10 2 -r 10 100 -I 3 3 3 4 0.5 -eN 0.1 0.05 -eN 0.2 0.5 -l 10 || exit 1 
 echo ""
 
