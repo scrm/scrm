@@ -1,11 +1,12 @@
-#!/bin/bash
-#
+#!/bin/sh
 # Test the binaries using scrms build in debug checks 
-# 
-# Author:   Paul R. Staab 
-# Email:    staab (at) bio.lmu.de
-# Licence:  GPLv3 or later
-#
+
+make scrm scrm_dbg || exit 1
+make scrm_asan
+supports_sanitizers=$?
+if [ $supports_sanitizers ]; then
+  echo "Using address sanitizers"
+fi
 
 function test_scrm {
   echo -n " scrm $@ "
@@ -21,11 +22,13 @@ function test_scrm {
       exit 1
     fi
 
-    ./scrm_asan $@ -seed $i > /dev/null
-    if [ $? -ne 0 ]; then
-      echo ""
-      echo "ASAN error in \"./scrm $@ -seed $i\""
-      exit 1
+    if [ $supports_sanitizers ]; then
+      ./scrm_asan $@ -seed $i > /dev/null
+      if [ $? -ne 0 ]; then
+        echo ""
+        echo "ASAN error in \"./scrm $@ -seed $i\""
+        exit 1
+      fi
     fi
 
     # Test for memory leaks
