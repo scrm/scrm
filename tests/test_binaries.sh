@@ -2,9 +2,9 @@
 # Test the binaries using scrms build in debug checks 
 
 make scrm scrm_dbg || exit 1
-make scrm_asan
+make scrm_asan 2> /dev/null
 supports_sanitizers=$?
-if [ $supports_sanitizers ]; then
+if [ "$supports_sanitizers" == 0 ]; then
   echo "Using address sanitizers"
 fi
 
@@ -22,7 +22,7 @@ function test_scrm {
       exit 1
     fi
 
-    if [ $supports_sanitizers ]; then
+    if [ "$supports_sanitizers" == 0 ]; then
       ./scrm_asan $@ -seed $i > /dev/null
       if [ $? -ne 0 ]; then
         echo ""
