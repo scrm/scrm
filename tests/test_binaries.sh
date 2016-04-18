@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Test the binaries using scrms build in debug checks 
 
 make scrm scrm_dbg || exit 1
