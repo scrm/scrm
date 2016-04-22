@@ -3,7 +3,7 @@ bin_PROGRAMS = scrm
 man_MANS = doc/scrm.1
 
 TESTS = unit_tests algorithm_tests
-check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_prof
+check_PROGRAMS = unit_tests algorithm_tests scrm_dbg scrm_asan scrm_prof
 PROG = SCRM
 
 dist-hook:
@@ -59,12 +59,14 @@ alg_test_src = tests/cppunit/test_runner.cc tests/algorithmtest/test_algorithm.c
 scrm_SOURCES = $(scrm_src) src/scrm.cc
 scrm_dbg_SOURCES = $(scrm_src) $(debug_src) src/scrm.cc
 scrm_prof_SOURCES = $(scrm_src) src/scrm.cc
+scrm_asan_SOURCES = $(scrm_src) src/scrm.cc
 unit_tests_SOURCES = $(scrm_src) $(debug_src) $(unit_test_src)
 algorithm_tests_SOURCES = $(scrm_src) $(alg_test_src)
 
 scrm_CXXFLAGS= -DNDEBUG @OPT_CXXFLAGS@
 scrm_dbg_CXXFLAGS= -g
 scrm_prof_CXXFLAGS= -pg -DNDEBUG
+scrm_asan_CXXFLAGS= -g -DNDEBUG -fsanitize=undefined,address -fno-sanitize-recover
 unit_tests_CXXFLAGS = -g -DUNITTEST -DNDEBUG
 algorithm_tests_CXXFLAGS = -g -DNDEBUG
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports

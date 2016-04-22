@@ -18,9 +18,9 @@ before_script:
   - ./bootstrap
 script:
   - make unittests
-  - make scrm scrm_dbg && ./tests/test_binaries.sh
   - make algorithmtest
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then ./tests/testScrmWithMs.sh; fi
+  - ./tests/test_binaries.sh
 before_deploy:
   - ./.travis/build_src_pkg.sh
   - ./.travis/build_static_binaries.sh
@@ -31,6 +31,7 @@ deploy:
     secure: UrEhKzTdSr7NB4ptDYcWKN02XjfgJgN1fNFu8G2a52Jpk1Z3UeenbmKxIDLj11JUlU427br7t1oQyScYSYEGEM5VEI0aWf7D2i9cPfSRD9QYnHOPG2XZE/xgkwWAm0s4TjnTBmudGSxs9g2KRjDXLz1f191jVGIghnHlxw/C9Ok=
   file:
     - "scrm-src.tar.gz"
+    - "scrm-x64-static"
     - "scrm-x64-static.tar.gz"
     - "scrm-win32.zip"
     - "scrm-win64.zip"

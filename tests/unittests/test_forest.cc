@@ -1,4 +1,3 @@
-#include <cppunit/TestCase.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "../../src/forest.h"
@@ -19,6 +18,7 @@ class TestForest : public CppUnit::TestCase {
   CPPUNIT_TEST( testSamplePoint );
   CPPUNIT_TEST( testCalcRecombinationRate );
   CPPUNIT_TEST( testCalcRate );
+  CPPUNIT_TEST( testCalcRateWithArachicSamples );
   CPPUNIT_TEST( testNodeIsOld );
   CPPUNIT_TEST( testPrune );
   CPPUNIT_TEST( testSelectFirstTime );
@@ -176,6 +176,23 @@ class TestForest : public CppUnit::TestCase {
 
     delete node1;
     delete node2;
+  }
+
+  void testCalcRateWithArachicSamples() {
+    Node* node1 = forest->nodes()->createNode(20, 5);
+    forest->nodes()->add(node1);
+    TimeIntervalIterator tii(forest, node1);
+    double pop_size = 2*forest->model().population_size(0);
+
+    forest->set_active_node(0, node1);
+    forest->set_active_node(1, forest->local_root());
+    forest->states_[0] = 1;
+    forest->states_[1] = 1;
+  
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+    CPPUNIT_ASSERT( areSame(1.0/pop_size, forest->rates_[0]) );
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );
+    CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );
   }
 
   void testGetNodeState() {
