@@ -96,6 +96,11 @@ testingScript(){
 #2 sub population, 2 samples from each subpopulation, mutation rate is 5
 rm ms* scrm*
 
+../msdir/ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L -seed 1 1 1  > msout
+../scrm 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L -seed 1 1 1 > scrmout
+tmrca_no_recomb "2groups2sam2sam_mig5" || exit 1
+testingScript "2groups2sam2sam_mig5" || exit 1
+
 ../msdir/ms 6 ${rep} -t ${theta} -I 2 3 3 5.0 -T -L -seed 1 1 1  > msout
 ../scrm 6 ${rep} -t ${theta} -I 2 3 3 -ma x 5.0 5.0 x -T -L -seed 1 1 1 > scrmout
 tmrca_no_recomb "2groups3sam3sam_mig5" || exit 1
