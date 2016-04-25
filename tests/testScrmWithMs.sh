@@ -7,6 +7,8 @@ wget --no-check-certificate https://github.com/hybridLambda/hybrid-Lambda/archiv
 tar -xf release.tar.gz
 cd hybrid-Lambda-release ; ./bootstrap ; make hybrid-Lambda ; cd ..
 
+make scrm
+
 mkdir test-demo
 cd test-demo
 rm *pdf
