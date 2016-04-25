@@ -188,8 +188,9 @@ class TestForest : public CppUnit::TestCase {
     forest->set_active_node(1, forest->local_root());
     forest->states_[0] = 1;
     forest->states_[1] = 1;
-  
-    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii) );
+
+    forest->recomb_opp_x_within_scrm = 0;
+    CPPUNIT_ASSERT_NO_THROW( forest->calcRates(*tii, forest->recomb_opp_x_within_scrm) );
     CPPUNIT_ASSERT( areSame(1.0/pop_size, forest->rates_[0]) );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[1] );
     CPPUNIT_ASSERT_EQUAL( 0.0, forest->rates_[2] );
