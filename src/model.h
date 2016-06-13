@@ -468,6 +468,7 @@ class Model
     double bias_ratio_lower_ = 1;
     double bias_ratio_upper_ = 1;
     double bias_strength_ = 1;
+    std::vector<double> application_delays;  // should init to (getNumEpochs(), 0)
 
     double bias_height() const {return bias_height_;}
     double bias_ratio_lower() const {return bias_ratio_lower_;}
@@ -482,6 +483,11 @@ class Model
                                      bias_ratio_upper_ = ratio;}
     void setBiasStrength(double strength) {biased_sampling = true;
                                      bias_strength_ = strength;}
+    void lags_to_application_delays(std::vector<double> lags) {
+        for( size_t i=0; i<lags.size(); i++){
+		    application_delays.at(i) = 0.5*lags.at(i);
+		}
+	}
 
   private:
 
