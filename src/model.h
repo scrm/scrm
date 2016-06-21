@@ -484,7 +484,7 @@ class Model
     void setBiasStrength(double strength) {biased_sampling = true;
                                      bias_strength_ = strength;}
     void lags_to_application_delays(std::vector<double> lags) {
-		assert(application_delays.size()==0);
+		application_delays.resize(0);
         for( size_t i=0; i<lags.size(); i++){
 		    application_delays.push_back( 0.5*lags.at(i) );
 		}
