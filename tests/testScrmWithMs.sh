@@ -31,7 +31,7 @@ testingFunction() {
   fi
 }
 
-computeMomets(){
+computeMoments(){
   program=$1
   cat ${program}out | gawk '/^\/\//{f="xx"++d} f{print > f} '
   for file in $(seq 1 1 ${recombRep})
@@ -58,8 +58,8 @@ tmrca_no_recomb(){
 }
 
 moment_recomb(){
-  computeMomets ms
-  computeMomets scrm
+  computeMoments ms
+  computeMoments scrm
 
   objs=("tmrca" "bl")
   for obj in ${objs[@]}
@@ -84,7 +84,7 @@ testingScript(){
 
   cut -f 2 ms_stats > msdata
   cut -f 2 scrm_stats > scrmdata
-  testingFunction "Pairewise_difference" $1 "msdata" "scrmdata" || exit 1
+  testingFunction "Pairwise_difference" $1 "msdata" "scrmdata" || exit 1
 
   cut -f 8 ms_stats > msdata
   cut -f 8 scrm_stats > scrmdata
@@ -95,31 +95,37 @@ testingScript(){
   testingFunction "H" $1 "msdata" "scrmdata" || exit 1
 }
 
+
+runTest(){
+	label="$1"
+	secondTestingScript="$2"
+	commandLine="$3"
+	# run ms and scrm to produce the output
+	../msdir/ms ${commandLine} -seed 1 1 1 > msout
+	../scrm ${commandLine} -seed 1 1 1 > scrmout
+	# run test
+	succeed=1
+	testingScript "${label}" || succeed=0
+	${secondTestingScript} "${label}" || succeed=0
+	if [ "${succeed}"="0" ] ; then
+		echo "Failure on first round -- trying again with different seed"
+		../msdir/ms ${commandLine} -seed 2 2 2 > msout
+		../scrm ${commandLine} -seed 2 2 2 > scrmout
+		testingScript "${label}" || exit 1
+		${secondTestingScript} "${label}" || exit 1
+		echo "Success on second round"
+	fi
+}
+
+
 #case 1
 #2 sub population, 2 samples from each subpopulation, mutation rate is 5
 rm ms* scrm*
 
-
-../msdir/ms 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L -seed 1 1 1  > msout
-../scrm 4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L -seed 1 1 1 > scrmout
-tmrca_no_recomb "2groups2sam2sam_mig5" || exit 1
-testingScript "2groups2sam2sam_mig5" || exit 1
-
-../msdir/ms 6 ${rep} -t ${theta} -I 2 3 3 5.0 -T -L -seed 1 1 1  > msout
-../scrm 6 ${rep} -t ${theta} -I 2 3 3 -ma x 5.0 5.0 x -T -L -seed 1 1 1 > scrmout
-tmrca_no_recomb "2groups3sam3sam_mig5" || exit 1
-testingScript "2groups3sam3sam_mig5" || exit 1
-
-../msdir/ms 8 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T -seed 2 2 2 > msout
-../scrm 8 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T -seed 2 2 2  > scrmout
-moment_recomb "8sam_recomb" || exit 1
-testingScript "8sam_recomb" || exit 1
-
-../msdir/ms 10 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T -seed 2 2 2 > msout
-../scrm 10 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T -seed 2 2 2  > scrmout
-moment_recomb "10sam_recomb" || exit 1
-testingScript "10sam_recomb" || exit 1
-
+runTest "2groups2sam2sam_mig5" tmrca_no_recomb "4 ${rep} -t ${theta} -I 2 2 2 5.0 -T -L"
+runTest "2groups3sam3sam_mig5" tmrca_no_recomb "6 ${rep} -t ${theta} -I 2 3 3 5.0 -T -L"
+runTest "8sam_recomb" moment_recomb "8 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T"
+runTest "10sam_recomb" moment_recomb "10 ${recombRep} -t ${theta} -r ${r} ${seqlen} -T"
 
 
 # Cleaning up
