@@ -107,7 +107,7 @@ runTest(){
 	succeed=1
 	testingScript "${label}" || succeed=0
 	${secondTestingScript} "${label}" || succeed=0
-	if [ "${succeed}"="0" ] ; then
+	if [ "${succeed}" = "0" ] ; then
 		echo "Failure on first round -- trying again with different seed"
 		../msdir/ms ${commandLine} -seed 2 2 2 > msout
 		../scrm ${commandLine} -seed 2 2 2 > scrmout
