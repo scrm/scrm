@@ -1,5 +1,4 @@
 #/bin/bash
-wget https://webshare.uchicago.edu/users/rhudson1/Public/ms.folder/ms.tar.gz -o /dev/null
 tar -xf ms.tar.gz
 cd msdir; gcc -o ms ms.c streec.c rand1.c -lm ; gcc -o sample_stats sample_stats.c tajd.c -lm; cd ..
 
@@ -131,6 +130,6 @@ runTest "10sam_recomb" moment_recomb "10 ${recombRep} -t ${theta} -r ${r} ${seql
 # Cleaning up
 cd ..
 
-rm -r ms.tar.gz msdir
+rm -r msdir
 rm -r release.tar.gz hybrid-Lambda-release
 rm -r test-demo
