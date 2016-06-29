@@ -26,7 +26,7 @@ testingFunction() {
   if [ $? -ne 0 ]; then
     echo ""
     echo "Failed testing for $1"
-    exit 1
+    return 1
   fi
 }
 
@@ -43,17 +43,17 @@ computeMoments(){
   find . -name "xx*" -print0 | xargs -0 rm
 }
 
-tmrca_no_recomb(){
+tmrca_no_recomb() {
   cat msout | grep "time:" > mstime
   cat scrmout | grep "time:" >  scrmtime
 
   cut -f 2 mstime > mstmrca
   cut -f 2 scrmtime > scrmtmrca
-  testingFunction "TMRCA" $1 "mstmrca" "scrmtmrca" || exit 1
+  testingFunction "TMRCA" $1 "mstmrca" "scrmtmrca" || return 1
 
   cut -f 3 mstime > msbl
   cut -f 3 scrmtime > scrmbl
-  testingFunction "BL" $1 "msbl" "scrmbl" || exit 1
+  testingFunction "BL" $1 "msbl" "scrmbl" || return 1
 }
 
 moment_recomb(){
@@ -67,7 +67,7 @@ moment_recomb(){
       do
       cut -f ${moment} ms${obj}_moments > msmoment
       cut -f ${moment} scrm${obj}_moments > scrmmoment
-      testingFunction ${obj}${moment} $1 "msmoment" "scrmmoment" || exit 1
+      testingFunction ${obj}${moment} $1 "msmoment" "scrmmoment" || return 1
       done
     done
 }
@@ -79,19 +79,19 @@ testingScript(){
 
   cut -f 6 ms_stats > msdata
   cut -f 6 scrm_stats > scrmdata
-  testingFunction "Tajima_D" $1 "msdata" "scrmdata" || exit 1
+  testingFunction "Tajima_D" $1 "msdata" "scrmdata" || return 1
 
   cut -f 2 ms_stats > msdata
   cut -f 2 scrm_stats > scrmdata
-  testingFunction "Pairwise_difference" $1 "msdata" "scrmdata" || exit 1
+  testingFunction "Pairwise_difference" $1 "msdata" "scrmdata" || return 1
 
   cut -f 8 ms_stats > msdata
   cut -f 8 scrm_stats > scrmdata
-  testingFunction "theta_H" $1 "msdata" "scrmdata" || exit 1
+  testingFunction "theta_H" $1 "msdata" "scrmdata" || return 1
 
   cut -f 10 ms_stats > msdata
   cut -f 10 scrm_stats > scrmdata
-  testingFunction "H" $1 "msdata" "scrmdata" || exit 1
+  testingFunction "H" $1 "msdata" "scrmdata" || return 1
 }
 
 
