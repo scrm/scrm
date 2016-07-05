@@ -31,7 +31,7 @@ TreePoint::TreePoint(Node* base_node, double height, bool relative) {
     relative_height_ = height;
     //height_ = base_node->height() + relative_height_;
     // NEW Change
-    height_ = base_node->height() + relative_height_ ;
+    height_ = base_node->parent_height() - relative_height_ ;
   } else {
     //relative_height_ = height - base_node->height();
     // NEW Change
