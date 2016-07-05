@@ -215,6 +215,11 @@ class NodeIterator {
     else return DBL_MAX;
   }
 
+  bool local() const {
+    if ( good() ) return current_node_->local();
+    else return false;
+  }
+
 #ifdef UNITTEST
   friend class TestNodeContainer;
 #endif
@@ -273,6 +278,11 @@ class ConstNodeIterator {
   double height() const {
     if ( good() ) return current_node_->height();
     else return DBL_MAX;
+  }
+
+  bool local() const {
+    if ( good() ) return current_node_->local();
+    else return false;
   }
 
  private:
