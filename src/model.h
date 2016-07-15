@@ -490,6 +490,8 @@ class Model
 		}
 	}
 
+    const std::vector<std::vector<double> > single_mig_probs_list() const { return single_mig_probs_list_; }
+
   private:
 
    std::vector<double> change_times_;
