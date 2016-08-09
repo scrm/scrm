@@ -113,20 +113,32 @@ Model Param::parse() {
     // ------------------------------------------------------------------
     // Biased Sampling
     // ------------------------------------------------------------------
-    else if (*argv_i == "-bias_height") {
-      model.setBiasHeight(readNextInput<double>());
+    else if (*argv_i == "-bias_heights") {
+      model.emptyBiasHeights();
+      model.addToBiasHeights( 0 );
+      model.addToBiasHeights( readNextInput<double>() );
+      while(true) {
+        try {
+          model.addToBiasHeights( readNextInput<double>() );
+        } catch (std::invalid_argument e) {
+          --argv_i;
+          break;
+        }
+      }
+      model.addToBiasHeights ( DBL_MAX );
     }
 
-    else if (*argv_i == "-bias_strength") {
-      model.setBiasStrength(readNextInput<double>());
-    }
-
-    else if (*argv_i == "-brl") {
-      model.setBiasRatioLower(readNextInput<double>());
-    }
-
-    else if (*argv_i == "-bru") {
-      model.setBiasRatioUpper(readNextInput<double>());
+    else if (*argv_i == "-bias_strengths") {
+      model.emptyBiasStrengths();
+      model.addToBiasStrengths( readNextInput<double>() );
+      while(true) {
+        try {
+          model.addToBiasStrengths( readNextInput<double>() );
+        } catch (std::invalid_argument e) {
+          --argv_i;
+          break;
+        }
+      }
     }
 
     // ------------------------------------------------------------------
