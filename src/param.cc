@@ -114,7 +114,7 @@ Model Param::parse() {
     // Biased Sampling
     // ------------------------------------------------------------------
     else if (*argv_i == "-bias_heights") {
-      model.emptyBiasHeights();
+      model.clearBiasHeights();
       model.addToBiasHeights( 0 );
       model.addToBiasHeights( readNextInput<double>() );
       while(true) {
@@ -129,7 +129,7 @@ Model Param::parse() {
     }
 
     else if (*argv_i == "-bias_strengths") {
-      model.emptyBiasStrengths();
+      model.clearBiasStrengths();
       model.addToBiasStrengths( readNextInput<double>() );
       while(true) {
         try {

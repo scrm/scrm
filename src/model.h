@@ -314,16 +314,12 @@ class Model
    void resetTime( ) { 
      if (pop_sizes_list_[0].empty()) current_pop_sizes_ = NULL;
      else current_pop_sizes_ = &(pop_sizes_list_[0]);
-
      if (growth_rates_list_[0].empty()) current_growth_rates_ = NULL;
      else current_growth_rates_ = &(growth_rates_list_[0]);
-
      if (mig_rates_list_[0].empty()) current_mig_rates_ = NULL;
      else current_mig_rates_ = &(mig_rates_list_[0]);
-
      if (total_mig_rates_list_[0].empty()) current_total_mig_rates_ = NULL;
      else current_total_mig_rates_ = &(total_mig_rates_list_[0]);
-
      current_time_idx_ = 0;
    };
 
@@ -463,20 +459,20 @@ class Model
    }
 
    //biased sampling
-    bool biased_sampling = false;                           // this is turned on if br or bh is set
-    vector <double> bias_heights_ (3,0);                    // this vector defines the outer time boundaries of the sections with different rec rate
-    vector <double> bias_strengths_ (2,1);                  // this vector defines how the below ratios should be scaled relative to each other
-    vector <double> bias_ratios_ (2,1);                     // this vector holds ratios r, to impose rec rate of rho*r_i in time section i
+    bool biased_sampling = false;                         // this is turned on if br or bh is set
+    std::vector<double> bias_heights_;                    // this vector defines the outer time boundaries of the sections with different rec rate
+    std::vector<double> bias_strengths_;                  // this vector defines how the below ratios should be scaled relative to each other
+    std::vector<double> bias_ratios_;                     // this vector holds ratios r, to impose rec rate of rho*r_i in time section i
     // NB: bias_ratios_ must be scaled for each demographic model using model_summary, otherwise the recombination rate estimate will diverge
     std::vector<double> application_delays;                 // should init to (getNumEpochs(), 0)
 
-    double bias_heights() const {return bias_heights_;}
-    double bias_ratios() const {return bias_ratios_;}
-    double bias_strengths() const {return bias_strengths_;}
+    std::vector<double> bias_heights() const {return bias_heights_;}
+    std::vector<double> bias_ratios() const {return bias_ratios_;}
+    std::vector<double> bias_strengths() const {return bias_strengths_;}
 
-    void emptyBiasHeights()                  { bias_heights_.empty(); }
-    void emptyBiasRatios()                   { bias_ratios_.empty(); }
-    void emptyBiasStrengths()                { bias_strengths_.empty(); }
+    void clearBiasHeights()                  { bias_heights_.clear(); }
+    void clearBiasRatios()                   { bias_ratios_.clear(); }
+    void clearBiasStrengths()                { bias_strengths_.clear(); }
     void addToBiasHeights(double height)     { biased_sampling = true;
                                                bias_heights_.push_back( height ); } //height is scaled in generations
     void addToBiasRatios(double ratio)       { biased_sampling = true;

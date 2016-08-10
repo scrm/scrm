@@ -24,7 +24,9 @@
 
 Model::Model() : 
   has_migration_(false),
-  has_recombination_(false) {
+  has_recombination_(false),
+  bias_heights_ (1,0),
+  bias_strengths_ (2,1) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -48,7 +50,9 @@ Model::Model() :
 
 Model::Model(size_t sample_size) : 
   has_migration_(false),
-  has_recombination_(false) {
+  has_recombination_(false),
+  bias_heights_ (1,0),
+  bias_strengths_ (2,1) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
