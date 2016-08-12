@@ -7,7 +7,7 @@ compiler:
   - clang
 env:
   - CXXFLAGS="-Werror"
-  - CXXFLAGS="-m32 -Werror"
+  #- CXXFLAGS="-m32 -Werror"
 matrix:
   exclude:
     - os: osx
