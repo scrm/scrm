@@ -87,3 +87,9 @@ unit_tests
 stuff
 .dirstamp
 configure.lineno
+
+# test coverage
+*.gcda
+*.gcno
+libbash_test.info
+testCoverage/

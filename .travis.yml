@@ -10,7 +10,7 @@ env:
   - CXXFLAGS="-m32 -Werror"
 matrix:
   exclude:
-    - os: osx 
+    - os: osx
       env: CXXFLAGS="-m32 -Werror"
 sudo: required
 dist: trusty
@@ -40,3 +40,6 @@ deploy:
     condition: "$CC = gcc"
     condition: "$CXXFLAGS == -Werror"
     condition: "$TRAVIS_OS_NAME == linux"
+
+after_success:
+  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
