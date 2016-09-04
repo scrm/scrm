@@ -7,7 +7,7 @@ compiler:
   - clang
 env:
   - CXXFLAGS="-Werror"
-  #- CXXFLAGS="-m32 -Werror"
+  - CXXFLAGS="-m32 -Werror"
 matrix:
   exclude:
     - os: osx
@@ -41,5 +41,4 @@ deploy:
     condition: "$CXXFLAGS == -Werror"
     condition: "$TRAVIS_OS_NAME == linux"
 
-after_success:
-  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+after_success: .travis/test_coverage.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
