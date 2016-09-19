@@ -466,9 +466,9 @@ class Model
     // NB: bias_ratios_ must be scaled for each demographic model using model_summary, otherwise the recombination rate estimate will diverge
     std::vector<double> application_delays;                 // should init to (getNumEpochs(), 0)
 
-    std::vector<double> bias_heights() const {return bias_heights_;}
-    std::vector<double> bias_ratios() const {return bias_ratios_;}
-    std::vector<double> bias_strengths() const {return bias_strengths_;}
+    const std::vector<double>& bias_heights() const {return bias_heights_;}
+    const std::vector<double>& bias_ratios() const {return bias_ratios_;}
+    const std::vector<double>& bias_strengths() const {return bias_strengths_;}
 
     void clearBiasHeights()                  { bias_heights_.clear(); }
     void clearBiasRatios()                   { bias_ratios_.clear(); }
@@ -487,7 +487,7 @@ class Model
         }
     }
 
-    const std::vector<std::vector<double> > single_mig_probs_list() const { return single_mig_probs_list_; }
+    const std::vector<std::vector<double> >& single_mig_probs_list() const { return single_mig_probs_list_; }
 
   private:
 
