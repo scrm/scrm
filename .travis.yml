@@ -7,11 +7,16 @@ compiler:
   - clang
 env:
   - CXXFLAGS="-Werror"
+  - CXXFLAGS="-Werror" TEST_CXX_FLAGS="--coverage"
   - CXXFLAGS="-m32 -Werror"
 matrix:
   exclude:
     - os: osx
       env: CXXFLAGS="-m32 -Werror"
+    - compiler: clang
+      env: CXXFLAGS="-Werror" TEST_CXX_FLAGS="--coverage"
+    - os: osx
+      env: CXXFLAGS="-Werror" TEST_CXX_FLAGS="--coverage"
 sudo: required
 dist: trusty
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
