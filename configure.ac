@@ -33,6 +33,9 @@ AC_C_CONST
 AC_C_INLINE
 AC_TYPE_SIZE_T
 
+# Check if we reporting test coverage
+AC_SUBST(TEST_CXXFLAGS)
+
 # Enable Link-time optimization if supported (gcc only)
 if test x$CXX = xg++; then
   AX_CHECK_COMPILE_FLAG([-flto], [OPT_CXXFLAGS="$OPT_CXXFLAGS -flto"], [], [-Werror])

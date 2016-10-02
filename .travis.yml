@@ -17,6 +17,9 @@ matrix:
       env: CXXFLAGS="-Werror" TEST_CXX_FLAGS="--coverage"
     - os: osx
       env: CXXFLAGS="-Werror" TEST_CXX_FLAGS="--coverage"
+    - os: linux
+      compiler: gcc
+      env: CXXFLAGS="-Werror"
 sudo: required
 dist: trusty
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
