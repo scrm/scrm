@@ -67,7 +67,7 @@ scrm_CXXFLAGS= -DNDEBUG @OPT_CXXFLAGS@
 scrm_dbg_CXXFLAGS= -g
 scrm_prof_CXXFLAGS= -pg -DNDEBUG
 scrm_asan_CXXFLAGS= -g -DNDEBUG -fsanitize=undefined,address -fno-sanitize-recover
-unit_tests_CXXFLAGS = -g -DUNITTEST -DNDEBUG
+unit_tests_CXXFLAGS = -g -DUNITTEST -DNDEBUG @TEST_CXXFLAGS@ 
 algorithm_tests_CXXFLAGS = -g -DNDEBUG
 unit_tests_LDADD= -L/opt/local/lib -lcppunit -ldl #link the cppunit unittest library in mac, cppunit was installed via macports
 algorithm_tests_LDADD= -L/opt/local/lib -lcppunit -ldl  #link the cppunit unittest library in mac, cppunit was installed via macports

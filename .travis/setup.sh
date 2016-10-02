@@ -11,14 +11,16 @@ if [ "$os" == "linux" ]; then
     sudo dpkg --add-architecture i386
     sudo apt-get update -qq
     sudo apt-get install -qqy automake valgrind g++-multilib libc6-dbg:i386 libcppunit-dev:i386
+    sudo apt-get install -qq lcov python-pip; pip install --user cpp-coveralls;
   else
     sudo apt-get update -qq
     sudo apt-get install -qqy automake libcppunit-dev valgrind;
+    sudo apt-get install -qq lcov python-pip; pip install --user cpp-coveralls;
   fi
 fi
 
-if [ "$os" == "osx" ]; then 
-  brew update 
+if [ "$os" == "osx" ]; then
+  brew update
   brew install cppunit valgrind
 fi
 

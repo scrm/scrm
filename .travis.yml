@@ -7,11 +7,19 @@ compiler:
   - clang
 env:
   - CXXFLAGS="-Werror"
+  - CXXFLAGS="-Werror" TEST_CXXFLAGS="--coverage"
   - CXXFLAGS="-m32 -Werror"
 matrix:
   exclude:
-    - os: osx 
+    - os: osx
       env: CXXFLAGS="-m32 -Werror"
+    - compiler: clang
+      env: CXXFLAGS="-Werror" TEST_CXXFLAGS="--coverage"
+    - os: osx
+      env: CXXFLAGS="-Werror" TEST_CXXFLAGS="--coverage"
+    - os: linux
+      compiler: gcc
+      env: CXXFLAGS="-Werror"
 sudo: required
 dist: trusty
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
@@ -40,3 +48,5 @@ deploy:
     condition: "$CC = gcc"
     condition: "$CXXFLAGS == -Werror"
     condition: "$TRAVIS_OS_NAME == linux"
+
+after_success: .travis/test_coverage.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
