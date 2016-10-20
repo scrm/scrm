@@ -22,7 +22,7 @@
 #include "model.h"
 
 
-Model::Model() : 
+Model::Model() :
   has_migration_(false),
   has_recombination_(false),
   bias_heights_ (1,0),
@@ -48,7 +48,7 @@ Model::Model() :
 }
 
 
-Model::Model(size_t sample_size) : 
+Model::Model(size_t sample_size) :
   has_migration_(false),
   has_recombination_(false),
   bias_heights_ (1,0),
@@ -126,7 +126,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  * Adds a new change position to the model.
  *
  * Change position are sequence positions where mutation or recombination rates
- * change. This creates a new position, but does not add the new rates. 
+ * change. This creates a new position, but does not add the new rates.
  *
  * @param position The sequence position add which a change is added
  *

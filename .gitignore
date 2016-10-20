@@ -89,3 +89,7 @@ stuff
 unit_tests.trs
 algorithm_tests.trs
 configure.lineno
+
+# Coverage test
+*gcda
+*gcno
