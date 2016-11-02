@@ -460,8 +460,8 @@ double Forest::sampleNextGenealogy( bool recordEvents ) {
            << "Sequence position: " << this->current_base() << std::endl;
   assert( this->current_base() <= this->model().loci_length() );
 
-  // Sample the recombination point
-  TreePoint rec_point = model().biased_sampling ? sampleBiasedPoint() : samplePoint() ;
+  // Sample the recombination point.  (Use TreePoint rec_point member)
+  rec_point = model().biased_sampling ? sampleBiasedPoint() : samplePoint() ;
   assert( rec_point.base_node()->local() );
   assert( this->printTree() );
 //recombination_counter++;

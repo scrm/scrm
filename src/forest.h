@@ -315,6 +315,7 @@ class Forest
   Event  tmp_event_;
   double tmp_event_time_;
   ContemporariesContainer contemporaries_;
+  TreePoint rec_point;
 
   // These are pointers to the up to two active nodes during a coalescence
   size_t active_nodes_timelines_[2];
