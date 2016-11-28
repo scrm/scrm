@@ -24,10 +24,10 @@
 
 Model::Model() :
   has_migration_(false),
-  has_recombination_(false),
-  bias_heights_ (1,0),
-  bias_strengths_ (2,1) {
+  has_recombination_(false) {
 
+  this->bias_heights_ = std::vector<double> ({0.0});
+  this->bias_strengths_ = std::vector <double> ({1.0,1.0});
   this->set_loci_number(1);
   this->setLocusLength(1);
   this->addChangeTime(0.0);
@@ -50,9 +50,10 @@ Model::Model() :
 
 Model::Model(size_t sample_size) :
   has_migration_(false),
-  has_recombination_(false),
-  bias_heights_ (1,0),
-  bias_strengths_ (2,1) {
+  has_recombination_(false) {
+
+  this->bias_heights_ = std::vector<double> ({0.0});
+  this->bias_strengths_ = std::vector <double> ({1.0,1.0});
 
   this->set_loci_number(1);
   this->setLocusLength(1);
