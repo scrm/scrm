@@ -605,6 +605,12 @@ void Model::check() {
   // Structure without migration?
   if (population_number() > 1 && !has_migration())
     throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible");
+
+  // Are bias heights and bias strengths compatible?
+  if ( bias_heights_.size() != bias_strengths_.size() - 1 ) {
+    throw std::invalid_argument(std::string("bias_strengths should have one more value than bias_heights") +
+                                std::string(" as bias_heights declares the time boundaries between bias_strengths"));
+  }
 }
 
 
