@@ -606,6 +606,13 @@ void Model::check() {
   if (population_number() > 1 && !has_migration())
     throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible");
 
+    // Are the bias heights in the correct order?
+  for( size_t idx=1; idx<=bias_heights.size(); idx++ ){
+    if ( bias_heights_[idx] < bias_heights_[idx-1]  ) {
+      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient");
+    }
+  }
+
   // Are bias heights and bias strengths compatible?
   if ( bias_heights_.size() != bias_strengths_.size() - 1 ) {
     throw std::invalid_argument(std::string("bias_strengths should have one more value than bias_heights") +
