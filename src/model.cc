@@ -26,7 +26,7 @@ Model::Model() :
   has_migration_(false),
   has_recombination_(false) {
 
-  this->bias_heights_ = std::vector<double> ({0.0});
+  this->bias_heights_ = std::vector<double> ({0.0,0.0,DBL_MAX});
   this->bias_strengths_ = std::vector <double> ({1.0,1.0});
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -607,14 +607,14 @@ void Model::check() {
     throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible");
 
     // Are the bias heights in the correct order?
-  for( size_t idx=1; idx<=bias_heights.size(); idx++ ){
-    if ( bias_heights_[idx] < bias_heights_[idx-1]  ) {
-      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient");
+  for( size_t idx=1; idx<bias_heights().size(); idx++ ){
+    if ( bias_heights()[idx] < bias_heights()[idx-1]  ) {
+      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient"));
     }
   }
 
   // Are bias heights and bias strengths compatible?
-  if ( bias_heights_.size() != bias_strengths_.size() - 1 ) {
+  if ( bias_heights().size() != bias_strengths().size() + 1 ) {
     throw std::invalid_argument(std::string("bias_strengths should have one more value than bias_heights") +
                                 std::string(" as bias_heights declares the time boundaries between bias_strengths"));
   }
