@@ -24,9 +24,7 @@
 
 Model::Model() : 
   has_migration_(false),
-  has_recombination_(false),
-  bias_heights_ (1,0),
-  bias_strengths_ (2,1) {
+  has_recombination_(false) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -42,6 +40,9 @@ Model::Model() :
   this->set_window_length_rec(500);
 
   this->setSequenceScaling(ms);
+
+  this->bias_heights_ = std::vector<double> ({0.0, DBL_MAX});
+  this->bias_strengths_ = std::vector <double> ({1.0});
 
   this->resetTime();
   this->resetSequencePosition();
@@ -50,9 +51,7 @@ Model::Model() :
 
 Model::Model(size_t sample_size) : 
   has_migration_(false),
-  has_recombination_(false),
-  bias_heights_ (1,0),
-  bias_strengths_ (2,1) {
+  has_recombination_(false) {
 
   this->set_loci_number(1);
   this->setLocusLength(1);
@@ -68,6 +67,9 @@ Model::Model(size_t sample_size) :
   this->set_window_length_rec(500);
 
   this->setSequenceScaling(ms);
+
+  this->bias_heights_ = std::vector<double> ({0.0, DBL_MAX});
+  this->bias_strengths_ = std::vector <double> ({1.0});
 
   this->addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
   this->setLocusLength(1000);
@@ -604,6 +606,19 @@ void Model::check() {
   // Structure without migration?
   if (population_number() > 1 && !has_migration())
     throw std::invalid_argument("Model has multiple populations but no migration. Coalescence impossible");
+
+  // Are the bias heights in the correct order?
+  for( size_t idx = 1; idx < bias_heights.size(); idx++ ){
+    if ( bias_heights_[idx] < bias_heights_[idx-1]  ) {
+      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient");
+    }
+  }
+
+  // Are bias heights and bias strengths compatible?
+  if ( bias_heights_.size() != bias_strengths_.size() + 1 ) {
+    throw std::invalid_argument(std::string("the input bias_strengths should have one more value than bias_heights") +
+                                std::string(" as bias_heights declares the time boundaries between bias_strengths"));
+  }
 }
 
 
