@@ -610,7 +610,7 @@ void Model::check() {
   // Are the bias heights in the correct order?
   for( size_t idx = 1; idx < bias_heights().size(); idx++ ){
     if ( bias_heights()[idx] < bias_heights()[idx-1]  ) {
-      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient");
+      throw std::invalid_argument(std::string("The bias heights must be input in order, recent to ancient"));
     }
   }
 
