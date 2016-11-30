@@ -22,7 +22,7 @@
 #include "model.h"
 
 
-Model::Model() : 
+Model::Model() :
   has_migration_(false),
   has_recombination_(false) {
 
@@ -49,7 +49,7 @@ Model::Model() :
 }
 
 
-Model::Model(size_t sample_size) : 
+Model::Model(size_t sample_size) :
   has_migration_(false),
   has_recombination_(false) {
 
@@ -128,7 +128,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
  * Adds a new change position to the model.
  *
  * Change position are sequence positions where mutation or recombination rates
- * change. This creates a new position, but does not add the new rates. 
+ * change. This creates a new position, but does not add the new rates.
  *
  * @param position The sequence position add which a change is added
  *
@@ -615,7 +615,7 @@ void Model::check() {
   }
 
   // Are bias heights and bias strengths compatible?
-  if ( bias_heights_.size() != bias_strengths_.size() + 1 ) {
+  if ( bias_heights().size() != bias_strengths().size() + 1 ) {
     throw std::invalid_argument(std::string("the input bias_strengths should have one more value than bias_heights") +
                                 std::string(" as bias_heights declares the time boundaries between bias_strengths"));
   }

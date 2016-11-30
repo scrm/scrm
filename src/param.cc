@@ -1,10 +1,10 @@
 /*
  * scrm is an implementation of the Sequential-Coalescent-with-Recombination Model.
- * 
+ *
  * Copyright (C) 2013, 2014 Paul R. Staab, Sha (Joe) Zhu, Dirk Metzler and Gerton Lunter
- * 
+ *
  * This file is part of scrm.
- * 
+ *
  * scrm is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -28,11 +28,11 @@ std::ostream& operator<< (std::ostream& stream, const Param& param) {
   return stream;
 }
 
-/*! 
+/*!
  * \brief Read in ms parameters and convert to scrm parameters
- * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es 
- * and -ej options in ms are time t in unit of 4N_0 generations. 
- * In scrm, we define time t in number of generations. 
+ * The first parameters followed by -eG, -eg, -eN, -en, -em, -ema, -es
+ * and -ej options in ms are time t in unit of 4N_0 generations.
+ * In scrm, we define time t in number of generations.
  */
 Model Param::parse() {
   this->read_init_genealogy_ = false;
@@ -83,11 +83,11 @@ Model Param::parse() {
 
   while (++argv_i != argv_.end()) {
     // ------------------------------------------------------------------
-    // Mutation 
+    // Mutation
     // ------------------------------------------------------------------
     if (*argv_i == "-t" || *argv_i == "-st") {
       // Position
-      if (*argv_i == "-st") time = readNextInput<double>(); 
+      if (*argv_i == "-st") time = readNextInput<double>();
       else time = 0.0;
 
       model.setMutationRate(readNextInput<double>(), true, true, time);
@@ -97,7 +97,7 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
-    // Recombination 
+    // Recombination
     // ------------------------------------------------------------------
     else if (*argv_i == "-r") {
       par_dbl = readNextInput<double>();
@@ -142,7 +142,7 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
-    // Subpopulations 
+    // Subpopulations
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0
     else if (*argv_i == "-I") {
@@ -175,7 +175,7 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
-    // Populations sizes 
+    // Populations sizes
     // ------------------------------------------------------------------
     else if (*argv_i == "-eN" || *argv_i == "-N") {
       if (*argv_i == "-eN") time = readNextInput<double>();
@@ -184,7 +184,7 @@ Model Param::parse() {
         throw std::invalid_argument(std::string("If you use '-N' or '-eN' in a model with population merges ('-es'),") +
                                     std::string("then you need to sort both arguments by time."));
       }
-      model.addPopulationSizes(time, readNextInput<double>(), true, true); 
+      model.addPopulationSizes(time, readNextInput<double>(), true, true);
       if (time != 0.0) model.addGrowthRates(time, 0.0, true);
     }
 
@@ -197,7 +197,7 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
-    // Exponential Growth 
+    // Exponential Growth
     // ------------------------------------------------------------------
     else if (*argv_i == "-G" || *argv_i == "-eG") {
       if (*argv_i == "-eG") time = readNextInput<double>();
@@ -206,14 +206,14 @@ Model Param::parse() {
         throw std::invalid_argument(std::string("If you use '-G' or '-eG' in a model with population merges ('-es'),") +
                                     std::string("then you need to sort both arguments by time."));
       }
-      model.addGrowthRates(time, readNextInput<double>(), true, true); 
+      model.addGrowthRates(time, readNextInput<double>(), true, true);
     }
 
     else if (*argv_i == "-g" || *argv_i == "-eg") {
       if (*argv_i == "-eg") time = readNextInput<double>();
       else time = 0.0;
       size_t pop = readNextInt() - 1;
-      model.addGrowthRate(time, pop, readNextInput<double>(), true, true); 
+      model.addGrowthRate(time, pop, readNextInput<double>(), true, true);
     }
 
     // ------------------------------------------------------------------
@@ -281,13 +281,13 @@ Model Param::parse() {
       source_pop = readNextInt() - 1;
       sink_pop = model.population_number();
       double fraction = readNextInput<double>();
-      if (fraction < 0.0) 
-        throw std::invalid_argument("Probability in `-es` argument is negative."); 
+      if (fraction < 0.0)
+        throw std::invalid_argument("Probability in `-es` argument is negative.");
       if (fraction > 1.0)
-        throw std::invalid_argument("Probability in `-es` argument greater than one."); 
+        throw std::invalid_argument("Probability in `-es` argument greater than one.");
 
       model.addPopulation();
-      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true); 
+      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true);
     }
 
 
@@ -296,12 +296,12 @@ Model Param::parse() {
       source_pop = readNextInt() - 1;
       sink_pop = readNextInt() - 1;
       double fraction = readNextInput<double>();
-      if (fraction < 0.0) 
-        throw std::invalid_argument("Probability in `-eps` argument is negative."); 
+      if (fraction < 0.0)
+        throw std::invalid_argument("Probability in `-eps` argument is negative.");
       if (fraction > 1.0)
-        throw std::invalid_argument("Probability in `-eps` argument greater than one."); 
+        throw std::invalid_argument("Probability in `-eps` argument greater than one.");
 
-      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true); 
+      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1-fraction, true);
     }
 
 
@@ -312,7 +312,7 @@ Model Param::parse() {
       time = readNextInput<double>();
       source_pop = readNextInt() - 1;
       sink_pop = readNextInt() - 1;
-      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true); 
+      model.addSingleMigrationEvent(time, source_pop, sink_pop, 1.0, true);
       for (size_t i = 0; i < model.population_number(); ++i) {
         if (i == source_pop) continue;
         model.addMigrationRate(time, i, source_pop, 0.0, true);
@@ -320,12 +320,12 @@ Model Param::parse() {
     }
 
     // ------------------------------------------------------------------
-    // Pruning 
+    // Pruning
     // ------------------------------------------------------------------
     else if (*argv_i == "-l"){
       if (++argv_i == argv_.end()) throw std::invalid_argument("Missing sequence scaling argument.");
       if (*argv_i == "-1") {
-        model.disable_approximation(); 
+        model.disable_approximation();
       } else if (argv_i->back() == 'r') {
         model.set_window_length_rec(convert<double>(argv_i->substr(0, argv_i->size()-1)));
       } else {
@@ -370,7 +370,7 @@ Model Param::parse() {
       if (*argv_i == "rel") model.setSequenceScaling(relative);
       else if (*argv_i == "abs") model.setSequenceScaling(absolute);
       else if (*argv_i == "ms") model.setSequenceScaling(ms);
-      else throw 
+      else throw
         std::invalid_argument(std::string("Unknown sequence scaling argument: ") +
                               *argv_i +
                               std::string(". Valid are 'rel', 'abs' or 'ms'."));
@@ -411,7 +411,7 @@ Model Param::parse() {
       }
       set_random_seed(seeds.at(0));
     }
-    
+
 
     // ------------------------------------------------------------------
     // Help & Version
@@ -444,14 +444,14 @@ Model Param::parse() {
       throw std::invalid_argument("scrm does not support simulating a fixed number of mutations.");
     }
 
-    else {  
+    else {
       throw std::invalid_argument(std::string("unknown/unexpected argument: ") + *argv_i);
     }
   }
 
   if (model.sample_size() == 0) {
     model.addSampleSizes(0.0, std::vector<size_t>(1, sample_size));
-  } 
+  }
   //else if (model.sample_size() != sample_size && directly_called_) {
     //throw std::invalid_argument("Sum of samples not equal to the total sample size");
   //}
@@ -460,18 +460,18 @@ Model Param::parse() {
   }
 
   // Add summary statistics in order of their output
-  if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision(), 
+  if (newick_trees) model.addSummaryStatistic(std::make_shared<NewickTree>(this->precision(),
                                                                            model.has_recombination()));
   if (orientedForest) {
-    if (newick_trees) throw std::invalid_argument("scrm does not support '-T' and '-O' at the same time"); 
+    if (newick_trees) throw std::invalid_argument("scrm does not support '-T' and '-O' at the same time");
     model.addSummaryStatistic(std::make_shared<OrientedForest>(model.sample_size()));
   }
   if (tmrca) model.addSummaryStatistic(std::make_shared<TMRCA>());
   if (seg_sites.get() != NULL) model.addSummaryStatistic(seg_sites);
   if (seg_sites.get() != NULL && transpose ) seg_sites->set_transpose(true);
   if (sfs) {
-    if (seg_sites == NULL) 
-      throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS"); 
+    if (seg_sites == NULL)
+      throw std::invalid_argument("You need to give a mutation rate ('-t') to simulate a SFS");
     model.addSummaryStatistic(std::make_shared<FrequencySpectrum>(seg_sites, model));
   }
 
@@ -480,19 +480,19 @@ Model Param::parse() {
 }
 
 void Param::printHelp(std::ostream& out) {
-  out << "scrm - Fast & accurate coalescent simulations" << std::endl; 
-  out << "Version " << VERSION << std::endl << std::endl; 
+  out << "scrm - Fast & accurate coalescent simulations" << std::endl;
+  out << "Version " << VERSION << std::endl << std::endl;
 
-  out << "Usage" << std::endl; 
-  out << "--------------------------------------------------------" << std::endl; 
-  out << "Call scrm follow by two integers and an arbitrary number" << std::endl; 
-  out << "of options described below:" << std::endl; 
-  out << std::endl << "  scrm <n_samp> <n_loci> [...]" << std::endl << std::endl; 
-  out << "Here, n_samp is the total number of samples and n_loci" << std::endl; 
-  out << "is the number of independent loci to simulate." << std::endl; 
-  out << std::endl << "Options" << std::endl; 
-  out << "--------------------------------------------------------" << std::endl; 
-  out << "A detailed description of these options and their parameters" << std::endl; 
+  out << "Usage" << std::endl;
+  out << "--------------------------------------------------------" << std::endl;
+  out << "Call scrm follow by two integers and an arbitrary number" << std::endl;
+  out << "of options described below:" << std::endl;
+  out << std::endl << "  scrm <n_samp> <n_loci> [...]" << std::endl << std::endl;
+  out << "Here, n_samp is the total number of samples and n_loci" << std::endl;
+  out << "is the number of independent loci to simulate." << std::endl;
+  out << std::endl << "Options" << std::endl;
+  out << "--------------------------------------------------------" << std::endl;
+  out << "A detailed description of these options and their parameters" << std::endl;
   out << "is provided is the manual." << std::endl << std::endl;
 
   out << "Recombination:" << std::endl;
@@ -507,9 +507,9 @@ void Param::printHelp(std::ostream& out) {
   out << "  -eI <t> <s1> ... <sn> [<M>]     Sample s1 to sn indiviuals from their" << std::endl
       << "                   corresponding populations at time t." << std::endl;
   out << "  -M <M>           Assume a symmetric migration rate of M/(npop-1)." << std::endl;
-  out << "  -eM <t> <M>      Change the symmetric migration rate to M/(npop-1) at time t." 
+  out << "  -eM <t> <M>      Change the symmetric migration rate to M/(npop-1) at time t."
       << std::endl;
-  out << "  -m <i> <j> <M>   Set the migration rate from population j to population i to M" 
+  out << "  -m <i> <j> <M>   Set the migration rate from population j to population i to M"
       << std::endl;
   out << "  -em <t> <i> <j> <M>   Set the migration rate from population j to" << std::endl
       << "                   population i to M at time t." << std::endl;
@@ -541,14 +541,14 @@ void Param::printHelp(std::ostream& out) {
   out << "  -O               Print the simulated local genealogies in Oriented Forest format." << std::endl;
   out << "  -L               Print the TMRCA and the local tree length for each segment." << std::endl;
   out << "  -oSFS            Print the Site Frequency Spectrum for each locus." << std::endl;
-  out << "  -SC [ms|rel|abs] Scaling of sequence positions. Either" << std::endl 
-      << "                   relative (rel) to the locus length between 0 and 1," << std::endl 
+  out << "  -SC [ms|rel|abs] Scaling of sequence positions. Either" << std::endl
+      << "                   relative (rel) to the locus length between 0 and 1," << std::endl
       << "                   absolute (abs) in base pairs or as in ms (default)." << std::endl;
 
   out << "  -init <FILE>     Read genealogies at the beginning of the sequence." << std::endl;
 
   out << std::endl << "Other:" << std::endl;
-  out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up to three" << std::endl 
+  out << "  -seed <SEED> [<SEED2> <SEED3>]   The random seed to use. Takes up to three" << std::endl
       << "                   integer numbers." << std::endl;
   out << "  -p <digits>      Specify the number of significant digits used in the output." << std::endl
       << "                   Defaults to 6." << std::endl;
@@ -562,7 +562,7 @@ void Param::printHelp(std::ostream& out) {
   out << "Five independent sites for 10 individuals using Kingman's Coalescent:" <<std::endl;
   out << "  scrm 10 5 -t 10" << std::endl << std::endl;
 
-  out << "A sequence of 10kb from 4 individuals under the exact ARG:" <<std::endl; 
+  out << "A sequence of 10kb from 4 individuals under the exact ARG:" <<std::endl;
   out << "  scrm 4 1 -t 10 -r 4 10000" << std::endl << std::endl;
 
   out << "A sequence of 100Mb using the SMC' approximation:" << std::endl;
