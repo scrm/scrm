@@ -17,6 +17,38 @@
 */
 
 #include "forest.h"
+#include <string>
+
+#define USE_ASCII 1
+
+#ifndef USE_ASCII
+
+static const std::string TEE = "╦";
+static const std::string smallTEE = "┬";
+static const std::string AAI = "║";
+static const std::string smallAAI = "│";
+static const std::string ELL = "╚";
+static const std::string smallELL = "└";
+static const std::string JAY = "╝";
+static const std::string smallJAY = "┘";
+static const std::string DASH = "═";
+static const std::string smallDASH = "─";
+
+#else
+
+static const std::string TEE = "*";
+static const std::string smallTEE = ".";
+static const std::string AAI = "|";
+static const std::string smallAAI = "!";
+static const std::string ELL = "\\";
+static const std::string smallELL = "`";
+static const std::string JAY = "/";
+static const std::string smallJAY = "'";
+static const std::string DASH = "_";
+static const std::string smallDASH = "_";
+
+#endif
+
 
 /******************************************************************
  * Debugging Utils
@@ -322,7 +354,6 @@ bool Forest::checkTree(Node const* root) const {
 
 
 
-
 /******************************************************************
  * Tree Printing
  *****************************************************************/
@@ -351,8 +382,8 @@ bool Forest::printTree() const {
     for (position = positions.begin(); position != positions.end(); ++position) {
       assert( *position != NULL );
       if ( (*position)->height() == start_height ) {
-        if ( (*position)->local() || *position == local_root() ) dout << "╦";
-        else dout << "┬";
+          if ( (*position)->local() || *position == local_root() ) dout << TEE;
+          else dout << smallTEE;
         if ( (*position)->countChildren() == 2 ) {
           h_line = 1 + !((*position)->local());
           if ( *position == local_root() ) h_line = 1;
@@ -363,31 +394,31 @@ bool Forest::printTree() const {
       } 
       else if ( (*position)->height() < start_height &&
                 (*position)->parent_height() >= end_height ) {
-        if ( (*position)->local() ) dout << "║";
-        else dout << "│";
+          if ( (*position)->local() ) dout << AAI;
+          else dout << smallAAI;
 
       } 
       else if ( (*position)->parent_height() == start_height ) {
         if ( *position == (*position)->parent()->first_child() ) {
           if ( (*position)->local() ) { 
-            dout << "╚";
+              dout << ELL;
             h_line = 1;
           }
           else {
-            dout << "└";
+              dout << smallELL;
             h_line = 2;
           }
         }
         else {
-          if ( (*position)->local() ) dout << "╝";
-          else dout << "┘";
+            if ( (*position)->local() ) dout << JAY;
+            else dout << smallJAY;
           h_line = 0;
         }
       }
       else {
         if ( h_line == 0 ) dout << " ";
-        else if ( h_line == 1 ) dout << "═";
-        else dout << "─";
+        else if ( h_line == 1 ) dout << DASH;
+        else dout << smallDASH;
       }
     }
     dout << " - " << std::setw(7) << std::setprecision(7) << std::right << start_height << " - "; 
