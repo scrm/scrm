@@ -66,10 +66,21 @@ void OrientedForest::generateTreeData(Node const* node, size_t &pos, int parent_
   parents_.at(pos) = parent_pos;
   parent_pos = pos--;
 
-  if (node->getLocalChild1() != NULL) {
-    generateTreeData(node->getLocalChild1(), pos, parent_pos+1, scaling_factor);
-    if (node->getLocalChild2() != NULL) {
-      generateTreeData(node->getLocalChild2(), pos, parent_pos+1, scaling_factor);
+  Node* local_child_1 = node->getLocalChild1();
+
+  if (local_child_1 != NULL) {
+    Node* local_child_2 = node->getLocalChild2();
+
+    if (local_child_2 != NULL) {
+      // Ensure that identical topologies lead to identical labels of nodes
+      if (local_child_2->height() > local_child_1->height()) {
+        Node* tmp = local_child_1;
+        local_child_1 = local_child_2;
+        local_child_2 = tmp;
+      }
+      generateTreeData(local_child_2, pos, parent_pos+1, scaling_factor);
     }
+
+    generateTreeData(local_child_1, pos, parent_pos+1, scaling_factor);
   }
 }
