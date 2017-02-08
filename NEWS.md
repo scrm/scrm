@@ -1,6 +1,17 @@
 scrm Version History
 ========================
 
+scrm 1.7.3
+------------------------
+Released: Not yet
+
+### Improvements
++ The labeling of internal nodes in the oriented forest output
+  no longer changes within the same tree topology. That makes
+  it easier to identify different topologies.
+
+
+
 scrm 1.7.2
 ------------------------
 Released: 2016-04-10

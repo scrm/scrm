@@ -1,4 +1,4 @@
-AC_INIT([scrm], [1.7.2],[https://github.com/paulstaab/scrm/issues])
+AC_INIT([scrm], [1.7.3],[https://github.com/paulstaab/scrm/issues])
 AM_INIT_AUTOMAKE([subdir-objects -Wall -Werror foreign])
 
 # Use -O3 as default optimization level
