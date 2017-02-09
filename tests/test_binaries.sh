@@ -1,6 +1,13 @@
 #!/bin/bash
 # Test the binaries using scrms build in debug checks 
 
+if [ "$1" == "osx" ]; then
+  echo "On macOS => Skipping valgrind checks"
+  valgrind=0
+else
+  valgrind=1
+fi
+
 make scrm scrm_dbg || exit 1
 make scrm_asan 2> /dev/null
 supports_sanitizers=$?
@@ -32,11 +39,13 @@ function test_scrm {
     fi
 
     # Test for memory leaks
-    valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
-    if [ $? -ne 0 ]; then
-      echo ""
-      echo "Valgrind check of \"./scrm $@ -seed $i\" failed."
-      exit 1
+    if [ $valgrind -ne 0 ]; then
+      valgrind --error-exitcode=1 --leak-check=full -q ./scrm $@ -seed $i > /dev/null
+      if [ $? -ne 0 ]; then
+        echo ""
+        echo "Valgrind check of \"./scrm $@ -seed $i\" failed."
+        exit 1
+      fi
     fi
 
   done

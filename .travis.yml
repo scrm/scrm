@@ -28,7 +28,7 @@ before_script:
 script:
   - make unittests
   - make algorithmtest
-  - ./tests/test_binaries.sh
+  - ./tests/test_binaries.sh "$TRAVIS_OS_NAME"
 before_deploy:
   - ./.travis/build_src_pkg.sh
   - ./.travis/build_static_binaries.sh
