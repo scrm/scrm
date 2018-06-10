@@ -9,7 +9,7 @@ env:
   - CXXFLAGS="-Werror"
   - CXXFLAGS="-Werror" TEST_CXXFLAGS="--coverage"
   - CXXFLAGS="-m32 -Werror"
-  - CXXFLAGS="-Werror -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -frtti" LDFLAGS="-fsanitize=undefined,address"
+  - CXXFLAGS="-Werror -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -frtti" LDFLAGS="-fsanitize=undefined,address" ASAN_OPTIONS='detect_leaks=0:detect_odr_violation=0' RGL_USE_NULL=true
 matrix:
   exclude:
     - os: osx
@@ -21,6 +21,10 @@ matrix:
     - os: linux
       compiler: gcc
       env: CXXFLAGS="-Werror"
+    - compiler: gcc
+      env: CXXFLAGS="-Werror -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -frtti" LDFLAGS="-fsanitize=undefined,address" ASAN_OPTIONS='detect_leaks=0:detect_odr_violation=0' RGL_USE_NULL=true
+    - os: osx
+      env: CXXFLAGS="-Werror -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -frtti" LDFLAGS="-fsanitize=undefined,address" ASAN_OPTIONS='detect_leaks=0:detect_odr_violation=0' RGL_USE_NULL=true
 sudo: required
 dist: trusty
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
