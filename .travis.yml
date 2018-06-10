@@ -9,6 +9,7 @@ env:
   - CXXFLAGS="-Werror"
   - CXXFLAGS="-Werror" TEST_CXXFLAGS="--coverage"
   - CXXFLAGS="-m32 -Werror"
+  - CXXFLAGS="-Werror -fsanitize=address,undefined -fno-sanitize=float-divide-by-zero -fno-omit-frame-pointer -frtti" LDFLAGS="-fsanitize=undefined,address"
 matrix:
   exclude:
     - os: osx
