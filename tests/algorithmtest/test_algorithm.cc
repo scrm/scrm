@@ -41,9 +41,9 @@ class TestAlgorithm : public CppUnit::TestCase {
     
     std::cout << "." << std::flush;
 
-    Forest forest = Forest(&model, this->rg);
     for (size_t i = 0; i < replicates; ++i) {
       // Check initial tree
+      Forest forest = Forest(&model, this->rg);
       forest.buildInitialTree();
       tmrca[0] += forest.getTMRCA(true);
       tree_length[0] += forest.getLocalTreeLength(true);
@@ -58,9 +58,6 @@ class TestAlgorithm : public CppUnit::TestCase {
           tree_length[j] += forest.getLocalTreeLength(true);
         }
       }
-
-      // Clear Forest
-      forest.clear();
     }
 
     // Allow an relative error of 2.5%. It would be nice to calculate
