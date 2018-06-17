@@ -83,8 +83,9 @@ class NodeContainer {
         node_lanes_.push_back(new_lane);
       }
     }
-    (*node_lanes_.at(lane_counter_))[node_counter_] = Node(height, label);
-    return &*(node_lanes_[lane_counter_]->begin() + node_counter_++);
+    ++node_counter_;
+    node_lanes_.at(lane_counter_)->push_back(Node(height, label));
+    return &*(node_lanes_.at(lane_counter_)->end() - 1);
   }
 
   // Create Nodes
@@ -107,8 +108,9 @@ class NodeContainer {
         node_lanes_.push_back(new_lane);
       }
     }
-    (*node_lanes_.at(lane_counter_))[node_counter_] = Node(copiedNode);
-    return &*(node_lanes_[lane_counter_]->begin() + node_counter_++);
+    ++node_counter_;
+    node_lanes_.at(lane_counter_)->push_back(copiedNode);
+    return &*(node_lanes_.at(lane_counter_)->end() - 1);
   }
 
   void push_back(Node* node);
