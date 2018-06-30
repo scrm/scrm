@@ -241,6 +241,9 @@ void NodeContainer::clear() {
 
   // Clear free_slots_
   std::stack<Node*>().swap(free_slots_);
+  
+  // Delete nodes
+  for (std::vector<Node>* lane : node_lanes_) lane->clear();
 }
 
 
