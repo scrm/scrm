@@ -317,7 +317,7 @@ bool Forest::checkTree(Node const* root) const {
     } 
   }
 
-  return child1*child2;
+  return child1 && child2;
 }
 
 
