@@ -28,6 +28,7 @@ class TestParam : public CppUnit::TestCase {
   CPPUNIT_TEST( testScientificNotation );
   CPPUNIT_TEST( testApproximation );
   CPPUNIT_TEST( testTransposeSegSites );
+  CPPUNIT_TEST( testNoMigrationBeforePopSetup );
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -522,6 +523,14 @@ class TestParam : public CppUnit::TestCase {
     model = Param("2 2 -r 10 100 -t 5").parse();
     ss = dynamic_cast<SegSites*>(model.getSummaryStatistic(0));
     CPPUNIT_ASSERT(!ss->get_transpose());
+  }
+
+  void testNoMigrationBeforePopSetup() {
+    CPPUNIT_ASSERT_THROW(Param("2 2 -M 3 -I 2 1 1 1 -t 5").parse(), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(Param("2 2 -m 1 2 3 -I 2 1 1 1 -t 5").parse(), std::invalid_argument);
+    CPPUNIT_ASSERT_THROW(Param("2 2 -G 3 -I 2 1 1 1 -t 5").parse(), std::invalid_argument);
+    CPPUNIT_ASSERT_NO_THROW(Param("2 2 -g 1 3 -I 2 1 1 1 -t 5").parse());
+    CPPUNIT_ASSERT_NO_THROW(Param("6 3 -r 20 200 -I 3 2 2 2 1.0").parse());
   }
 };
 

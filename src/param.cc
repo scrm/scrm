@@ -53,6 +53,9 @@ Model Param::parse() {
        sfs = false,
        transpose = false;
 
+  // Tracks if demographic where added to the model.
+  // After the first demographic feature, defining substructure is no longer allowed.
+  bool has_demographic_feature = false;
 
   // The minimal time at which -eM, -eN, -eG, -eI, -ema and -es are allowed to happen. Is
   // increased by using -es.
@@ -115,6 +118,11 @@ Model Param::parse() {
     // ------------------------------------------------------------------
     // Set number of subpopulations and samples at time 0
     else if (*argv_i == "-I") {
+      // Check that -I is used immediately of the first two mandatory arguments
+      if (has_demographic_feature) {
+        throw std::invalid_argument("Option '-I' must be used before demographic '-M', '-N' or '-G' is used.");
+      }
+
       model.set_population_number(readNextInt());
       std::vector<size_t> sample_size;
       for (size_t i = 0; i < model.population_number(); ++i) {
@@ -147,6 +155,7 @@ Model Param::parse() {
     // Populations sizes 
     // ------------------------------------------------------------------
     else if (*argv_i == "-eN" || *argv_i == "-N") {
+      has_demographic_feature = true;
       if (*argv_i == "-eN") time = readNextInput<double>();
       else time = 0.0;
       if (time < min_time) {
@@ -169,6 +178,7 @@ Model Param::parse() {
     // Exponential Growth 
     // ------------------------------------------------------------------
     else if (*argv_i == "-G" || *argv_i == "-eG") {
+      has_demographic_feature = true;
       if (*argv_i == "-eG") time = readNextInput<double>();
       else time = 0.0;
       if (time < min_time) {
@@ -226,6 +236,7 @@ Model Param::parse() {
     }
 
     else if (*argv_i == "-M" || *argv_i == "-eM") {
+      has_demographic_feature = true;
       if (*argv_i == "-eM") {
         time = readNextInput<double>();
       }
@@ -233,6 +244,9 @@ Model Param::parse() {
       if (time < min_time) {
         throw std::invalid_argument(std::string("If you use '-M' or '-eM' in a model with population merges ('-es'),") +
                                     std::string("then you need to sort both arguments by time."));
+      }
+      if (model.population_number() == 1) {
+        throw std::invalid_argument("-M and -eM options can not be used if there is just one population");
       }
       model.addSymmetricMigration(time, readNextInput<double>()/(model.population_number()-1), true, true);
     }
