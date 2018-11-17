@@ -266,8 +266,8 @@ class TestParam : public CppUnit::TestCase {
 
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model.default_pop_size(), model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 0.5, model.single_mig_pop(1, 2) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.single_mig_pop(2, 1) );
+    // CPPUNIT_ASSERT_EQUAL( 0.5, model.single_mig_pop(1, 2) );
+    // CPPUNIT_ASSERT_EQUAL( 0.0, model.single_mig_pop(2, 1) );
     CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size()), model.migration_rate(0,1)) );
     CPPUNIT_ASSERT( areSame(1.5/(4*model.default_pop_size()), model.migration_rate(1,0)) );
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0,2) );
@@ -293,8 +293,8 @@ class TestParam : public CppUnit::TestCase {
     model.resetTime();
     model.increaseTime();
     CPPUNIT_ASSERT_EQUAL( 1.6 * 4 * model.default_pop_size(), model.getCurrentTime() );
-    CPPUNIT_ASSERT_EQUAL( 1.0, model.single_mig_pop(1, 0) );
-    CPPUNIT_ASSERT_EQUAL( 0.0, model.single_mig_pop(0, 1) );
+    // CPPUNIT_ASSERT_EQUAL( 1.0, model.single_mig_pop(1, 0) );
+    // CPPUNIT_ASSERT_EQUAL( 0.0, model.single_mig_pop(0, 1) );
 
     CPPUNIT_ASSERT_EQUAL( 0.0, model.migration_rate(0, 1) );
     CPPUNIT_ASSERT_EQUAL( 1.3/(4*model.default_pop_size()), model.migration_rate(1, 0) );

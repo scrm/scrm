@@ -50,6 +50,12 @@
 
 class Param;
 
+struct MigEvent {
+  size_t source_pop;
+  size_t sink_pop;
+  double prob;
+};
+
 enum SeqScale { relative, absolute, ms };
 
 class Model
@@ -66,7 +72,6 @@ class Model
 
    Model();
    Model(size_t sample_size);
-
    
    // Default values;
    constexpr static double default_pop_size_ = 10000.0;
@@ -223,10 +228,8 @@ class Model
     *
     * @return The probability/fraction of migration.
     */
-   double single_mig_pop(const size_t source, const size_t sink) const {
-    if (single_mig_probs_list_.at(current_time_idx_).empty()) return 0.0;
-    if (sink == source) return 0.0;
-    return single_mig_probs_list_.at(current_time_idx_).at( getMigMatrixIndex(source, sink) ); 
+   std::vector<MigEvent> single_mig_events() const {
+    return single_mig_list_.at(current_time_idx_);
    }
 
    void setMutationRate(double rate,
@@ -240,7 +243,7 @@ class Model
                              const double seq_position = 0);
 
    bool hasFixedTimeEvent(const double at_time) const {
-     if (single_mig_probs_list_.at(current_time_idx_).empty()) return false; 
+     if (single_mig_list_.at(current_time_idx_).empty()) return false; 
      if (getCurrentTime() != at_time) return false;
      return true;
    }
@@ -473,7 +476,8 @@ class Model
    std::vector<std::vector<double> > growth_rates_list_;
    std::vector<std::vector<double> > mig_rates_list_;
    std::vector<std::vector<double> > total_mig_rates_list_;
-   std::vector<std::vector<double> > single_mig_probs_list_;
+
+   std::vector<std::vector<MigEvent> > single_mig_list_;
 
    // Population sizes are saved as 1/(2N), where N is the actual population
    // size (do to fast multiplication rather than slow division in the

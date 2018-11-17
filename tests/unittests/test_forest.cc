@@ -751,7 +751,6 @@ class TestForest : public CppUnit::TestCase {
 
     CPPUNIT_ASSERT( new_root->population() == 0 );
     forest2->implementFixedTimeEvent(tii);
-    forest2->printTree();
     CPPUNIT_ASSERT( new_root->is_root() );
     CPPUNIT_ASSERT( new_root->population() == 1 );
 
@@ -759,14 +758,14 @@ class TestForest : public CppUnit::TestCase {
     new_root->set_population(0);
     model2->addSingleMigrationEvent(0.5, 1, 2, 1.0);
     forest2->implementFixedTimeEvent(tii);
-    forest2->printTree();
     CPPUNIT_ASSERT( new_root->is_root() );
     CPPUNIT_ASSERT( new_root->population() == 2 );
 
-    // Circe detection
+    // Circes do not cause problems
     model2->addSingleMigrationEvent(0.5, 2, 0, 1.0);
-    CPPUNIT_ASSERT_THROW( forest2->implementFixedTimeEvent(tii),
-                          std::logic_error );
+    forest2->implementFixedTimeEvent(tii);
+    CPPUNIT_ASSERT( new_root->is_root() );
+    CPPUNIT_ASSERT( new_root->population() == 0 );
 
     delete forest2;
     delete model2;

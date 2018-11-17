@@ -95,7 +95,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
     growth_rates_list_.push_back(std::vector<double>());
     mig_rates_list_.push_back(std::vector<double>());
     total_mig_rates_list_.push_back(std::vector<double>());
-    single_mig_probs_list_.push_back(std::vector<double>());
+    single_mig_list_.push_back(std::vector<MigEvent>());
     return position;
   }
 
@@ -113,7 +113,7 @@ size_t Model::addChangeTime(double time, const bool &scaled) {
   growth_rates_list_.insert(growth_rates_list_.begin() + position, std::vector<double>());
   mig_rates_list_.insert(mig_rates_list_.begin() + position, std::vector<double>());
   total_mig_rates_list_.insert(total_mig_rates_list_.begin() + position, std::vector<double>());
-  single_mig_probs_list_.insert(single_mig_probs_list_.begin() + position, std::vector<double>());
+  single_mig_list_.insert(single_mig_list_.begin() + position, std::vector<MigEvent>());
   return position;
 }
 
@@ -433,18 +433,19 @@ void Model::addSingleMigrationEvent(const double time, const size_t source_pop,
                                     const bool &time_scaled) {
 
   size_t position = addChangeTime(time, time_scaled);
-  size_t popnr = population_number();
 
   if ( time < 0.0 ) throw std::invalid_argument("Single migration event: Negative time");
   if ( source_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
   if ( sink_pop >= population_number() ) throw std::invalid_argument("Single migration event: Unknown population");
   if ( fraction < 0.0 || fraction > 1.0 ) throw std::invalid_argument("Single migration event: Fraction out of range");
 
-  if ( single_mig_probs_list_.at(position).empty() ) {
-    single_mig_probs_list_.at(position) = std::vector<double>(popnr*popnr-popnr, 0.0);
+  if ( single_mig_list_.at(position).empty() ) {
+    single_mig_list_.at(position) = std::vector<MigEvent>(0);
   }
 
-  single_mig_probs_list_.at(position).at(getMigMatrixIndex(source_pop, sink_pop)) = fraction;
+  MigEvent migEvent = {source_pop, sink_pop, fraction};
+  single_mig_list_.at(position).push_back(migEvent);
+
   this->has_migration_ = true;
 }
 
@@ -486,13 +487,11 @@ std::ostream& operator<<(std::ostream& os, Model& model) {
       os << std::endl;
     }
 
-    for (size_t i = 0; i < n_pops; ++i) {
-      for (size_t j = 0; j < n_pops; ++j) {
-        if (model.single_mig_pop(i, j) != 0) {
-          os << " " << model.single_mig_pop(i, j) << " of pop "
-             << i + 1 << " move to pop " << j + 1 << std::endl;
-        }
-      }
+    for (MigEvent me : model.single_mig_events()) {
+      os << " " 
+         << me.prob * 100 << "% of pop "
+         << me.source_pop + 1 << " move to pop " 
+         << me.sink_pop + 1 << std::endl;
     }
 
     if (idx < model.countChangeTimes() - 1) model.increaseTime();
@@ -632,7 +631,6 @@ void Model::addPopulation() {
 
   // Change Matrices
   addPopToMatrixList(mig_rates_list_, new_pop);
-  addPopToMatrixList(single_mig_probs_list_, new_pop, 0);
 }
 
 
