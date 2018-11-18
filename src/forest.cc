@@ -1103,39 +1103,29 @@ void Forest::implementMigration(const Event &event, const bool &recalculate, Tim
 void Forest::implementFixedTimeEvent(TimeIntervalIterator &ti) {
   dout << "* * Fixed time event" << std::endl;
   double sample;
-  bool migrated;
-  size_t chain_cnt, pop_number = model().population_number();
+  auto mig_events = model().single_mig_events();
 
   for (size_t i = 0; i < 2; ++i) {
     if (states_[i] != 1) continue;
-    chain_cnt = 0;
-    while (true) {
-      migrated = false;
-      sample = random_generator()->sample();
-
-      for (size_t j = 0; j < pop_number; ++j) {
-        sample -= model().single_mig_pop(active_node(i)->population(), j);
-        if (sample < 0) {
-          tmp_event_ = Event((*ti).start_height());
-          tmp_event_.setToMigration(active_node(i), i, j);
-          implementMigration(tmp_event_, false, ti);
-          migrated = true;
-          break;
-        }
+    
+    sample = random_generator()->sample();
+    for (auto me : mig_events) {
+      if (active_node(i)->population() == me.source_pop) {
+        sample -= me.prob;
       }
 
-      // Stop if no migration occurred
-      if (!migrated) {
-        dout << "* * No fixed time migration occurred" << std::endl;
-        break;
+      if (sample < 0) {
+        dout << "* * * a" << i << ": Migration from " 
+             << me.source_pop << " to " 
+             << me.sink_pop << std::endl;
+        tmp_event_ = Event((*ti).start_height());
+        tmp_event_.setToMigration(active_node(i), i, me.sink_pop);
+        implementMigration(tmp_event_, false, ti);
+        sample = random_generator()->sample();
       }
-
-      // Resolve a maximum of 10k chained events for each node
-      if (chain_cnt == 10000)
-        throw std::logic_error("Circle detected when moving individuals between populations");
-      ++chain_cnt;
     }
   }
+
   assert( printTree() );
 }
 
