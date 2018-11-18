@@ -3,12 +3,23 @@ scrm Version History
 
 scrm 1.7.3
 ------------------------
-Released: Not yet
+Released: 2018-11-18
 
 ### Improvements
 + The labeling of internal nodes in the oriented forest output
   no longer changes within the same tree topology. That makes
   it easier to identify different topologies.
+
+### Bug Fixes
++ Now requires that subpopulation are defined via the `-I` argument
+  before any demographic options for all population (`-M`, `-G` or `-N`)
+  are given (#108).
+  Thanks to Jonathan Terhorst (@terhorst) for reporting this bug.
++ When the multiple of the merge/admixure arguemtns (`-ep`, `-eps` and `-ej`)
+  are used at the time, they are now executed in order in which
+  they are provided on the command line (#121). This behavior now
+  follows ms' implementation. 
+  Thanks to Scott T Small (@stsmall) for reporting this.
 
 
 
