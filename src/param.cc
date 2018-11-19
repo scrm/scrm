@@ -132,7 +132,7 @@ Model Param::parse() {
       // there might or might not follow a symmetric migration rate
       try {
         model.addSymmetricMigration(0.0, readNextInput<double>()/(model.population_number()-1), true, true);
-      } catch (std::invalid_argument e) {
+      } catch (std::invalid_argument& e) {
         --argv_i;
       }
     }
@@ -382,7 +382,7 @@ Model Param::parse() {
       try {
         // Maybe read in up to 3 seeds (ms compatibility)
         for (size_t i = 1; i < 3; ++i) seeds.at(i) = readNextInt();
-      } catch (std::invalid_argument e) {
+      } catch (std::invalid_argument& e) {
         --argv_i;
       }
 
