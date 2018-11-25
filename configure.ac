@@ -52,6 +52,7 @@ AX_CHECK_COMPILE_FLAG([-Wcast-align], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wcast-align"
 AX_CHECK_COMPILE_FLAG([-Wunused], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wunused"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-Woverloaded-virtual], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Woverloaded-virtual"], [], [-Werror])
 AX_CHECK_COMPILE_FLAG([-pedantic], [OPT_CXXFLAGS="$OPT_CXXFLAGS -pedantic"], [], [-Werror])
+AX_CHECK_COMPILE_FLAG([-Wcatch-value], [OPT_CXXFLAGS="$OPT_CXXFLAGS -Wcatch-value"], [], [-Werror])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
