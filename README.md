@@ -45,8 +45,7 @@ Details are available [in the wiki][2].
 
 ## Troubleshooting
 If you encounter problems while using _scrm_, please 
-[file a bug report](https://github.com/scrm/scrm/wiki/Reporting-Bugs) or mail to
-`develop (at) paulstaab.de`.
+[file a bug report](https://github.com/scrm/scrm/wiki/Reporting-Bugs).
 
 
 ## Citation
