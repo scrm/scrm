@@ -13,6 +13,7 @@ make scrm_asan 2> /dev/null
 supports_sanitizers=$?
 if [ "$supports_sanitizers" == "0" ]; then
   echo "Using address sanitizers"
+  export ASAN_OPTIONS=detect_leaks=0
 fi
 
 function test_scrm {
@@ -60,6 +61,7 @@ echo "Testing Initial Tree"
  test_scrm 25 1 -T || exit 1
  test_scrm 10 5 -I 1 5 -eI 1.0 5 -L || exit 1
  test_scrm 10 5 -I 2 2 2 0.5 -eI 1.0 3 3 -L || exit 1
+ test_scrm 3 1 -init tests/tree.newick -t 5 || exit 1
 echo ""
 
 echo "Testing Recombinations"
@@ -67,6 +69,7 @@ echo "Testing Recombinations"
  test_scrm 6 10 -r 1 100 -t 5 -L -T -transpose-segsites -l -1 || exit 1
  test_scrm 8 10 -r 1 100 -t 5 -oSFS -O -l -1 || exit 1
  test_scrm 10 5 -r 5 100 -I 2 2 2 0.5 -eI 1.0 3 3 -L -l -1 || exit 1
+ test_scrm 3 10 -r 5 100 -init tests/tree.newick -t 5 || exit 1
 echo ""
 
 echo "Testing Pruning"

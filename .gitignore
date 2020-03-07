@@ -36,6 +36,7 @@ tests/*working*
 scrm
 scrm_dbg
 scrm_prof
+scrm_asan
 
 # automake
 Makefile

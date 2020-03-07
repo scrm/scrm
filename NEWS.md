@@ -1,6 +1,17 @@
 scrm Version History
 ========================
 
+scrm 1.7.4
+------------------------
+Released: 2020-03-07
+
+### Bug Fixes
++ Fixes the initialization with an inital tree in Newick format (`-init`).
+  Big thanks to @nspope for reporting and locating this bug along with
+  suggesting a fix! 
+
+
+
 scrm 1.7.3
 ------------------------
 Released: 2018-11-18
