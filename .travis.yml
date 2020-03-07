@@ -13,7 +13,7 @@ matrix:
     - os: osx
       env: CXXFLAGS="-m32 -Werror"
 sudo: required
-dist: xenial
+dist: bionic
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
 before_script:
   - ./bootstrap
