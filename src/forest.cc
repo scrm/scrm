@@ -1324,7 +1324,8 @@ Node* Forest::readNewickNode( std::string &in_str, std::string::iterator &it, si
 
 
 void Forest::readNewick( std::string &in_str ){
-  this->current_rec_ = 1;
+  this->set_next_base(0.0);
+  ++current_rec_;
   std::string::iterator it = in_str.begin();
   (void)this->readNewickNode( in_str, it );
   this->set_local_root( this->nodes()->last() );
