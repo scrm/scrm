@@ -26,6 +26,7 @@ before_deploy:
   - ./.travis/build_win_binaries.sh
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
     secure: SUajXy2Uw1gJ0wJ/MLKogMUzGxrbOtr8xlyW0jFpHp0+3CSdbHoRFIEDyd+ieel2E5c1YXvGWXf7C9EuKtXIn1MG5yxclRvQxmh1ySVraVmuUeAEqtT1oNZV16VEFOF+E7gQFwXThTYA/PrCaAEaxlHnRMXrsTKN5Eohw42LxJE=
   file:
