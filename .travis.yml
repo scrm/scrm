@@ -28,7 +28,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: UrEhKzTdSr7NB4ptDYcWKN02XjfgJgN1fNFu8G2a52Jpk1Z3UeenbmKxIDLj11JUlU427br7t1oQyScYSYEGEM5VEI0aWf7D2i9cPfSRD9QYnHOPG2XZE/xgkwWAm0s4TjnTBmudGSxs9g2KRjDXLz1f191jVGIghnHlxw/C9Ok=
+    secure: SUajXy2Uw1gJ0wJ/MLKogMUzGxrbOtr8xlyW0jFpHp0+3CSdbHoRFIEDyd+ieel2E5c1YXvGWXf7C9EuKtXIn1MG5yxclRvQxmh1ySVraVmuUeAEqtT1oNZV16VEFOF+E7gQFwXThTYA/PrCaAEaxlHnRMXrsTKN5Eohw42LxJE=
   file:
     - "scrm-src.tar.gz"
     - "scrm-x64-static"
