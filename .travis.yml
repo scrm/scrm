@@ -12,7 +12,6 @@ matrix:
   exclude:
     - os: osx
       env: CXXFLAGS="-m32 -Werror"
-sudo: required
 dist: bionic
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
 before_script:
@@ -37,7 +36,8 @@ deploy:
     - "scrm-win64.zip"
   on:
     tags: true
-    condition: "$CC = gcc"
-    condition: "$CXXFLAGS == -Werror"
-    condition: "$TRAVIS_OS_NAME == linux"
+    condition: 
+      - "$CC = gcc"
+      - "$CXXFLAGS == -Werror"
+      - "$TRAVIS_OS_NAME == linux"
 
