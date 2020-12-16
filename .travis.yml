@@ -12,21 +12,17 @@ matrix:
   exclude:
     - os: osx
       env: CXXFLAGS="-m32 -Werror"
-
-# Power jobs
+  # Power jobs
   include:
     - os: linux
       arch: ppc64le
-      dist: focal
       compiler: gcc
       env: CXXFLAGS="-Werror"
     - os: linux
       arch: ppc64le
-      dist: focal
       compiler: clang
       env: CXXFLAGS="-Werror"
-      
-dist: bionic
+dist: focal
 before_install: .travis/setup.sh "$TRAVIS_OS_NAME" "$CXX" "$CXXFLAGS"
 before_script:
   - ./bootstrap
