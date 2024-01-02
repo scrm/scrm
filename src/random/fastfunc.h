@@ -24,6 +24,7 @@
 #define scrm_src_random_fastfunc
 
 #include <iostream>
+#include <cstdint>
 #include <cmath>
 #include <vector>
 
